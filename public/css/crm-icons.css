@@ -103,15 +103,17 @@ th svg.crm-icon {
     color: #9ca3af;
 }
 
-/* Sidebar / navbar — legacy CSS targeted <i>; Lucide renders <svg class="crm-icon"> */
+/* Sidebar / navbar — legacy CSS targeted <i>; Lucide replaces <i> with <svg class="crm-icon lucide"> */
 .sidebar-menu li a .crm-icon,
 .sidebar-menu li a svg.crm-icon,
 .sidebar-menu li a svg.lucide {
     width: 28px;
-    height: 15px;
+    height: 16px;
     min-width: 28px;
     margin-right: 10px;
     flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .sidebar-mini .main-sidebar .sidebar-menu > li > a .crm-icon,
@@ -148,18 +150,22 @@ th svg.crm-icon {
 }
 
 /* Replace Font Awesome pseudo-icons after FA CSS removal */
+.main-sidebar .sidebar-menu li .menu-toggle::before,
 .sidebar-menu li .menu-toggle::before {
     font-family: inherit !important;
     content: "+" !important;
     font-weight: 700;
 }
 
+.main-sidebar .sidebar-menu li .menu-toggle::after,
 .sidebar-menu li .menu-toggle::after {
     font-family: inherit !important;
     content: "\2212" !important;
     font-weight: 700;
 }
 
+.main-sidebar .sidebar-menu li ul.dropdown-menu li a::before,
+.main-sidebar .sidebar-menu li ul.dropdown-menu li.active > a::before,
 .sidebar-menu li ul.dropdown-menu li a::before,
 .sidebar-menu li ul.dropdown-menu li.active > a::before {
     font-family: inherit !important;
@@ -167,8 +173,17 @@ th svg.crm-icon {
     font-weight: 700;
 }
 
+.main-sidebar .sidebar-menu li ul.dropdown-menu li a.has-dropdown::after,
+.sidebar-mini .main-sidebar .sidebar-menu > li ul.dropdown-menu li a.has-dropdown::after,
 .sidebar-menu li ul.dropdown-menu li a.has-dropdown::after {
     font-family: inherit !important;
     content: "\203A" !important;
+    font-weight: 700;
+}
+
+/* Theme settings panel (was FA checkmark on active swatch) */
+.settingSidebar ul.choose-theme li.active div::after {
+    font-family: inherit !important;
+    content: "\2713" !important;
     font-weight: 700;
 }

@@ -28,8 +28,6 @@
 	<!-- Google Font: Nunito (standardized across CRM) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
-	<!-- Font Awesome 6 -->
-	@include('Elements.font-awesome-styles')
 
 	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
@@ -42,6 +40,8 @@
 	<!-- Custom style CSS -->
 	<link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}">
 	<link rel="stylesheet" href="{{ asset('css/tomselect-bridge.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/tomselect-bridge.css')) }}">
+	<!-- Lucide icons (via IconHelper / crm-icon.js) — after theme CSS so overrides win -->
+	@include('Elements.font-awesome-styles')
 	<!-- Modern Search CSS -->
 	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/modern-search.css')) }}">
 	

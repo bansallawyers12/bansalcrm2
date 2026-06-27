@@ -297,16 +297,16 @@
 				<?php
 					if(array_key_exists('46',  $module_access)) {
 					?>
-					<li class="{{(Route::currentRouteName() == 'invoice.unpaid' || Route::currentRouteName() == 'invoice.paid') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.unpaid')}}">Invoices</a></li>
+					<li class="{{(Route::currentRouteName() == 'invoice.unpaid' || Route::currentRouteName() == 'invoice.paid') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.unpaid')}}">@icon('file-alt')<span>Invoices</span></a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('47',  $module_access)) {
 					?>
-					<li class="{{(Route::currentRouteName() == 'account.payment') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payment')}}">Payment</a></li>
+					<li class="{{(Route::currentRouteName() == 'account.payment') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payment')}}">@icon('dollar-sign')<span>Payment</span></a></li>
 					<?php } ?>
 					
 					<!-- NOTE: Invoice Schedule menu item removed - Invoice Schedule feature has been removed -->
-					<li class="{{(Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payableunpaid')}}">Income Sharing</a></li> 
+					<li class="{{(Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payableunpaid')}}">@icon('exchange-alt')<span>Income Sharing</span></a></li>
 				</ul>
 			</li> 
 			<?php
@@ -328,34 +328,34 @@
 				<?php
 					if(array_key_exists('62',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('reports.client')}}">Client</a></li>
-					<li class=""><a class="nav-link" href="{{route('reports.application')}}">Applications</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.client')}}">@icon('user')<span>Client</span></a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.application')}}">@icon('server')<span>Applications</span></a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('63',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('reports.invoice')}}">Invoice</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.invoice')}}">@icon('file-alt')<span>Invoice</span></a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('64',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('reports.office-visit')}}">Office Check-In</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.office-visit')}}">@icon('sign-in-alt')<span>Office Check-In</span></a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('65',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('reports.saleforecast-application')}}">Sale Forecast</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.saleforecast-application')}}">@icon('chart-bar')<span>Sale Forecast</span></a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('68',  $module_access)) {
 					?>
 					{{-- Task system removed - December 2025 --}}
 					<?php } ?>
-					<li class=""><a class="nav-link" href="{{URL::to('/reports/visaexpires')}}">Visa Expires</a></li>
-					<li class=""><a class="nav-link" href="{{URL::to('/reports/agreementexpires')}}">Agreement Expires</a></li>
+					<li class=""><a class="nav-link" href="{{URL::to('/reports/visaexpires')}}">@icon('calendar')<span>Visa Expires</span></a></li>
+					<li class=""><a class="nav-link" href="{{URL::to('/reports/agreementexpires')}}">@icon('file-contract')<span>Agreement Expires</span></a></li>
 					
 					@if(Auth::user()->role ===1)
-                    <li class=""><a class="nav-link" href="{{route('reports.noofpersonofficevisit')}}">Office Visit Report Date wise</a></li>
+                    <li class=""><a class="nav-link" href="{{route('reports.noofpersonofficevisit')}}">@icon('chart-bar')<span>Office Visit Report Date wise</span></a></li>
                     @endif
                     
 				</ul> 
