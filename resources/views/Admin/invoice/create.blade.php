@@ -487,5 +487,7 @@
 </div>
 @endsection
 @section('scripts')
-<script src="{{ asset('js/pages/admin/invoice-create.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/invoice-create.js')) }}" defer></script>
+@push('scripts')
+	@vite(['resources/js/pages/admin/invoice-create-entry.js'])
+@endpush
 @endsection

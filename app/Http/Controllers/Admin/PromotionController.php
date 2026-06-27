@@ -124,7 +124,7 @@ class PromotionController extends Controller
 				<div class="extra_content">
 					<div class="left">
 						<div class="dropdown d-inline dropdown_ellipsis_icon">
-							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item openpromotonform" data-id="<?php echo $promotion->id; ?>" href="javascript:;">Edit</a>
 							</div>
@@ -176,7 +176,7 @@ class PromotionController extends Controller
 								<div class="input-group">
 									<div class="input-group-prepend"> 
 										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
+											<?php echo \App\Helpers\IconHelper::render('calendar-alt'); ?>
 										</div>
 									</div>
 									<input type="text" name="promotion_start_date" class="form-control datepicker" data-valid="required" autocomplete="off" placeholder="Select Date"  value="<?php echo $obj->promotion_start_date; ?>">
@@ -194,7 +194,7 @@ class PromotionController extends Controller
 								<div class="input-group">
 									<div class="input-group-prepend"> 
 										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
+											<?php echo \App\Helpers\IconHelper::render('calendar-alt'); ?>
 										</div>
 									</div>
 									<input type="text" name="promotion_end_date" class="form-control datepicker" data-valid="required" autocomplete="off" placeholder="Select Date"  value="<?php echo $obj->promotion_end_date; ?>">

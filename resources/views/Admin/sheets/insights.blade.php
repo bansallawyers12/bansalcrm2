@@ -216,7 +216,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/apexcharts.min.js') }}"></script>
+@vite(['resources/js/apexcharts-init.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Flatpickr for date inputs

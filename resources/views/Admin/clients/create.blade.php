@@ -237,16 +237,16 @@
 							<div class="card-header d-flex justify-content-between align-items-center">
 								<div class="header-title-section">
 									<h4 class="mb-1">
-										<i class="fas fa-user-plus text-primary"></i> 
+										@icon('user-plus', 'solid', ['class' => 'text-primary']) 
 										Create Client
 									</h4>
 								</div>
 								<div class="card-header-action">
 								    <a href="{{route('clients.index')}}" class="btn btn-outline-secondary me-2">
-								    	<i class="fas fa-arrow-left"></i> Back
+								    	@icon('arrow-left') Back
 								    </a>
 								    <button type="submit" class="btn btn-primary" onclick="customValidate('add-clients')">
-								    	<i class="fas fa-save"></i> Create Client
+								    	@icon('save') Create Client
 								    </button>
 								</div>
 							</div>
@@ -260,7 +260,7 @@
 						<div class="card section-card">
 							<div class="card-body">
 								<section class="form-section">
-									<h3><i class="fas fa-id-card"></i> Basic Information</h3>
+									<h3>@icon('id-card') Basic Information</h3>
 								<div class="row">
 									<!--<div class="col-3 col-md-3 col-lg-3">
 								    	<div class="form-group profile_img_field">	
@@ -334,7 +334,7 @@
 										<label for="dob">Date of Birth</label>
 										<div class="input-group">
 											<span class="input-group-text">
-												<i class="fas fa-calendar-alt"></i>
+												@icon('calendar-alt')
 											</span>
 												{!! Form::text('dob', old('dob'), array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!} 
 												@if ($errors->has('dob'))
@@ -351,7 +351,7 @@
 										<label for="age">Age</label>
 										<div class="input-group">
 											<span class="input-group-text">
-												<i class="fas fa-calendar-alt"></i>
+												@icon('calendar-alt')
 											</span>
 												{!! Form::text('age', old('age'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Age' ))  !!}
 												@if ($errors->has('age'))
@@ -408,7 +408,7 @@
 						<div class="card section-card">
 							<div class="card-body compact-contact-section">
 								<section class="form-section" style="margin-bottom: 0;">
-									<h3><i class="fas fa-user"></i> Contact Information</h3>
+									<h3>@icon('user') Contact Information</h3>
 								<div class="row">
 									<!-- Phone Number -->
 									<div class="col-md-6 col-sm-12">
@@ -455,7 +455,7 @@
 							<div class="card section-card">
 								<div class="card-body">
 									<section class="form-section">
-										<h3><i class="fas fa-file-contract"></i> Visa Details</h3>
+										<h3>@icon('file-contract') Visa Details</h3>
 									<div class="row">
 										<div class="col-md-4 col-sm-12">
 											<div class="form-group"> 
@@ -486,7 +486,7 @@
 												<label for="visaExpiry">Visa Expiry Date</label>
 												<div class="input-group">
 													<span class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
+														@icon('calendar-alt')
 													</span>
 													{!! Form::text('visaExpiry', old('visaExpiry'), array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
 													@if ($errors->has('visaExpiry'))
@@ -503,7 +503,7 @@
 												<label for="preferredIntake">Preferred Intake</label>
 												<div class="input-group">
 													<span class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
+														@icon('calendar-alt')
 													</span>
 													{!! Form::text('preferredIntake', old('preferredIntake'), array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select intake date' ))  !!}
 													@if ($errors->has('preferredIntake'))
@@ -556,7 +556,7 @@
 					<!-- Address Information & Related Files -->
 					<div class="form-content-section">
 						<section class="form-section">
-							<h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
+							<h3>@icon('map-marker-alt') Address Information</h3>
 							{{-- Address Autocomplete Component --}}
 							<div id="addressAutocomplete" 
 								 data-search-route="{{ route('address.search') }}"
@@ -630,7 +630,7 @@
 						</section>
 
 						<section class="form-section">
-							<h3><i class="fas fa-link"></i> Related Files</h3>
+							<h3>@icon('link') Related Files</h3>
 							<div class="content-grid">
 								<div class="form-group" style="grid-column: span 2;">
 									<label for="related_files">Similar Related Files</label>
@@ -647,7 +647,7 @@
 					<!-- Professional Details Section -->
 					<div class="form-content-section">
 						<section class="form-section">
-							<h3><i class="fas fa-briefcase"></i> Professional Details</h3>
+							<h3>@icon('briefcase') Professional Details</h3>
 							<div class="content-grid">
 								<div class="form-group">
 									<label for="nomi_occupation">Nominated Occupation</label>
@@ -700,7 +700,7 @@
 									
 									<!-- English Test Scores & Additional Information Section -->
 									<section class="form-section">
-										<h3><i class="fas fa-language"></i> English Test Scores & Additional Information</h3>
+										<h3>@icon('language') English Test Scores & Additional Information</h3>
 										<div class="english-test-wrapper">
 											<div class="row g-3 mb-3">
 												<div class="col-md-3 col-sm-6">
@@ -787,7 +787,7 @@
 										<div class="card section-card">
 											<div class="card-body">
 												<section class="form-section">
-													<h3><i class="fas fa-cogs"></i> Internal Information</h3>
+													<h3>@icon('cogs') Internal Information</h3>
 												<div class="row" id="internal">
 													<div class="col-sm-3">
 										<div class="form-group">
@@ -937,6 +937,10 @@
 
 @section('scripts')
 
+@push('scripts')
+	@vite(['resources/js/pages/admin/client-create-entry.js'])
+@endpush
+
 <!-- Configuration for Page-Specific JavaScript -->
 <script>
     window.AppConfig = window.AppConfig || {};
@@ -957,17 +961,9 @@
     PageConfig.isCreatePage = true;
 </script>
 
-{{-- Page-Specific JavaScript --}}
-<script src="{{ asset('js/pages/admin/client-create.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-create.js')) }}"></script>
-
 {{-- Address Autocomplete Styles --}}
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/address-autocomplete.css') }}">
-@endpush
-
-{{-- Address Autocomplete Scripts --}}
-@push('scripts')
-    <script src="{{ asset('js/address-autocomplete.js') }}"></script>
 @endpush
 
 <!-- Naati/PY Checkbox Handling -->

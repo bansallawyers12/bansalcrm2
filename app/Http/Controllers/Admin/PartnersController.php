@@ -2704,17 +2704,17 @@ class PartnersController extends Controller
 					<div class="branch_content">
 						<h4><?php echo $branch->name; ?></h4>
 						<div class="" style="margin-top: 15px!important;">
-							<p><i class="fas fa-map-marker-alt" style="margin-right: 10px!important;"></i> <?php echo $branch->city; ?>, <?php echo $branch->country ?? '-'; ?></p>
+							<p><?php echo \App\Helpers\IconHelper::render('map-marker-alt', 'solid', ['attrs' => ['style' => 'margin-right: 10px!important;']]); ?> <?php echo $branch->city; ?>, <?php echo $branch->country ?? '-'; ?></p>
 						</div>
 					</div>
 					<div class="extra_content">
 						<div class="left">
-							<p><i class="fas fa-phone" style="margin-right: 20px!important;"></i> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
+							<p><?php echo \App\Helpers\IconHelper::render('phone', 'solid', ['attrs' => ['style' => 'margin-right: 20px!important;']]); ?> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
 							<p><?php echo \App\Helpers\IconHelper::render('envelope', 'regular', ['attrs' => ['style' => 'margin-right: 20px!important;']]); ?> <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
 						</div>  
 						<div class="right">
 							<div class="dropdown d-inline dropdown_ellipsis_icon">
-								<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+								<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 								<div class="dropdown-menu">
 									<a class="dropdown-item openbranchform" data-id="<?php echo $branch->id; ?>" href="javascript:;">Edit</a>
 									<a data-id="<?php echo $branch->id; ?>" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -4421,7 +4421,7 @@ class PartnersController extends Controller
 
                     <div class="right" style="float: right;width: 15px;">
 						<div class="dropdown d-inline dropdown_ellipsis_icon">
-							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item opennoteform" data-id="<?php echo $list->id; ?>" href="javascript:;">Edit</a>
                                 <?php if(Auth::user()->role == 1){ ?>
@@ -4545,7 +4545,7 @@ class PartnersController extends Controller
 					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
                         <td style="white-space: initial;">
                             <div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name; ?><?php echo '.'.$fetch->filetype; ?></span>
+                                <?php echo \App\Helpers\IconHelper::render('file-image'); ?> <span><?php echo $fetch->file_name; ?><?php echo '.'.$fetch->filetype; ?></span>
                             </div>
                         </td>
 						<td style="white-space: initial;"><?php echo $admin->first_name; ?></td>
@@ -4602,12 +4602,12 @@ class PartnersController extends Controller
 					<div class="grid_list">
 						<div class="grid_col">
 							<div class="grid_icon">
-								<i class="fas fa-file-image"></i>
+								<?php echo \App\Helpers\IconHelper::render('file-image'); ?>
 							</div>
 							<div class="grid_content">
 								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
-									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 									<div class="dropdown-menu">
 										<?php
                                         if( isset($fetch->myfile_key) && $fetch->myfile_key !="")

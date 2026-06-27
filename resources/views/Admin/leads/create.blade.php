@@ -970,6 +970,10 @@
 
 @section('scripts')
 
+@push('scripts')
+	@vite(['resources/js/pages/admin/client-create-entry.js'])
+@endpush
+
 <!-- Configuration for Page-Specific JavaScript -->
 <script>
     window.AppConfig = window.AppConfig || {};
@@ -991,9 +995,6 @@
     // Page-specific data for create
     PageConfig.isCreatePage = true;
 </script>
-
-{{-- Load Client Create JavaScript for Shared Functionality --}}
-<script src="{{ asset('js/pages/admin/client-create.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-create.js')) }}"></script>
 
 {{-- Page-Specific JavaScript --}}
 <script>
@@ -1059,11 +1060,6 @@ $(document).ready(function($){
 {{-- Address Autocomplete Styles --}}
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/address-autocomplete.css') }}">
-@endpush
-
-{{-- Address Autocomplete Scripts --}}
-@push('scripts')
-    <script src="{{ asset('js/address-autocomplete.js') }}"></script>
 @endpush
 
 <!-- Naati/PY Checkbox Handling -->

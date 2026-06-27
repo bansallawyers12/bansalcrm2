@@ -237,7 +237,7 @@
 				<!-- Validation Errors Summary -->
 				@if ($errors->any())
 					<div class="alert alert-danger alert-dismissible fade show" role="alert">
-						<strong><i class="fas fa-exclamation-triangle"></i> Please fix the following errors:</strong>
+						<strong>@icon('exclamation-triangle') Please fix the following errors:</strong>
 						<ul class="mb-0 mt-2">
 							@foreach ($errors->all() as $error)
 								<li>{{ $error }}</li>
@@ -249,7 +249,7 @@
 				
 				<!-- Client-side validation summary (shown when Save fails before submit) -->
 				<div id="edit-clients-js-validation-alert" class="alert alert-danger mb-3" role="alert" style="display:none;">
-					<strong><i class="fas fa-exclamation-triangle"></i> Some required fields need to be filled. Please check the highlighted fields below.</strong>
+					<strong>@icon('exclamation-triangle') Some required fields need to be filled. Please check the highlighted fields below.</strong>
 				</div>
 				
 				<!-- Page Header -->
@@ -259,17 +259,17 @@
 							<div class="card-header d-flex justify-content-between align-items-center">
 								<div class="header-title-section">
 									<h4 class="mb-1">
-										<i class="fas fa-user-edit text-primary"></i> 
+										@icon('user-edit', 'solid', ['class' => 'text-primary']) 
 										Edit Client: {{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}
 									</h4>
 									<small class="text-muted">Client ID: <span class="badge badge-secondary">{{ @$fetchedData->client_id }}</span></small>
 								</div>
 								<div class="card-header-action">
 								    <a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$fetchedData->id))) }}" class="btn btn-outline-secondary me-2">
-								    	<i class="fas fa-arrow-left"></i> Back
+								    	@icon('arrow-left') Back
 								    </a>
 								    <button type="button" class="btn btn-primary" onclick="return validateEditClientForm()">
-								    	<i class="fas fa-save"></i> Save Changes
+								    	@icon('save') Save Changes
 								    </button>
 								</div>
 							</div>
@@ -283,7 +283,7 @@
 						<div class="card section-card">
 							<div class="card-body">
 								<section class="form-section">
-									<h3><i class="fas fa-id-card"></i> Basic Information</h3>
+									<h3>@icon('id-card') Basic Information</h3>
 								<div class="row">
 									<!--<div class="col-3 col-md-3 col-lg-3">
 								    	<div class="form-group profile_img_field">	
@@ -295,7 +295,7 @@
 													@else
 														<img id="output"/> 
 													@endif
-														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fas fa-camera if_image"></i>
+														{!! \App\Helpers\IconHelper::render('camera', 'solid', ['class' => 'if_image', 'attrs' => ['style' => @$fetchedData->profile_img != '' ? 'display:none;' : '']]) !!}
 														<span <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="if_image">Upload Profile Image</span>
 													</div>
 													<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
@@ -357,7 +357,7 @@
 										<label for="dob">Date of Birth</label>
 										<div class="input-group">
 											<span class="input-group-text">
-												<i class="fas fa-calendar-alt"></i>
+												@icon('calendar-alt')
 											</span>
 												<?php
 													$dob = old('dob');
@@ -380,7 +380,7 @@
 										<label for="age">Age</label>
 										<div class="input-group">
 											<span class="input-group-text">
-												<i class="fas fa-calendar-alt"></i>
+												@icon('calendar-alt')
 											</span>
 												{!! Form::text('age', @$fetchedData->age, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Age' ))  !!}
 												@if ($errors->has('age'))
@@ -437,15 +437,15 @@
 						<div class="card section-card">
 							<div class="card-body compact-contact-section">
 								<section class="form-section" style="margin-bottom: 0;">
-									<h3><i class="fas fa-user"></i> Contact Information</h3>
+									<h3>@icon('user') Contact Information</h3>
 								<div class="row">
 									<!-- Phone Numbers - Left Side -->
 									<div class="col-md-6 col-sm-12">
 										<div class="contact-subsection">
 											<div class="d-flex justify-content-between align-items-center mb-2">
-												<label class="section-label mb-0"><i class="fas fa-phone-alt"></i> Phone Numbers</label>
+												<label class="section-label mb-0">@icon('phone-alt') Phone Numbers</label>
 												<a href="javascript:;" class="btn btn-xs btn-primary openclientphonenew">
-													<i class="fas fa-plus"></i> Add
+													@icon('plus') Add
 												</a>
 											</div>
 											@if ($errors->has('contact_type') || $errors->has('client_phone'))
@@ -498,19 +498,19 @@
 																data-country="<?php echo htmlspecialchars($countryCode); ?>"
 																data-phone="<?php echo htmlspecialchars($phone); ?>"
 																title="Edit">
-																<i class="fas fa-edit"></i>
+																@icon('edit')
 															</a>
 															<?php if($contactType == "Personal") {
 																$cp = !empty($phoneId) ? \App\Models\ClientPhone::find($phoneId) : null;
 																if ($cp && $cp->is_verified) {
-																	echo '<span class="verified-badge text-success" title="Verified"><i class="fas fa-check-circle"></i></span>';
+																	echo '<span class="verified-badge text-success" title="Verified">'.\App\Helpers\IconHelper::render('check-circle').'</span>';
 																} elseif ($cp && $cp->canVerify()) {
-																	echo '<button type="button" class="btn btn-sm btn-outline-primary btn-verify-phone" data-client-phone-id="'.(int)$phoneId.'" title="Verify"><i class="fas fa-paper-plane"></i></button>';
+																	echo '<button type="button" class="btn btn-sm btn-outline-primary btn-verify-phone" data-client-phone-id="'.(int)$phoneId.'" title="Verify">'.\App\Helpers\IconHelper::render('paper-plane').'</button>';
 																}
 															} ?>
 															<?php if($contactType != "Personal") { ?>
 																<a href="javascript:;" dataid="<?php echo $iii; ?>" contactid="<?php echo htmlspecialchars($phoneId); ?>" class="deletecontact btn-delete">
-																	<i class="fas fa-trash"></i>
+																	@icon('trash')
 																</a>
 															<?php } ?>
 														</div>
@@ -562,16 +562,16 @@
 																	data-country="{{$clientphone->client_country_code}}"
 																	data-phone="{{$clientphone->client_phone}}"
 																	title="Edit">
-																	<i class="fas fa-edit"></i>
+																	@icon('edit')
 																</a>
 																@if($clientphone->is_verified)
-																<span class="verified-badge text-success" title="Verified"><i class="fas fa-check-circle"></i></span>
+																<span class="verified-badge text-success" title="Verified">@icon('check-circle')</span>
 															@elseif($clientphone->canVerify())
-																<button type="button" class="btn btn-sm btn-outline-primary btn-verify-phone" data-client-phone-id="{{ $clientphone->id }}" title="Verify"><i class="fas fa-paper-plane"></i></button>
+																<button type="button" class="btn btn-sm btn-outline-primary btn-verify-phone" data-client-phone-id="{{ $clientphone->id }}" title="Verify">@icon('paper-plane')</button>
 															@endif
 																<?php if( isset($clientphone->contact_type) && $clientphone->contact_type != "Personal" ) { ?>
 																	<a href="javascript:;" dataid="{{$iii}}" contactid="{{$clientphone->id}}" class="deletecontact btn-delete">
-																		<i class="fas fa-trash"></i>
+																		@icon('trash')
 																	</a>
 																<?php } ?>
 															</div>
@@ -594,9 +594,9 @@
 									<div class="col-md-6 col-sm-12">
 										<div class="contact-subsection">
 											<div class="d-flex justify-content-between align-items-center mb-2">
-												<label class="section-label mb-0"><i class="fas fa-envelope"></i> Email Addresses <span class="text-muted small">(first = primary, stored in system)</span></label>
+												<label class="section-label mb-0">@icon('envelope') Email Addresses <span class="text-muted small">(first = primary, stored in system)</span></label>
 												<a href="javascript:;" class="btn btn-xs btn-primary openclientemailnew">
-													<i class="fas fa-plus"></i> Add
+													@icon('plus') Add
 												</a>
 											</div>
 											@if ($errors->has('email') || $errors->has('email.0'))
@@ -671,9 +671,9 @@
 												<div class="compact-contact-item email-item" id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}">
 													<span class="contact-type-tag">{{ $emailRow->email_type }}</span>
 													@if($idx === 0)
-														<span class="primary-badge me-1" title="Primary email (stored in system)"><i class="fas fa-star text-warning"></i></span>
+														<span class="primary-badge me-1" title="Primary email (stored in system)">@icon('star', 'solid', ['class' => 'text-warning'])</span>
 													@else
-														<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}"><i class="far fa-star text-muted"></i></a>
+														<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}">@icon('star', 'regular', ['class' => 'text-muted'])</a>
 													@endif
 													<span class="contact-email">{{ $emailRow->client_email }}</span>
 													<div class="contact-actions">
@@ -683,17 +683,17 @@
 															data-type="{{ $emailRow->email_type }}"
 															data-email="{{ $emailRow->client_email }}"
 															title="Edit">
-															<i class="fas fa-edit"></i>
+															@icon('edit')
 														</a>
 														@if($emailRow->email_verified)
-															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
+															<span class="verified-badge">@icon('check-circle')</span>
 														@else
 															<button type="button" class="btn-verify manual_email_phone_verified" data-fname="{{ $fetchedData->first_name }}" data-email="{{ $emailRow->client_email }}" data-clientid="{{ $fetchedData->id }}" title="Verify">
-																<i class="fas fa-paper-plane"></i>
+																@icon('paper-plane')
 															</button>
 														@endif
 														<a href="javascript:;" class="deleteemail btn-delete" data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}" title="Delete">
-															<i class="fas fa-trash"></i>
+															@icon('trash')
 														</a>
 													</div>
 													<input type="hidden" name="email[]" value="{{ $emailRow->client_email }}">
@@ -716,7 +716,7 @@
 							<div class="card section-card">
 								<div class="card-body">
 									<section class="form-section">
-										<h3><i class="fas fa-file-contract"></i> Visa Details</h3>
+										<h3>@icon('file-contract') Visa Details</h3>
 									<div class="row">
 										<div class="col-md-4 col-sm-12">
 											<div class="form-group"> 
@@ -755,7 +755,7 @@
 													<label for="visaExpiry">Visa Expiry Date</label>
 													<div class="input-group">
 														<span class="input-group-text">
-															<i class="fas fa-calendar-alt"></i>
+															@icon('calendar-alt')
 														</span>
 														{!! Form::text('visaExpiry', $visa_expiry_date, array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
 														@if ($errors->has('visaExpiry'))
@@ -772,7 +772,7 @@
 													<label for="preferredIntake">Preferred Intake</label>
 													<div class="input-group">
 														<span class="input-group-text">
-															<i class="fas fa-calendar-alt"></i>
+															@icon('calendar-alt')
 														</span>
 														{!! Form::text('preferredIntake', old('preferredIntake', @$fetchedData->preferredIntake), array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select intake date' ))  !!}
 														@if ($errors->has('preferredIntake'))
@@ -825,7 +825,7 @@
 					<!-- Address Information & Related Files -->
 					<div class="form-content-section">
 						<section class="form-section">
-							<h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
+							<h3>@icon('map-marker-alt') Address Information</h3>
 							{{-- Address Autocomplete Component --}}
 							<div id="addressAutocomplete" 
 								 data-search-route="{{ route('address.search') }}"
@@ -908,7 +908,7 @@
 						</section>
 
 						<section class="form-section">
-							<h3><i class="fas fa-link"></i> Related Files</h3>
+							<h3>@icon('link') Related Files</h3>
 							<div class="content-grid">
 								<div class="form-group" style="grid-column: span 2;">
 									<label for="related_files">Similar Related Files</label>
@@ -928,7 +928,7 @@
 					@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
 					<div class="form-content-section">
 						<section class="form-section">
-							<h3><i class="fas fa-briefcase"></i> Professional Details</h3>
+							<h3>@icon('briefcase') Professional Details</h3>
 							<div class="content-grid">
 								<div class="form-group">
 									<label for="nomi_occupation">Nominated Occupation</label>
@@ -993,7 +993,7 @@
 									
 									<!-- English Test Scores & Additional Information Section -->
 									<section class="form-section">
-										<h3><i class="fas fa-language"></i> English Test Scores & Additional Information</h3>
+										<h3>@icon('language') English Test Scores & Additional Information</h3>
 										<?php
 											$testScoreRows = \App\Models\ClientTestScore::where('client_id', $fetchedData->id)->orderBy('updated_at', 'desc')->get();
 											$testscores = $testScoreRows->first(); // single-row UX: show most recent
@@ -1109,7 +1109,7 @@
 										<div class="card section-card">
 											<div class="card-body">
 												<section class="form-section">
-													<h3><i class="fas fa-cogs"></i> Internal Information</h3>
+													<h3>@icon('cogs') Internal Information</h3>
 												<div class="row" id="internal">
 													<div class="col-sm-3">
 										<div class="form-group">
@@ -1258,9 +1258,9 @@
 									<!-- Services Taken Section -->
 									<div class="col-12 mt-4">
 										<div class="services-taken-header d-flex justify-content-between align-items-center mb-3">
-											<h6 class="mb-0"><i class="fas fa-briefcase"></i> Services Taken</h6>
+											<h6 class="mb-0">@icon('briefcase') Services Taken</h6>
 											<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-sm btn-primary serviceTaken">
-												<i class="fas fa-plus"></i> Add Service
+												@icon('plus') Add Service
 											</a>
 										</div>
                                        
@@ -1280,10 +1280,10 @@
 															</span>
 															<div class="service-actions">
 																<a href="javascript:;" class="service_taken_edit text-primary" id="<?php echo $tokenval['id']; ?>" title="Edit">
-																	<i class="fas fa-edit"></i>
+																	@icon('edit')
 																</a>
 																<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="<?php echo $tokenval['id']; ?>" title="Delete">
-																	<i class="fas fa-trash"></i>
+																	@icon('trash')
 																</a>
 															</div>
 														</div>
@@ -1325,7 +1325,7 @@
 												}
 											} else {
 												echo '<div class="no-services-message">';
-												echo '<i class="fas fa-inbox fa-3x text-muted mb-3"></i>';
+												echo \App\Helpers\IconHelper::render('inbox', 'solid', ['size' => '3x', 'class' => 'text-muted mb-3']);
 												echo '<p class="text-muted">No services have been added yet.</p>';
 												echo '<p class="text-muted"><small>Click "Add Service" to create a new service record.</small></p>';
 												echo '</div>';
@@ -1623,7 +1623,7 @@ if($fetchedData->tagname != ''){
 				<input type="hidden" id="verify_otp_client_phone_id" value="">
 				<div id="verifyOtpSendSection">
 					<p class="text-muted">Send a verification code to this phone.</p>
-					<button type="button" class="btn btn-primary" id="verifyOtpSendBtn"><i class="fas fa-paper-plane"></i> Send Code</button>
+					<button type="button" class="btn btn-primary" id="verifyOtpSendBtn">@icon('paper-plane') Send Code</button>
 				</div>
 				<div id="verifyOtpCodeSection" style="display: none;">
 					<label>Enter 6-digit code</label>
@@ -1641,6 +1641,14 @@ if($fetchedData->tagname != ''){
 @endsection
 
 @section('scripts')
+
+@push('scripts')
+	@vite(['resources/js/pages/admin/client-edit-entry.js'])
+@endpush
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/address-autocomplete.css') }}">
+@endpush
 
 @if($showAlert)
     <script>
@@ -1686,25 +1694,6 @@ if($fetchedData->tagname != ''){
     @endif
 </script>
 
-{{-- Common JavaScript Files (load first) --}}
-<script src="{{ asset('js/common/config.js') }}"></script>
-<script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
-<script src="{{ asset('js/common/ui-components.js') }}"></script>
-<script src="{{ asset('js/common/google-maps.js') }}"></script>
-
-{{-- Page-Specific JavaScript (load last) --}}
-<script src="{{ asset('js/pages/admin/client-edit.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-edit.js')) }}"></script>
-
-{{-- Address Autocomplete Styles --}}
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/address-autocomplete.css') }}">
-@endpush
-
-{{-- Address Autocomplete Scripts --}}
-@push('scripts')
-    <script src="{{ asset('js/address-autocomplete.js') }}"></script>
-@endpush
-
 <!-- Phone verification OTP (ClientPhone) -->
 <script>
 jQuery(document).ready(function($){
@@ -1720,7 +1709,7 @@ jQuery(document).ready(function($){
     $('#verifyOtpSendBtn').on('click', function(){
         var id = $('#verify_otp_client_phone_id').val();
         var btn = $(this);
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+        btn.prop('disabled', true).html(crmIconSpinner(' Sending...'));
         $.post(AppConfig.urls.phoneSendOTP, { _token: AppConfig.csrf, client_phone_id: id }, function(r){
             if (r.success) {
                 $('#verifyOtpSendSection').hide();
@@ -1732,7 +1721,7 @@ jQuery(document).ready(function($){
                     if (s <= 0) { clearInterval(verifyResendTimer); $('#verifyOtpResendBtn').prop('disabled', false); }
                 }, 1000);
             } else { alert(r.message || 'Failed to send code'); }
-        }).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Code'); });
+        }).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false).html(crmIcon('paper-plane') + ' Send Code'); });
     });
     $('#verifyOtpVerifyBtn').on('click', function(){
         var id = $('#verify_otp_client_phone_id').val();

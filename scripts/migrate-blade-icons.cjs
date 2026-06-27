@@ -108,6 +108,8 @@ function migrateContent(content) {
 
     content = content.replace(/<i\s+class="([^"]+)"\s*><\/i>/g, replaceTag);
     content = content.replace(/<i\s*\r?\n\s*class="([^"]+)"\s*><\/i>/g, replaceTag);
+    content = content.replace(/<i\s+class="([^"]+)"\s+aria-hidden="[^"]*"\s*><\/i>/g, replaceTag);
+    content = content.replace(/<i\s+aria-hidden="[^"]*"\s+class="([^"]+)"\s*><\/i>/g, replaceTag);
 
     // Inline JS spinner strings in Blade scripts
     content = content.replace(

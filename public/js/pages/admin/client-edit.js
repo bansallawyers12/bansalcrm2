@@ -228,7 +228,7 @@ jQuery(document).ready(function($){
             html += '<div class="contact-actions">';
             
             if(contact_type != 'Personal') {
-                html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete"><i class="fas fa-trash"></i></a>';
+                html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete">' + crmIcon('trash') + '</a>';
             }
             
             html += '</div>';
@@ -465,12 +465,12 @@ jQuery(document).ready(function($){
             
             var html = '<div class="compact-contact-item email-item" id="'+emailDomId+'">';
             html += '<span class="contact-type-tag">'+escapedType+'</span>';
-            html += '<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+emailDomId+'"><i class="far fa-star text-muted"></i></a>';
+            html += '<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+emailDomId+'">' + crmIcon('star', 'regular', { class: 'text-muted' }) + '</a>';
             html += '<span class="contact-email">'+escapedEmail+'</span>';
             html += '<div class="contact-actions">';
-            html += '<a href="javascript:;" class="editclientemail btn-edit" data-email-id="'+emailDomId+'" data-type="'+escapedType+'" data-email="'+escapedEmail+'" title="Edit"><i class="fas fa-edit"></i></a>';
-            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + (App.getPageConfig('clientFirstName') || '') + '" data-email="'+escapedEmail+'" data-clientid="' + (App.getPageConfig('clientId') || '') + '" title="Verify"><i class="fas fa-paper-plane"></i></button>';
-            html += '<a href="javascript:;" class="deleteemail btn-delete" data-email-id="'+emailDomId+'" title="Delete"><i class="fas fa-trash"></i></a>';
+            html += '<a href="javascript:;" class="editclientemail btn-edit" data-email-id="'+emailDomId+'" data-type="'+escapedType+'" data-email="'+escapedEmail+'" title="Edit">' + crmIcon('edit') + '</a>';
+            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + (App.getPageConfig('clientFirstName') || '') + '" data-email="'+escapedEmail+'" data-clientid="' + (App.getPageConfig('clientId') || '') + '" title="Verify">' + crmIcon('paper-plane') + '</button>';
+            html += '<a href="javascript:;" class="deleteemail btn-delete" data-email-id="'+emailDomId+'" title="Delete">' + crmIcon('trash') + '</a>';
             html += '</div>';
             html += '<input type="hidden" name="email[]" value="'+escapedEmail+'">';
             html += '<input type="hidden" name="email_type[]" value="'+escapedType+'">';
@@ -497,9 +497,9 @@ jQuery(document).ready(function($){
                 var id = $el.attr('id');
                 var $existing = $el.find('.set-email-primary, .primary-badge');
                 if (idx === 0) {
-                    $existing.replaceWith('<span class="primary-badge me-1" title="Primary email (stored in system)"><i class="fas fa-star text-warning"></i></span>');
+                    $existing.replaceWith('<span class="primary-badge me-1" title="Primary email (stored in system)">' + crmIcon('star', { class: 'text-warning' }) + '</span>');
                 } else {
-                    $existing.replaceWith('<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+id+'"><i class="far fa-star text-muted"></i></a>');
+                    $existing.replaceWith('<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+id+'">' + crmIcon('star', 'regular', { class: 'text-muted' }) + '</a>');
                 }
             });
         }
@@ -719,8 +719,8 @@ jQuery(document).ready(function($){
                     cardHtml += '<div class="service-card-header">';
                     cardHtml += '<span class="service-type-badge badge badge-' + badgeClass + '">' + value.service_type + '</span>';
                     cardHtml += '<div class="service-actions">';
-                    cardHtml += '<a href="javascript:;" class="service_taken_edit text-primary" id="' + value.id + '" title="Edit"><i class="fas fa-edit"></i></a>';
-                    cardHtml += '<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="' + value.id + '" title="Delete"><i class="fas fa-trash"></i></a>';
+                    cardHtml += '<a href="javascript:;" class="service_taken_edit text-primary" id="' + value.id + '" title="Edit">' + crmIcon('edit') + '</a>';
+                    cardHtml += '<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="' + value.id + '" title="Delete">' + crmIcon('trash') + '</a>';
                     cardHtml += '</div></div>';
                     cardHtml += '<div class="service-card-body">';
                     
@@ -759,7 +759,7 @@ jQuery(document).ready(function($){
                             // Check if no services left, show empty message
                             if($('.services-taken-grid .service-card').length === 0) {
                                 var emptyHtml = '<div class="no-services-message">';
-                                emptyHtml += '<i class="fas fa-inbox fa-3x text-muted mb-3"></i>';
+                                emptyHtml += crmIcon('inbox', { size: '3x', class: 'text-muted mb-3' });
                                 emptyHtml += '<p class="text-muted">No services have been added yet.</p>';
                                 emptyHtml += '<p class="text-muted"><small>Click "Add Service" to create a new service record.</small></p>';
                                 emptyHtml += '</div>';
@@ -852,10 +852,10 @@ jQuery(document).ready(function($){
         const section = $('.additional-contact-section');
         if (section.css('display') == 'none') {
             section.slideDown(300);
-            $(this).html('<i class="fas fa-minus" aria-hidden="true"></i> Hide');
+            $(this).html(crmIcon('minus') + ' Hide');
         } else {
             section.slideUp(300);
-            $(this).html('<i class="fas fa-plus" aria-hidden="true"></i> Add More');
+            $(this).html(crmIcon('plus') + ' Add More');
         }
     });
     

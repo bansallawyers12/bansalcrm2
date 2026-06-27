@@ -191,7 +191,11 @@
 <div id="contextMenuOverlayV2" class="context-menu-overlay" style="display: none;"></div>
 
 <!-- Include necessary JavaScript -->
-<script src="{{ asset('js/emails_v2.js') }}?v={{ $emailsV2AssetVer }}"></script>
+@once
+@push('scripts')
+@vite(['resources/js/pages/admin/emails-v2-entry.js'])
+@endpush
+@endonce
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

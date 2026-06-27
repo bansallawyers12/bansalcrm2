@@ -1172,14 +1172,14 @@ class ClientDocumentController extends Controller
                                     <div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
                                         <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
                                             <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
-                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                                <?php echo \App\Helpers\IconHelper::render('file-image'); ?> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                             </a>
                                         <?php } else {  //For old file upload
                                             $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
                                             $myawsfile = $url.$client_unique_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
                                             ?>
                                             <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-alldocumentlist')">
-                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                                <?php echo \App\Helpers\IconHelper::render('file-image'); ?> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                             </a>
                                         <?php } ?>
                                     </div>
@@ -1194,7 +1194,7 @@ class ClientDocumentController extends Controller
                                             <input type="hidden" name="fileid" value="<?php echo $fetch->id;?>">
                                             <input type="hidden" name="type" value="client">
                                             <input type="hidden" name="doctype" value="documents">
-                                            <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
+                                            <a href="javascript:;" class="btn btn-primary"><?php echo \App\Helpers\IconHelper::render('plus'); ?> Add Document</a>
                                             <input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
                                         </form>
                                     </div>
@@ -1220,12 +1220,12 @@ class ClientDocumentController extends Controller
                         <div class="grid_list">
                             <div class="grid_col">
                                 <div class="grid_icon">
-                                    <i class="fas fa-file-image"></i>
+                                    <?php echo \App\Helpers\IconHelper::render('file-image'); ?>
                                 </div>
                                 <div class="grid_content">
                                     <span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
                                     <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                        <a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                                        <a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
                                         <div class="dropdown-menu">
                                             <?php
                                             //$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
@@ -1435,14 +1435,14 @@ class ClientDocumentController extends Controller
 								<div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
 									<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
 										<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
-											<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+											<?php echo \App\Helpers\IconHelper::render('file-image'); ?> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
 										</a>
 									<?php } else {  //For old file upload
 										$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
 										$myawsfile = $url.$client_unique_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
 										?>
 										<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-alldocumentlist')">
-											<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+											<?php echo \App\Helpers\IconHelper::render('file-image'); ?> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
 										</a>
 									<?php } ?>
 								</div>
@@ -1457,7 +1457,7 @@ class ClientDocumentController extends Controller
 										<input type="hidden" name="fileid" value="<?php echo $fetch->id;?>">
 										<input type="hidden" name="type" value="client">
 										<input type="hidden" name="doctype" value="documents">
-										<a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
+										<a href="javascript:;" class="btn btn-primary"><?php echo \App\Helpers\IconHelper::render('plus'); ?> Add Document</a>
 										<input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
 									</form>
 								</div>
@@ -1475,12 +1475,12 @@ class ClientDocumentController extends Controller
 					<div class="grid_list">
 						<div class="grid_col">
 							<div class="grid_icon">
-								<i class="fas fa-file-image"></i>
+								<?php echo \App\Helpers\IconHelper::render('file-image'); ?>
 							</div>
 							<div class="grid_content">
 								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
-									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 									<div class="dropdown-menu">
 										<?php
                                         //$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
@@ -1658,7 +1658,7 @@ class ClientDocumentController extends Controller
 						<td style="white-space: initial;">
                             <div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
 								<a style="white-space: initial;" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','<?php echo $preview_container_type;?>')">
-                                    <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                    <?php echo \App\Helpers\IconHelper::render('file-image'); ?> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                 </a>
 							</div>
                         </td>
@@ -1694,12 +1694,12 @@ class ClientDocumentController extends Controller
 					<div class="grid_list">
 						<div class="grid_col">
 							<div class="grid_icon">
-								<i class="fas fa-file-image"></i>
+								<?php echo \App\Helpers\IconHelper::render('file-image'); ?>
 							</div>
 							<div class="grid_content">
 								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
-									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 									<div class="dropdown-menu">
 										<a class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
 										<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>

@@ -563,7 +563,7 @@ class Controller extends BaseController
         </div>
             <div class="upload-actions justify-content-between" v-show="value">
                 <span></span>
-                <a cid="<?php echo $fieldname; ?>" class="delete btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                <a cid="<?php echo $fieldname; ?>" class="delete btn btn-sm btn-danger"><?php echo \App\Helpers\IconHelper::render('trash'); ?></a>
             </div>
         </div>
 					</div>
@@ -608,7 +608,7 @@ class Controller extends BaseController
 					var splitvfileid = vfileid.split(',');	
 					var ht = '';
 					for(var i =0; i<splitimg.length; i++ ){	
-						ht += '<div class="gal_item"><input type="hidden" name="imageids[]" value="'+splitvfileid[i]+'"><img style="width: 100px;" class="img-fluid" src="'+splitimg[i]+'"><a href="javascript:;" class="remove_img"><i class="fas fa-trash"></i></a></div>';
+						ht += '<div class="gal_item"><input type="hidden" name="imageids[]" value="'+splitvfileid[i]+'"><img style="width: 100px;" class="img-fluid" src="'+splitimg[i]+'"><a href="javascript:;" class="remove_img"><?php echo \App\Helpers\IconHelper::render('trash'); ?></a></div>';
 						$('.gallery_list').append(ht);
 					}					
 					 

@@ -328,8 +328,8 @@ class ProductsController extends Controller
 					<h4 class="text-info"><?php echo $feeoption->name; ?></h4>
 				</div>
 				<div class="col-md-2">
-					<a href="javascript:;" class="editfeeoption" data-id="<?php echo $feeoption->id; ?>"><i class="fas fa-edit"></i></a>
-					<a href="javascript:;" class="deletenote" data-href="deletefee" data-id="<?php echo $feeoption->id; ?>"><i class="fas fa-trash"></i></a>
+					<a href="javascript:;" class="editfeeoption" data-id="<?php echo $feeoption->id; ?>"><?php echo \App\Helpers\IconHelper::render('edit'); ?></a>
+					<a href="javascript:;" class="deletenote" data-href="deletefee" data-id="<?php echo $feeoption->id; ?>"><?php echo \App\Helpers\IconHelper::render('trash'); ?></a>
 				</div>
 				<div class="col-md-2">
 					<div class="validfor">
@@ -482,7 +482,7 @@ return ob_get_clean();
 											<td>
 												<input value="1" <?php if($feeoptiontype->quotation == 1){ echo 'checked'; } ?> class="add_quotation" type="checkbox" name="add_quotation[]">
 												<?php if($i != 0){ ?>
-												<a href="javascript:;" class="removefeetype"><i class="fas fa-trash"></i></a>
+												<a href="javascript:;" class="removefeetype"><?php echo \App\Helpers\IconHelper::render('trash'); ?></a>
 												<?php } ?>
 											</td>
 									
@@ -500,7 +500,7 @@ return ob_get_clean();
 								</table>	
 							</div>
 							<div class="fee_option_addbtn">
-								<a href="#" class="btn btn-primary"><i class="fas fa-plus"></i> Add Fee</a>
+								<a href="#" class="btn btn-primary"><?php echo \App\Helpers\IconHelper::render('plus'); ?> Add Fee</a>
 							</div>
 							
 						</div>
