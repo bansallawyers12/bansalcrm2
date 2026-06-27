@@ -55,6 +55,28 @@
         return Object.assign({ width: '100%' }, extra);
     }
 
+    /** Searchable assignee dropdowns (staff lists can be long). */
+    function assigneeOpts(dropdownParent) {
+        var opts = { width: '100%' };
+        if (dropdownParent) {
+            opts.dropdownParent = dropdownParent;
+        }
+        return opts;
+    }
+
+    function isTaskGroupSelect(element) {
+        return element.classList.contains('task_group') ||
+            element.id === 'task_group' ||
+            element.name === 'task_group';
+    }
+
+    function optsForSelect(element, dropdownParent) {
+        if (isTaskGroupSelect(element)) {
+            return compactOpts(dropdownParent);
+        }
+        return assigneeOpts(dropdownParent);
+    }
+
     function initInContainer(container) {
         if (typeof initTomSelect !== 'function') {
             return [];
@@ -64,7 +86,6 @@
             return [];
         }
         var dropdownParent = resolveDropdownParent(root, null);
-        var opts = compactOpts(dropdownParent);
         var instances = [];
 
         root.querySelectorAll('select.assigneeselect2, select.task_group, select.assineeselect2').forEach(function (element) {
@@ -74,7 +95,7 @@
             if (!element.classList.contains('tomselect')) {
                 element.classList.add('tomselect');
             }
-            var instance = initTomSelect(element, opts);
+            var instance = initTomSelect(element, optsForSelect(element, dropdownParent));
             if (instance) {
                 instances.push(instance);
             }
@@ -89,7 +110,7 @@
             return null;
         }
         var dropdownParent = resolveDropdownParent(container, element);
-        var opts = compactOpts(dropdownParent);
+        var opts = optsForSelect(element, dropdownParent);
         var optionsHtml = normalizeOptionsHtml(html);
 
         if (typeof reinitTomSelectAfterHtml === 'function') {
