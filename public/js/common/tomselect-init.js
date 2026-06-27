@@ -551,8 +551,11 @@
             return [];
         }
 
-        var dropdownParent = resolveModalDropdownParent(modal);
-        var base = Object.assign({ width: '100%', dropdownParent: dropdownParent }, options || {});
+        var isAddApplicationModal = modal.classList.contains('add_appliation');
+        var base = Object.assign({ width: '100%' }, options || {});
+        if (!isAddApplicationModal) {
+            base.dropdownParent = resolveModalDropdownParent(modal);
+        }
         var instances = [];
 
         modal.querySelectorAll('select.tomselect').forEach(function (element) {
@@ -562,11 +565,20 @@
                 return;
             }
             if (element.tomselect) {
-                return;
+                if (isAddApplicationModal && typeof destroyEnhancedSelect === 'function') {
+                    destroyEnhancedSelect(element);
+                } else {
+                    return;
+                }
             }
             var opts = Object.assign({}, base);
             if (modal.id === 'emailmodal') {
                 opts.dropdownParent = document.body;
+            }
+            // Add Application: omit dropdownParent (same as Assign Staff popover) so the
+            // menu stays on .ts-wrapper and CSS top:100% places it under each control.
+            if (isAddApplicationModal) {
+                opts.maxOptions = null;
             }
             if (element.multiple) {
                 opts.plugins = ensurePlugin(opts.plugins, 'remove_button');

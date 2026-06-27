@@ -18,18 +18,11 @@
         return document.querySelector('.add_appliation');
     }
 
-    function applicationModalDropdownParent(modalEl) {
-        var modal = resolveApplicationModal(modalEl);
-        if (!modal) {
-            return document.body;
-        }
-        return modal.querySelector('.modal-content') || modal;
-    }
-
+    /** Searchable selects; no dropdownParent — menu stays on .ts-wrapper under the control. */
     function applicationModalTomSelectOpts(modalEl, extra) {
         return Object.assign({
             width: '100%',
-            dropdownParent: applicationModalDropdownParent(modalEl)
+            maxOptions: null
         }, extra || {});
     }
 

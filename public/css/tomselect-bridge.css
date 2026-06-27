@@ -83,15 +83,15 @@
     overflow: visible !important;
 }
 
-/* Add Application Modal */
-.add_appliation .ts-wrapper,
-.add_appliation .ts-dropdown {
-    z-index: 9999 !important;
-}
-
+/* Add Application Modal — dropdown on .ts-wrapper (omit dropdownParent; same as Assign Staff popover) */
 .add_appliation .modal-body,
 .add_appliation .modal-content {
     overflow: visible !important;
+}
+
+.add_appliation .ts-wrapper.focus,
+.add_appliation .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
 }
 
 #create_promotion .ts-wrapper,
