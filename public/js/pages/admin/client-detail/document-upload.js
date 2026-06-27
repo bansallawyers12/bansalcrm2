@@ -58,6 +58,12 @@ jQuery(document).ready(function($){
         }
     });
 
+    $(document).on('hidden.bs.modal', '#create_checklist', function () {
+        if (typeof destroyTomSelect === 'function') {
+            destroyTomSelect('#document_type');
+        }
+    });
+
     // Trigger file input when "Add Document" button is clicked
     $(document).on('click', '.allupload_document .btn-primary', function(e) {
         e.preventDefault();

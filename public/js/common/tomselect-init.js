@@ -540,6 +540,10 @@
                 if (opts.closeAfterSelect === undefined) {
                     opts.closeAfterSelect = false;
                 }
+                var multiPlaceholder = element.getAttribute('data-placeholder');
+                if (multiPlaceholder && !opts.placeholder) {
+                    opts.placeholder = multiPlaceholder;
+                }
             }
             var instance = initTomSelect(element, opts);
             if (instance) {

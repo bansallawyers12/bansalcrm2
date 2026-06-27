@@ -9,6 +9,9 @@
 .group_type_section a.active {color:black;}
 .select2-container{z-index:100000;width:315px !important;}
 .countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
+.popover .popover-body { overflow: visible !important; }
+.popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
+.popover .ts-dropdown { z-index: 100001 !important; }
 .action-btns { display: flex; gap: 4px; flex-wrap: nowrap; align-items: center; }
 .action-btns .btn { flex-shrink: 0; }
 .table td { vertical-align: middle; }
@@ -417,7 +420,7 @@ jQuery(document).ready(function($){
         $('#actionPopoverModalBody').html($clone);
         var modalEl = document.getElementById('actionPopoverModal');
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            new bootstrap.Modal(modalEl).show();
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
         } else {
             $(modalEl).modal('show');
         }
@@ -459,7 +462,7 @@ jQuery(document).ready(function($){
 
         var modalEl = document.getElementById('actionPopoverModal');
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            new bootstrap.Modal(modalEl).show();
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
         } else {
             $(modalEl).modal('show');
         }

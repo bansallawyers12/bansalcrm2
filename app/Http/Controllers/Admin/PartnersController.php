@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
+use App\Models\Agent;
 use App\Models\Application;
 use App\Models\Country;
 use App\Models\CrmEmailTemplate;
@@ -846,6 +847,20 @@ class PartnersController extends Controller
 				->all();
 		});
 
+		$partnerDetailSuperAgents = Cache::remember('partner_detail_super_agents_v2', 3600, function () {
+			return Agent::query()
+				->whereRaw("? = ANY(string_to_array(agent_type, ','))", ['Super Agent'])
+				->orderBy('full_name')
+				->get(['id', 'full_name', 'email'])
+				->map(static fn ($agent) => [
+					'id' => $agent->id,
+					'full_name' => $agent->full_name,
+					'email' => $agent->email,
+				])
+				->values()
+				->all();
+		});
+
 		$partnerDetailProducts = Product::query()
 			->where('partner', $partnerId)
 			->orderByDesc('created_at')
@@ -888,6 +903,7 @@ class PartnersController extends Controller
 			'partnerDetailCountries',
 			'partnerDetailEmailTemplates',
 			'partnerDetailStaffAssignees',
+			'partnerDetailSuperAgents',
 			'partnerDetailProducts',
 			'partnerDetailModalApplications',
 			'partnerDetailApplicationWorkflows'

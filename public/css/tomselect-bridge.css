@@ -149,6 +149,31 @@
     overflow: visible !important;
 }
 
+/* Action assign/update modal (completed activities page) */
+#actionPopoverModal .ts-wrapper,
+#actionPopoverModal .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#actionPopoverModal .modal-body,
+#actionPopoverModal .modal-content {
+    overflow: visible !important;
+}
+
+/* Bootstrap popovers (action pages — assign/reassign) */
+.popover .popover-body {
+    overflow: visible !important;
+}
+
+.popover .ts-wrapper {
+    z-index: 100001 !important;
+    width: 100% !important;
+}
+
+.popover .ts-dropdown {
+    z-index: 100001 !important;
+}
+
 .action-page-select-bridge .ts-wrapper {
     z-index: 100000;
     width: 315px !important;

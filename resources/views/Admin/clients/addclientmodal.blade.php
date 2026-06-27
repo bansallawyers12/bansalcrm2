@@ -1536,7 +1536,7 @@
                         <div class="col-6 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="checklist">Select Checklist<span class="span_req">*</span></label>
-							<select data-valid="required" class="form-control tomselect" name="checklist[]" id="checklist" multiple placeholder="Select checklist items...">
+							<select data-valid="required" class="form-control tomselect" name="checklist[]" id="checklist" multiple data-placeholder="Select checklist items...">
 								<?php
 								$eduChkList = \App\Models\DocumentChecklist::where('status',1)->get();
 								foreach($eduChkList as $edulist){

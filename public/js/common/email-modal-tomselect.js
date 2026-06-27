@@ -31,8 +31,8 @@
         var dropdownParent = modal.querySelector('.modal-content') || modal;
         var instances = [];
         modal.querySelectorAll('select.selecttemplate').forEach(function (element) {
-            if (element.tomselect) {
-                return;
+            if (element.tomselect && typeof destroyTomSelect === 'function') {
+                destroyTomSelect(element);
             }
             element.classList.add('tomselect');
             var instance = initCompactTomSelect(element, { dropdownParent: dropdownParent });

@@ -20,15 +20,15 @@
         return el.nodeType === 1 ? el : null;
     }
 
-    function resolveDropdownParent(root) {
-        if (!root) {
-            return null;
+    function normalizeOptionsHtml(html) {
+        if (Array.isArray(html)) {
+            return html.join('');
         }
-        return root.closest('.popover') || root.closest('.modal-content') || root.closest('.modal') || root;
+        return html == null ? '' : String(html);
     }
 
-    function compactOpts(dropdownParent) {
-        var extra = { dropdownParent: dropdownParent, minimumResultsForSearch: Infinity };
+    function compactOpts() {
+        var extra = { dropdownParent: 'body', minimumResultsForSearch: Infinity };
         if (typeof compactTomSelectOptions === 'function') {
             return compactTomSelectOptions(extra);
         }
@@ -43,8 +43,7 @@
         if (!root) {
             return [];
         }
-        var dropdownParent = resolveDropdownParent(root);
-        var opts = compactOpts(dropdownParent);
+        var opts = compactOpts();
         var instances = [];
 
         root.querySelectorAll('select.assigneeselect2, select.task_group, select.assineeselect2').forEach(function (element) {
@@ -68,17 +67,17 @@
         if (!element) {
             return null;
         }
-        var root = resolveElement(container) || element.closest('.popover') || element.closest('.modal-body') || document.body;
-        var opts = compactOpts(resolveDropdownParent(root));
+        var opts = compactOpts();
+        var optionsHtml = normalizeOptionsHtml(html);
 
         if (typeof reinitTomSelectAfterHtml === 'function') {
-            return reinitTomSelectAfterHtml(element, html, opts);
+            return reinitTomSelectAfterHtml(element, optionsHtml, opts);
         }
 
         if (element.tomselect) {
             element.tomselect.destroy();
         }
-        element.innerHTML = html;
+        element.innerHTML = optionsHtml;
         element.classList.add('tomselect');
         return initTomSelect(element, opts);
     }

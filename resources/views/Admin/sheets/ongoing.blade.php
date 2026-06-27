@@ -46,7 +46,7 @@
         border: 1px solid #e3e6f0;
         border-radius: 10px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-        overflow: hidden;
+        overflow: visible;
     }
     .ongoing-filter-card .card-body {
         padding: 0.5rem 0.75rem 0.75rem;

@@ -973,9 +973,16 @@ jQuery(document).ready(function($){
 		$('#metatag_'+v).remove();
 	});
 
-	whenVendorLibsReady(function() {
-		initPartnerFormTomSelects();
-	});
+	(function bootPartnerFormTomSelect() {
+		function run() {
+			initPartnerFormTomSelects();
+		}
+		if (typeof whenTomSelectReady === 'function') {
+			whenTomSelectReady(run);
+		} else {
+			whenVendorLibsReady(run);
+		}
+	})();
 
     
     ////////////////////////////////////////
