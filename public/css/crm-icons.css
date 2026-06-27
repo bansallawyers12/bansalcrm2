@@ -102,3 +102,73 @@ th svg.crm-icon {
 .attachment-icon:not(.attachment-icon-image):not(.attachment-icon-pdf):not(.attachment-icon-word) svg {
     color: #9ca3af;
 }
+
+/* Sidebar / navbar — legacy CSS targeted <i>; Lucide renders <svg class="crm-icon"> */
+.sidebar-menu li a .crm-icon,
+.sidebar-menu li a svg.crm-icon,
+.sidebar-menu li a svg.lucide {
+    width: 28px;
+    height: 15px;
+    min-width: 28px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.sidebar-mini .main-sidebar .sidebar-menu > li > a .crm-icon,
+.sidebar-mini .main-sidebar .sidebar-menu > li > a svg.crm-icon {
+    width: 20px;
+    min-width: 20px;
+    margin-right: 0;
+}
+
+.sidebar-menu li ul.dropdown-menu li a .crm-icon,
+.sidebar-menu li ul.dropdown-menu li a svg.crm-icon {
+    width: auto;
+    min-width: 1em;
+    margin-right: 6px;
+}
+
+.navbar .nav-link .crm-icon,
+.navbar .nav-link svg.crm-icon,
+.navbar .nav-link-lg .crm-icon,
+.navbar .nav-link-lg svg.crm-icon,
+.dropdown-toggle .crm-icon,
+.dropdown-toggle svg.crm-icon,
+.dropdown-item .crm-icon,
+.dropdown-item svg.crm-icon,
+.btn .crm-icon,
+.btn svg.crm-icon {
+    flex-shrink: 0;
+    vertical-align: -0.125em;
+}
+
+.has-icon .crm-icon,
+.has-icon svg.crm-icon {
+    margin-right: 0.35rem;
+}
+
+/* Replace Font Awesome pseudo-icons after FA CSS removal */
+.sidebar-menu li .menu-toggle::before {
+    font-family: inherit !important;
+    content: "+" !important;
+    font-weight: 700;
+}
+
+.sidebar-menu li .menu-toggle::after {
+    font-family: inherit !important;
+    content: "\2212" !important;
+    font-weight: 700;
+}
+
+.sidebar-menu li ul.dropdown-menu li a::before,
+.sidebar-menu li ul.dropdown-menu li.active > a::before {
+    font-family: inherit !important;
+    content: "\203A" !important;
+    font-weight: 700;
+}
+
+.sidebar-menu li ul.dropdown-menu li a.has-dropdown::after {
+    font-family: inherit !important;
+    content: "\203A" !important;
+    font-weight: 700;
+}

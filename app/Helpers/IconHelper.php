@@ -258,9 +258,14 @@ class IconHelper
 
         if (! empty($options['class'])) {
             foreach (preg_split('/\s+/', trim((string) $options['class'])) ?: [] as $extra) {
-                if ($extra !== '') {
-                    $classes[] = $extra;
+                if ($extra === '') {
+                    continue;
                 }
+                if (preg_match('/^(?:fa-)?(xs|sm|lg|1x|2x|3x)$/', $extra, $sizeMatch)) {
+                    $classes[] = self::sizeClass($sizeMatch[1]);
+                    continue;
+                }
+                $classes[] = $extra;
             }
         }
 

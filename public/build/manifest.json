@@ -18,8 +18,8 @@
       "_rolldown-runtime-QTnfLwEv.js"
     ]
   },
-  "_crm-icon-BUJU_c4W.js": {
-    "file": "assets/crm-icon-BUJU_c4W.js",
+  "_crm-icon-bb-9ud7l.js": {
+    "file": "assets/crm-icon-bb-9ud7l.js",
     "name": "crm-icon"
   },
   "_custom-BT4EkuKx.js": {
@@ -42,8 +42,8 @@
     "file": "assets/inactivity-logout-DUxoMnx6.js",
     "name": "inactivity-logout"
   },
-  "_popover-DatvQFyw.js": {
-    "file": "assets/popover-DatvQFyw.js",
+  "_popover-CYvfdU24.js": {
+    "file": "assets/popover-CYvfdU24.js",
     "name": "popover"
   },
   "_rolldown-runtime-QTnfLwEv.js": {
@@ -58,12 +58,12 @@
     ]
   },
   "resources/js/admin-layout-scripts.js": {
-    "file": "assets/admin-layout-scripts-B36eVBOb.js",
+    "file": "assets/admin-layout-scripts-Dds0Hkc6.js",
     "name": "admin-layout-scripts",
     "src": "resources/js/admin-layout-scripts.js",
     "isEntry": true,
     "imports": [
-      "_crm-icon-BUJU_c4W.js",
+      "_crm-icon-bb-9ud7l.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_custom-BT4EkuKx.js",
@@ -73,12 +73,12 @@
     ]
   },
   "resources/js/adminconsole-layout-scripts.js": {
-    "file": "assets/adminconsole-layout-scripts-BBi2iUFX.js",
+    "file": "assets/adminconsole-layout-scripts-Bor9umGO.js",
     "name": "adminconsole-layout-scripts",
     "src": "resources/js/adminconsole-layout-scripts.js",
     "isEntry": true,
     "imports": [
-      "_crm-icon-BUJU_c4W.js",
+      "_crm-icon-bb-9ud7l.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_custom-BT4EkuKx.js",
@@ -87,12 +87,12 @@
     ]
   },
   "resources/js/agent-adminconsole-layout-scripts.js": {
-    "file": "assets/agent-adminconsole-layout-scripts-BO5GBt0F.js",
+    "file": "assets/agent-adminconsole-layout-scripts-D3hS8Tgc.js",
     "name": "agent-adminconsole-layout-scripts",
     "src": "resources/js/agent-adminconsole-layout-scripts.js",
     "isEntry": true,
     "imports": [
-      "_crm-icon-BUJU_c4W.js",
+      "_crm-icon-bb-9ud7l.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_custom-BT4EkuKx.js",
@@ -101,12 +101,12 @@
     ]
   },
   "resources/js/agent-layout-scripts.js": {
-    "file": "assets/agent-layout-scripts-ve2aeHsL.js",
+    "file": "assets/agent-layout-scripts-Cs9GndDe.js",
     "name": "agent-layout-scripts",
     "src": "resources/js/agent-layout-scripts.js",
     "isEntry": true,
     "imports": [
-      "_crm-icon-BUJU_c4W.js",
+      "_crm-icon-bb-9ud7l.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_custom-BT4EkuKx.js",
@@ -146,7 +146,7 @@
     ]
   },
   "resources/js/document-pages-icons.js": {
-    "file": "assets/document-pages-icons-CM_4Q2sc.js",
+    "file": "assets/document-pages-icons-B7EnqBYr.js",
     "name": "document-pages-icons",
     "src": "resources/js/document-pages-icons.js",
     "isEntry": true,
@@ -156,7 +156,7 @@
     ]
   },
   "resources/js/exception-agent-entry.js": {
-    "file": "assets/exception-agent-entry-C1_ypxJ-.js",
+    "file": "assets/exception-agent-entry-DTCp3Rx3.js",
     "name": "exception-agent-entry",
     "src": "resources/js/exception-agent-entry.js",
     "isEntry": true,
@@ -167,7 +167,7 @@
     ]
   },
   "resources/js/exception-entry.js": {
-    "file": "assets/exception-entry-DoG3s-jN.js",
+    "file": "assets/exception-entry-D5oBJAmt.js",
     "name": "exception-entry",
     "src": "resources/js/exception-entry.js",
     "isEntry": true,
@@ -190,7 +190,7 @@
     "isEntry": true
   },
   "resources/js/lucide-init.js": {
-    "file": "assets/lucide-init-CVsbs0Ry.js",
+    "file": "assets/lucide-init-C3AAENzX.js",
     "name": "lucide-init",
     "src": "resources/js/lucide-init.js",
     "isEntry": true,
@@ -199,12 +199,12 @@
     ]
   },
   "resources/js/minimal-layout-scripts.js": {
-    "file": "assets/minimal-layout-scripts-DYRoN7Bx.js",
+    "file": "assets/minimal-layout-scripts-DSveLDsE.js",
     "name": "minimal-layout-scripts",
     "src": "resources/js/minimal-layout-scripts.js",
     "isEntry": true,
     "imports": [
-      "_crm-icon-BUJU_c4W.js",
+      "_crm-icon-bb-9ud7l.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_custom-BT4EkuKx.js"
@@ -226,7 +226,7 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-Cyhv8_NB.js",
+    "file": "assets/client-detail-entry-DDlh0-V5.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
@@ -234,7 +234,7 @@
       "_config-Sgxc2SGK.js",
       "_ui-components-CYgj0lGP.js",
       "_document-context-menu-DYqDQnjJ.js",
-      "_popover-DatvQFyw.js"
+      "_popover-CYvfdU24.js"
     ]
   },
   "resources/js/pages/admin/client-edit-entry.js": {
@@ -274,21 +274,21 @@
     ]
   },
   "resources/js/pages/admin/popover-entry.js": {
-    "file": "assets/popover-entry-i5Y-wl12.js",
+    "file": "assets/popover-entry-DRlFBejI.js",
     "name": "popover-entry",
     "src": "resources/js/pages/admin/popover-entry.js",
     "isEntry": true,
     "imports": [
-      "_popover-DatvQFyw.js"
+      "_popover-CYvfdU24.js"
     ]
   },
   "resources/js/signature-pad-init.js": {
-    "file": "assets/signature-pad-init-BHm8lxLb.js",
+    "file": "assets/signature-pad-init-6oCFdPz_.js",
     "name": "signature-pad-init",
     "src": "resources/js/signature-pad-init.js",
     "isEntry": true,
     "imports": [
-      "_crm-icon-BUJU_c4W.js",
+      "_crm-icon-bb-9ud7l.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js"
     ]

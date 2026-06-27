@@ -20,6 +20,46 @@ const SORT_ICON_MAP = {
 
 let refreshTimer = null;
 
+/** Repair stale/corrupt data-lucide values from cached HTML or unmapped FA slugs. */
+const STALE_LUCIDE_FIXES = {
+    'ngle-down': 'chevron-down',
+    'ngle-left': 'chevron-left',
+    'ngle-right': 'chevron-right',
+    'rrow-left': 'arrow-left',
+    'rrow-right': 'arrow-right',
+    'rrow-down': 'arrow-down',
+    'ile': 'file',
+    'ile-alt': 'file-text',
+    'ile-pdf': 'file-text',
+    'ile-image': 'file-image',
+    'ile-signature': 'signature',
+    'rchive': 'archive',
+    'ticket-alt': 'ticket',
+    'mobile': 'smartphone',
+    'refresh': 'refresh-cw',
+    'bag': 'shopping-bag',
+};
+
+function normalizeDataLucideAttributes(root) {
+    const scope = root || document;
+    const map = (typeof window !== 'undefined' && window.CRM_FA_LUCIDE_MAP) || {};
+
+    scope.querySelectorAll('[data-lucide]').forEach(function (el) {
+        let name = el.getAttribute('data-lucide');
+        if (!name) {
+            return;
+        }
+
+        if (STALE_LUCIDE_FIXES[name]) {
+            name = STALE_LUCIDE_FIXES[name];
+        } else if (map[name]) {
+            name = map[name];
+        }
+
+        el.setAttribute('data-lucide', name);
+    });
+}
+
 function resolveSortLucideName(className) {
     const parts = className.split(/\s+/).filter(Boolean);
     const sortClass = parts.find(function (part) {
@@ -60,6 +100,7 @@ function nodeNeedsIconHydration(node) {
 
 export function refreshCrmIcons(root) {
     hydrateSortIcons(root);
+    normalizeDataLucideAttributes(root);
     createIcons({
         icons,
         attrs: {

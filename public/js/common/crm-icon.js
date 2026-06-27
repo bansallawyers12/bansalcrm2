@@ -14,6 +14,7 @@
         'arrow-right': 'arrow-right',
         'arrows-alt-h': 'arrow-left-right',
         'at': 'at-sign',
+        'bag': 'shopping-bag',
         'ban': 'ban',
         'bars': 'menu',
         'bell': 'bell',
@@ -90,6 +91,7 @@
         'magic': 'wand-sparkles',
         'map-marker-alt': 'map-pin',
         'minus': 'minus',
+        'mobile': 'smartphone',
         'paperclip': 'paperclip',
         'paper-plane': 'send',
         'pen': 'pen',
@@ -101,6 +103,7 @@
         'print': 'printer',
         'question': 'circle-question-mark',
         'redo': 'rotate-cw',
+        'refresh': 'refresh-cw',
         'reply': 'reply',
         'save': 'save',
         'search': 'search',
@@ -128,6 +131,7 @@
         'tag': 'tag',
         'tasks': 'list-checks',
         'thumbtack': 'pin',
+        'ticket-alt': 'ticket',
         'times': 'x',
         'times-circle': 'circle-x',
         'toggle-on': 'toggle-right',
@@ -253,9 +257,14 @@
 
         if (options.class) {
             options.class.split(/\s+/).forEach(function (part) {
-                if (part) {
-                    classes.push(part);
+                if (!part) {
+                    return;
                 }
+                if (/^(?:fa-)?(xs|sm|lg|1x|2x|3x)$/.test(part)) {
+                    classes.push(sizeClass(part.replace(/^fa-/, '')));
+                    return;
+                }
+                classes.push(part);
             });
         }
 
@@ -342,4 +351,6 @@
     if (typeof global.refreshCrmIcons !== 'function') {
         global.refreshCrmIcons = refreshCrmIconsStub;
     }
+
+    global.CRM_FA_LUCIDE_MAP = FA_TO_LUCIDE;
 })(window);
