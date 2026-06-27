@@ -94,6 +94,26 @@
     z-index: 100002 !important;
 }
 
+/* Long selected labels (Partner & Branch, Product) — grow control height when text wraps */
+.add_appliation .ts-wrapper.single {
+    height: auto;
+}
+
+.add_appliation .ts-wrapper.single .ts-control {
+    height: auto;
+    min-height: calc(1.5em + 0.75rem + 2px);
+    overflow: visible;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.add_appliation .ts-wrapper.single .ts-control > .item {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+    width: calc(100% - 2.25rem);
+}
+
 #create_promotion .ts-wrapper,
 #create_promotion .ts-dropdown,
 #edit_promotion .ts-wrapper,
