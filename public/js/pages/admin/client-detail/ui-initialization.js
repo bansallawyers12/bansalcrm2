@@ -5,16 +5,9 @@
 
 (function() {
     jQuery(document).ready(function($){
-        if (typeof initTomSelect === 'function' && $('#emailmodal .selecttemplate').length) {
-            var emailModal = document.querySelector('#emailmodal');
-            var dropdownParent = emailModal
-                ? (emailModal.querySelector('.modal-content') || emailModal)
-                : document.body;
-            initTomSelect('#emailmodal .selecttemplate', {
-                width: '100%',
-                dropdownParent: dropdownParent
-            });
-        }
+        // Email template select is initialized by email-modal-tomselect.js on #emailmodal shown.bs.modal.
+        // Do NOT init here while the modal is hidden — dropdownParent would bind to a hidden element,
+        // causing the dropdown to render off-screen. The shown.bs.modal handler re-inits correctly.
 
         // Flatpickr replacements for receipt forms
         if (typeof flatpickr !== 'undefined') {

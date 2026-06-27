@@ -6,6 +6,9 @@
 .fc-event-container .fc-h-event{cursor:pointer;}
 #openassigneview .modal-body ul.navbar-nav li .dropdown-menu{transform: none!important; top:40px!important;}
 .sort_col a { color: #212529 !important; font-weight: 700 !important;}
+.popover .popover-body { overflow: visible !important; }
+.popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
+.popover .ts-dropdown { z-index: 100001 !important; }
 </style>
 <!-- Main Content -->
 <div class="main-content">

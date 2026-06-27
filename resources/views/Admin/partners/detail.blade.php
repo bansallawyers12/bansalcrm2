@@ -1605,12 +1605,11 @@ use App\Http\Controllers\Controller;
 						<div class="col-md-12">
 							<div class="form-group mb-3">
 								<label for="agreement_represent_region">Representing Regions</label>
-								<select class="form-control tomselect" multiple name="represent_region[]" id="agreement_represent_region">
-									<option value="">Select</option>
-									@foreach($partnerDetailCountries as $list)
-										<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>
-									@endforeach
-								</select>
+							<select class="form-control tomselect" multiple name="represent_region[]" id="agreement_represent_region" placeholder="Select countries...">
+								@foreach($partnerDetailCountries as $list)
+									<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>
+								@endforeach
+							</select>
 							</div>
 						</div>
 					</div>
@@ -1637,9 +1636,12 @@ use App\Http\Controllers\Controller;
 						<div class="col-md-4">
 							<div class="form-group mb-3">
 								<label for="agreement_default_super_agent">Default Super Agent</label>
-								<select class="form-control tomselect" name="default_super_agent" id="agreement_default_super_agent">
-									<option value="">Select</option>
-								</select>
+							<select class="form-control tomselect" name="default_super_agent" id="agreement_default_super_agent">
+								<option value="">Select</option>
+								@foreach(\App\Models\Agent::whereRaw("? = ANY(string_to_array(agent_type, ','))", ['Super Agent'])->orderBy('first_name')->get() as $sa)
+									<option value="{{ $sa->id }}">{{ trim($sa->first_name . ' ' . $sa->last_name) }} {{ $sa->email ? '(' . $sa->email . ')' : '' }}</option>
+								@endforeach
+							</select>
 							</div>
 						</div>
 						

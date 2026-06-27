@@ -50,6 +50,14 @@ jQuery(document).ready(function($){
         $('.create_alldocument_docs').modal('show');
     });
 
+    // Destroy Tom Select on #openalldocsmodal close so it re-inits cleanly when reopened.
+    $(document).on('hidden.bs.modal', '#openalldocsmodal', function () {
+        var checklistEl = document.getElementById('checklist');
+        if (checklistEl && typeof destroyTomSelect === 'function') {
+            destroyTomSelect(checklistEl);
+        }
+    });
+
     // Trigger file input when "Add Document" button is clicked
     $(document).on('click', '.allupload_document .btn-primary', function(e) {
         e.preventDefault();

@@ -9,6 +9,9 @@
 .group_type_section a.active {color:black;}
 .select2-container{z-index:100000;width:315px !important;}
 .countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
+.popover .popover-body { overflow: visible !important; }
+.popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
+.popover .ts-dropdown { z-index: 100001 !important; }
 </style>
 <!-- Main Content -->
 <div class="main-content">

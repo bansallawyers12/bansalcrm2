@@ -851,7 +851,8 @@ $(document).ready(function() {
             initTomSelectPreserveValue(el, {
                 width: '100%',
                 multiple: true,
-                closeOnSelect: false
+                closeOnSelect: false,
+                dropdownParent: 'body'
             });
         });
     }
@@ -882,7 +883,8 @@ $(document).ready(function() {
         var stageOpts = {
             width: '100%',
             allowClear: true,
-            placeholder: 'All stages'
+            placeholder: 'All stages',
+            dropdownParent: 'body'
         };
         if (typeof initTomSelectPreserveValue === 'function') {
             initTomSelectPreserveValue(stageEl, stageOpts);

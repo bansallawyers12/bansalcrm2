@@ -614,12 +614,12 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="document_type">Document Type <span class="span_req">*</span></label>
-								<select class="form-control " id="document_type" name="document_type" data-valid="required">
-									<option value="">Please Select Document Type</option>
-									<?php foreach(\App\Models\Checklist::all() as $checklist){ ?>
-									<option value="{{$checklist->name}}">{{$checklist->name}}</option>
-									<?php } ?>
-								</select>
+							<select class="form-control tomselect" id="document_type" name="document_type" data-valid="required">
+								<option value="">Please Select Document Type</option>
+								<?php foreach(\App\Models\Checklist::all() as $checklist){ ?>
+								<option value="{{$checklist->name}}">{{$checklist->name}}</option>
+								<?php } ?>
+							</select>
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
@@ -1536,17 +1536,16 @@
                         <div class="col-6 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="checklist">Select Checklist<span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control tomselect" name="checklist[]" id="checklist" multiple>
-									<option value="">Select</option>
-									<?php
-									$eduChkList = \App\Models\DocumentChecklist::where('status',1)->get();
-									foreach($eduChkList as $edulist){
-									?>
-										<option value="{{$edulist->name}}">{{$edulist->name}}</option>
-									<?php
-									}
-									?>
-								</select>
+							<select data-valid="required" class="form-control tomselect" name="checklist[]" id="checklist" multiple placeholder="Select checklist items...">
+								<?php
+								$eduChkList = \App\Models\DocumentChecklist::where('status',1)->get();
+								foreach($eduChkList as $edulist){
+								?>
+									<option value="{{$edulist->name}}">{{$edulist->name}}</option>
+								<?php
+								}
+								?>
+							</select>
 								<span class="custom-error checklist_name_error" role="alert">
 									<strong></strong>
 								</span>

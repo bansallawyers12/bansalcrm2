@@ -18,7 +18,9 @@
 .card .card-body table.table tbody tr td {padding: 8px 5px!important;}
 .table-responsive { overflow: hidden;}
 .dataTables_wrapper .dataTables_filter{float: left !important;margin-left: 310px !important;}
-.popover .popover-body {width: 500px !important;}
+.popover .popover-body {width: 500px !important; overflow: visible !important;}
+.popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
+.popover .ts-dropdown { z-index: 100001 !important; }
 .filter-wrapper div.active {color:blue !important;}
 </style>
 <!-- Main Content -->
