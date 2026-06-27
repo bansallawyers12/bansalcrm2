@@ -16,8 +16,7 @@
     
 		<!-- Icons-->
 			<!-- Removed broken references: @coreui/icons, flag-icon-css, simple-line-icons (not installed) -->
-			<link rel="stylesheet" type="text/css" href="{{asset('icons/font-awesome/css/all.min.css')}}" />
-			<link rel="stylesheet" type="text/css" href="{{asset('icons/font-awesome/css/v4-shims.min.css')}}" />
+			@include('Elements.font-awesome-styles')
 		
 	<!-- Main styles for this application-->
 		@vite(['resources/sass/app.scss'])

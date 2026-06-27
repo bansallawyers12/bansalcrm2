@@ -1154,7 +1154,8 @@
     color: #ef4444;
 }
 
-.attachment-icon.fa-file-alt {
+.attachment-icon.fa-file-alt,
+.attachment-icon.fa-file-lines {
     color: #6b7280;
 }
 

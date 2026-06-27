@@ -8,7 +8,7 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "build:prod": "npm ci && vite build",
+        "build:prod": "npm ci && npm run sync-fontawesome && vite build",
         "sync-fontawesome": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync-fontawesome.ps1"
     },
     "devDependencies": {
