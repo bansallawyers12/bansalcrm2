@@ -34,6 +34,7 @@ mark.search-highlight {
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .modern-search-result:hover {
@@ -137,6 +138,10 @@ mark.search-highlight {
     background-color: #f8f9fa !important;
 }
 
+.select2-dropdown.modern-search-dropdown .select2-results__option[role="option"] {
+    cursor: pointer;
+}
+
 /* Search input styling */
 .select2-search--dropdown .select2-search__field {
     padding: 8px 12px;
@@ -191,6 +196,7 @@ mark.search-highlight {
     border: none;
     opacity: 1 !important;
     animation: fadeInResult 0.2s ease;
+    cursor: pointer;
 }
 
 .ts-dropdown.modern-search-dropdown .option.active,
@@ -220,6 +226,7 @@ mark.search-highlight {
     color: #6c757d;
     font-size: 13px;
     background: #fff;
+    cursor: default;
 }
 
 /* Override tomselect-bridge flex on repository rows — inner content handles layout */
