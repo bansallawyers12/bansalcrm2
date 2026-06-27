@@ -30,6 +30,7 @@
 	
 	<!-- Bootstrap / app JS (vendor-libs loaded in <head>) -->
 	@vite(['resources/js/app.js'])
+	@vite(['resources/js/document-pages-icons.js'])
 
 	<script>
 		$(document).ready(function() {

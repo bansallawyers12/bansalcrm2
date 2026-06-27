@@ -674,7 +674,7 @@ $(document).ready(function() {
 	// Refresh button
 	$('#refreshBtn').on('click', function() {
 		var $btn = $(this);
-		var $icon = $btn.find('i');
+		var $icon = $btn.find('svg.crm-icon, i[data-lucide], i.crm-icon').first();
 		
 		// Add spinning animation
 		$icon.addClass('icon-spin');

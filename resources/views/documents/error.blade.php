@@ -142,5 +142,6 @@
             Need help? <a href="mailto:support@bansalcrm.com">Contact Support</a>
         </p>
     </div>
+    @vite(['resources/js/document-pages-icons.js'])
 </body>
 </html>

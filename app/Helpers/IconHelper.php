@@ -293,6 +293,15 @@ class IconHelper
         $classes = self::buildLucideClassList('google', 'brands', $options);
         $classes[] = 'crm-icon-brand';
         $classes[] = 'crm-icon-google';
+
+        if (! empty($options['attrs']) && is_array($options['attrs']) && ! empty($options['attrs']['class'])) {
+            foreach (preg_split('/\s+/', trim((string) $options['attrs']['class'])) ?: [] as $extra) {
+                if ($extra !== '') {
+                    $classes[] = $extra;
+                }
+            }
+        }
+
         $classAttr = implode(' ', array_values(array_unique($classes)));
 
         return '<span class="' . e($classAttr) . '" aria-hidden="true">'

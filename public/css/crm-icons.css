@@ -2,6 +2,7 @@
  * Lucide CRM icons — replaces Font Awesome CSS for @icon() / crmIcon().
  */
 .crm-icon,
+svg.crm-icon,
 .crm-icon svg {
     display: inline-block;
     vertical-align: -0.125em;
@@ -29,30 +30,38 @@
 .crm-icon-google svg path:nth-child(4) { fill: #ea4335; }
 
 .icon-xs,
-.icon-xs svg { width: 0.75em; height: 0.75em; }
+.icon-xs svg,
+svg.icon-xs { width: 0.75em; height: 0.75em; }
 
 .icon-sm,
-.icon-sm svg { width: 0.875em; height: 0.875em; }
+.icon-sm svg,
+svg.icon-sm { width: 0.875em; height: 0.875em; }
 
 .icon-lg,
-.icon-lg svg { width: 1.25em; height: 1.25em; }
+.icon-lg svg,
+svg.icon-lg { width: 1.25em; height: 1.25em; }
 
 .icon-1x,
-.icon-1x svg { width: 1em; height: 1em; }
+.icon-1x svg,
+svg.icon-1x { width: 1em; height: 1em; }
 
 .icon-2x,
-.icon-2x svg { width: 2em; height: 2em; }
+.icon-2x svg,
+svg.icon-2x { width: 2em; height: 2em; }
 
 .icon-3x,
-.icon-3x svg { width: 3em; height: 3em; }
+.icon-3x svg,
+svg.icon-3x { width: 3em; height: 3em; }
 
-.icon-fw {
+.icon-fw,
+svg.icon-fw {
     width: 1.25em;
     text-align: center;
 }
 
 .icon-spin,
-.icon-spin svg {
+.icon-spin svg,
+svg.icon-spin {
     animation: crm-icon-spin 1s linear infinite;
 }
 
@@ -63,13 +72,33 @@
 
 /* Legacy selectors still used in a few stylesheets */
 .fa-spinner,
-.loader-2.icon-spin {
+.loader-circle.icon-spin,
+svg.icon-spin[data-lucide="loader-circle"] {
     animation: crm-icon-spin 1s linear infinite;
 }
 
 th .crm-icon,
-th .crm-icon svg {
+th .crm-icon svg,
+th svg.crm-icon {
     width: 0.875em;
     height: 0.875em;
     opacity: 0.65;
+}
+
+/* Attachment icon colors (Lucide / crmIcon class names) */
+.attachment-icon-image,
+.attachment-icon .crm-icon,
+.attachment-icon svg { color: #3b82f6; }
+
+.attachment-icon-pdf,
+.attachment-icon-pdf .crm-icon,
+.attachment-icon-pdf svg { color: #ef4444; }
+
+.attachment-icon-word,
+.attachment-icon-word .crm-icon,
+.attachment-icon-word svg { color: #6b7280; }
+
+.attachment-icon .crm-icon:not([class*="attachment-icon-"]),
+.attachment-icon:not(.attachment-icon-image):not(.attachment-icon-pdf):not(.attachment-icon-word) svg {
+    color: #9ca3af;
 }

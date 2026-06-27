@@ -720,7 +720,8 @@
 
 /* Loading spinner for email list */
 .email-v2-list .icon-spin,
-.email-v2-list .fa-spinner {
+.email-v2-list .fa-spinner,
+.email-v2-list svg.icon-spin {
     font-size: 24px;
     color: #007bff;
 }
@@ -1194,7 +1195,10 @@
 .preview-btn .icon-spin,
 .download-btn .fa-spinner,
 .download-all-btn .fa-spinner,
-.preview-btn .fa-spinner {
+.preview-btn .fa-spinner,
+.download-btn svg.icon-spin,
+.download-all-btn svg.icon-spin,
+.preview-btn svg.icon-spin {
     animation: spin 1s linear infinite;
 }
 

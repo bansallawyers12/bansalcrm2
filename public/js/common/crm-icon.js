@@ -68,7 +68,7 @@
         'file-excel': 'file-spreadsheet',
         'file-image': 'file-image',
         'file-pdf': 'file-text',
-        'file-signature': 'file-signature',
+        'file-signature': 'signature',
         'file-word': 'file-type',
         'filter': 'funnel',
         'flag': 'flag',
@@ -98,7 +98,7 @@
         'phone-alt': 'phone',
         'plus': 'plus',
         'print': 'printer',
-        'question': 'circle-help',
+        'question': 'circle-question-mark',
         'redo': 'rotate-cw',
         'reply': 'reply',
         'save': 'save',
@@ -113,13 +113,13 @@
         'sort': 'arrow-up-down',
         'sort-down': 'chevron-down',
         'sort-up': 'chevron-up',
-        'sort-alpha-down': 'arrow-down-a',
-        'sort-alpha-up': 'arrow-up-a',
+        'sort-alpha-down': 'arrow-down-a-z',
+        'sort-alpha-up': 'arrow-up-a-z',
         'sort-amount-down': 'arrow-down-wide-narrow',
         'sort-amount-up': 'arrow-up-wide-narrow',
         'sort-numeric-down': 'arrow-down-1-0',
         'sort-numeric-up': 'arrow-up-1-0',
-        'spinner': 'loader-2',
+        'spinner': 'loader-circle',
         'star': 'star',
         'sticky-note': 'sticky-note',
         'suitcase': 'briefcase',
@@ -138,7 +138,7 @@
         'upload': 'upload',
         'user': 'user',
         'user-check': 'user-check',
-        'user-clock': 'user-round-clock',
+        'user-clock': 'clock',
         'user-edit': 'user-pen',
         'user-plus': 'user-plus',
         'user-shield': 'shield-user',
@@ -270,6 +270,12 @@
 
         var classes = buildLucideClasses(faSlug, style, options || {}, legacyClassString);
         var attrs = options.attrs || {};
+        if (attrs.class) {
+            classes = classes.concat(String(attrs.class).split(/\s+/).filter(Boolean));
+            classes = classes.filter(function (value, index, list) {
+                return list.indexOf(value) === index;
+            });
+        }
         var html = '<i class="' + escapeAttr(classes.join(' ')) + '" data-lucide="' + escapeAttr(lucideName(faSlug)) + '" aria-hidden="true"';
 
         Object.keys(attrs).forEach(function (key) {
@@ -322,8 +328,8 @@
         return crmIcon('spinner', 'solid', { spin: true, class: 'icon-spin' }) + (label ? ' ' + label : '');
     }
 
-    function refreshCrmIcons(root) {
-        if (typeof global.refreshCrmIcons === 'function' && global.refreshCrmIcons !== refreshCrmIcons) {
+    function refreshCrmIconsStub(root) {
+        if (typeof global.refreshCrmIcons === 'function' && global.refreshCrmIcons !== refreshCrmIconsStub) {
             global.refreshCrmIcons(root);
         }
     }
@@ -332,5 +338,7 @@
     global.crmIconFromClass = crmIconFromClass;
     global.crmIconStored = crmIconStored;
     global.crmIconSpinner = crmIconSpinner;
-    global.refreshCrmIcons = refreshCrmIcons;
+    if (typeof global.refreshCrmIcons !== 'function') {
+        global.refreshCrmIcons = refreshCrmIconsStub;
+    }
 })(window);
