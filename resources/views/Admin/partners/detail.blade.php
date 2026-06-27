@@ -2308,11 +2308,4 @@ use App\Http\Controllers\Controller;
 @endpush
 @endif
 
-@if($activeTab === 'student')
-<!-- DataTables Buttons Extension for Student tab export only -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-@endif
-
 @endsection
