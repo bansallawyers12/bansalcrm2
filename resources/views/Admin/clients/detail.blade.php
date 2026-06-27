@@ -2938,18 +2938,10 @@ $(function () {
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
 <script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
-<script src="{{ asset('js/common/utilities.js') }}"></script>
 @if($showAlert)
 <script>
 (function () {
-    var msg = "Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?";
-    if (typeof window.toastMsg === 'function') {
-        window.toastMsg(msg, 'warning');
-    } else if (typeof window.showToast === 'function') {
-        window.showToast(msg, 'warning');
-    } else {
-        alert(msg);
-    }
+    window.toastMsg("Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?", 'warning');
 })();
 </script>
 @endif

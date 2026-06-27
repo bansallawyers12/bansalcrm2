@@ -1689,7 +1689,6 @@ if($fetchedData->tagname != ''){
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
 <script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
-<script src="{{ asset('js/common/utilities.js') }}"></script>
 <script src="{{ asset('js/common/ui-components.js') }}"></script>
 <script src="{{ asset('js/common/google-maps.js') }}"></script>
 

@@ -51,14 +51,6 @@
         return JSON.parse(response);
     }
 
-    function toastMsg(message, type) {
-        if (typeof window.showToast === 'function') {
-            window.showToast(message, type);
-        } else if (message) {
-            alert(message);
-        }
-    }
-
     // Now initialize all components
     function initializeComponents() {
         $(document).ready(function () {
@@ -96,13 +88,13 @@
                             },
                             error: function(){
                                 $('.popuploader').hide();
-                                toastMsg('Could not refresh check-in details.', 'error');
+                                window.toastMsg('Could not refresh check-in details.', 'error');
                             }
                         });
                     },
                     error: function(){
                         $('.popuploader').hide();
-                        toastMsg('Could not save visit purpose.', 'error');
+                        window.toastMsg('Could not save visit purpose.', 'error');
                     }
                 });
             });
@@ -128,13 +120,13 @@
                             },
                             error: function(){
                                 $('.popuploader').hide();
-                                toastMsg('Could not refresh check-in details.', 'error');
+                                window.toastMsg('Could not refresh check-in details.', 'error');
                             }
                         });
                     },
                     error: function(){
                         $('.popuploader').hide();
-                        toastMsg('Could not save comment.', 'error');
+                        window.toastMsg('Could not save comment.', 'error');
                     }
                 });
             });
@@ -167,29 +159,29 @@
                                         $('.popuploader').hide();
                                         $('.showchecindetail').html(res);
                                         $('#checkindetailmodal').modal('hide');
-                                        toastMsg(successMessage, 'success');
+                                        window.toastMsg(successMessage, 'success');
                                     },
                                     error: function(){
                                         $('.popuploader').hide();
                                         $('#checkindetailmodal').modal('hide');
-                                        toastMsg(successMessage, 'success');
+                                        window.toastMsg(successMessage, 'success');
                                     }
                                 });
                                 $('.checindata #id_'+appliid).remove();
                             }else{
                                 $('.popuploader').hide();
-                                toastMsg(obj.message || 'Could not attend session.', 'error');
+                                window.toastMsg(obj.message || 'Could not attend session.', 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            toastMsg('Error processing response', 'error');
+                            window.toastMsg('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        toastMsg('Failed to attend session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
+                        window.toastMsg('Failed to attend session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
                     }
                 });
             });
@@ -212,7 +204,7 @@
                                 $('.popuploader').hide();
                                 // Close modal and show message immediately so popup always closes after success
                                 $('#checkindetailmodal').modal('hide');
-                                toastMsg(obj.message || 'Session completed successfully!', 'success');
+                                window.toastMsg(obj.message || 'Session completed successfully!', 'success');
                                 // Update office-visits tab badges (Attending / Completed / Waiting) if counts returned
                                 if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
                                     $('#attending-tab .countAction').text(obj.attending);
@@ -231,18 +223,18 @@
                                 });
                             }else{
                                 $('.popuploader').hide();
-                                toastMsg(obj.message || 'Could not complete session.', 'error');
+                                window.toastMsg(obj.message || 'Could not complete session.', 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            toastMsg('Error processing response', 'error');
+                            window.toastMsg('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        toastMsg('Failed to complete session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
+                        window.toastMsg('Failed to complete session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
                     }
                 });
             });
@@ -262,7 +254,7 @@
                         },
                         error: function(){
                             $('.popuploader').hide();
-                            toastMsg('Could not load check-in details.', 'error');
+                            window.toastMsg('Could not load check-in details.', 'error');
                         }
                     });
             });

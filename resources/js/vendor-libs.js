@@ -64,20 +64,7 @@ window.showToast = function (message, type) {
 };
 window.showLegacyToast = window.showToast;
 
-/**
- * Fallback-aware toast helper for legacy alert() migration.
- * @param {string} message
- * @param {'success'|'error'|'warning'|'info'} [type]
- */
-window.toastMsg = function (message, type) {
-    if (typeof window.showToast === 'function') {
-        window.showToast(message, type);
-    } else if (message) {
-        alert(message);
-    }
-};
-
-// But we can also expose them explicitly if needed
+// toastMsg lives in public/js/common/utilities.js (loaded from admin layouts)
 
 // Create a promise that resolves when all plugins are ready
 const waitForPlugins = () => {

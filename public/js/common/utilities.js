@@ -5,6 +5,7 @@
  * - parseTime: Parse time string to number
  * - convertHours: Convert hours to time string
  * - errorMessage: Format error messages
+ * - toastMsg: Show toast notification (fallback to alert)
  * 
  * Usage:
  *   parseTime('09:30')
@@ -68,13 +69,13 @@ function ValidateEmail(inputText) {
  * @param {string} message - Message to display
  * @param {'success'|'error'|'warning'|'info'} [type] - Toast type
  */
-function toastMsg(message, type) {
+window.toastMsg = function (message, type) {
     if (typeof window.showToast === 'function') {
         window.showToast(message, type);
     } else if (message) {
         alert(message);
     }
-}
+};
 
 /**
  * Format error message for display
@@ -140,7 +141,6 @@ if (typeof window !== 'undefined') {
     window.pad = pad;
     window.ValidateEmail = ValidateEmail;
     window.errorMessage = errorMessage;
-    window.toastMsg = toastMsg;
     window.showLoader = showLoader;
     window.hideLoader = hideLoader;
     window.formatDate = formatDate;

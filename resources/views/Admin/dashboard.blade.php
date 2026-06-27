@@ -1135,14 +1135,6 @@
 <script src="{{ asset('js/popover.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/popover.js')) }}"></script>
 <script>
 $(document).ready(function() {
-    function toastMsg(message, type) {
-        if (typeof window.showToast === 'function') {
-            window.showToast(message, type);
-        } else if (message) {
-            alert(message);
-        }
-    }
-
     // Update current session duration in real-time
     @if(isset($loginStats['current_login_time']) && $loginStats['current_login_time'])
         var loginTimestamp = {{ $loginStats['current_login_time']->timestamp * 1000 }};
@@ -1195,7 +1187,7 @@ $(document).ready(function() {
         
         // Validate action ID
         if (!actionId) {
-            toastMsg('Action ID is missing. Please refresh the page and try again.', 'warning');
+            window.toastMsg('Action ID is missing. Please refresh the page and try again.', 'warning');
             return;
         }
         
@@ -1222,7 +1214,7 @@ $(document).ready(function() {
         var message = $('#completion_message').val().trim();
         
         if (!message) {
-            toastMsg('Please enter a completion message.', 'warning');
+            window.toastMsg('Please enter a completion message.', 'warning');
             return;
         }
         
@@ -1264,9 +1256,9 @@ $(document).ready(function() {
                         }
                     });
                     
-                    toastMsg(response.message || 'Action completed successfully!', 'success');
+                    window.toastMsg(response.message || 'Action completed successfully!', 'success');
                 } else {
-                    toastMsg(response.message || 'Failed to complete action. Please try again.', 'error');
+                    window.toastMsg(response.message || 'Failed to complete action. Please try again.', 'error');
                 }
             },
             error: function(xhr) {
@@ -1274,7 +1266,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-                toastMsg(errorMsg, 'error');
+                window.toastMsg(errorMsg, 'error');
             },
             complete: function() {
                 // Re-enable button
