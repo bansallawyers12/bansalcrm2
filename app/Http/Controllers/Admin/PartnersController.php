@@ -1663,7 +1663,7 @@ class PartnersController extends Controller
 			: '';
 
 		$crmRef = !empty($data->client_reference)
-			? '<a href="'.url('/clients/detail/'.$clientEncodedId).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.e($data->client_reference).'</a>'
+			? '<a href="'.url('/clients/detail/'.$clientEncodedId.'/application/'.$data->id).'" target="_blank">'.e($data->client_reference).'</a>'
 			: 'N/P';
 
 		$dob = 'N/P';
