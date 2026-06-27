@@ -200,6 +200,22 @@
     overflow: visible !important;
 }
 
+/* Partner detail — Assign Staff modal (Group dropdown) */
+#create_partneraction .ts-wrapper,
+#create_partneraction .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#create_partneraction .ts-wrapper.focus,
+#create_partneraction .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
+#create_partneraction .modal-body,
+#create_partneraction .modal-content {
+    overflow: visible !important;
+}
+
 /* Bootstrap popovers (action pages — assign/reassign) */
 /* Keep assign/reassign popovers wide after Tom Select replaces native selects (intrinsic width) */
 .popover:has(select.assignee-tomselect) {
