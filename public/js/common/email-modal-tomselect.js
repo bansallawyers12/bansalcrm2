@@ -28,19 +28,38 @@
         if (!modal) {
             return [];
         }
-        var dropdownParent = modal.querySelector('.modal-content') || modal;
         var instances = [];
         modal.querySelectorAll('select.selecttemplate').forEach(function (element) {
-            if (element.tomselect && typeof destroyTomSelect === 'function') {
-                destroyTomSelect(element);
+            if (element.tomselect) {
+                return;
             }
             element.classList.add('tomselect');
-            var instance = initCompactTomSelect(element, { dropdownParent: dropdownParent });
+            var instance = initTomSelect(element, {
+                width: '100%',
+                dropdownParent: document.body,
+                placeholder: 'Select template...'
+            });
             if (instance) {
                 instances.push(instance);
             }
         });
         return instances;
+    }
+
+    function destroyEmailTemplateSelects(modalEl) {
+        var modal = modalEl;
+        if (typeof modalEl === 'string') {
+            modal = document.querySelector(modalEl);
+        }
+        if (!modal) {
+            modal = document.querySelector('#emailmodal');
+        }
+        if (!modal || typeof destroyTomSelect !== 'function') {
+            return;
+        }
+        modal.querySelectorAll('select.selecttemplate').forEach(function (element) {
+            destroyTomSelect(element);
+        });
     }
 
     function initGroupInvoicePartnerSelect() {
@@ -63,6 +82,7 @@
 
     window.EmailModalTomSelect = {
         initTemplates: initEmailTemplateSelects,
+        destroyTemplates: destroyEmailTemplateSelects,
         initGroupInvoicePartner: initGroupInvoicePartnerSelect,
         initStaffTimezone: initStaffTimezoneSelects,
         initCompact: initCompactTomSelect
@@ -73,7 +93,13 @@
             return;
         }
         window.jQuery(document).on('shown.bs.modal', '#emailmodal', function () {
-            initEmailTemplateSelects(this);
+            var modal = this;
+            setTimeout(function () {
+                initEmailTemplateSelects(modal);
+            }, 0);
+        });
+        window.jQuery(document).on('hidden.bs.modal', '#emailmodal', function () {
+            destroyEmailTemplateSelects(this);
         });
     }
 

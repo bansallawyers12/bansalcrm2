@@ -119,6 +119,19 @@ function getFieldValue($field) {
 		}
 	}
 	
+	// Tom Select / Select2 enhanced fields
+	if ($field[0] && ($field[0].tomselect || $field.hasClass('tomselect-migrated') || $field.hasClass('tomselect')) &&
+		typeof getEnhancedSelectValue === 'function') {
+		var enhancedVal = getEnhancedSelectValue($field[0]);
+		if (Array.isArray(enhancedVal)) {
+			var enhancedFiltered = enhancedVal.filter(function (v) {
+				return v !== '' && v != null;
+			});
+			return enhancedFiltered.length ? enhancedFiltered : '';
+		}
+		return enhancedVal ? enhancedVal : '';
+	}
+
 	// Multi-select (Tom Select / native)
 	if ($field.prop('multiple')) {
 		var multiVal = $field.val();
@@ -2337,11 +2350,12 @@ $('#add_application').modal('hide');
 										var clientEmail = obj.client_email || '';
 										var clientName = obj.client_name || 'Client';
 										if (window.RecipientSelect) {
-											RecipientSelect.setData(
-												'#emailmodal .js-data-example-ajax',
-												[RecipientSelect.buildEntry(clientId, clientName, clientEmail, 'Client')],
-												{ dropdownParent: '#emailmodal' }
-											);
+											var checklistEntries = [RecipientSelect.buildEntry(clientId, clientName, clientEmail, 'Client')];
+											if (typeof window.scheduleComposeEmailRecipients === 'function') {
+												window.scheduleComposeEmailRecipients(checklistEntries);
+											} else {
+												$('#emailmodal').data('composeRecipientsPending', checklistEntries);
+											}
 										}
 										$('#composechecklist-tab').tab('show');
 										$('#emailmodal').modal('show');

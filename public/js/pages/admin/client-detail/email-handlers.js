@@ -55,34 +55,167 @@
 jQuery(document).ready(function($){
 
     /**
-     * Replace To field with fixed Select2 options (client id or raw email for college).
+     * Replace To field with fixed Tom Select options (client id or raw email for college).
      */
     function setComposeToRecipients(entries) {
+        if (!window.RecipientSelect || !entries || !entries.length) {
+            return;
+        }
         RecipientSelect.setData('#emailmodal .js-data-example-ajax', entries, { dropdownParent: '#emailmodal' });
     }
+
+    function buildClientRecipientEntry(id, name, email, status) {
+        if (!window.RecipientSelect) {
+            return null;
+        }
+        var clientId = id != null ? String(id) : '';
+        if (!clientId) {
+            return null;
+        }
+        return RecipientSelect.buildEntry(
+            clientId,
+            name || 'Client',
+            email || '',
+            status || 'Client'
+        );
+    }
+
+    /** Default client on client detail page (PageConfig). */
+    function getDefaultClientRecipientEntry() {
+        if (typeof App === 'undefined' || typeof App.getPageConfig !== 'function') {
+            return null;
+        }
+        var clientId = App.getPageConfig('clientId');
+        if (!clientId) {
+            return null;
+        }
+        return buildClientRecipientEntry(
+            clientId,
+            App.getPageConfig('clientName') || 'Client',
+            App.getPageConfig('clientEmail') || '',
+            'Client'
+        );
+    }
+
+    function shouldSkipComposeAutofill() {
+        var $modal = $('#emailmodal');
+        if ($modal.data('composeSkipAutofill')) {
+            return true;
+        }
+        if ($('#compose_email_category').val() === 'college') {
+            return true;
+        }
+        if ($('#sendmail_send_context').val() === 'application_compose') {
+            return true;
+        }
+        return false;
+    }
+
+    function composeToFieldHasValue() {
+        if (!window.RecipientSelect) {
+            return false;
+        }
+        var current = RecipientSelect.getValue('#emailmodal .js-data-example-ajax');
+        return !!(current && current.length);
+    }
+
+    /** Apply pending recipients, then PageConfig fallback when To is still empty. */
+    function applyComposeRecipientsOnShownNow() {
+        var $modal = $('#emailmodal');
+        var pending = $modal.data('composeRecipientsPending');
+
+        if (pending && pending.length) {
+            $modal.removeData('composeRecipientsPending');
+            setComposeToRecipients(pending);
+            return;
+        }
+
+        if (shouldSkipComposeAutofill()) {
+            ensureComposeRecipientSelectInitialized();
+            return;
+        }
+
+        if (composeToFieldHasValue()) {
+            return;
+        }
+
+        var defaultEntry = getDefaultClientRecipientEntry();
+        if (defaultEntry) {
+            setComposeToRecipients([defaultEntry]);
+        } else {
+            ensureComposeRecipientSelectInitialized();
+        }
+    }
+
+    function applyComposeRecipientsOnShown() {
+        setTimeout(applyComposeRecipientsOnShownNow, 0);
+    }
+
+    /** Queue recipients and open compose modal (Tom Select init runs on shown.bs.modal). */
+    function showComposeEmailModal(entries) {
+        var $modal = $('#emailmodal');
+        $modal.data('composeRecipientsPending', entries || null);
+        $modal.removeData('composeSkipAutofill');
+        if ($modal.hasClass('show')) {
+            applyComposeRecipientsOnShown();
+            return;
+        }
+        $modal.modal('show');
+    }
+
+    function scheduleComposeEmailRecipients(entries) {
+        $('#emailmodal').data('composeRecipientsPending', entries || null);
+        $('#emailmodal').removeData('composeSkipAutofill');
+    }
+
+    function skipComposeEmailAutofill() {
+        $('#emailmodal').data('composeSkipAutofill', true);
+        $('#emailmodal').removeData('composeRecipientsPending');
+    }
+
+    window.scheduleComposeEmailRecipients = scheduleComposeEmailRecipients;
+    window.skipComposeEmailAutofill = skipComposeEmailAutofill;
+    window.applyComposeRecipientsOnShown = applyComposeRecipientsOnShown;
 
     function getEmailRecipientInitOptions() {
         var rsUrl = App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients';
         return {
             url: rsUrl,
-            dropdownParent: '#emailmodal',
+            dropdownParent: document.body,
             csrf: true
         };
+    }
+
+    function ensureComposeRecipientSelectInitialized() {
+        if (!window.RecipientSelect) {
+            return;
+        }
+        var selector = '#emailmodal .js-data-example-ajax';
+        var element = document.querySelector(selector);
+        if (!element) {
+            return;
+        }
+        if (element.tomselect) {
+            return;
+        }
+        RecipientSelect.init(selector, getEmailRecipientInitOptions());
     }
 
     function restoreEmailRecipientAjaxSelects() {
         if (!window.RecipientSelect) {
             return;
         }
-        var opts = getEmailRecipientInitOptions();
-        RecipientSelect.reinit('#emailmodal .js-data-example-ajax', opts);
+        RecipientSelect.destroy('#emailmodal .js-data-example-ajax');
         if ($('#emailmodal .js-data-example-ajaxccd').length) {
-            RecipientSelect.reinit('#emailmodal .js-data-example-ajaxccd', opts);
+            RecipientSelect.destroy('#emailmodal .js-data-example-ajaxccd');
         }
     }
     
     // Clear send_context when email modal is closed (e.g. user clicks Close without sending)
     $('#emailmodal').on('hidden.bs.modal', function() {
+        var $modal = $('#emailmodal');
+        $modal.removeData('composeRecipientsPending');
+        $modal.removeData('composeSkipAutofill');
         $('#sendmail_send_context').val('');
         $('#sendmail_application_id').val('');
         $('#compose_email_category').val('');
@@ -166,6 +299,7 @@ jQuery(document).ready(function($){
         }
 
         $('#emailmodal').on('shown.bs.modal', function() {
+            applyComposeRecipientsOnShown();
             if (typeof window.refreshEmailFromSenders === 'function') {
                 window.refreshEmailFromSenders();
             }
@@ -195,30 +329,15 @@ jQuery(document).ready(function($){
         $('#sendmail_send_context').val(''); // Clear context when opening from generic email link
         $('#sendmail_application_id').val('');
         $('#compose_email_category').val('');
-        $('#emailmodal').modal('show');
         var id = $(this).attr('data-id');
         var email = $(this).attr('data-email');
         var name = $(this).attr('data-name');
-        var status = 'Client';
-        var safeName = $('<span>').text(name || '').html();
-        var safeEmail = $('<span>').text(email || '').html();
-        var data = [{
-            id: id,
-            text: name,
-            html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                "<div  class='ag-flex ag-align-start'>" +
-                    "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+safeName+"</span>&nbsp;</div>" +
-                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+safeEmail+"</small ></div>" +
-                "</div>" +
-            "</div>" +
-            "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                "<span class='badge bg-warning text-dark select2-result-repository__statistics'>"+ status +
-                "</span>" +
-            "</div>" +
-            "</div>",
-            title: name
-        }];
-        setComposeToRecipients(data);
+        var entry = buildClientRecipientEntry(id, name, email, 'Client');
+        if (entry) {
+            showComposeEmailModal([entry]);
+        } else {
+            showComposeEmailModal(null);
+        }
     });
 
     // Applications tab: compose to college (category + application_id; send_context avoids "email reminder" logging)
@@ -239,20 +358,20 @@ jQuery(document).ready(function($){
         $('#compose_email_category').val('college');
         var safeCollegeName = $('<span>').text(cName).html();
         var safeCollegeEmail = $('<span>').text(cEmail).html();
-        var collegeEntry = [{
-            id: cEmail,
-            text: cName,
-            html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+        var collegeEntry = buildClientRecipientEntry(cEmail, cName, cEmail, 'College');
+        if (collegeEntry) {
+            collegeEntry.html = "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
                 "<div class='ag-flex ag-align-start'>" +
                 "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>" + safeCollegeName + "</span>&nbsp;</div>" +
                 "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + safeCollegeEmail + "</small></div></div></div>" +
                 "<div class='ag-flex ag-flex-column ag-align-end'>" +
                 "<span class='badge bg-primary select2-result-repository__statistics'>College</span>" +
-                "</div></div>",
-            title: cName
-        }];
-        setComposeToRecipients(collegeEntry);
-        $('#emailmodal').modal('show');
+                "</div></div>";
+            collegeEntry.text = cName;
+            collegeEntry.name = cName;
+            collegeEntry.status = 'College';
+        }
+        showComposeEmailModal(collegeEntry ? [collegeEntry] : null);
     });
 
     // ============================================================================
@@ -351,18 +470,7 @@ jQuery(document).ready(function($){
     // SELECT2 INITIALIZATION FOR EMAIL RECIPIENTS
     // ============================================================================
     
-    // When opening from Send checklist / Email reminder (?open_checklist_email=1 or ?open_email_reminder=1),
-    // the blade inline script pre-populates the To field. Skip re-init here to avoid overwriting it.
-    var urlParams = new URLSearchParams(window.location.search);
-    var openedFromChecklist = urlParams.get('open_checklist_email') === '1' || urlParams.get('open_email_reminder') === '1';
-    
-    if (!openedFromChecklist && window.RecipientSelect) {
-        var opts = getEmailRecipientInitOptions();
-        RecipientSelect.init('#emailmodal .js-data-example-ajax', opts);
-        if ($('#emailmodal .js-data-example-ajaxccd').length) {
-            RecipientSelect.init('#emailmodal .js-data-example-ajaxccd', opts);
-        }
-    }
+    // To field is lazy-initialized on first #emailmodal shown (see applyComposeRecipientsOnShownNow)
 
     // ============================================================================
     // EMAIL FORM SUBMISSION HANDLER

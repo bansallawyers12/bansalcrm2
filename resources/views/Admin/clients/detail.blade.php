@@ -2989,7 +2989,7 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/commission-handlers.js') }}"></script>
 
 {{-- UI and utility modules --}}
-<script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/download-and-chatgpt.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-signature.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
@@ -3053,7 +3053,11 @@ $(document).ready(function() {
 				$('#sendmail_application_id').val(applicationId);
 				$('#sendmail_send_context').val('checklist');
 				var data = [RecipientSelect.buildEntry(clientId, clientName, clientEmail, 'Client')];
-				RecipientSelect.setData('#emailmodal .js-data-example-ajax', data, { dropdownParent: '#emailmodal' });
+				if (typeof window.scheduleComposeEmailRecipients === 'function') {
+					window.scheduleComposeEmailRecipients(data);
+				} else {
+					$('#emailmodal').data('composeRecipientsPending', data);
+				}
 				$('#composeChecklistDocuments').collapse('show');
 				var checklistTabEl = document.getElementById('composechecklist-tab');
 				if (checklistTabEl && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
@@ -3064,7 +3068,11 @@ $(document).ready(function() {
 				$('#sendmail_application_id').val(applicationId);
 				$('#sendmail_send_context').val('email_reminder');
 				var data = [RecipientSelect.buildEntry(clientId, clientName, clientEmail, 'Client')];
-				RecipientSelect.setData('#emailmodal .js-data-example-ajax', data, { dropdownParent: '#emailmodal' });
+				if (typeof window.scheduleComposeEmailRecipients === 'function') {
+					window.scheduleComposeEmailRecipients(data);
+				} else {
+					$('#emailmodal').data('composeRecipientsPending', data);
+				}
 				$('#emailmodal').modal('show');
 			}
 		}

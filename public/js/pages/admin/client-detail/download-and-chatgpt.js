@@ -97,7 +97,13 @@ window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
             var currentContent = '';
             if ($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
                 currentContent = TinyMCEHelpers.getContentBySelector("#emailmodal .tinymce-simple") || '';
-            } else {
+            } else if (typeof tinymce !== 'undefined') {
+                var editor = tinymce.get('compose_email_message');
+                if (editor) {
+                    currentContent = editor.getContent() || '';
+                }
+            }
+            if (!currentContent) {
                 var msgEl = document.getElementById('compose_email_message');
                 currentContent = (msgEl && msgEl.value) ? msgEl.value : '';
             }
@@ -111,22 +117,41 @@ window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
             composeMessageEnhanceBtn.disabled = true;
             composeMessageEnhanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
 
-            var enhanceUrl = App.getUrl('mailEnhance') || App.getUrl('siteUrl') + '/mail/enhance';
+            var csrfToken = (typeof App !== 'undefined' && typeof App.getCsrf === 'function')
+                ? App.getCsrf()
+                : ($('meta[name="csrf-token"]').attr('content') || '');
+            var enhanceUrl = (typeof App !== 'undefined' && typeof App.getUrl === 'function' && App.getUrl('mailEnhance'))
+                ? App.getUrl('mailEnhance')
+                : ((typeof App !== 'undefined' && typeof App.getUrl === 'function' ? App.getUrl('siteUrl') : '') || '') + '/mail/enhance';
+
             fetch(enhanceUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": App.getCsrf()
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": csrfToken
                 },
                 body: JSON.stringify({ message: textForApi })
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    if (!response.ok) {
+                        throw new Error(data.error || data.message || ('Request failed (' + response.status + ')'));
+                    }
+                    return data;
+                });
+            })
+            .then(function(data) {
                 if (data.enhanced_message) {
                     // Replace message body with enhanced content (preserve as HTML with line breaks)
                     var enhancedHtml = data.enhanced_message.replace(/\n/g, '<br>');
                     if ($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
                         TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", enhancedHtml);
+                    } else if (typeof tinymce !== 'undefined') {
+                        var ed = tinymce.get('compose_email_message');
+                        if (ed) {
+                            ed.setContent(enhancedHtml);
+                        }
                     } else {
                         var msgEl = document.getElementById('compose_email_message');
                         if (msgEl) msgEl.value = data.enhanced_message;
@@ -135,9 +160,9 @@ window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
                     alert(data.error || 'Failed to enhance message.');
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while enhancing the message.');
+            .catch(function(error) {
+                console.error('Enhance error:', error);
+                alert(error.message || 'An error occurred while enhancing the message.');
             })
             .finally(function() {
                 composeMessageEnhanceBtn.disabled = false;

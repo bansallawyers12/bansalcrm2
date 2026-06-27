@@ -197,14 +197,20 @@
         }
     }
 
+    function resolveEmailModalDropdownParent(options) {
+        // Always use body for compose modal fields — modal-content/hidden modal breaks dropdown_parent plugin
+        return document.body;
+    }
+
     function buildInitOptions(url, options) {
         options = options || {};
         var isMultiple = options.multiple !== false;
+        var dropdownParent = resolveEmailModalDropdownParent(options);
 
         var initOpts = {
             multiple: isMultiple,
             closeOnSelect: false,
-            dropdownParent: options.dropdownParent,
+            dropdownParent: dropdownParent,
             width: '100%',
             ajax: buildAjaxOptions(url, options),
             templateResult: formatRepo,
@@ -229,16 +235,16 @@
         return {
             multiple: isMultiple,
             closeOnSelect: false,
-            dropdownParent: options.dropdownParent,
+            dropdownParent: resolveEmailModalDropdownParent(options),
             width: '100%',
             escapeMarkup: function (markup) {
                 return markup;
             },
             templateResult: function (data) {
-                return data.html;
+                return data.html || data.text || '';
             },
             templateSelection: function (data) {
-                return data.text;
+                return data.text || data.name || '';
             }
         };
     }
@@ -411,39 +417,67 @@
         options = options || {};
 
         if (typeof TomSelect === 'undefined' || typeof window.initTomSelect !== 'function') {
-            return;
+            return null;
         }
 
         var element = resolveElement(el);
         if (!element) {
-            return;
+            return null;
         }
 
-        var ids = (entries || []).map(function (e) {
-            return String(e.id);
+        var normalizedEntries = (entries || []).map(function (e) {
+            var id = e.id != null ? String(e.id) : '';
+            return Object.assign({}, e, {
+                id: id,
+                text: e.text || e.name || e.email || id,
+                name: e.name || e.text || ''
+            });
+        });
+        var ids = normalizedEntries.map(function (e) {
+            return e.id;
+        }).filter(function (id) {
+            return id !== '';
         });
         var isMultiple = options.multiple !== false;
         ensureMultipleAttribute(element, isMultiple);
 
-        var initOpts = buildStaticOptions(options);
-        initOpts.data = entries || [];
-
-        var instance = typeof window.reinitTomSelect === 'function'
-            ? window.reinitTomSelect(element, initOpts)
-            : (function () {
-                destroyRecipientSelect(element);
-                return window.initTomSelect(element, initOpts);
-            }());
-
-        if (!instance) {
-            return;
+        var initOpts = buildInitOptions(resolveUrl(options), options);
+        if (normalizedEntries.length) {
+            initOpts.data = normalizedEntries;
         }
 
-        if (typeof window.setEnhancedSelectValue === 'function') {
-            window.setEnhancedSelectValue(element, ids, true);
+        function applyValues(instance) {
+            if (!instance) {
+                return null;
+            }
+            normalizedEntries.forEach(function (entry) {
+                if (entry.id && !instance.options[entry.id]) {
+                    instance.addOption(entry);
+                }
+            });
+            if (ids.length) {
+                if (typeof window.setEnhancedSelectValue === 'function') {
+                    window.setEnhancedSelectValue(element, ids, false);
+                } else {
+                    instance.setValue(ids, false);
+                }
+            }
+            return instance;
+        }
+
+        if (options.force || options.reinit) {
+            destroyRecipientSelect(element);
         } else if (element.tomselect) {
-            element.tomselect.setValue(ids, true);
+            return applyValues(element.tomselect);
         }
+
+        var instance = window.initTomSelect(element, initOpts);
+        if (!instance) {
+            initOpts.dropdownParent = document.body;
+            instance = window.initTomSelect(element, initOpts);
+        }
+
+        return applyValues(instance);
     }
 
     function setClientEmailRecipient(el, id, name, email, status, options) {
@@ -548,4 +582,39 @@
     window.waitForRecipientSelect = waitForRecipientSelect;
     window.RecipientSelect = api;
     window.BansalRecipientSelect = api;
+
+    /** Pages without email-handlers.js: apply queued compose recipients on modal shown. */
+    function applyPendingComposeRecipientsFallback() {
+        if (typeof window.applyComposeRecipientsOnShown === 'function') {
+            return;
+        }
+        setTimeout(function () {
+            var $ = get$();
+            if (!$) {
+                return;
+            }
+            var $modal = $('#emailmodal');
+            if (!$modal.length) {
+                return;
+            }
+            var pending = $modal.data('composeRecipientsPending');
+            if (pending && pending.length) {
+                $modal.removeData('composeRecipientsPending');
+                setRecipientSelectData('#emailmodal .js-data-example-ajax', pending, { dropdownParent: '#emailmodal' });
+            }
+        }, 50);
+    }
+
+    function bindComposeEmailPendingRecipients() {
+        var $ = get$();
+        if (!$ || window._composeEmailPendingBound) {
+            return;
+        }
+        window._composeEmailPendingBound = true;
+        $(document).on('shown.bs.modal', '#emailmodal', function () {
+            applyPendingComposeRecipientsFallback();
+        });
+    }
+
+    bindComposeEmailPendingRecipients();
 })(window);

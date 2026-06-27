@@ -328,6 +328,7 @@ class SearchService
                 'name' => $this->highlightMatch($fullName ?: 'Unknown'),
                 'email' => $this->highlightMatch($client->email ?? ''),
                 'phone' => $this->highlightMatch($client->phone ?? ''),
+                'dob' => $this->formatDobForSearch($client->dob ?? null),
                 'client_id' => $client->client_id ?? null,
                 'status' => $isArchived ? 'Archived' : $displayType,
                 'type' => 'Client', // Always route to client detail page
@@ -525,17 +526,51 @@ class SearchService
     }
 
     /**
-     * Parse DOB from query
+     * Parse DOB from query (DD/MM/YYYY) to database format (Y-m-d).
      */
     protected function parseDOB($query)
     {
-        if (strstr($query, '/')) {
-            $dob = explode('/', $query);
-            if (!empty($dob) && is_array($dob) && count($dob) == 3) {
-                return $dob[2] . '/' . $dob[1] . '/' . $dob[0];
-            }
+        if (! str_contains($query, '/')) {
+            return null;
         }
-        return null;
+
+        $parts = array_map('trim', explode('/', $query));
+        if (count($parts) !== 3) {
+            return null;
+        }
+
+        [$day, $month, $year] = $parts;
+        if (! ctype_digit($day) || ! ctype_digit($month) || ! ctype_digit($year)) {
+            return null;
+        }
+
+        $day = (int) $day;
+        $month = (int) $month;
+        $year = (int) $year;
+
+        if (strlen($year) !== 4 || ! checkdate($month, $day, $year)) {
+            return null;
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, $month, $day);
+    }
+
+    /**
+     * Format stored DOB (Y-m-d) for display and Tom Select search (DD/MM/YYYY).
+     */
+    protected function formatDobForSearch($dob): string
+    {
+        if (empty($dob) || $dob === '0000-00-00') {
+            return '';
+        }
+
+        $timestamp = strtotime((string) $dob);
+
+        if ($timestamp === false) {
+            return '';
+        }
+
+        return date('d/m/Y', $timestamp);
     }
 
     /**

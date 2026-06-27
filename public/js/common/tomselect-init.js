@@ -115,10 +115,11 @@
 
             switch (key) {
                 case 'dropdownParent':
-                    if (options.dropdownParent === 'body' || options.dropdownParent === document.body) {
+                    if (!options.dropdownParent || options.dropdownParent === 'body' || options.dropdownParent === document.body) {
                         mapped.dropdownParent = 'body';
                     } else {
-                        mapped.dropdownParent = resolveElement(options.dropdownParent) || options.dropdownParent;
+                        var parentEl = resolveElement(options.dropdownParent);
+                        mapped.dropdownParent = parentEl || 'body';
                     }
                     break;
                 case 'allowClear':
@@ -319,8 +320,11 @@
         }
 
         if (config._select2Data) {
+            config.valueField = config.valueField || 'value';
+            config.labelField = config.labelField || 'text';
+            config.searchField = config.searchField || ['text', 'name', 'email'];
             config.options = config._select2Data.map(function (item) {
-                var id = item.id != null ? item.id : item.value;
+                var id = item.id != null ? String(item.id) : (item.value != null ? String(item.value) : '');
                 var opt = {
                     value: id,
                     id: id,
@@ -363,7 +367,7 @@
             return instance;
         } catch (err) {
             console.error('[initTomSelect] Failed to initialize Tom Select', err);
-            unmarkMigration(element);
+            cleanupTomSelectArtifacts(element);
             return null;
         }
     }
@@ -379,17 +383,34 @@
         return instances;
     }
 
-    function destroyTomSelect(el) {
-        var element = resolveElement(el);
-        if (element && element.tomselect) {
+    function cleanupTomSelectArtifacts(element) {
+        if (!element) {
+            return;
+        }
+        if (element.tomselect) {
             try {
                 element.tomselect.destroy();
             } catch (err) {
-                console.warn('[destroyTomSelect] destroy failed', err);
+                console.warn('[cleanupTomSelectArtifacts] destroy failed', err);
             }
             delete element.tomselect;
-            unmarkMigration(element);
         }
+        unmarkMigration(element);
+        var next = element.nextElementSibling;
+        while (next && next.classList &&
+            (next.classList.contains('ts-wrapper') || next.classList.contains('select2-container'))) {
+            var toRemove = next;
+            next = next.nextElementSibling;
+            toRemove.remove();
+        }
+    }
+
+    function destroyTomSelect(el) {
+        var element = resolveElement(el);
+        if (!element) {
+            return;
+        }
+        cleanupTomSelectArtifacts(element);
     }
 
     function isTomSelect(el) {
@@ -459,6 +480,10 @@
     }
 
     function reinitTomSelect(el, options) {
+        var element = resolveElement(el);
+        if (element) {
+            cleanupTomSelectArtifacts(element);
+        }
         destroyEnhancedSelect(el);
         return initTomSelect(el, options);
     }
@@ -531,10 +556,18 @@
         var instances = [];
 
         modal.querySelectorAll('select.tomselect').forEach(function (element) {
+            if (modal.id === 'emailmodal' &&
+                (element.classList.contains('js-data-example-ajax') ||
+                    element.classList.contains('selecttemplate'))) {
+                return;
+            }
             if (element.tomselect) {
                 return;
             }
             var opts = Object.assign({}, base);
+            if (modal.id === 'emailmodal') {
+                opts.dropdownParent = document.body;
+            }
             if (element.multiple) {
                 opts.plugins = ensurePlugin(opts.plugins, 'remove_button');
                 if (opts.closeAfterSelect === undefined) {

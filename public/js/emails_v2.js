@@ -1620,49 +1620,25 @@
             }
         }
 
-        // Set "To" field (Select2)
-        if (data.to && data.to.length > 0) {
-            const toSelect = document.querySelector('select[name="email_to[]"]');
-            if (toSelect && typeof jQuery !== 'undefined') {
-                const setToField = () => {
-                    // Wait a bit for Select2 to be initialized
-                    setTimeout(() => {
-                        // Clear existing selections
-                        jQuery(toSelect).val(null).trigger('change');
-                        
-                        // For Select2 AJAX, we need to create options and select them
-                        const emailAddresses = data.to.map(email => extractEmailAddress(email)).filter(addr => addr);
-                        
-                        if (emailAddresses.length > 0) {
-                            // Create options for each email
-                            emailAddresses.forEach(emailAddr => {
-                                // Check if option already exists
-                                let option = Array.from(toSelect.options).find(opt => opt.value === emailAddr || opt.text === emailAddr);
-                                if (!option) {
-                                    // Create new option
-                                    option = new Option(emailAddr, emailAddr, true, true);
-                                    toSelect.add(option);
-                                } else {
-                                    option.selected = true;
-                                }
-                            });
-                            
-                            // Update Select2 with the selected values
-                            jQuery(toSelect).val(emailAddresses).trigger('change');
-                        }
-                    }, 200);
-                };
-                
-                // If modal is already shown, set immediately, otherwise wait
-                if (modal.classList.contains('show') || modal.style.display === 'block') {
-                    setToField();
+        // Set "To" field (Tom Select via RecipientSelect — applied on shown.bs.modal)
+        if (typeof jQuery !== 'undefined') {
+            const $modal = jQuery(modal);
+            if (data.to && data.to.length > 0 && typeof window.RecipientSelect !== 'undefined') {
+                const emailAddresses = data.to.map(email => extractEmailAddress(email)).filter(addr => addr);
+                const entries = emailAddresses.map(function (emailAddr) {
+                    return RecipientSelect.buildEntry(emailAddr, emailAddr, emailAddr, 'Client');
+                });
+                if (typeof window.scheduleComposeEmailRecipients === 'function') {
+                    window.scheduleComposeEmailRecipients(entries);
                 } else {
-                    // Wait for modal to be shown
-                    modal.addEventListener('shown.bs.modal', setToField, { once: true });
-                    if (typeof jQuery !== 'undefined') {
-                        jQuery(modal).on('shown.bs.modal', setToField);
-                    }
+                    $modal.data('composeRecipientsPending', entries);
                 }
+                $modal.removeData('composeSkipAutofill');
+            } else if (typeof window.skipComposeEmailAutofill === 'function') {
+                window.skipComposeEmailAutofill();
+            } else {
+                $modal.data('composeSkipAutofill', true);
+                $modal.removeData('composeRecipientsPending');
             }
         }
 

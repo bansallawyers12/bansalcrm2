@@ -2,7 +2,7 @@
 
 @php
     // Cache-busting: bump when emails_v2.js changes; emails_v2.css uses mtime so it updates automatically
-    $emailsV2AssetVer = 11;
+    $emailsV2AssetVer = 13;
     $emailsV2CssVer = @filemtime(public_path('css/emails_v2.css')) ?: $emailsV2AssetVer;
 @endphp
 <!-- Email V2 Styles -->

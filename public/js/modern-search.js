@@ -474,6 +474,9 @@
         if (repo.phone) {
             details.push('Phone: ' + escapeHtml(repo.phone));
         }
+        if (repo.dob) {
+            details.push('DOB: ' + escapeHtml(String(repo.dob)));
+        }
         var detailsText = details.join(' • ');
 
         var accessChips = '';
@@ -612,7 +615,7 @@
             dropdownParent: 'body',
             valueField: 'value',
             labelField: 'text',
-            searchField: ['text', 'name', 'email', 'client_id'],
+            searchField: ['text', 'name', 'email', 'client_id', 'phone', 'dob'],
             placeholder: 'Search clients, leads, partners... (Ctrl+K)',
             plugins: ['clear_button'],
             dropdownClass: 'modern-search-dropdown',
@@ -798,6 +801,9 @@
         }
         if (repo.phone) {
             details.push(`Phone: ${repo.phone}`);
+        }
+        if (repo.dob) {
+            details.push(`DOB: ${repo.dob}`);
         }
         const detailsText = details.join(' • ');
 

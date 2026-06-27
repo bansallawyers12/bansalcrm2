@@ -434,15 +434,21 @@ jQuery(document).ready(function($){
     });
 
     $(document).delegate('.clientemail', 'click', function(){
-        $('#emailmodal').modal('show');
-        RecipientSelect.setClientEmailRecipient(
-            '#emailmodal .js-data-example-ajax',
-            $(this).attr('data-id'),
-            $(this).attr('data-name'),
-            $(this).attr('data-email'),
-            'Client',
-            { dropdownParent: '#emailmodal' }
-        );
+        var id = $(this).attr('data-id');
+        var name = $(this).attr('data-name');
+        var email = $(this).attr('data-email');
+        var entry = window.RecipientSelect
+            ? RecipientSelect.buildEntry(id, name || 'Client', email || '', 'Client')
+            : null;
+        var $modal = $('#emailmodal');
+        if (entry) {
+            if (typeof window.scheduleComposeEmailRecipients === 'function') {
+                window.scheduleComposeEmailRecipients([entry]);
+            } else {
+                $modal.data('composeRecipientsPending', [entry]);
+            }
+        }
+        $modal.modal('show');
     });
 
     $(document).delegate('.change_client_status', 'click', function(){

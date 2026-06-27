@@ -138,6 +138,16 @@
     overflow: visible !important;
 }
 
+/* Compose email modal (#emailmodal) — template + To recipient dropdowns */
+#emailmodal .ts-wrapper,
+#emailmodal .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#emailmodal .modal-content {
+    overflow: visible;
+}
+
 /* Partner agreement modal */
 #agreementModal .ts-wrapper,
 #agreementModal .ts-dropdown {
