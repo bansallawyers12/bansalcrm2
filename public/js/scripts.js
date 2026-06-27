@@ -322,20 +322,20 @@ $(function () {
     console.warn('Bootstrap popover not available. Ensure Vite app.js (Bootstrap) is loaded before scripts.js');
   }
 
-  // Select2 (skip elements migrated to Tom Select)
-  if (jQuery().select2) {
-    $(".select2")
-      .not(".tomselect")
-      .not(".tomselect-migrated")
-      .not("[data-enhanced='tomselect']")
-      .not(".js-data-example-ajaxcc")
-      .not(".js-data-example-ajaxccd")
-      .not(".js-data-example-ajaxccdd")
-      .not(".js-data-example-ajaxccapp")
-      .not(".js-data-example-ajax")
-      .not(".js-data-example-ajaxcontact")
-      .not(".ongoing-filter-select2")
-      .select2();
+  // Tom Select fallback for any legacy select.select2 markup (Select2 removed Phase 6e)
+  if (typeof whenTomSelectReady === 'function') {
+    whenTomSelectReady(function () {
+      var ajaxSkip = '.js-data-example-ajaxcc, .js-data-example-ajaxccd, .js-data-example-ajaxccdd, ' +
+        '.js-data-example-ajaxccapp, .js-data-example-ajax, .js-data-example-ajaxcontact, ' +
+        '.js-data-example-ajax-check, .js-data-example-ajaxccsearch, .js-data-example-ajaxccsearch__addmytask';
+      document.querySelectorAll('select.select2:not(.tomselect):not(.tomselect-migrated):not([data-enhanced="tomselect"])').forEach(function (el) {
+        if (el.matches(ajaxSkip)) {
+          return;
+        }
+        el.classList.add('tomselect');
+        initTomSelectPreserveValue(el, { width: '100%', allowClear: true });
+      });
+    });
   }
 
   // Selectric

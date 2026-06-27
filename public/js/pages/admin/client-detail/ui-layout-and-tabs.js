@@ -66,7 +66,7 @@
         });
 
         // Layout: adjust add_note width on sidebar toggle
-        $('#feather-icon').click(function(){
+        $('.collapse-btn').click(function(){
             var windowsize = $(window).width();
             if($('.main-sidebar').width() == 65){
                 if(windowsize > 2000){

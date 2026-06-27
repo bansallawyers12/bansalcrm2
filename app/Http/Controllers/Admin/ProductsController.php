@@ -284,13 +284,13 @@ class ProductsController extends Controller
 					<div class="col-12 col-md-6 col-lg-6">
 						<div class="form-group">
 							<label for="degree_level">Degree Level</label> 	
-							<select data-valid="required" class="form-control degree_level select2" name="degree_level">
+							<select data-valid="required" class="form-control degree_level tomselect" name="degree_level">
 								<option value=""></option>
-								<option <?php if($ac->degree == 'Bachelor'){ echo 'selected'; } ?> value="Bachelor">Bachelor</option>
-									<option value="Certificate" <?php if($ac->degree == 'Certificate'){ echo 'selected'; } ?>>Certificate</option>
-									<option value="Diploma" <?php if($ac->degree == 'Diploma'){ echo 'selected'; } ?>>Diploma</option>
-									<option value="High School" <?php if($ac->degree == 'High School'){ echo 'selected'; } ?>>High School</option>
-									<option value="Master" <?php if($ac->degree == 'Master'){ echo 'selected'; } ?>>Master</option>
+								<option <?php if($ac && $ac->degree == 'Bachelor'){ echo 'selected'; } ?> value="Bachelor">Bachelor</option>
+									<option value="Certificate" <?php if($ac && $ac->degree == 'Certificate'){ echo 'selected'; } ?>>Certificate</option>
+									<option value="Diploma" <?php if($ac && $ac->degree == 'Diploma'){ echo 'selected'; } ?>>Diploma</option>
+									<option value="High School" <?php if($ac && $ac->degree == 'High School'){ echo 'selected'; } ?>>High School</option>
+									<option value="Master" <?php if($ac && $ac->degree == 'Master'){ echo 'selected'; } ?>>Master</option>
 							</select>
 							<span class="custom-error degree_level_error" role="alert">
 								<strong></strong>
@@ -420,7 +420,7 @@ return ob_get_clean();
 						<div class="col-12 col-md-4 col-lg-4">
 							<div class="form-group"> 
 								<label for="degree_level">Installment Type <span class="span_req">*</span></label> 
-								<select data-valid="required" class="form-control degree_level edit_installment_type select2" name="degree_level">
+								<select data-valid="required" class="form-control degree_level edit_installment_type tomselect" name="degree_level">
 									<option value="">Select Type</option>
 									<option value="Full Fee" <?php if($fetchedData->installment_type == "Full Fee"){ echo 'selected'; } ?>>Full Fee</option>
 									<option value="Per Year" <?php if($fetchedData->installment_type == "Per Year"){ echo 'selected'; } ?>>Per Year</option>

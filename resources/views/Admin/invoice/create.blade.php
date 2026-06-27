@@ -63,7 +63,7 @@
 										<div class="form-group row">  
 											<label for="customer_name" class="col-sm-3 col-form-label">Customer Name <span style="color:#ff0000;">*</span></label>
 											<div class="col-sm-9">
-											<select id="customer_name" name="customer_name" data-valid="required" class="form-control select2bs4" style="width: 100%;">
+											<select id="customer_name" name="customer_name" data-valid="required" class="form-control tomselect" style="width: 100%;">
 												<option value="">Select Customer</option>
 												@foreach(\App\Models\Admin::orderBy('first_name')->get() as $clist)
 													<option value="{{@$clist->id}}">{{@$clist->first_name}} {{@$clist->last_name}}</option>
@@ -134,7 +134,7 @@
 										<div class="form-group row">
 											<label for="terms" class="col-sm-3 col-form-label">Terms</label>
 											<div class="col-sm-9">
-											<select name="terms" class="form-control select2bs4" style="width: 100%;">
+											<select name="terms" class="form-control tomselect" style="width: 100%;">
 												<option value="Net 15" selected="selected">Net 15</option>
 												<option value="Net 30">Net 30</option>
 												<option value="Net 45">Net 45</option>
@@ -186,7 +186,7 @@
 													<td>
 														<div class="form-group">
 															<!--<textarea class="form-control" placeholder="Type or click to select an item." name="item_detail"></textarea>-->
-															<select name="item_detail[]" class="select2dat" style="width: 100%;">
+															<select name="item_detail[]" class="tomselect invoice-item-select" style="width: 100%;">
 																<option value="">Type or click to select an item.</option>
 																{{-- NOTE: Item table has been removed - no saved items available --}}
 																{{-- @foreach(\App\Models\Item::where('user_id', @Auth::user()->id)->orderby('name','ASC')->get() as $ilist)
@@ -220,7 +220,7 @@
 														<td>
 															<div class="form-group">
 																<!--<textarea class="form-control" placeholder="Type or click to select an item." name="item_detail"></textarea>-->
-																<select name="item_detail[]" class="select2dat"  style="width: 100%;">
+																<select name="item_detail[]" class="tomselect invoice-item-select" style="width: 100%;">
 																	<option value="">Type or click to select an item.</option>
 																	@foreach(\App\Models\Item::where('user_id', @Auth::user()->id)->orderby('name','ASC')->get() as $ilist)
 																		<option value="{{$ilist->name}}">{{$ilist->name}}</option>
@@ -485,4 +485,7 @@
 		</div>
 	</div>
 </div>
+@endsection
+@section('scripts')
+<script src="{{ asset('js/pages/admin/invoice-create.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/invoice-create.js')) }}" defer></script>
 @endsection

@@ -47,7 +47,7 @@
 											
 												<div class="form-group"> 
 													<label for="related_office">Related Office <span class="span_req">*</span></label>
-													<select data-valid="required" class="form-control select2" name="related_office">
+													<select data-valid="required" class="form-control tomselect" name="related_office">
 														<?php
 												$branches = \App\Models\Branch::all();
 												foreach($branches as $branch){
@@ -96,4 +96,11 @@
 		</div>
 	</section>
 </div>
+@endsection
+@section('scripts')
+<script>
+whenTomSelectReady(function () {
+    initTomSelectPreserveValue('select[name="related_office"]', { width: '100%', allowClear: true });
+});
+</script>
 @endsection

@@ -9,7 +9,7 @@
  * - DataTables (tables)
  * - iziToast (notifications)
  * 
- * Note: select2 is loaded from CDN (see admin.blade.php) to avoid ES module issues
+ * Note: Tom Select is loaded from CDN (see admin.blade.php)
  */
 
 // Import flatpickr
@@ -85,8 +85,7 @@ const waitForPlugins = () => {
             const $ = window.$ || window.jQuery;
             
             // Check if all required plugins are available
-            // Note: select2 and DataTables are loaded from CDN, so we check them but don't require them from Vite
-            const select2Ready = jQueryAvailable && typeof $.fn.select2 === 'function';
+            const tomSelectReady = typeof window.TomSelect !== 'undefined' && typeof window.initTomSelect === 'function';
             const dataTableReady = jQueryAvailable && typeof $.fn.DataTable === 'function';
             const flatpickrReady = typeof window.flatpickr !== 'undefined';
             const iziToastReady = typeof window.iziToast !== 'undefined';
@@ -95,7 +94,7 @@ const waitForPlugins = () => {
             if (attempts % 20 === 0) { // Log every 1 second (20 * 50ms)
                 console.log('Checking plugins...', {
                     jQuery: jQueryAvailable,
-                    select2: select2Ready,
+                    tomSelect: tomSelectReady,
                     dataTable: dataTableReady,
                     flatpickr: flatpickrReady,
                     iziToast: iziToastReady,
@@ -107,10 +106,10 @@ const waitForPlugins = () => {
             // We only check Vite-loaded libraries (flatpickr, iziToast)
             if (flatpickrReady && iziToastReady) {
                 console.log('✅ All Vite vendor libraries loaded: flatpickr, iziToast');
-                if (select2Ready) {
-                    console.log('✅ Select2 available from CDN');
+                if (tomSelectReady) {
+                    console.log('✅ Tom Select available from CDN');
                 } else {
-                    console.warn('⚠️ Select2 not yet available (loading from CDN)');
+                    console.warn('⚠️ Tom Select not yet available (loading from CDN)');
                 }
                 if (dataTableReady) {
                     console.log('✅ DataTables available from CDN');
@@ -124,7 +123,7 @@ const waitForPlugins = () => {
                 if (!jQueryAvailable) missing.push('jQuery');
                 if (!flatpickrReady) missing.push('flatpickr');
                 if (!iziToastReady) missing.push('iziToast');
-                if (!select2Ready) missing.push('select2 (CDN)');
+                if (!tomSelectReady) missing.push('Tom Select (CDN)');
                 if (!dataTableReady) missing.push('DataTables (CDN)');
                 
                 console.warn('⚠️ Vendor libraries timeout. Missing:', missing.join(', '));

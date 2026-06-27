@@ -237,10 +237,38 @@ Add-branch modal `.select2` chain migrated in Phase 6b.
 
 Value reads in action/client scripts use `actionPopoverSelectVal` / `actionPopoverAssigneeLabel`. AJAX assignee list refresh uses `ActionPopoverTomSelect.refreshAssigneeSelect`.
 
-## Phase 6e candidates
+## Phase 6f — Remaining form pages, AJAX task views, modal stragglers (Done)
 
-1. Remove Select2 from admin layouts when no longer referenced
-2. Edit modals static `contact_name` (if uncommented)
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| Agents create/edit/import | `country`, `related_office` | `tomselect` + `whenTomSelectReady` → `initTomSelectAllPreserveValues` / `initTomSelectPreserveValue` |
+| Staff view | `#primary_office` (both modals) | `tomselect` + global `initModalTomSelects` on modal shown |
+| Leads index | Assign-lead modal `assignto` | `tomselect` + init on `#assignlead_modal` with modal `dropdownParent` |
+| `ActionController` / `OfficeVisitController` | AJAX `#changeassignee` HTML | `select2` → `tomselect` in PHP output |
+| Task / check-in AJAX views | `.taskview`, `.showchecindetail` | `task-view-tomselect.js` hooks `get-assigne-detail`, `get-task-detail`, `get-checkin-detail` |
+| Agents add modal | `#represent_partner`, general invoice `application` | `tomselect` + `initModalTomSelects` |
+| `ProductsController::getotherinfo` | `degree_level` | `tomselect` + null-safe `$ac`; AJAX init via `task-view-tomselect.js` |
+| `ProductsController::getfeeoptionedit` | `.edit_installment_type` | `select2` → `tomselect` (staff fee modal already inits via `initTomSelectAllPreserveValues`) |
+| Action / office visit save handlers | `#changeassignee` value read | `getEnhancedSelectValue('#changeassignee')` |
+| CRM signatures | `#entity_id` in `#associateModal` | `tomselect` + `initTomSelectPreserveValue` on page load |
+| `modal-handlers.js` | Commission / general invoice modals | Replaced `initModalSelect2` with `initModalTomSelects` |
+
+Add-modal / edit-modal `contact_name` AJAX fields remain **commented out** in blades — no live init required.
+
+## Phase 6e — Remove Select2 CDN and global init (Done)
+
+| Area | Change |
+|------|--------|
+| `layouts/admin.blade.php`, `adminconsole.blade.php` | Removed Select2 CDN CSS/JS; Tom Select only |
+| `scripts.js` | Replaced `$(".select2").select2()` with Tom Select fallback for legacy `select.select2` markup |
+| `ui-components.js` | `initSelect2` → `initTomSelect`; vendor readiness checks Tom Select |
+| `vendor-libs.js`, `legacy-init.js` | Readiness polls Tom Select instead of Select2 |
+| Client create/edit | `#lead_source`, `subagent` → `tomselect` (page JS already inited; edit page gained subagent toggle) |
+| Invoice create | `#customer_name`, `terms`, line items → `tomselect` + `invoice-create.js` |
+| Check-in modal | `.js-data-example-ajax-check` → `RecipientSelect.init` (replaces Select2 in `legacy-init.js`) |
+| `partner-detail.js`, `client-detail.js` | Vendor poll uses `initTomSelect` not Select2 |
+
+**Note:** CSS class names like `select2-result-repository` remain in Tom Select render templates for styling continuity (`tomselect-bridge.css`). `modern-search-simple.js` / `modern-search-debug.js` are dev-only and not loaded in production layouts.
 
 ## Phase 0 test checklist
 
@@ -251,17 +279,17 @@ Run after deploy; no user-facing change expected.
 - [ ] Admin layout: no console errors on any admin page load
 - [ ] Admin Console layout: no console errors
 - [ ] `typeof TomSelect === 'function'` in browser console
-- [ ] `typeof $.fn.select2 === 'function'` still true
+- [ ] `typeof $.fn.select2` is undefined (Select2 CDN removed)
 - [ ] `typeof initTomSelect === 'function'` in browser console
 - [ ] `typeof BansalTomSelect === 'object'` in browser console
 - [ ] `typeof isTomSelect === 'function'` and `typeof getEnhancementWrapper === 'function'`
 - [ ] Network tab: Tom Select CSS/JS load from jsDelivr (200)
 - [ ] `tomselect-bridge.css` loads with cache-bust query param
 
-### Select2 regression (unchanged behaviour)
+### Tom Select regression (post–Phase 6e)
 
-- [ ] Global `.select2` elements still initialize (clients list modals, partner forms, etc.)
-- [ ] Header modern search still works (Select2 ajax)
+- [ ] Global legacy `select.select2` markup auto-inits via Tom Select fallback in `scripts.js`
+- [ ] Header modern search still works (Tom Select AJAX in `modern-search.js`)
 - [ ] Modal dropdowns: client detail email modal, add application modal, fee option modals
 - [ ] AJAX selects: `.js-data-example-ajax*` still excluded from global init and work per-page
 - [ ] Ongoing sheet stage filter (`.ongoing-filter-select2`) still works
@@ -284,7 +312,7 @@ s.remove();
 
 - [ ] Tom Select dropdown opens above page content
 - [ ] Element has `tomselect-migrated` class after init
-- [ ] Global Select2 init does not attach to `.tomselect-migrated` element
+- [ ] Global Tom Select init does not double-init `.tomselect-migrated` elements
 
 ### CSS bridge
 

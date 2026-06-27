@@ -185,7 +185,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 				<div class="form-group row">
 					<div class="col-sm-12">
 						<input id="mlead_id" name="mlead_id" type="hidden" value="">
-						<select name="assignto" class="form-control select2 " style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
+						<select name="assignto" class="form-control tomselect" style="width: 100%;">
 							<option value="">Select</option>
 							@foreach(\App\Models\Staff::all() as $ulist)
 							<option value="{{@$ulist->id}}">{{@$ulist->first_name}} {{@$ulist->last_name}}</option>
@@ -304,5 +304,14 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
         }
     });
     @endif
+
+    whenTomSelectReady(function () {
+        initTomSelectPreserveValue('#assignlead_modal select[name="assignto"]', {
+            width: '100%',
+            placeholder: 'Select',
+            allowClear: true,
+            dropdownParent: document.querySelector('#assignlead_modal .modal-content') || '#assignlead_modal'
+        });
+    });
 </script>
 @endsection

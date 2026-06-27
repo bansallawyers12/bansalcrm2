@@ -3,12 +3,12 @@
  * 
  * Initialization and setup for common UI components:
  * - Flatpickr (date/time pickers)
- * - Select2 (enhanced dropdowns)
+ * - Tom Select (enhanced dropdowns)
  * - Modals
  * 
  * Usage:
  *   UIComponents.initDatepicker()
- *   UIComponents.initSelect2('.my-select')
+ *   UIComponents.initTomSelect('.my-select')
  */
 
 'use strict';
@@ -28,9 +28,10 @@
         console.log('[ui-components.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && 
-                    typeof $.fn.select2 === 'function' &&
-                    typeof flatpickr !== 'undefined') {
+                if (typeof $ !== 'undefined' &&
+                    typeof flatpickr !== 'undefined' &&
+                    typeof TomSelect !== 'undefined' &&
+                    typeof window.initTomSelect === 'function') {
                     console.log('[ui-components.js] All vendor libraries detected!');
                     resolve();
                 } else {
@@ -68,20 +69,28 @@ const UIComponents = {
     },
 
     /**
-     * Initialize Select2 dropdown
+     * Initialize Tom Select dropdown
      * @param {string} selector - CSS selector
-     * @param {object} options - Select2 options
+     * @param {object} options - Tom Select options
      */
-    initSelect2: function(selector, options) {
-        if (typeof $.fn.select2 === 'undefined') {
-            console.warn('Select2 is not loaded');
+    initTomSelect: function(selector, options) {
+        if (typeof window.initTomSelect !== 'function') {
+            console.warn('[UIComponents] initTomSelect not available');
             return;
         }
-        
+
         try {
-            $(selector).not('.tomselect, .tomselect-migrated, [data-enhanced="tomselect"]').select2(options || {});
+            document.querySelectorAll(selector).forEach(function (el) {
+                if (el.classList.contains('tomselect-migrated') || el.tomselect) {
+                    return;
+                }
+                if (!el.classList.contains('tomselect')) {
+                    el.classList.add('tomselect');
+                }
+                window.initTomSelectPreserveValue(el, Object.assign({ width: '100%' }, options || {}));
+            });
         } catch (e) {
-            console.error('Error initializing Select2:', e);
+            console.error('Error initializing Tom Select:', e);
         }
     },
 
@@ -102,10 +111,12 @@ const UIComponents = {
     init: function() {
         // Initialize date pickers
         this.initDatepicker();
-        
-        // Initialize Select2 dropdowns (if any exist; skip Tom Select migrations)
-        if ($('.select2:not(.tomselect):not(.tomselect-migrated):not([data-enhanced="tomselect"])').length > 0) {
-            this.initSelect2('.select2:not(.tomselect):not(.tomselect-migrated):not([data-enhanced="tomselect"])');
+
+        // Legacy select.select2 markup → Tom Select
+        if (document.querySelectorAll('select.select2:not(.tomselect-migrated)').length > 0) {
+            this.initTomSelect('select.select2:not(.tomselect-migrated):not(.tomselect)', {
+                allowClear: true
+            });
         }
     }
 };
@@ -120,7 +131,4 @@ const UIComponents = {
         window.UIComponents = UIComponents;
     }
 
-    console.log('[ui-components.js] Module initialized and ready');
-
-})(); // End async wrapper
-
+})();

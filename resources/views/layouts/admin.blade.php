@@ -16,12 +16,7 @@
 	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
 	<script src="{{asset('js/jquery-3.7.1.min.js')}}"></script>
 	
-	<!-- Load Select2 from CDN (after jQuery, before other scripts) -->
-	<!-- Select2 full build (required for dropdownCssClass / containerCssClass compat) -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
-
-	<!-- Tom Select (Select2 migration — Phase 0; loaded alongside Select2, not replacing it) -->
+	<!-- Tom Select (enhanced dropdowns) -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 	
@@ -32,7 +27,7 @@
 	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
  	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr -->
- 	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN above to avoid ES module issues -->
+ 	<!-- Note: Tom Select and DataTables are loaded from CDN above to avoid ES module issues -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
 	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
@@ -305,11 +300,8 @@ i[style*="color:rgba"] {
 	@vite(['resources/js/fullcalendar-init.js'])
 	
  	<!-- Load vendor libraries (flatpickr, izitoast) -->
- 	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN in <head> section above -->
+ 	<!-- Note: Tom Select and DataTables are loaded from CDN in <head> section above -->
 	@vite(['resources/js/vendor-libs.js'])
-	
-	<!-- Load UI libraries (feather-icons) -->
-	@vite(['resources/js/ui-libs.js'])
 	
 	<!-- Then load main app with Bootstrap, etc -->
 	@vite(['resources/js/app.js'])
@@ -322,6 +314,7 @@ i[style*="color:rgba"] {
 	<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}" defer></script>
 	@endif
 	<script src="{{ asset('js/common/tomselect-init.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/tomselect-init.js')) }}" defer></script>
+	<script src="{{ asset('js/common/task-view-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/task-view-tomselect.js')) }}" defer></script>
 	<script src="{{ asset('js/common/application-modal-cascade.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/application-modal-cascade.js')) }}" defer></script>
 	<script src="{{ asset('js/common/email-modal-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/email-modal-tomselect.js')) }}" defer></script>
 	<script src="{{ asset('js/common/recipient-select.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/recipient-select.js')) }}" defer></script>

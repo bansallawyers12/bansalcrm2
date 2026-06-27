@@ -57,7 +57,7 @@ jQuery(document).ready(function($){
         $.ajax({
             url: url,
             type:'GET',
-            data:{id: appliid, assignee: $('#changeassignee').val()},
+            data:{id: appliid, assignee: getEnhancedSelectValue('#changeassignee')},
             success: function(response){
                 var obj = typeof response === 'string' ? $.parseJSON(response) : response;
                 if(obj.status){

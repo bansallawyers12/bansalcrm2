@@ -865,7 +865,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="lead_source">Source <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
+											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control tomselect" data-valid="">
 												<option value="">- Source -</option>
 												<option value="Sub Agent">Sub Agent</option>
 												@foreach(\App\Models\Source::all() as $sources)
@@ -882,7 +882,7 @@
 									<div class="col-sm-3 is_subagent" style="display:none;">
 										<div class="form-group"> 
 											<label for="subagent">Sub Agent <span class="span_req">*</span></label>
-											<select class="form-control select2" name="subagent">  
+											<select class="form-control tomselect" name="subagent">  
 												<option>-- Choose a sub agent --</option>
 												@foreach(\App\Models\Agent::all() as $agentlist)
 													<option value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>

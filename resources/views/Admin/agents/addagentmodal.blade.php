@@ -298,7 +298,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Service <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control select2" name="application">
+								<select data-valid="required" class="form-control tomselect" name="application">
 									<option value="">Select</option>
 									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->select('workflow')->distinct()->get() as $aplist)
 									<?php
@@ -388,7 +388,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="represent_partner">Select Representing Partners <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control partner select2" id="represent_partner" name="represent_partner">
+								<select data-valid="required" class="form-control partner tomselect" id="represent_partner" name="represent_partner">
 									<option value="">Please Select a Partners</option>
 									@foreach(\App\Models\Partner::all() as $replist)
 										<option value="{{$replist->id}}">{{$replist->partner_name}}</option>

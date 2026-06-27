@@ -16,7 +16,8 @@
         await new Promise((resolve) => {
             const check = () => {
                 if (typeof window.$ !== 'undefined' &&
-                    typeof window.$.fn.select2 === 'function') {
+                    typeof window.TomSelect !== 'undefined' &&
+                    typeof window.initTomSelect === 'function') {
                     resolve();
                 } else {
                     setTimeout(check, 50);
@@ -701,57 +702,38 @@
                 $('.card .card-body .grid_data').show();
             });
             
-            // Initialize select2 for check-in modal if available
-            if (typeof $.fn.select2 !== 'undefined') {
-                $('.js-data-example-ajax-check').on("select2:select", function(e) { 
-                    var data = e.params.data;
-                    console.log(data);
-                    $('#utype').val(data.status);
-                });				
-                $('.js-data-example-ajax-check').select2({
-                    multiple: true,
-                    closeOnSelect: false,
-                    dropdownParent: $('#checkinmodal'),
-                    ajax: {
-                        url: site_url + '/clients/get-recipients',
-                        dataType: 'json',
-                        processResults: function (data) {
-                            return {
-                                results: data.items
-                            };
-                        },
-                        cache: true
-                    },
-                    templateResult: formatRepocheck,
-                    templateSelection: formatRepoSelectioncheck
-                });
-            }
-            
-            function formatRepocheck (repo) {
-                if (repo.loading) {
-                    return repo.text;
+            // Check-in contact search — Tom Select via RecipientSelect
+            function initCheckinContactSelect() {
+                var selector = '.js-data-example-ajax-check';
+                var el = document.querySelector(selector);
+                if (!el || (typeof isTomSelect === 'function' && isTomSelect(el))) {
+                    return;
                 }
-                var $container = $(
-                    "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                    "<div  class='ag-flex ag-align-start'>" +
-                    "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                    "<span class='select2resultrepositorystatistics'>" +
-                    "</span>" +
-                    "</div>" +
-                    "</div>"
-                );
-                $container.find(".select2-result-repository__title").text(repo.name);
-                $container.find(".select2-result-repository__description").text(repo.email);
-                appendCheckinStatusBadge($container, repo.status);
-                return $container;
+                if (typeof RecipientSelect === 'undefined' || typeof RecipientSelect.init !== 'function') {
+                    return;
+                }
+                var instance = RecipientSelect.init(selector, {
+                    url: site_url + '/clients/get-recipients',
+                    dropdownParent: '#checkinmodal',
+                    multiple: true,
+                    closeOnSelect: false
+                });
+                if (instance && typeof instance.on === 'function') {
+                    instance.on('item_add', function (value) {
+                        var opt = instance.options[value];
+                        if (opt && opt.status) {
+                            $('#utype').val(opt.status);
+                        }
+                    });
+                }
             }
-            
-            function formatRepoSelectioncheck (repo) {
-                return repo.name || repo.text;
+
+            if (typeof waitForRecipientSelect === 'function') {
+                waitForRecipientSelect().then(initCheckinContactSelect);
+            } else if (typeof whenTomSelectReady === 'function') {
+                whenTomSelectReady(initCheckinContactSelect);
+            } else if (typeof waitForTomSelect === 'function') {
+                waitForTomSelect().then(initCheckinContactSelect);
             }
         }); // End of $(document).ready
     }

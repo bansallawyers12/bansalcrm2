@@ -485,7 +485,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="primary_office">New Primary Office <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control primary_office select2" id="primary_office" name="primary_office">
+								<select data-valid="required" class="form-control primary_office tomselect" id="primary_office" name="primary_office">
 									<option value="">Search & Select new Primary Office</option>
 									@foreach(\App\Models\Branch::all() as $wlist)
 										<option value="{{$wlist->id}}">{{$wlist->office_name}}</option>
@@ -570,7 +570,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="primary_office">Select a new assignee <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control primary_office select2" id="primary_office" name="primary_office">
+								<select data-valid="required" class="form-control primary_office tomselect" id="primary_office" name="primary_office">
 									<option value="">Select a new assignee</option>
 									@foreach(\App\Models\Branch::all() as $wlist)
 										<option value="{{$wlist->id}}">{{$wlist->name}}</option>

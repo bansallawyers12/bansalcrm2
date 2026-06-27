@@ -814,7 +814,7 @@
 	$(document).delegate('.saveassignee', 'click', function(){
         var appliid = $(this).attr('data-id');
 
-		var assinee= $('#changeassignee').val();
+		var assinee = typeof getEnhancedSelectValue === 'function' ? getEnhancedSelectValue('#changeassignee') : $('#changeassignee').val();
 		$('.popuploader').show();
 		// console.log($('#changeassignee').val());
 		$.ajax({

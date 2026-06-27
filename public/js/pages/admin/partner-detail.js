@@ -27,8 +27,8 @@
         console.log('[partner-detail.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && 
-                    typeof $.fn.select2 === 'function' &&
+                if (typeof $ !== 'undefined' &&
+                    typeof window.initTomSelect === 'function' &&
                     typeof flatpickr !== 'undefined') {
                     console.log('[partner-detail.js] All vendor libraries detected!');
                     resolve();

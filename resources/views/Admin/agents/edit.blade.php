@@ -248,7 +248,7 @@
 											<div class="form-group"> 
 												<label for="country">Country</label>
 												
-												<select class="form-control  select2" name="country" >
+												<select class="form-control  tomselect" name="country" >
 												<?php
 													foreach(\App\Models\Country::all() as $list){
 														?>
@@ -276,7 +276,7 @@
 										<div class="col-12 col-md-4 col-lg-4">
 											<div class="form-group"> 
 												<label for="related_office">Related Office <span class="span_req">*</span></label>
-												<select class="form-control select2" name="related_office">
+												<select class="form-control tomselect" name="related_office">
 													<?php
 													$branches = \App\Models\Branch::all();
 													foreach($branches as $branch){
@@ -357,6 +357,9 @@
 		$('#personal_details .is_individual input').attr('data-valid', '');
 	}
 	
+  });
+  whenTomSelectReady(function () {
+    initTomSelectAllPreserveValues('select.tomselect', { width: '100%', allowClear: true });
   });
 </script>
 @endsection

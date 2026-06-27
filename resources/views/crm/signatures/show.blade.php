@@ -813,7 +813,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="entity_id">Select Client</label>
-                        <select class="form-control" id="entity_id" name="entity_id" required>
+                        <select class="form-control tomselect" id="entity_id" name="entity_id" required>
                             <option value="">-- Select Client --</option>
                             @foreach($clients ?? [] as $client)
                                 <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }} ({{ $client->email }})</option>
@@ -896,11 +896,14 @@ style.textContent = `
 document.head.appendChild(style);
 
 $(document).ready(function() {
-    if ($('#entity_id').length) {
-        $('#entity_id').select2({
-            dropdownParent: $('#associateModal'),
-            placeholder: 'Search for a client...',
-            allowClear: true
+    if ($('#entity_id').length && typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(function () {
+            initTomSelectPreserveValue('#entity_id', {
+                width: '100%',
+                placeholder: 'Search for a client...',
+                allowClear: true,
+                dropdownParent: document.querySelector('#associateModal .modal-content') || '#associateModal'
+            });
         });
     }
 });

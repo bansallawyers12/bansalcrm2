@@ -604,14 +604,10 @@ jQuery(document).ready(function($){
     // ============================================================================
     
     var source_val = App.getPageConfig('source') || '';
-    if(source_val != '') {
-        if(source_val == 'Sub Agent') {
-            $('.is_subagent').css('display','inline-block');
-        } else {
-            $('.is_subagent').css('display','none');
-        }
+    if (source_val !== '') {
+        syncSubagentVisibility();
     } else {
-        $('.is_subagent').css('display','none');
+        $('.is_subagent').css('display', 'none');
     }
   
     $('.filter_btn').on('click', function(){
@@ -821,8 +817,41 @@ jQuery(document).ready(function($){
                 plugins: ['remove_button'],
                 closeAfterSelect: false
             }));
+
+            if (document.querySelector('#lead_source')) {
+                initTomSelectPreserveValue('#lead_source', Object.assign({
+                    allowClear: true
+                }, fullWidth));
+                syncSubagentVisibility();
+            }
+
+            if (document.querySelector('select[name="subagent"]')) {
+                initTomSelectPreserveValue('select[name="subagent"]', Object.assign({
+                    allowClear: true
+                }, fullWidth));
+            }
         });
     }
+
+    function getLeadSourceValue() {
+        if (typeof getEnhancedSelectValue === 'function') {
+            return getEnhancedSelectValue('#lead_source') || '';
+        }
+        var el = document.querySelector('#lead_source');
+        return el ? (el.value || '') : '';
+    }
+
+    function syncSubagentVisibility() {
+        if (getLeadSourceValue() === 'Sub Agent') {
+            $('.is_subagent').css('display', 'inline-block');
+        } else {
+            $('.is_subagent').css('display', 'none');
+        }
+    }
+
+    $(document).on('change', '#lead_source', function () {
+        syncSubagentVisibility();
+    });
 
     initClientFormTomSelects();
     

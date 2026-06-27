@@ -244,7 +244,7 @@ jQuery(document).ready(function($){
 		$.ajax({
 			url: site_url+'/office-visits/change_assignee',
 			type:'GET',
-			data:{id: appliid,assinee: $('#changeassignee').val()},
+			data:{id: appliid,assinee: typeof getEnhancedSelectValue === 'function' ? getEnhancedSelectValue('#changeassignee') : $('#changeassignee').val()},
 			success: function(response){
 				var obj = $.parseJSON(response);
 				if(obj.status){

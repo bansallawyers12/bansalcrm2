@@ -338,7 +338,7 @@ class OfficeVisitController extends Controller
 						<div class="assignee" style="display:none;">
 						    <div class="row">
 						        <div class="col-md-8">
-						            <select class="form-control select2" id="changeassignee" name="changeassignee">
+						            <select class="form-control tomselect" id="changeassignee" name="changeassignee">
 						                 <?php 
 											foreach(\App\Models\Staff::with('office')->orderby('first_name','ASC')->get() as $admin){
 												$officeName = $admin->office ? $admin->office->office_name : '';
