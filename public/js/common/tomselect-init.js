@@ -70,25 +70,48 @@
         return list;
     }
 
+    /**
+     * Tom Select passes render output through an internal helper that uses
+     * document.querySelector() when the string does not contain '<'.
+     * Plain display text (e.g. recipient names like "New .") must be wrapped in HTML.
+     */
+    function wrapPlainTextForTomSelect(text, escape) {
+        if (text == null || text === '') {
+            return '';
+        }
+        var str = String(text);
+        if (str.indexOf('<') !== -1) {
+            return str;
+        }
+        var safe = typeof escape === 'function' ? escape(str) : str;
+        return '<span>' + safe + '</span>';
+    }
+
     /** Handles strings, DOM nodes, and jQuery objects (common in this codebase). */
     function normalizeTemplateOutput(rendered, escape, data) {
         if (rendered == null) {
             return '';
         }
         if (typeof rendered === 'string') {
-            return rendered;
+            return wrapPlainTextForTomSelect(rendered, escape);
         }
         if (isJQuery(rendered)) {
             var node = rendered[0];
-            return node ? (node.outerHTML || rendered.text() || '') : '';
+            if (!node) {
+                return '';
+            }
+            if (node.outerHTML) {
+                return node.outerHTML;
+            }
+            return wrapPlainTextForTomSelect(rendered.text() || '', escape);
         }
         if (rendered instanceof Element) {
             return rendered.outerHTML;
         }
         if (rendered && typeof rendered.text === 'string') {
-            return rendered.text;
+            return wrapPlainTextForTomSelect(rendered.text, escape);
         }
-        return escape(data && data.text ? data.text : '');
+        return wrapPlainTextForTomSelect(data && data.text ? data.text : '', escape);
     }
 
     function stripLegacyOptionKeys(config) {
