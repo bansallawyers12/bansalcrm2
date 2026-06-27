@@ -604,7 +604,7 @@ class ClientController extends Controller
 					if (! $fetchedData) {
 						return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
 					}
-					if (! $this->canViewClient($fetchedData)) {
+					if (! $this->canEditClient($fetchedData)) {
 						return $this->redirectWhenCannotViewClientRecord($fetchedData);
 					}
                   
@@ -751,9 +751,10 @@ class ClientController extends Controller
                 $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
 
                 $followupConsultants = $this->followupConsultantsForSchedule();
+                $canEditClient = $this->canEditClient($fetchedData);
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants','canEditClient'])
                 );
             }
             else
@@ -887,9 +888,10 @@ class ClientController extends Controller
                         ->get();
                     $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
                     $followupConsultants = $this->followupConsultantsForSchedule();
+                    $canEditClient = $this->canEditClient($fetchedData);
                     return view(
                         $this->getClientViewPath('clients.detail'),
-                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants'])
+                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants','canEditClient'])
                     );
                 }
             }

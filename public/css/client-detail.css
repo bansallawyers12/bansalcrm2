@@ -137,6 +137,8 @@
 	justify-content: center;
 	margin: 12px 0;
 	flex-wrap: wrap;
+	position: relative;
+	z-index: 2;
 }
 
 .author-mail_sms > a,
@@ -144,8 +146,7 @@
 	width: 28px;
 	height: 28px;
 	border-radius: var(--radius-full);
-	background: rgba(255, 255, 255, 0.15);
-	backdrop-filter: blur(10px);
+	background: rgba(255, 255, 255, 0.2);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -154,6 +155,8 @@
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	color: white !important;
 	text-decoration: none;
+	position: relative;
+	z-index: 1;
 }
 
 .author-mail_sms > a:hover {
@@ -161,9 +164,15 @@
 	transform: translateY(-2px);
 }
 
-.author-mail_sms > a i {
+.author-mail_sms > a i,
+.author-mail_sms > a svg,
+.author-mail_sms > a .crm-icon {
 	font-size: 12px;
 	color: white;
+	width: 14px;
+	height: 14px;
+	pointer-events: none;
+	flex-shrink: 0;
 }
 
 .author-box.left_section_upper p:has(.badge-outline) {

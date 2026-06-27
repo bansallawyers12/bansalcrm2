@@ -120,7 +120,9 @@ use App\Http\Controllers\Controller;
 							<div class="author-mail_sms">
 								<a href="javascript:;" class="send-sms-btn" data-client-id="{{ @$fetchedData->id }}" data-client-name="{{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}" title="Send SMS">@icon('sms')</a>
 								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail">@icon('envelope')</a>
-								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit">@icon('edit')</a>
+								@if(!empty($canEditClient))
+								<a href="{{ route('clients.edit', ['id' => $encodeId], false) }}" class="client-detail-edit-link" title="Edit" aria-label="Edit client">@icon('edit')</a>
+								@endif
 								@if($fetchedData->is_archived == 0)
 									<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive">@icon('archive')</a>
 								@else
