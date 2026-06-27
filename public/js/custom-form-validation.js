@@ -2556,3 +2556,9 @@ function validateEmail(sEmail) {
 		return false;
     }
 }
+
+if (typeof window !== 'undefined') {
+    window.customValidate = customValidate;
+    window.customInvoiceValidate = customInvoiceValidate;
+    window.reinitializeAccordions = reinitializeAccordions;
+}

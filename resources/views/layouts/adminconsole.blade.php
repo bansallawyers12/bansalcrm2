@@ -283,36 +283,20 @@
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
 	@if(request()->is('agent', 'agent/*'))
-	<script src="{{ asset('js/agent-custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/agent-custom-form-validation.js')) }}" defer></script>
+	@vite(['resources/js/agent-adminconsole-layout-scripts.js'])
 	@else
-	<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}" defer></script>
+	@vite(['resources/js/adminconsole-layout-scripts.js'])
 	@endif
-	<script src="{{ asset('js/common/crm-icon.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/crm-icon.js')) }}"></script>
-	<script src="{{ asset('js/common/tomselect-init.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/tomselect-init.js')) }}" defer></script>
-	<script src="{{ asset('js/common/task-view-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/task-view-tomselect.js')) }}" defer></script>
-	<script src="{{ asset('js/common/recipient-select.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/recipient-select.js')) }}" defer></script>
-	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 
-	<!-- Custom JS File -->	
-	<script src="{{ asset('js/custom.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom.js')) }}" defer></script>
-	
 	<!-- Legacy initialization now loaded via Vite (legacy-init.js) -->
 	@vite(['resources/js/legacy-init.js'])
-	
-	<!-- Modern Search - Replaces inline search initialization to prevent conflicts -->
-	<script src="{{ asset('js/modern-search.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/modern-search.js')) }}" defer></script>
 	
 	<form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
 		@csrf
 		<input type="hidden" name="id" value="{{Auth::user()->id}}">
 	</form>
 
-	<!-- Auto-logout after 15 minutes of inactivity -->
-	<script src="{{ asset('js/inactivity-logout.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/inactivity-logout.js')) }}" defer></script>
-
 	@include('partials.email-from-ses-script')
-
-	<script src="{{ asset('js/common/utilities.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/utilities.js')) }}"></script>
 
 	@stack('scripts')
 	@yield('scripts')	

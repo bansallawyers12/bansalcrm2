@@ -430,12 +430,12 @@ use App\Http\Controllers\Controller;
 											<div class="branch_content">
 												<h4><?php echo $branch->name; ?></h4>
 												<div class="" style="margin-top: 15px!important;">
-													<p><i class="fas fa-map-marker-alt" style="margin-right: 10px!important;"></i> <?php echo $branch->city; ?>, <?php echo $branch->a; ?></p>
+													<p>{!! \App\Helpers\IconHelper::render('map-marker-alt', 'solid', ['attrs' => ['style' => 'margin-right: 10px!important;']]) !!} <?php echo $branch->city; ?>, <?php echo $branch->a; ?></p>
 												</div>
 											</div>
 											<div class="extra_content">
 												<div class="left">
-													<p><i class="fas fa-phone" style="margin-right: 20px!important;"></i> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
+													<p>{!! \App\Helpers\IconHelper::render('phone', 'solid', ['attrs' => ['style' => 'margin-right: 20px!important;']]) !!} <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
 													<p>{!! \App\Helpers\IconHelper::render('envelope', 'regular', ['attrs' => ['style' => 'margin-right: 20px!important;']]) !!} <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
 												</div>  
 												<div class="right">
@@ -523,7 +523,7 @@ use App\Http\Controllers\Controller;
 										<div class="bulk-upload-dropzone" 
 											 style="border: 2px dashed #4a90e2; border-radius: 8px; padding: 40px; 
 													text-align: center; background-color: #f8f9fa; cursor: pointer;">
-											<i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #4a90e2; margin-bottom: 15px;"></i>
+											{!! \App\Helpers\IconHelper::render('cloud-upload-alt', 'solid', ['attrs' => ['style' => 'font-size: 48px; color: #4a90e2; margin-bottom: 15px;']]) !!}
 											<h4 style="color: #333; margin-bottom: 10px;">Drop files here or click to browse</h4>
 											<p style="color: #666; margin-bottom: 0;">Supported: PDF, JPG, PNG, DOC, DOCX (Max 50MB per file)</p>
 											<input type="file" class="bulk-upload-file-input" multiple style="display: none;" 
@@ -1040,7 +1040,7 @@ use App\Http\Controllers\Controller;
                                                                 <td style="padding-top: 5px !important;padding-bottom: 5px !important;"><?php echo $rec_val->student_count;?></td>
                                                                 <td style="padding-top: 5px !important;padding-bottom: 5px !important;">
                                                                     <?php echo "$".$rec_val->total_amount_aud;?>
-                                                                    <a target="_blank" class="link-primary" href="{{URL::to('/partners/printpreviewcreateinvoice')}}/{{$rec_val->invoice_id}}"><i class="fas fa-print" aria-hidden="true"></i></a>
+                                                                    <a target="_blank" class="link-primary" href="{{URL::to('/partners/printpreviewcreateinvoice')}}/{{$rec_val->invoice_id}}">{!! \App\Helpers\IconHelper::render('print') !!}</a>
                                                                     <?php if ( isset( $rec_val->sent_option ) && $rec_val->sent_option == 'Yes' ) { ?>
                                                                     <?php } else { ?>
                                                                         <a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="<?php echo $rec_val->invoice_id;?>">@icon('pencil-alt')</a>
@@ -2023,17 +2023,17 @@ use App\Http\Controllers\Controller;
             var documentLink = 'N/A';
             if (agreement.file_upload) {
                 var fileName = agreement.file_upload.split('/').pop();
-                documentLink = '<a href="javascript:;" class="view_agreement_doc" data-url="' + agreement.file_upload + '">@icon('file') View</a>';
+                documentLink = '<a href="javascript:;" class="view_agreement_doc" data-url="' + agreement.file_upload + '">' + crmIcon('file') + ' View</a>';
             }
             
             var actions = '<div class="btn-group" role="group">';
-            actions += '<button type="button" class="btn btn-sm btn-primary edit_agreement" data-id="' + agreement.id + '" title="Edit">@icon('edit')</button>';
+            actions += '<button type="button" class="btn btn-sm btn-primary edit_agreement" data-id="' + agreement.id + '" title="Edit">' + crmIcon('edit') + '</button>';
             
             if (agreement.status === 'inactive') {
-                actions += '<button type="button" class="btn btn-sm btn-success set_active_agreement" data-id="' + agreement.id + '" title="Set Active">@icon('check')</button>';
+                actions += '<button type="button" class="btn btn-sm btn-success set_active_agreement" data-id="' + agreement.id + '" title="Set Active">' + crmIcon('check') + '</button>';
             }
             
-            actions += '<button type="button" class="btn btn-sm btn-danger delete_agreement" data-id="' + agreement.id + '" title="Delete">@icon('trash')</button>';
+            actions += '<button type="button" class="btn btn-sm btn-danger delete_agreement" data-id="' + agreement.id + '" title="Delete">' + crmIcon('trash') + '</button>';
             actions += '</div>';
             
             // Main agreement row

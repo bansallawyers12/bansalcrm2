@@ -251,10 +251,8 @@ jQuery(document).ready(function($){
                 chip.style.backgroundColor = (label.color || '#3B82F6') + '20';
                 chip.style.borderColor = label.color || '#3B82F6';
                 chip.style.color = label.color || '#3B82F6';
-                chip.innerHTML = (typeof window.crmIconStored === 'function'
-                    ? window.crmIconStored(label.icon || 'tag')
-                    : '<i class="' + (label.icon || 'fas fa-tag') + '" aria-hidden="true"></i>') +
-                    '<span>' + (label.name || '') + '</span><i class="fas fa-times chip-remove" data-label-id="' + label.id + '"></i>';
+                chip.innerHTML = crmIconStored(label.icon || 'tag') +
+                    '<span>' + (label.name || '') + '</span>' + crmIcon('times', 'solid', { class: 'chip-remove', attrs: { 'data-label-id': label.id } });
                 chip.querySelector('.chip-remove').addEventListener('click', function() {
                     selectedComposeLabelIds = selectedComposeLabelIds.filter(function(id) { return id != label.id; });
                     renderComposeLabelChips();

@@ -165,14 +165,14 @@ jQuery(document).ready(function($){
 
         if (dropzoneContainer.length && dropzoneContainer.is(':visible')) {
             dropzoneContainer.slideUp();
-            $(this).html('${crmIcon('upload')} Bulk Upload');
+            $(this).html(crmIcon('upload') + ' Bulk Upload');
             bulkUploadFilesPartner = [];
             dropzoneContainer.find('.bulk-upload-file-list').hide();
             dropzoneContainer.find('.file-count').text('0');
         } else {
             dropzoneContainer.slideDown();
             bindDropzoneDragHandlers();
-            $(this).html('${crmIcon('times')} Close');
+            $(this).html(crmIcon('times') + ' Close');
         }
     });
 
@@ -336,7 +336,7 @@ jQuery(document).ready(function($){
             const fileSize = formatFileSizePartner(file.size);
 
             html += '<tr class="bulk-upload-file-item">';
-            html += '<td><div class="file-info"><i class="fas fa-file" style="color: #4a90e2; flex-shrink: 0;"></i><div style="min-width: 0; flex: 1;"><div class="file-name">' + escapeHtmlPartner(fileName) + '</div><div class="file-size">' + fileSize + '</div></div></div></td>';
+            html += '<td><div class="file-info">' + crmIcon('file', 'solid', { attrs: { style: 'color: #4a90e2; flex-shrink: 0;' } }) + '<div style="min-width: 0; flex: 1;"><div class="file-name">' + escapeHtmlPartner(fileName) + '</div><div class="file-size">' + fileSize + '</div></div></div></td>';
             html += '<td>';
             html += '<select class="form-control checklist-select" data-file-index="' + index + '">';
             html += '<option value="">-- Select Checklist --</option>';
@@ -451,7 +451,7 @@ jQuery(document).ready(function($){
                 alert(message);
                 $('#bulk-upload-mapping-modal-partner').hide();
                 $('.bulk-upload-dropzone-container').hide();
-                $('.bulk-upload-toggle-btn').html('${crmIcon('upload')} Bulk Upload');
+                $('.bulk-upload-toggle-btn').html(crmIcon('upload') + ' Bulk Upload');
                 bulkUploadFilesPartner = [];
 
                 location.reload();

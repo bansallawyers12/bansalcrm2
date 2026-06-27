@@ -343,9 +343,9 @@ use App\Http\Controllers\Controller;
                                             if( isset($conVal->contact_type) && $conVal->contact_type != "" ){
 												if( $conVal->contact_type == "Personal" ){
 													if ( $verifiedNumber) {
-														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') @icon('check-circle', 'solid', ['class' => 'verified-icon'])';
+														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') '.\App\Helpers\IconHelper::render('check-circle', 'solid', ['class' => 'verified-icon']);
 													} else {
-														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') @icon('circle', 'regular', ['class' => 'unverified-icon'])';
+														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') '.\App\Helpers\IconHelper::render('circle', 'regular', ['class' => 'unverified-icon']);
 														if ( !empty($conVal->lead_id) && !empty($conVal->is_lead_primary) ) {
 															$leadRow = \App\Models\Admin::where('lead_id', $conVal->lead_id)->where('type','lead')->first()
 																?? \App\Models\Admin::where('id', $conVal->lead_id)->where('type','lead')->first();
@@ -395,9 +395,9 @@ use App\Http\Controllers\Controller;
 								        if ($i > 0) echo '<br/>';
 								        echo e($e['email']);
 								        if ($e['verified']) {
-								            echo ' @icon('check-circle', 'solid', ['class' => 'verified-icon'])';
+								            echo ' '.\App\Helpers\IconHelper::render('check-circle', 'solid', ['class' => 'verified-icon']);
 								        } else {
-								            echo ' @icon('circle', 'regular', ['class' => 'unverified-icon'])';
+								            echo ' '.\App\Helpers\IconHelper::render('circle', 'regular', ['class' => 'unverified-icon']);
 								        }
 								    }
 								    if (empty($allEmails)) echo '—';
@@ -1018,7 +1018,7 @@ use App\Http\Controllers\Controller;
 
 															<div class="activity-actions">
 																<?php if($activit->pin == 1){?>
-																	<div class="pined_note"><i class="fas fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
+																	<div class="pined_note">{!! \App\Helpers\IconHelper::render('thumbtack', 'solid', ['attrs' => ['style' => 'font-size: 12px;color: #6777ef;']]) !!}</div>
 																<?php } ?>
 
 																<div class="dropdown d-inline dropdown_ellipsis_icon">
@@ -1260,7 +1260,7 @@ use App\Http\Controllers\Controller;
                                         <div class="bulk-upload-dropzone" 
                                              style="border: 2px dashed #4a90e2; border-radius: 8px; padding: 40px; 
                                                     text-align: center; background-color: #f8f9fa; cursor: pointer;">
-                                            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #4a90e2; margin-bottom: 15px;"></i>
+                                            {!! \App\Helpers\IconHelper::render('cloud-upload-alt', 'solid', ['attrs' => ['style' => 'font-size: 48px; color: #4a90e2; margin-bottom: 15px;']]) !!}
                                             <h4 style="color: #333; margin-bottom: 10px;">Drop files here or click to browse</h4>
                                             <p style="color: #666; margin-bottom: 0;">Supported: PDF, JPG, PNG, DOC, DOCX (Max 50MB per file)</p>
                                             <input type="file" class="bulk-upload-file-input" multiple style="display: none;" 
@@ -1716,7 +1716,7 @@ use App\Http\Controllers\Controller;
                                                         ?>
                                                         <span class="<?php echo $isRefund ? 'text-danger' : ''; ?>">$<?php echo $rec_val->deposit_amount; ?></span>
                                                         <?php if($isRefund): ?><span class="badge bg-secondary">Refund</span><?php endif; ?>
-                                                        <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}"><i class="fas fa-print" aria-hidden="true"></i></a>
+                                                        <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}">{!! \App\Helpers\IconHelper::render('print') !!}</a>
                                                        <?php
                                                         if($rec_val->receipt_type == 1){
                                                         ?>
@@ -2717,7 +2717,7 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
 		<div class="modal-content grr-modal-content">
 			<div class="modal-header grr-modal-header">
-				<h5 class="modal-title grr-modal-title" id="googleReviewReminderModalLabel"><i class="fab fa-google grr-modal-google-icon me-2" aria-hidden="true"></i>Google review reminder</h5>
+				<h5 class="modal-title grr-modal-title" id="googleReviewReminderModalLabel">@icon('google', 'brands', ['class' => 'grr-modal-google-icon me-2']) Google review reminder</h5>
 				<button type="button" class="btn-close grr-modal-close js-google-review-reminder" data-action="snooze_one_day" aria-label="Close and remind again tomorrow" title="Close — ask again tomorrow"></button>
 			</div>
 			<div class="modal-body grr-modal-body">
@@ -2726,7 +2726,7 @@ use App\Http\Controllers\Controller;
 			</div>
 			<div class="modal-footer flex-column align-items-stretch gap-2 grr-modal-footer">
 				<button type="button" class="btn w-100 m-0 js-google-review-send-sms grr-btn grr-btn-sms">
-					<i class="fas fa-sms me-1" aria-hidden="true"></i>Send SMS with review link
+					@icon('sms', 'solid', ['class' => 'me-1']) Send SMS with review link
 				</button>
 				<div class="d-flex flex-wrap gap-2 justify-content-stretch grr-modal-actions-row">
 					<button type="button" class="btn flex-grow-1 m-0 js-google-review-reminder grr-btn grr-btn-neutral" data-action="not_interested">Not interested</button>
@@ -3207,7 +3207,7 @@ $(document).ready(function(){
 		var phone = $('#sendSms_phone').val();
 		var message = applySendSmsTemplateVariables($('#sendSms_message').val());
 		if (!phone || !message) { toastMsg('Please select a phone and enter a message.', 'warning'); return; }
-		$('#sendSms_submitBtn').prop('disabled', true).html('@icon('spinner', 'solid', ['spin' => true]) Sending...');
+		$('#sendSms_submitBtn').prop('disabled', true).html(crmIconSpinner(' Sending...'));
 		$.ajax({
 			url: sendSmsSendUrl,
 			method: 'POST',
@@ -3225,7 +3225,7 @@ $(document).ready(function(){
 				toastMsg(res && res.message ? res.message : 'Failed to send SMS', 'error');
 			},
 			complete: function(){
-				$('#sendSms_submitBtn').prop('disabled', false).html('@icon('paper-plane') Send SMS');
+				$('#sendSms_submitBtn').prop('disabled', false).html(crmIcon('paper-plane') + ' Send SMS');
 			}
 		});
 	});
@@ -3243,7 +3243,7 @@ $(document).ready(function(){
 	$('#leadVerifyOtpSendBtn').on('click', function(){
 		var id = $('#lead_verify_otp_lead_id').val();
 		var btn = $(this);
-		btn.prop('disabled', true).html('@icon('spinner', 'solid', ['spin' => true]) Sending...');
+		btn.prop('disabled', true).html(crmIconSpinner(' Sending...'));
 		$.post('{{ route("leads.phone.sendOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id }, function(r){
 			if (r.success) {
 				$('#leadVerifyOtpSendSection').hide();
@@ -3255,7 +3255,7 @@ $(document).ready(function(){
 					if (s <= 0) { clearInterval(leadVerifyResendTimer); $('#leadVerifyOtpResendBtn').prop('disabled', false); }
 				}, 1000);
 			} else { toastMsg(r.message || 'Failed to send code', 'error'); }
-		}).fail(function(){ toastMsg('Request failed', 'error'); }).always(function(){ btn.prop('disabled', false).html('@icon('paper-plane') Send Code'); });
+		}).fail(function(){ toastMsg('Request failed', 'error'); }).always(function(){ btn.prop('disabled', false).html(crmIcon('paper-plane') + ' Send Code'); });
 	});
 	$('#leadVerifyOtpVerifyBtn').on('click', function(){
 		var id = $('#lead_verify_otp_lead_id').val();
@@ -3309,11 +3309,11 @@ $(document).ready(function(){
             var item = document.createElement('div');
             item.className = 'compose-attach-file-item';
             item.innerHTML =
-                '@icon('file', 'solid', ['class' => 'compose-attach-file-icon'])' +
+                crmIcon('file', 'solid', { class: 'compose-attach-file-icon' }) +
                 '<span class="compose-attach-file-name" title="' + file.name + '">' + file.name + '</span>' +
                 '<span class="compose-attach-file-size">(' + formatFileSize(file.size) + ')</span>' +
                 '<button type="button" class="compose-attach-remove-btn" data-idx="' + idx + '" title="Remove">' +
-                    '@icon('times')' +
+                    crmIcon('times') +
                 '</button>';
             list.appendChild(item);
         });

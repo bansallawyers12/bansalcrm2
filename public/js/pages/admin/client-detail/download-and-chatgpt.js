@@ -115,7 +115,7 @@ window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
             }
 
             composeMessageEnhanceBtn.disabled = true;
-            composeMessageEnhanceBtn.innerHTML = (typeof crmIconSpinner === 'function' ? crmIconSpinner(' Enhancing...') : '<i class="fas fa-spinner fa-spin icon-spin"></i> Enhancing...');
+            composeMessageEnhanceBtn.innerHTML = crmIconSpinner(' Enhancing...');
 
             var csrfToken = (typeof App !== 'undefined' && typeof App.getCsrf === 'function')
                 ? App.getCsrf()
@@ -166,7 +166,7 @@ window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
             })
             .finally(function() {
                 composeMessageEnhanceBtn.disabled = false;
-                composeMessageEnhanceBtn.innerHTML = '<i class="fas fa-magic"></i> Enhance';
+                composeMessageEnhanceBtn.innerHTML = crmIcon('magic') + ' Enhance';
             });
         });
     }

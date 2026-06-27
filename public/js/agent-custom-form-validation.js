@@ -480,20 +480,6 @@ function customValidate(formName, savetype = '')
 								}
 							}
 						});		
-					}else if(formName == 'appTermForm'){
-													html += '<p>'+v.message+'</p>';
-												}
-												html += '</div></div>';
-											});
-											$('.activities').html(html);
-										}
-									}); */
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
-							}
-						});		
 					}else if(formName == 'feeform'){
 						var product_id = $('#feeform input[name="product_id"]').val();
 						var myform = document.getElementById('feeform');
@@ -804,20 +790,6 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
-							}
-						});		
-					}else if(formName == 'notetermform'){
-													html += '<p>'+v.message+'</p>';
-												}
-												html += '</div></div>';
-											});
-											$('.activities').html(html);
-										}
-									}); */
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -1799,4 +1771,10 @@ function validateEmail(sEmail) {
     else {
 		return false;
     }
+}
+
+if (typeof window !== 'undefined') {
+    window.customValidate = customValidate;
+    window.customInvoiceValidate = customInvoiceValidate;
+    window.reinitializeAccordions = reinitializeAccordions;
 }

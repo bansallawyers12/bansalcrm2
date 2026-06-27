@@ -58,11 +58,6 @@
 	
 	<!-- Then load main app with Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
-	
-	<!-- jQuery should now be available immediately -->
-	
-	<!-- Load legacy scripts that depend on jQuery -->
-	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}"></script>
-	<script src="{{ asset('js/custom.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom.js')) }}"></script>
+	@vite(['resources/js/minimal-layout-scripts.js'])
 </body>
 </html>

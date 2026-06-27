@@ -330,7 +330,7 @@ jQuery(document).ready(function($){
             },
             beforeSend: function() {
                 // Show loading indicator
-                $('.showproductfee').html('<div style="text-align:center;padding:20px;">' + (typeof crmIconSpinner === 'function' ? crmIconSpinner(' Loading...') : '<i class="fas fa-spinner fa-spin icon-spin"></i> Loading...') + '</div>');
+                $('.showproductfee').html('<div style="text-align:center;padding:20px;">' + crmIconSpinner(' Loading...') + '</div>');
                 $('#new_fee_option').modal('show');
             },
             success: function(response){
@@ -343,7 +343,7 @@ jQuery(document).ready(function($){
                 }
             },
             error: function(xhr, status, error){
-                $('.showproductfee').html('<div style="text-align:center;padding:20px;color:red;"><i class="fas fa-exclamation-triangle"></i> Error loading fee details. Please try again.</div>');
+                $('.showproductfee').html('<div style="text-align:center;padding:20px;color:red;">' + crmIcon('exclamation-triangle') + ' Error loading fee details. Please try again.</div>');
                 console.error('Error loading product fee:', error);
             }
         });
@@ -363,7 +363,7 @@ jQuery(document).ready(function($){
             },
             beforeSend: function() {
                 // Show loading indicator
-                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;">' + (typeof crmIconSpinner === 'function' ? crmIconSpinner(' Loading...') : '<i class="fas fa-spinner fa-spin icon-spin"></i> Loading...') + '</div>');
+                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;">' + crmIconSpinner(' Loading...') + '</div>');
                 $('#new_fee_option_latest').modal('show');
             },
             success: function(response){
@@ -384,7 +384,7 @@ jQuery(document).ready(function($){
                 }
             },
             error: function(xhr, status, error){
-                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;color:red;"><i class="fas fa-exclamation-triangle"></i> Error loading commission status. Please try again.</div>');
+                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;color:red;">' + crmIcon('exclamation-triangle') + ' Error loading commission status. Please try again.</div>');
                 console.error('Error loading commission status:', error);
             }
         });

@@ -1,7 +1,73 @@
 {
+  "_action-popover-tomselect-mS1jw8qY.js": {
+    "file": "assets/action-popover-tomselect-mS1jw8qY.js",
+    "name": "action-popover-tomselect"
+  },
+  "_agent-custom-form-validation-BPp-XZ_V.js": {
+    "file": "assets/agent-custom-form-validation-BPp-XZ_V.js",
+    "name": "agent-custom-form-validation"
+  },
+  "_custom-eHhoCFMB.js": {
+    "file": "assets/custom-eHhoCFMB.js",
+    "name": "custom"
+  },
+  "_custom-form-validation-DvJRj50w.js": {
+    "file": "assets/custom-form-validation-DvJRj50w.js",
+    "name": "custom-form-validation"
+  },
+  "_inactivity-logout-CgnCX8zd.js": {
+    "file": "assets/inactivity-logout-CgnCX8zd.js",
+    "name": "inactivity-logout"
+  },
   "_rolldown-runtime-QTnfLwEv.js": {
     "file": "assets/rolldown-runtime-QTnfLwEv.js",
     "name": "rolldown-runtime"
+  },
+  "resources/js/admin-layout-scripts.js": {
+    "file": "assets/admin-layout-scripts-DZdeZgBw.js",
+    "name": "admin-layout-scripts",
+    "src": "resources/js/admin-layout-scripts.js",
+    "isEntry": true,
+    "imports": [
+      "_inactivity-logout-CgnCX8zd.js",
+      "_action-popover-tomselect-mS1jw8qY.js",
+      "_custom-form-validation-DvJRj50w.js",
+      "_custom-eHhoCFMB.js"
+    ]
+  },
+  "resources/js/adminconsole-layout-scripts.js": {
+    "file": "assets/adminconsole-layout-scripts-B5GDU5eP.js",
+    "name": "adminconsole-layout-scripts",
+    "src": "resources/js/adminconsole-layout-scripts.js",
+    "isEntry": true,
+    "imports": [
+      "_inactivity-logout-CgnCX8zd.js",
+      "_custom-form-validation-DvJRj50w.js",
+      "_custom-eHhoCFMB.js"
+    ]
+  },
+  "resources/js/agent-adminconsole-layout-scripts.js": {
+    "file": "assets/agent-adminconsole-layout-scripts-Dsojstyh.js",
+    "name": "agent-adminconsole-layout-scripts",
+    "src": "resources/js/agent-adminconsole-layout-scripts.js",
+    "isEntry": true,
+    "imports": [
+      "_inactivity-logout-CgnCX8zd.js",
+      "_custom-eHhoCFMB.js",
+      "_agent-custom-form-validation-BPp-XZ_V.js"
+    ]
+  },
+  "resources/js/agent-layout-scripts.js": {
+    "file": "assets/agent-layout-scripts-CdRfCaeg.js",
+    "name": "agent-layout-scripts",
+    "src": "resources/js/agent-layout-scripts.js",
+    "isEntry": true,
+    "imports": [
+      "_inactivity-logout-CgnCX8zd.js",
+      "_action-popover-tomselect-mS1jw8qY.js",
+      "_custom-eHhoCFMB.js",
+      "_agent-custom-form-validation-BPp-XZ_V.js"
+    ]
   },
   "resources/js/apexcharts-init.js": {
     "file": "assets/apexcharts-init-DR9j2dLZ.js",
@@ -33,6 +99,15 @@
     "src": "resources/js/legacy-init.js",
     "isEntry": true
   },
+  "resources/js/minimal-layout-scripts.js": {
+    "file": "assets/minimal-layout-scripts-7XMtxvaH.js",
+    "name": "minimal-layout-scripts",
+    "src": "resources/js/minimal-layout-scripts.js",
+    "isEntry": true,
+    "imports": [
+      "_custom-eHhoCFMB.js"
+    ]
+  },
   "resources/js/pages/admin/account.js": {
     "file": "assets/account-BnAJPmJq.js",
     "name": "account",
@@ -40,7 +115,7 @@
     "isEntry": true
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-DTc4yfRQ.js",
+    "file": "assets/client-detail-entry-B8VZzv8R.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
