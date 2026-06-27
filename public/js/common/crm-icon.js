@@ -79,6 +79,7 @@
         'grip-vertical': 'grip-vertical',
         'history': 'history',
         'id-card': 'id-card',
+        'image': 'image',
         'inbox': 'inbox',
         'info-circle': 'info',
         'language': 'languages',

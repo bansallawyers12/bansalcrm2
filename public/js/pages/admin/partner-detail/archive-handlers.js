@@ -43,7 +43,7 @@ window.arcivedAction = function(id, table) {
         $.ajax({
             type:'post',
             headers: { 'X-CSRF-TOKEN': App.getCsrf() },
-            url: App.getUrl('deleteAction') + '/delete_action',
+            url: App.getUrl('deleteAction') || App.getUrl('siteUrl') + '/delete_action',
             data:{'id': id, 'table' : table},
             success:function(resp) {
                 $('#popuploader').hide();

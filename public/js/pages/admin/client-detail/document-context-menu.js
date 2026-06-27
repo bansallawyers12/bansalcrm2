@@ -4,6 +4,14 @@
 'use strict';
 
 (function() {
+    function toastMsg(message, type) {
+        if (typeof window.toastMsg === 'function') {
+            window.toastMsg(message, type);
+        } else if (message) {
+            alert(message);
+        }
+    }
+
     // Create context menu element
     let contextMenu = null;
     let currentDocumentRow = null;
@@ -148,7 +156,7 @@
                     window.open(fileUrl, '_blank');
                 } else {
                     console.error('Missing AWS configuration or file data for preview');
-                    alert('Unable to preview file. Missing configuration.');
+                    toastMsg('Unable to preview file. Missing configuration.', 'error');
                 }
             }
             hideContextMenu();
@@ -457,16 +465,16 @@
                 modal.hide();
                 modalEl.remove();
                 if (res.status) {
-                    alert('Success: ' + res.message);
+                    toastMsg(res.message || 'Document moved successfully.', 'success');
                     if (window.DocumentCategoryManager) {
                         window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
                         window.DocumentCategoryManager.loadCategories(true);
                     }
                 } else {
-                    alert('Error: ' + (res.message || 'Failed to move document'));
+                    toastMsg(res.message || 'Failed to move document', 'error');
                 }
             }).fail(function(xhr) {
-                alert('Error: ' + ((xhr.responseJSON && xhr.responseJSON.message) || 'Failed to move document'));
+                toastMsg((xhr.responseJSON && xhr.responseJSON.message) || 'Failed to move document', 'error');
             });
         }
 

@@ -13,6 +13,7 @@
 	<!-- jQuery 3.7.1 — single source (Phase 2a) -->
 	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	@vite(['resources/sass/app.scss'])
+	@vite(['resources/js/vendor-libs.js'])
 	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/components.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}">

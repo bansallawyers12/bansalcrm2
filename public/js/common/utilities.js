@@ -77,6 +77,8 @@ window.toastMsg = function (message, type) {
     if (message != null && String(message).trim() !== '') {
         if (typeof window.__nativeAlert === 'function') {
             window.__nativeAlert(message);
+        } else if (typeof window.alert === 'function') {
+            window.alert(message);
         }
     }
 };

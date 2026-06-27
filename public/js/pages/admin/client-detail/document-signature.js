@@ -5,6 +5,14 @@
 'use strict';
 
 (function() {
+    function toastMsg(message, type) {
+        if (typeof window.toastMsg === 'function') {
+            window.toastMsg(message, type);
+        } else if (message) {
+            alert(message);
+        }
+    }
+
     const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')) || '';
     const csrf = (typeof App !== 'undefined' && App.getCsrf && App.getCsrf()) || (function() {
         const m = document.querySelector('meta[name="csrf-token"]');
@@ -130,7 +138,7 @@
                 const signerName = clientName;
                 if (!signerEmail) {
                     if (typeof Swal !== 'undefined') Swal.fire('Email required', 'Please enter the signer email address.', 'warning');
-                    else alert('Please enter the signer email address.');
+                    else toastMsg('Please enter the signer email address.', 'warning');
                     return;
                 }
                 self.savePlacement(docId, signerEmail, signerName);
@@ -306,7 +314,7 @@
                 if (typeof Swal !== 'undefined') {
                     Swal.fire('Add a field', 'Click on the document to place at least one signature field.', 'warning');
                 } else {
-                    alert('Please add at least one signature field.');
+                    toastMsg('Please add at least one signature field.', 'warning');
                 }
                 return;
             }
@@ -347,13 +355,13 @@
                         window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
                     }
                 } else {
-                    alert(res.message || 'Failed to save placement.');
+                    toastMsg(res.message || 'Failed to save placement.', 'error');
                 }
             })
             .catch(err => {
                 if (btn) btn.disabled = false;
                 console.error(err);
-                alert('Failed to save. Please try again.');
+                toastMsg('Failed to save. Please try again.', 'error');
             });
         },
 
@@ -375,10 +383,10 @@
                     // Reload list so Send becomes disabled and Reminder appears
                     this.reloadDocuments();
                 } else {
-                    alert(res.message || 'Failed to send.');
+                    toastMsg(res.message || 'Failed to send.', 'error');
                 }
             })
-            .catch(() => alert('Failed to send. Please try again.'));
+            .catch(() => toastMsg('Failed to send. Please try again.', 'error'));
         },
 
         sendReminder: function(docId) {
@@ -391,9 +399,9 @@
             .then(res => {
                 if (res.status) {
                     if (typeof Swal !== 'undefined') Swal.fire('Success', 'Reminder sent.', 'success');
-                    else alert('Reminder sent.');
+                    else toastMsg('Reminder sent.', 'success');
                 } else {
-                    alert(res.message || 'Failed to send reminder.');
+                    toastMsg(res.message || 'Failed to send reminder.', 'error');
                 }
             });
         },

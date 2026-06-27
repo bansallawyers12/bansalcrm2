@@ -139,14 +139,14 @@ class IconHelper
         }
 
         return [
-            'name' => ltrim($stored, 'fa-'),
+            'name' => self::normalizeFaSlug($stored),
             'style' => 'solid',
         ];
     }
 
     public static function lucideName(string $faName): string
     {
-        $faName = ltrim($faName, 'fa-');
+        $faName = self::normalizeFaSlug($faName);
         $map = config('icons.fa_to_lucide', []);
 
         return $map[$faName] ?? str_replace('_', '-', $faName);
@@ -271,7 +271,7 @@ class IconHelper
     {
         $map = config('icons.size_classes', []);
 
-        return $map[$size] ?? (str_starts_with($size, 'icon-') ? $size : 'icon-' . ltrim($size, 'fa-'));
+        return $map[$size] ?? (str_starts_with($size, 'icon-') ? $size : 'icon-' . (str_starts_with($size, 'fa-') ? substr($size, 3) : $size));
     }
 
     /**

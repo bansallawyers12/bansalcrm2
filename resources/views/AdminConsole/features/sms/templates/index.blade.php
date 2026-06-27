@@ -86,15 +86,15 @@ function deleteTemplate(templateId) {
             data: { _token: '{{ csrf_token() }}' },
             success: function(response) {
                 if (response.success) {
-                    alert('Template deleted successfully!');
+                    toastMsg('Template deleted successfully!', 'success');
                     location.reload();
                 } else {
-                    alert('Error: ' + response.message);
+                    toastMsg('Error: ' + response.message, 'error');
                 }
             },
             error: function(xhr) {
                 var response = xhr.responseJSON;
-                alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while deleting the template');
+                toastMsg(response && response.message ? 'Error: ' + response.message : 'An error occurred while deleting the template', 'error');
             }
         });
     });

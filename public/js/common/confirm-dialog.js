@@ -15,6 +15,7 @@
     var modalEl = null;
     var bsModal = null;
     var pendingResolve = null;
+    var nativeConfirm = window.confirm ? window.confirm.bind(window) : null;
 
     function ensureModal() {
         if (modalEl) {
@@ -29,7 +30,7 @@
             '        <h5 class="modal-title" id="crmConfirmModalTitle">Please confirm</h5>' +
             '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
             '      </div>' +
-            '      <div class="modal-body"><p id="crmConfirmModalMessage" class="mb-0"></p></div>' +
+            '      <div class="modal-body"><p id="crmConfirmModalMessage" class="mb-0" style="white-space:pre-wrap"></p></div>' +
             '      <div class="modal-footer">' +
             '        <button type="button" class="btn btn-secondary" id="crmConfirmCancel" data-bs-dismiss="modal">Cancel</button>' +
             '        <button type="button" class="btn btn-primary" id="crmConfirmOk">Confirm</button>' +
@@ -68,8 +69,16 @@
         if (resolve) {
             resolve(!!result);
         }
-        if (bsModal) {
+        if (bsModal && modalEl && modalEl.classList.contains('show')) {
             bsModal.hide();
+        }
+    }
+
+    function cancelPending() {
+        if (pendingResolve) {
+            var resolve = pendingResolve;
+            pendingResolve = null;
+            resolve(false);
         }
     }
 
@@ -80,6 +89,8 @@
      */
     window.crmConfirm = function (message, options) {
         options = options || {};
+        cancelPending();
+
         return new Promise(function (resolve) {
             ensureModal();
             pendingResolve = resolve;
@@ -99,12 +110,14 @@
             var modal = getBootstrapModal();
             if (modal) {
                 modal.show();
-            } else if (window.confirm) {
-                resolve(window.confirm(message));
-                pendingResolve = null;
+                return;
+            }
+
+            pendingResolve = null;
+            if (nativeConfirm) {
+                resolve(nativeConfirm(message));
             } else {
                 resolve(false);
-                pendingResolve = null;
             }
         });
     };
@@ -167,11 +180,11 @@
                 }
 
                 if (target.type === 'submit' && target.form) {
-                    target.dataset.crmConfirmBypass = '1';
+                    target.form.dataset.crmConfirmApproved = '1';
                     if (typeof target.form.requestSubmit === 'function') {
                         target.form.requestSubmit(target);
                     } else {
-                        target.click();
+                        target.form.submit();
                     }
                     return;
                 }

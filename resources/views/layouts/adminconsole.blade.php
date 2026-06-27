@@ -45,8 +45,6 @@
 	<!-- Modern Search CSS -->
 	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/modern-search.css')) }}">
 	
-    <link rel="stylesheet" href="{{asset('css/dataTables_min_latest.css')}}">
-    
     @stack('styles')
     
     @include('../Elements/AdminConsole/styles')

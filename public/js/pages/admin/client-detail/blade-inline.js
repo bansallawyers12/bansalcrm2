@@ -16,6 +16,14 @@
 
 'use strict';
 
+function toastMsg(message, type) {
+    if (typeof window.toastMsg === 'function') {
+        window.toastMsg(message, type);
+    } else if (message) {
+        alert(message);
+    }
+}
+
 // ============================================================================
 // TAB URL SYNCHRONIZATION
 // ============================================================================
@@ -424,11 +432,11 @@ function handleBulkFilesSelected(files) {
     });
     
     if (invalidFiles.length > 0) {
-        alert('The following files were skipped:\n' + invalidFiles.join('\n'));
+        toastMsg('The following files were skipped:\n' + invalidFiles.join('\n'), 'warning');
     }
     
     if (bulkUploadFiles.length === 0) {
-        alert('No valid files selected. Please select PDF, JPG, PNG, DOC, or DOCX files under 50MB.');
+        toastMsg('No valid files selected. Please select PDF, JPG, PNG, DOC, or DOCX files under 50MB.', 'warning');
         return;
     }
     
@@ -656,7 +664,7 @@ $(document).on('click', '#confirm-bulk-upload', function() {
     });
     
     if (unmappedFiles.length > 0) {
-        alert('Please map all files to checklists:\n' + unmappedFiles.join('\n'));
+        toastMsg('Please map all files to checklists:\n' + unmappedFiles.join('\n'), 'warning');
         return;
     }
     
@@ -714,7 +722,7 @@ function uploadBulkFiles(files, mappings) {
                 if (response.errors && response.errors.length > 0) {
                     message += '\n\nSome files failed:\n' + response.errors.join('\n');
                 }
-                alert(message);
+                toastMsg(message, 'success');
                 $('#bulk-upload-mapping-modal').hide();
                 $('.bulk-upload-dropzone-container').hide();
                 $('.bulk-upload-toggle-btn').html(crmIcon('upload') + ' Bulk Upload');
@@ -736,7 +744,7 @@ function uploadBulkFiles(files, mappings) {
                 if (response.errors && response.errors.length > 0) {
                     errorMsg += '\n\nDetails:\n' + response.errors.join('\n');
                 }
-                alert(errorMsg);
+                toastMsg(errorMsg, 'error');
             }
         },
         error: function(xhr) {
@@ -746,7 +754,7 @@ function uploadBulkFiles(files, mappings) {
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMsg = xhr.responseJSON.message;
             }
-            alert(errorMsg);
+            toastMsg(errorMsg, 'error');
         }
     });
 }
@@ -878,14 +886,14 @@ $(document).on('click', '.updateclientreceipt', function() {
                 // Open the modal
                 $('#createclientreceiptmodal').modal('show');
             } else {
-                alert('Error loading receipt data: ' + obj.message);
+                toastMsg('Error loading receipt data: ' + obj.message, 'error');
             }
         },
         error: function() {
             if ($('.popuploader').length) {
                 $('.popuploader').hide();
             }
-            alert('Error loading receipt data. Please try again.');
+            toastMsg('Error loading receipt data. Please try again.', 'error');
         }
     });
 });
@@ -931,7 +939,7 @@ $(document).on('click', '.removeitems', function() {
         $(this).closest('tr').remove();
         calculateReceiptTotal();
     } else {
-        alert('At least one row is required.');
+        toastMsg('At least one row is required.', 'warning');
     }
 });
 
