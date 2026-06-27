@@ -495,11 +495,46 @@ console.log(timestring);
 
 
 
+    var POPOVER_FLATPICKR_GUARD_MS = 450;
+    var popoverFlatpickrGuardUntil = 0;
+
+    /** Brief guard after Flatpickr use so double-click's 2nd click (after calendar closes) does not dismiss popover. */
+    function armPopoverFlatpickrGuard(ms) {
+        popoverFlatpickrGuardUntil = Date.now() + (ms || POPOVER_FLATPICKR_GUARD_MS);
+    }
+
+    function isWithinPopoverFlatpickrGuard() {
+        return Date.now() < popoverFlatpickrGuardUntil;
+    }
+
+    $(document).on('mousedown', '.flatpickr-calendar, .popover .flatpickr-input, .popover input.flatpickr-date, .popover #popoverdatetime', function () {
+        armPopoverFlatpickrGuard();
+    });
+
+    function isPopoverInsideClick(target) {
+        var $target = $(target);
+        if ($('.popover').has(target).length > 0) {
+            return true;
+        }
+        /* Flatpickr appends .flatpickr-calendar to body — treat as in-popover interaction */
+        if ($target.closest('.flatpickr-calendar').length > 0) {
+            return true;
+        }
+        /* Legacy bootstrap datepicker day/month/year cells */
+        if ($target.hasClass('day') || $target.hasClass('year') || $target.hasClass('month')) {
+            return true;
+        }
+        return false;
+    }
+
     $("body").on('click', function (e) {
+        if (isWithinPopoverFlatpickrGuard()) {
+            return;
+        }
         // Support both legacy and Bootstrap 5 popovers
         $("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function(){
             var $el = $(this);
-            if (!$el.is(e.target) && $el.has(e.target).length === 0 && $('.popover').has(e.target).length === 0 && !$(e.target).hasClass('day') && !$(e.target).hasClass('year') && !$(e.target).hasClass('month')) {
+            if (!$el.is(e.target) && $el.has(e.target).length === 0 && !isPopoverInsideClick(e.target)) {
                 // Hide popover using jQuery bridge (works with both Bootstrap 4 and 5)
                 $el.popover('hide');
             }

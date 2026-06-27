@@ -27,8 +27,28 @@
         return html == null ? '' : String(html);
     }
 
-    function compactOpts() {
-        var extra = { dropdownParent: 'body', minimumResultsForSearch: Infinity };
+    /**
+     * Popovers: omit dropdownParent so Tom Select keeps the menu on each .ts-wrapper (below the control).
+     * Modals: attach to .modal-content (same pattern as initModalTomSelects) to stay above the backdrop.
+     */
+    function resolveDropdownParent(container, selectEl) {
+        var root = resolveElement(container);
+        var select = resolveElement(selectEl);
+        var modal = (root && root.closest && root.closest('.modal')) ||
+            (select && select.closest && select.closest('.modal'));
+
+        if (modal) {
+            return modal.querySelector('.modal-content') || modal;
+        }
+
+        return null;
+    }
+
+    function compactOpts(dropdownParent) {
+        var extra = { minimumResultsForSearch: Infinity };
+        if (dropdownParent) {
+            extra.dropdownParent = dropdownParent;
+        }
         if (typeof compactTomSelectOptions === 'function') {
             return compactTomSelectOptions(extra);
         }
@@ -43,7 +63,8 @@
         if (!root) {
             return [];
         }
-        var opts = compactOpts();
+        var dropdownParent = resolveDropdownParent(root, null);
+        var opts = compactOpts(dropdownParent);
         var instances = [];
 
         root.querySelectorAll('select.assigneeselect2, select.task_group, select.assineeselect2').forEach(function (element) {
@@ -67,7 +88,8 @@
         if (!element) {
             return null;
         }
-        var opts = compactOpts();
+        var dropdownParent = resolveDropdownParent(container, element);
+        var opts = compactOpts(dropdownParent);
         var optionsHtml = normalizeOptionsHtml(html);
 
         if (typeof reinitTomSelectAfterHtml === 'function') {

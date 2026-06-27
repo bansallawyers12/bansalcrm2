@@ -60,6 +60,30 @@
                             if(typeof getallnotes === 'function') {
                                 getallnotes();
                             }
+                            if(typeof showToast === 'function') {
+                                showToast('Action submitted successfully.', 'success');
+                            }
+                        } else if(typeof showToast === 'function') {
+                            showToast(obj.message || 'An error occurred. Please try again.', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('.popuploader').hide();
+                        var errorMessage = 'An error occurred. Please try again.';
+                        try {
+                            var errorObj = typeof xhr.responseJSON === 'object' && xhr.responseJSON
+                                ? xhr.responseJSON
+                                : $.parseJSON(xhr.responseText);
+                            if(errorObj && errorObj.message) {
+                                errorMessage = errorObj.message;
+                            }
+                        } catch (e) {
+                            if(xhr.responseText) {
+                                errorMessage = xhr.responseText;
+                            }
+                        }
+                        if(typeof showToast === 'function') {
+                            showToast(errorMessage, 'error');
                         }
                     }
                 });

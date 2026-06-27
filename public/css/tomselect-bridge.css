@@ -164,6 +164,7 @@
 /* Keep assign/reassign popovers wide after Tom Select replaces native selects (intrinsic width) */
 .popover:has(select.assigneeselect2) {
     min-width: min(480px, calc(100vw - 2rem));
+    overflow: visible !important;
 }
 
 .popover:has(select.assigneeselect2) .popover-body {
@@ -175,12 +176,13 @@
 }
 
 .popover .ts-wrapper {
-    z-index: 100001 !important;
     width: 100% !important;
 }
 
-.popover .ts-dropdown {
-    z-index: 100001 !important;
+/* Raise only the open select so its menu stacks above fields below (Assignee vs Group) */
+.popover .ts-wrapper.focus,
+.popover .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
 }
 
 .action-page-select-bridge .ts-wrapper {

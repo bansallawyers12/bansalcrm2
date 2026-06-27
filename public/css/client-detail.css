@@ -990,10 +990,29 @@ td .dropdown-menu {
 	font-size: 12px;
 }
 
-.btn-assignaction:hover {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-	color: #fff !important;
+/* Assign Staff Action button on client profile header (overrides global .btn-primary hover) */
+.btn.btn-primary.btn-block.btn-assignaction,
+.btn.btn-primary.btn-block.btn-assignaction:hover,
+.btn.btn-primary.btn-block.btn-assignaction:focus,
+.btn.btn-primary.btn-block.btn-assignaction:active {
+	background: rgba(255, 255, 255, 0.95) !important;
+	background-color: rgba(255, 255, 255, 0.95) !important;
+	color: var(--primary-color) !important;
+	border: none !important;
+	border-color: transparent !important;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+	transform: none;
 }
+
+.btn.btn-primary.btn-block.btn-assignaction:hover,
+.btn.btn-primary.btn-block.btn-assignaction:focus-visible {
+	background: #fff !important;
+	background-color: #fff !important;
+	color: var(--primary-color) !important;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+	transform: translateY(-2px);
+}
+
 #assignUser {
 	color: #fff !important;
 }
