@@ -258,6 +258,45 @@
     min-width: 0;
 }
 
+/* Ongoing sheet filters — dropdown stays on .ts-wrapper (same pattern as insights/audit) */
+.ongoing-sheet-main {
+    overflow: visible !important;
+}
+
+.ongoing-filter-card .card-body,
+#filterPanel.collapse,
+.ongoing-filter-panel {
+    overflow: visible !important;
+}
+
+.ongoing-filter-card .ts-wrapper {
+    width: 100%;
+}
+
+.ongoing-filter-card .ts-wrapper.focus,
+.ongoing-filter-card .ts-wrapper.dropdown-active {
+    z-index: 10050 !important;
+}
+
+.ongoing-filter-card .ts-dropdown {
+    z-index: 10050 !important;
+    width: 100%;
+    min-width: 280px;
+    max-width: min(calc(100vw - 1.5rem), 360px);
+}
+
+.ongoing-filter-card .ts-dropdown-content {
+    max-height: 280px;
+}
+
+.ongoing-filter-card .ts-dropdown .option {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 6px 12px;
+    line-height: 1.35;
+}
+
 /* Partner create form — Tom Select menus inside main-content (overflow:hidden) */
 .partner-create-form-card .card-body,
 .partner-create-form-card .accordion-body {

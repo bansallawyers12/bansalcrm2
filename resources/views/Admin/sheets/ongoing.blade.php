@@ -48,6 +48,14 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         overflow: visible;
     }
+    /* Escape .main-content { overflow: hidden } so Tom Select menus are not clipped */
+    .ongoing-sheet-main {
+        overflow: visible !important;
+    }
+    #filterPanel.collapse,
+    .ongoing-filter-panel {
+        overflow: visible !important;
+    }
     .ongoing-filter-card .card-body {
         padding: 0.5rem 0.75rem 0.75rem;
     }
@@ -115,21 +123,6 @@
         min-height: 34px;
         font-size: 0.8125rem;
         color: #374151;
-    }
-    .ongoing-filter-panel .ts-dropdown {
-        z-index: 1056;
-    }
-    .ongoing-filter-stage-select + .ts-wrapper .ts-dropdown,
-    .ongoing-filter-stage-select.tomselect ~ .ts-wrapper .ts-dropdown {
-        min-width: 280px;
-        max-width: min(calc(100vw - 1.5rem), 360px);
-    }
-    .ts-dropdown.ongoing-filter-stage-dropdown .option {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding: 6px 12px;
-        line-height: 1.35;
     }
     .ongoing-filter-panel .form-control:focus {
         border-color: #6f5fb8;
@@ -291,7 +284,7 @@
 @endpush
 
 @section('content')
-<div class="main-content">
+<div class="main-content ongoing-sheet-main">
     <section class="section">
         <div class="section-body">
             
@@ -357,7 +350,7 @@
                                 <div class="row g-2 align-items-end">
                                     <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Branch</label>
-                                        <select name="branch[]" class="form-control tomselect ongoing-filter-branch-select" multiple>
+                                        <select name="branch[]" class="form-control ongoing-filter-branch-select" multiple>
                                             @foreach($branches as $b)
                                                 <option value="{{ $b->id }}" 
                                                     {{ in_array($b->id, (array)request('branch', [])) ? 'selected' : '' }}>
@@ -393,8 +386,7 @@
                                                 return strtolower(trim((string) $value)) === strtolower($selectedCurrentStage);
                                             });
                                         @endphp
-                                        <select name="current_stage" id="ongoing-current-stage-filter" class="form-control tomselect ongoing-filter-stage-select" data-selected-stage="{{ e($selectedCurrentStageValue) }}">
-                                            <option value="" {{ $selectedCurrentStage === '' ? 'selected' : '' }}></option>
+                                        <select name="current_stage" id="ongoing-current-stage-filter" class="form-control ongoing-filter-stage-select" data-selected-stage="{{ e($selectedCurrentStageValue) }}">
                                             @foreach($currentStages as $value => $label)
                                                 <option value="{{ $value }}" {{ $selectedCurrentStage !== '' && strtolower(trim((string) $value)) === strtolower($selectedCurrentStage) ? 'selected' : '' }}>
                                                     {{ $label ?: '—' }}
@@ -787,7 +779,7 @@ $(document).ready(function() {
         clickOpens: true
     });
     
-    // Tom Select for filter panel (excluded from global scripts.js auto-init)
+    // Tom Select for filter panel (init when ready; also after Filters panel opens)
     var ongoingStageTomSelectBound = false;
 
     function resolveOngoingStageOptionValue(stageEl, stageVal) {
@@ -824,10 +816,11 @@ $(document).ready(function() {
         return null;
     }
 
-    function initOngoingBranchFilterTomSelect() {
+    function initOngoingFilterTomSelects() {
         if (typeof initTomSelectPreserveValue !== 'function') {
             return;
         }
+
         document.querySelectorAll('.ongoing-filter-panel select.ongoing-filter-branch-select').forEach(function (el) {
             if (el.tomselect) {
                 return;
@@ -835,50 +828,28 @@ $(document).ready(function() {
             initTomSelectPreserveValue(el, {
                 width: '100%',
                 multiple: true,
-                closeOnSelect: false,
-                dropdownParent: 'body'
+                closeOnSelect: false
             });
         });
-    }
 
-    function initOngoingStageFilterTomSelect(forceReinit) {
         var stageEl = document.getElementById('ongoing-current-stage-filter');
-        var filterPanel = document.getElementById('filterPanel');
-        if (!stageEl || typeof initTomSelect !== 'function' || !filterPanel || !filterPanel.classList.contains('show')) {
+        if (!stageEl || stageEl.tomselect) {
             return;
         }
+
         var preservedVal = getOngoingStagePreservedValue(stageEl);
-        if (preservedVal) {
-            stageEl.value = preservedVal;
-        } else {
-            stageEl.value = '';
-        }
-        if (stageEl.tomselect) {
-            if (!forceReinit) {
-                if (typeof setEnhancedSelectValue === 'function') {
-                    setEnhancedSelectValue(stageEl, preservedVal || '', true);
-                }
-                return;
-            }
-            if (typeof destroyEnhancedSelect === 'function') {
-                destroyEnhancedSelect(stageEl);
-            }
-        }
-        var stageOpts = {
+        initTomSelectPreserveValue(stageEl, {
             width: '100%',
             allowClear: true,
-            placeholder: 'All stages',
-            dropdownParent: 'body',
-            dropdownCssClass: 'ongoing-filter-stage-dropdown'
-        };
-        if (typeof initTomSelectPreserveValue === 'function') {
-            initTomSelectPreserveValue(stageEl, stageOpts);
-        } else {
-            initTomSelect(stageEl, stageOpts);
-        }
+            placeholder: 'All stages'
+        });
+
         if (typeof setEnhancedSelectValue === 'function') {
             setEnhancedSelectValue(stageEl, preservedVal || '', true);
+        } else if (preservedVal) {
+            stageEl.value = preservedVal;
         }
+
         if (!ongoingStageTomSelectBound) {
             stageEl.addEventListener('change', function () {
                 var val = typeof getEnhancedSelectValue === 'function'
@@ -890,40 +861,23 @@ $(document).ready(function() {
         }
     }
 
-    function initOngoingFilterPanelWhenVisible() {
-        var filterPanel = document.getElementById('filterPanel');
-        if (!filterPanel || !filterPanel.classList.contains('show')) {
-            return;
+    function bootOngoingFilterTomSelects() {
+        if (typeof whenTomSelectReady === 'function') {
+            whenTomSelectReady(initOngoingFilterTomSelects);
+        } else if (typeof waitForTomSelect === 'function') {
+            waitForTomSelect().then(initOngoingFilterTomSelects);
+        } else {
+            initOngoingFilterTomSelects();
         }
-        initOngoingBranchFilterTomSelect();
-        initOngoingStageFilterTomSelect(true);
     }
 
-    var $filterPanel = $('#filterPanel');
-    function scheduleOngoingFilterPanelInit() {
-        if (!$filterPanel.hasClass('show')) {
-            return;
-        }
-        var run = function () {
-            window.setTimeout(function () {
-                initOngoingFilterPanelWhenVisible();
-            }, 0);
-        };
-        if (typeof whenTomSelectReady === 'function') {
-            whenTomSelectReady(run);
-        } else {
-            run();
-        }
-    }
-    $filterPanel.on('shown.bs.collapse', function() {
-        if (typeof whenTomSelectReady === 'function') {
-            whenTomSelectReady(initOngoingFilterPanelWhenVisible);
-        } else {
-            initOngoingFilterPanelWhenVisible();
-        }
-    });
-    if ($filterPanel.hasClass('show')) {
-        scheduleOngoingFilterPanelInit();
+    bootOngoingFilterTomSelects();
+
+    var filterPanelEl = document.getElementById('filterPanel');
+    if (filterPanelEl) {
+        filterPanelEl.addEventListener('shown.bs.collapse', function () {
+            window.setTimeout(bootOngoingFilterTomSelects, 50);
+        });
     }
     // Assignee in top bar: navigate on change, preserve other params
     $('#ongoing-assignee-bar').on('change', function() {
