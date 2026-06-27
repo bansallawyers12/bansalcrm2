@@ -10,6 +10,7 @@
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
 	<link rel="stylesheet" href="{{ asset('icons/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('icons/font-awesome/css/v4-shims.min.css') }}">
 	@vite(['resources/sass/app.scss'])
 	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/components.css') }}">

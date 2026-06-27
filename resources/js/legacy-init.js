@@ -37,14 +37,6 @@
         return JSON.parse(response);
     }
 
-    function appendCheckinStatusBadge($container, status) {
-        var badgeClass = status === 'Archived'
-            ? 'badge bg-secondary ts-result-row__statistics'
-            : 'badge bg-warning text-dark ts-result-row__statistics';
-        $container.find('.ts-result-row__stats-wrap')
-            .append($('<span></span>').addClass(badgeClass).text(status || ''));
-    }
-
     function toastMsg(message, type) {
         if (typeof window.showToast === 'function') {
             window.showToast(message, type);

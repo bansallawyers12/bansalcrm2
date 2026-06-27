@@ -256,13 +256,6 @@ mark.search-highlight {
     z-index: 10101;
 }
 
-.search-element .ts-wrapper .ts-control .placeholder::after {
-    content: ' (Ctrl+K)';
-    font-size: 11px;
-    color: #adb5bd;
-    font-weight: 400;
-}
-
 @media (max-width: 768px) {
     .search-element .ts-wrapper {
         min-width: 250px;

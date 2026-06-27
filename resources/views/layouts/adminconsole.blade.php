@@ -38,6 +38,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="{{asset('icons/font-awesome/css/all.min.css')}}">
+	<link rel="stylesheet" href="{{asset('icons/font-awesome/css/v4-shims.min.css')}}">
 
 	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])

@@ -868,7 +868,8 @@ $(document).ready(function() {
             width: '100%',
             allowClear: true,
             placeholder: 'All stages',
-            dropdownParent: 'body'
+            dropdownParent: 'body',
+            dropdownCssClass: 'ongoing-filter-stage-dropdown'
         };
         if (typeof initTomSelectPreserveValue === 'function') {
             initTomSelectPreserveValue(stageEl, stageOpts);

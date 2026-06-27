@@ -400,7 +400,7 @@ console.log(timestring);
         }
 
         var $container = $(
-            "<div dataid="+repo.cid+" class='selectclient ts-result-row ag-flex ag-space-between ag-align-center')'>" +
+            "<div dataid="+repo.cid+" class='selectclient ts-result-row ag-flex ag-space-between ag-align-center'>" +
 
             "<div  class='ag-flex ag-align-start'>" +
                 "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='ts-result-row__title text-semi-bold'></span>&nbsp;</div>" +

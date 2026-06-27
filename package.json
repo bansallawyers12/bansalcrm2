@@ -8,7 +8,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "build:prod": "npm ci && vite build"
+        "build:prod": "npm ci && vite build",
+        "sync-fontawesome": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync-fontawesome.ps1"
     },
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^6.7.2",

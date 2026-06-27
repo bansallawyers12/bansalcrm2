@@ -12,6 +12,7 @@
 	<!-- Bootstrap CSS in head (prevents FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
     <link href="{{ asset('icons/font-awesome/css/all.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('icons/font-awesome/css/v4-shims.min.css') }}" rel="stylesheet">
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
     <!-- flatpickr CSS now loaded via Vite (vendor-libs.js) -->

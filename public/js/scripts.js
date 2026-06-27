@@ -322,22 +322,6 @@ $(function () {
     console.warn('Bootstrap popover not available. Ensure Vite app.js (Bootstrap) is loaded before scripts.js');
   }
 
-  // Tom Select for native selects that still need enhancement (legacy markup without .tomselect)
-  if (typeof whenTomSelectReady === 'function') {
-    whenTomSelectReady(function () {
-      var ajaxSkip = '.js-data-example-ajaxcc, .js-data-example-ajaxccd, .js-data-example-ajaxccdd, ' +
-        '.js-data-example-ajaxccapp, .js-data-example-ajax, .js-data-example-ajaxcontact, ' +
-        '.js-data-example-ajax-check, .js-data-example-ajaxccsearch, .js-data-example-ajaxccsearch__addmytask';
-      document.querySelectorAll('select.enhanced-select:not(.tomselect):not(.tomselect-migrated):not([data-enhanced="tomselect"])').forEach(function (el) {
-        if (el.matches(ajaxSkip)) {
-          return;
-        }
-        el.classList.add('tomselect');
-        initTomSelectPreserveValue(el, { width: '100%', allowClear: true });
-      });
-    });
-  }
-
   // Selectric
   if (jQuery().selectric) {
     $(".selectric").selectric({
