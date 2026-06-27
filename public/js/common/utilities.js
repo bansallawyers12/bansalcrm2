@@ -64,6 +64,19 @@ function ValidateEmail(inputText) {
 }
 
 /**
+ * Show toast notification with alert() fallback
+ * @param {string} message - Message to display
+ * @param {'success'|'error'|'warning'|'info'} [type] - Toast type
+ */
+function toastMsg(message, type) {
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, type);
+    } else if (message) {
+        alert(message);
+    }
+}
+
+/**
  * Format error message for display
  * @param {string} message - Error message text
  * @returns {string} Formatted HTML error message
@@ -127,6 +140,7 @@ if (typeof window !== 'undefined') {
     window.pad = pad;
     window.ValidateEmail = ValidateEmail;
     window.errorMessage = errorMessage;
+    window.toastMsg = toastMsg;
     window.showLoader = showLoader;
     window.hideLoader = hideLoader;
     window.formatDate = formatDate;

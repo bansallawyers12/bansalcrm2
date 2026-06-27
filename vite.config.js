@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [
@@ -7,7 +11,7 @@ export default defineConfig({
             input: [
                 'resources/sass/app.scss',  // Bootstrap CSS in <head> (JS stays in app.js)
                 'resources/js/fullcalendar-init.js',  // Load FullCalendar v6
-                'resources/js/vendor-libs.js',  // flatpickr, iziToast, Tom Select (CSS in layout head)
+                'resources/js/vendor-libs.js',  // flatpickr, iziToast, Tom Select, DataTables (CSS in layout head)
                 'resources/js/apexcharts-init.js',
                 'resources/js/signature-pad-init.js',
                 'resources/js/legacy-init.js',  // Legacy initialization (waits for vendor libs)
@@ -29,6 +33,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': '/resources/js',
+            jquery: path.resolve(__dirname, 'resources/js/jquery-global-shim.js'),
         },
     },
     build: {

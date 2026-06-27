@@ -42,6 +42,12 @@
         });
     }
 
+    var toastMsg = typeof window.toastMsg === 'function'
+        ? window.toastMsg.bind(window)
+        : (typeof window.showToast === 'function'
+            ? window.showToast.bind(window)
+            : function (message) { if (message) alert(message); });
+
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
@@ -90,22 +96,14 @@ jQuery(document).ready(function($){
                 }
             }).done(function() {
                 if (successMessage) {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.success({
-                            title: 'Success',
-                            message: successMessage,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(successMessage);
-                    }
+                    toastMsg(successMessage, 'success');
                 }
             }).fail(function(xhr) {
                 var errorMsg = 'Failed to save changes.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-                alert(errorMsg);
+                toastMsg(errorMsg, 'error');
             }).always(function() {
                 window.__clientEditAutoSaveInProgress = false;
             });
@@ -406,7 +404,7 @@ jQuery(document).ready(function($){
                 autoSaveClientEditForm('Phone number updated successfully.');
             } else {
                 console.error('Could not find phone item with index:', phone_index);
-                alert('Error: Could not find the phone item to update.');
+                toastMsg('Error: Could not find the phone item to update.', 'error');
             }
         }
     });
@@ -446,14 +444,14 @@ jQuery(document).ready(function($){
             flag = true;
         }
         if(email_type == ''){
-            alert('Please select email type.');
+            toastMsg('Please select email type.', 'warning');
             flag = true;
         }
         // Personal email type can only be used once
         if (!flag && email_type === 'Personal') {
             var hasPersonal = $('.clientemaildata .contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
             if (hasPersonal) {
-                alert("'Personal' email type can only be used once. Please choose another type (e.g. Work, Business).");
+                toastMsg("'Personal' email type can only be used once. Please choose another type (e.g. Work, Business).", 'warning');
                 flag = true;
             }
         }
@@ -510,7 +508,7 @@ jQuery(document).ready(function($){
         var emailId = $(this).attr('data-email-id');
         var count = $('.clientemaildata .compact-contact-item').length;
         if (count <= 1) {
-            alert('At least one email address is required.');
+            toastMsg('At least one email address is required.', 'warning');
             return;
         }
         if (confirm('Are you sure you want to delete this email?')) {
@@ -560,7 +558,7 @@ jQuery(document).ready(function($){
             flag = true;
         }
         if(email_type == ''){
-            alert('Please select email type.');
+            toastMsg('Please select email type.', 'warning');
             flag = true;
         }
         // Personal email type can only be used once (exclude the item being edited)
@@ -568,7 +566,7 @@ jQuery(document).ready(function($){
             var $item = $('#' + email_id);
             var otherHasPersonal = $('.clientemaildata .compact-contact-item').not($item).find('.contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
             if (otherHasPersonal) {
-                alert("'Personal' email type can only be used once. Please choose another type (e.g. Work, Business).");
+                toastMsg("'Personal' email type can only be used once. Please choose another type (e.g. Work, Business).", 'warning');
                 flag = true;
             }
         }
@@ -594,7 +592,7 @@ jQuery(document).ready(function($){
                 $('#update_clientemail').hide();
                 $('.addclientemail').modal('hide');
             } else {
-                alert('Error: Could not find the email item to update.');
+                toastMsg('Error: Could not find the email item to update.', 'error');
             }
         }
     });
@@ -662,7 +660,7 @@ jQuery(document).ready(function($){
 
                     }
                 } else {
-                    alert(obj.message);
+                    toastMsg(obj.message, 'error');
                 }
             }
         );
@@ -768,17 +766,9 @@ jQuery(document).ready(function($){
                         });
                         
                         // Show success message
-                        if (typeof iziToast !== 'undefined') {
-                            iziToast.success({
-                                title: 'Success',
-                                message: obj.message,
-                                position: 'topRight'
-                            });
-                        } else {
-                            alert(obj.message);
-                        }
+                        toastMsg(obj.message, 'success');
                     } else {
-                        alert(obj.message);
+                        toastMsg(obj.message, 'error');
                     }
                 }
             );
@@ -881,9 +871,8 @@ jQuery(document).ready(function($){
                 {client_email: client_email, client_id: client_id, client_fname: client_fname},
                 function(response){
                     var obj = typeof response === 'string' ? $.parseJSON(response) : response;
-                    alert(obj.message);
-                    // Reload page if successful to update verification status
-                    if(obj.status === true) {
+                    toastMsg(obj.message, obj.status === true ? 'success' : 'error');
+                    if (obj.status === true) {
                         setTimeout(function() {
                             location.reload();
                         }, 1000);
@@ -894,7 +883,7 @@ jQuery(document).ready(function($){
                     if(xhr.responseJSON && xhr.responseJSON.message) {
                         errorMsg = xhr.responseJSON.message;
                     }
-                    alert(errorMsg);
+                    toastMsg(errorMsg, 'error');
                 }
             );
         }
@@ -923,12 +912,12 @@ jQuery(document).ready(function($){
     $('#sendCodeBtn').click(function() {
         const phoneNumber = $('#verify_phone_number').val();
         if (!phoneNumber) {
-            alert('Please enter a phone number');
+            toastMsg('Please enter a phone number', 'warning');
             return;
         }
         const clientId = (typeof App !== 'undefined' && App.getPageConfig && App.getPageConfig('clientId')) || null;
         if (!clientId) {
-            alert('Client context is missing. Please refresh the page.');
+            toastMsg('Client context is missing. Please refresh the page.', 'warning');
             return;
         }
 
@@ -938,15 +927,15 @@ jQuery(document).ready(function($){
         })
         .done(function(response) {
             if (response.success) {
-                alert(response.message || 'Verification code sent successfully');
+                toastMsg(response.message || 'Verification code sent successfully', 'success');
                 $('#verificationCodeSection').show();
             } else {
-                alert(response.message || 'Failed to send verification code');
+                toastMsg(response.message || 'Failed to send verification code', 'error');
             }
         })
         .fail(function(xhr) {
             const errorMsg = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Failed to send verification code';
-            alert(errorMsg);
+            toastMsg(errorMsg, 'error');
         });
     });
 
@@ -954,12 +943,12 @@ jQuery(document).ready(function($){
         const phoneNumber = $('#verify_phone_number').val();
         const code = $('#verification_code').val();
         if (!phoneNumber || !code) {
-            alert('Please enter phone number and verification code');
+            toastMsg('Please enter phone number and verification code', 'warning');
             return;
         }
         const clientId = (typeof App !== 'undefined' && App.getPageConfig && App.getPageConfig('clientId')) || null;
         if (!clientId) {
-            alert('Client context is missing. Please refresh the page.');
+            toastMsg('Client context is missing. Please refresh the page.', 'warning');
             return;
         }
 
@@ -970,16 +959,16 @@ jQuery(document).ready(function($){
         })
         .done(function(response) {
             if (response.success) {
-                alert(response.message || 'Phone number verified successfully');
+                toastMsg(response.message || 'Phone number verified successfully', 'success');
                 $('#verifyphonemodal').modal('hide');
                 location.reload(); // Reload to show updated verified numbers list
             } else {
-                alert(response.message || 'Verification failed');
+                toastMsg(response.message || 'Verification failed', 'error');
             }
         })
         .fail(function(xhr) {
             const errorMsg = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Verification failed';
-            alert(errorMsg);
+            toastMsg(errorMsg, 'error');
         });
     });
 
@@ -995,7 +984,7 @@ jQuery(document).ready(function($){
                 {vl: v, type: 'clientid'},
                 function(res){
                     if(res == 1){
-                        alert('Client Id is already exist in our record.');
+                        toastMsg('Client Id is already exist in our record.', 'warning');
                     }
                 }
             );

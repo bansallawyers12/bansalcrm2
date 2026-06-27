@@ -6,6 +6,12 @@
 (function() {
     'use strict';
 
+    var toastMsg = typeof window.toastMsg === 'function'
+        ? window.toastMsg.bind(window)
+        : (typeof window.showToast === 'function'
+            ? window.showToast.bind(window)
+            : function (message) { if (message) alert(message); });
+
     // Global state
     window.DocumentCategoryManager = {
         currentClientId: null,
@@ -380,7 +386,7 @@
 
             $wrap.find('.rename-category-save-btn').on('click', function() {
                 const name = $wrap.find('#rename-category-input-modal').val().trim();
-                if (!name) { alert('Please enter a name'); return; }
+                if (!name) { toastMsg('Please enter a name', 'warning'); return; }
                 modal.hide();
                 $wrap.remove();
                 self.renameCategory(categoryId, name);
@@ -400,16 +406,16 @@
             }).done(function(res) {
                 if (res.status) {
                     if (typeof Swal !== 'undefined') Swal.fire('Success!', res.message, 'success');
-                    else alert('Success: ' + res.message);
+                    else toastMsg(res.message, 'success');
                     self.loadCategories(true);
                 } else {
                     if (typeof Swal !== 'undefined') Swal.fire('Error!', res.message, 'error');
-                    else alert('Error: ' + res.message);
+                    else toastMsg(res.message, 'error');
                 }
             }).fail(function(xhr) {
                 const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to rename category';
                 if (typeof Swal !== 'undefined') Swal.fire('Error!', msg, 'error');
-                else alert('Error: ' + msg);
+                else toastMsg(msg, 'error');
             });
         },
 
@@ -451,16 +457,16 @@
             }).done(function(res) {
                 if (res.status) {
                     if (typeof Swal !== 'undefined') Swal.fire('Success!', res.message, 'success');
-                    else alert('Success: ' + res.message);
+                    else toastMsg(res.message, 'success');
                     self.loadCategories(false);
                 } else {
                     if (typeof Swal !== 'undefined') Swal.fire('Error!', res.message, 'error');
-                    else alert('Error: ' + res.message);
+                    else toastMsg(res.message, 'error');
                 }
             }).fail(function(xhr) {
                 const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to delete category';
                 if (typeof Swal !== 'undefined') Swal.fire('Error!', msg, 'error');
-                else alert('Error: ' + msg);
+                else toastMsg(msg, 'error');
             });
         },
 
@@ -521,7 +527,7 @@
                         if (typeof Swal !== 'undefined') {
                             Swal.fire('Success!', response.message, 'success');
                         } else {
-                            alert('Success: ' + response.message);
+                            toastMsg(response.message, 'success');
                         }
                         // Reload categories to update document count (preserve current category)
                         self.loadCategories(true);
@@ -529,7 +535,7 @@
                         if (typeof Swal !== 'undefined') {
                             Swal.fire('Error!', response.message, 'error');
                         } else {
-                            alert('Error: ' + response.message);
+                            toastMsg(response.message, 'error');
                         }
                     }
                 },
@@ -540,7 +546,7 @@
                     if (typeof Swal !== 'undefined') {
                         Swal.fire('Error!', message, 'error');
                     } else {
-                        alert('Error: ' + message);
+                        toastMsg(message, 'error');
                     }
                 }
             });
@@ -654,7 +660,7 @@
                                     showConfirmButton: false
                                 });
                             } else {
-                                alert('Success: ' + response.message);
+                                toastMsg(response.message, 'success');
                             }
                             
                             // Reload current category documents
@@ -668,7 +674,7 @@
                             if (typeof Swal !== 'undefined') {
                                 Swal.fire('Error!', response.message, 'error');
                             } else {
-                                alert('Error: ' + response.message);
+                                toastMsg(response.message, 'error');
                             }
                         }
                     },
@@ -683,7 +689,7 @@
                         if (typeof Swal !== 'undefined') {
                             Swal.fire('Error!', message, 'error');
                         } else {
-                            alert('Error: ' + message);
+                            toastMsg(message, 'error');
                         }
                     }
                 });

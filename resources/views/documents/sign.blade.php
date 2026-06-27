@@ -457,13 +457,36 @@
         let currentTab = 'draw';
 
         // Initialize
+        function whenSignaturePadReady(callback) {
+            if (typeof SignaturePad !== 'undefined') {
+                callback();
+                return;
+            }
+            var attempts = 0;
+            var poll = setInterval(function () {
+                attempts++;
+                if (typeof SignaturePad !== 'undefined') {
+                    clearInterval(poll);
+                    callback();
+                } else if (attempts >= 100) {
+                    clearInterval(poll);
+                    console.error('SignaturePad failed to load');
+                }
+            }, 50);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            initSignaturePad();
-            initTabs();
-            loadPages();
+            whenSignaturePadReady(function () {
+                initSignaturePad();
+                initTabs();
+                loadPages();
+            });
         });
 
         function initSignaturePad() {
+            if (typeof SignaturePad === 'undefined') {
+                return;
+            }
             const canvas = document.getElementById('signaturePad');
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',

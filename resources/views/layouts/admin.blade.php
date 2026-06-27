@@ -16,16 +16,10 @@
 	<!-- jQuery 3.7.1 — single source (Phase 2a: sync in head; do not also load via Vite) -->
 	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	
-	<!-- Tom Select: bundled via Vite (vendor-libs.js, Phase 2b) -->
+	<!-- DataTables: bundled via Vite (vendor-libs.js, Phase 2c) -->
 
-	<!-- Load DataTables from CDN (after jQuery, before other scripts) -->
-	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css">
-	<script src="https://cdn.datatables.net/1.13.11/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/1.13.11/js/dataTables.bootstrap5.min.js"></script>
-	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
- 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, Tom Select -->
- 	<!-- Note: DataTables is loaded from CDN in <head> -->
+ 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, Tom Select, DataTables -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
 	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
@@ -36,7 +30,7 @@
 
 	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
-	<!-- Vendor CSS + JS (flatpickr, iziToast, Tom Select) — CSS in head prevents FOUC (Phase 2b) -->
+	<!-- Vendor CSS + JS (flatpickr, iziToast, Tom Select, DataTables) — CSS in head prevents FOUC -->
 	@vite(['resources/js/vendor-libs.js'])
   
 	<link rel="stylesheet" href="{{asset('css/style.css')}}">

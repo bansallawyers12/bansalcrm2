@@ -48,6 +48,14 @@
         });
     }
 
+    function toastMsg(message, type) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type);
+        } else if (message) {
+            alert(message);
+        }
+    }
+
 // ============================================================================
 // EMAIL MODAL HANDLERS
 // ============================================================================
@@ -350,7 +358,7 @@ jQuery(document).ready(function($){
         var cEmail = ($btn.attr('data-college-email') || '').trim();
         var cName = ($btn.attr('data-college-name') || 'College').trim();
         if (!cEmail) {
-            showToast('No college email on file. Add branch or partner email in the partner profile.', 'warning');
+            toastMsg('No college email on file. Add branch or partner email in the partner profile.', 'warning');
             return;
         }
         $('#sendmail_application_id').val(appId);
@@ -498,25 +506,25 @@ jQuery(document).ready(function($){
         var subject = $('.selectedsubject').val();
         
         if (!emailFrom || emailFrom === '') {
-            showToast('Please select a From email address', 'warning');
+            toastMsg('Please select a From email address', 'warning');
             $('.popuploader').hide();
             return false;
         }
         
         if (!emailTo || emailTo.length === 0) {
-            showToast('Please select at least one recipient', 'warning');
+            toastMsg('Please select at least one recipient', 'warning');
             $('.popuploader').hide();
             return false;
         }
         
         if (!subject || subject.trim() === '') {
-            showToast('Please enter email subject', 'warning');
+            toastMsg('Please enter email subject', 'warning');
             $('.popuploader').hide();
             return false;
         }
         
         if (!emailContent || emailContent.trim() === '') {
-            showToast('Please enter email message', 'warning');
+            toastMsg('Please enter email message', 'warning');
             $('.popuploader').hide();
             return false;
         }
@@ -551,7 +559,7 @@ jQuery(document).ready(function($){
                 $('.popuploader').hide();
                 var res = typeof response === 'string' ? $.parseJSON(response) : response;
                 if(res.status) {
-                    showToast(res.message || 'Email sent successfully', 'success');
+                    toastMsg(res.message || 'Email sent successfully', 'success');
                     $('#sendmail_send_context').val(''); // Clear context after successful send
                     $('#sendmail_application_id').val('');
                     $('#compose_email_category').val('');
@@ -584,7 +592,7 @@ jQuery(document).ready(function($){
                         } catch (e) { /* tab may not exist on non-client/partner pages */ }
                     }
                 } else {
-                    showToast(res.message || 'Failed to send email', 'error');
+                    toastMsg(res.message || 'Failed to send email', 'error');
                 }
             },
             error: function(xhr, status, error) {
@@ -607,7 +615,7 @@ jQuery(document).ready(function($){
                     }
                 }
                 
-                showToast(errorMessage, 'error');
+                toastMsg(errorMessage, 'error');
             }
         });
         

@@ -46,7 +46,7 @@
     "isEntry": true
   },
   "resources/js/vendor-libs.js": {
-    "file": "assets/vendor-libs-BuXqztxr.js",
+    "file": "assets/vendor-libs-s9lOJLvt.js",
     "name": "vendor-libs",
     "src": "resources/js/vendor-libs.js",
     "isEntry": true,
@@ -54,7 +54,7 @@
       "_rolldown-runtime-QTnfLwEv.js"
     ],
     "css": [
-      "assets/vendor-libs-CZxLwPwE.css"
+      "assets/vendor-libs-Dn_GArSx.css"
     ]
   },
   "resources/sass/app.scss": {

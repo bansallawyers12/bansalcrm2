@@ -1976,27 +1976,11 @@ use App\Http\Controllers\Controller;
                 if (response.status) {
                     displayAgreements(response.agreements);
                 } else {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.error({
-                            title: 'Error',
-                            message: 'Failed to load agreements',
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert('Failed to load agreements');
-                    }
+                    toastMsg('Failed to load agreements', 'error');
                 }
             },
             error: function() {
-                if (typeof iziToast !== 'undefined') {
-                    iziToast.error({
-                        title: 'Error',
-                        message: 'Error loading agreements',
-                        position: 'topRight'
-                    });
-                } else {
-                    alert('Error loading agreements');
-                }
+                toastMsg('Error loading agreements', 'error');
             }
         });
     }
@@ -2152,27 +2136,11 @@ use App\Http\Controllers\Controller;
                         modal.show();
                     }
                 } else {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.error({
-                            title: 'Error',
-                            message: 'Failed to load agreement data',
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert('Failed to load agreement data');
-                    }
+                    toastMsg('Failed to load agreement data', 'error');
                 }
             },
             error: function() {
-                if (typeof iziToast !== 'undefined') {
-                    iziToast.error({
-                        title: 'Error',
-                        message: 'Error loading agreement data',
-                        position: 'topRight'
-                    });
-                } else {
-                    alert('Error loading agreement data');
-                }
+                toastMsg('Error loading agreement data', 'error');
             }
         });
     }
@@ -2189,15 +2157,7 @@ use App\Http\Controllers\Controller;
             contentType: false,
             success: function(response) {
                 if (response.status) {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.success({
-                            title: 'Success',
-                            message: response.message,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(response.message);
-                    }
+                    toastMsg(response.message, 'success');
                     // Use Bootstrap 5 native API to hide modal
                     var agreementModal = document.getElementById('agreementModal');
                     if (agreementModal) {
@@ -2208,15 +2168,7 @@ use App\Http\Controllers\Controller;
                     }
                     loadPartnerAgreements();
                 } else {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.error({
-                            title: 'Error',
-                            message: response.message,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(response.message);
-                    }
+                    toastMsg(response.message, 'error');
                 }
             },
             error: function(xhr) {
@@ -2224,15 +2176,7 @@ use App\Http\Controllers\Controller;
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-                if (typeof iziToast !== 'undefined') {
-                    iziToast.error({
-                        title: 'Error',
-                        message: errorMsg,
-                        position: 'topRight'
-                    });
-                } else {
-                    alert(errorMsg);
-                }
+                toastMsg(errorMsg, 'error');
             }
         });
     }
@@ -2252,38 +2196,14 @@ use App\Http\Controllers\Controller;
             },
             success: function(response) {
                 if (response.status) {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.success({
-                            title: 'Success',
-                            message: response.message,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(response.message);
-                    }
+                    toastMsg(response.message, 'success');
                     loadPartnerAgreements();
                 } else {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.error({
-                            title: 'Error',
-                            message: response.message,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(response.message);
-                    }
+                    toastMsg(response.message, 'error');
                 }
             },
             error: function() {
-                if (typeof iziToast !== 'undefined') {
-                    iziToast.error({
-                        title: 'Error',
-                        message: 'Error deleting agreement',
-                        position: 'topRight'
-                    });
-                } else {
-                    alert('Error deleting agreement');
-                }
+                toastMsg('Error deleting agreement', 'error');
             }
         });
     }
@@ -2299,38 +2219,14 @@ use App\Http\Controllers\Controller;
             },
             success: function(response) {
                 if (response.status) {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.success({
-                            title: 'Success',
-                            message: response.message,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(response.message);
-                    }
+                    toastMsg(response.message, 'success');
                     loadPartnerAgreements();
                 } else {
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.error({
-                            title: 'Error',
-                            message: response.message,
-                            position: 'topRight'
-                        });
-                    } else {
-                        alert(response.message);
-                    }
+                    toastMsg(response.message, 'error');
                 }
             },
             error: function() {
-                if (typeof iziToast !== 'undefined') {
-                    iziToast.error({
-                        title: 'Error',
-                        message: 'Error setting active agreement',
-                        position: 'topRight'
-                    });
-                } else {
-                    alert('Error setting active agreement');
-                }
+                toastMsg('Error setting active agreement', 'error');
             }
         });
     }
@@ -2369,6 +2265,10 @@ use App\Http\Controllers\Controller;
 @endif
 
 @if($activeTab === 'student')
+{{-- Buttons extension (CDN): defer so core DataTables from vendor-libs loads first (Phase 2c) --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+<script defer src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script defer src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/datatable-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/status-handlers.js')) }}"></script>
 @endif

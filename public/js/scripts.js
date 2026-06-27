@@ -32,6 +32,25 @@ function initExpectDatepickers(context, appid) {
 }
 window.initExpectDatepickers = initExpectDatepickers;
 
+/**
+ * Init Flatpickr on .flatpickr-date fields inside a modal/container (destroys prior instances).
+ * @param {string} containerSelector - e.g. '#actionPopoverModal'
+ * @param {object} [options] - Flatpickr options merged over defaults
+ */
+function initModalFlatpickrDates(containerSelector, options) {
+  if (typeof flatpickr === 'undefined') {
+    return;
+  }
+  var opts = Object.assign({ dateFormat: 'Y-m-d', allowInput: true }, options || {});
+  document.querySelectorAll(containerSelector + ' .flatpickr-date').forEach(function (el) {
+    if (el._flatpickr) {
+      el._flatpickr.destroy();
+    }
+    flatpickr(el, opts);
+  });
+}
+window.initModalFlatpickrDates = initModalFlatpickrDates;
+
 // Hide loader on window load OR after 3 seconds (fallback)
 $(window).on("load", function () {
   $(".loader").fadeOut("slow");

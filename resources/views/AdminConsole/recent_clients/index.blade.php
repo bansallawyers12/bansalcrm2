@@ -931,7 +931,9 @@ $(document).ready(function() {
 			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
 			data: { client_id: clientId, category: category },
 			success: function(response) {
-				if (response.message) alert(response.message);
+				if (response.message) {
+					toastMsg(response.message, response.success ? 'success' : 'warning');
+				}
 				// Refetch document list so modal updates (button may disappear if no public docs left)
 				$.ajax({
 					url: '{{ route("adminconsole.recentclients.documentsbycategory") }}',
@@ -989,7 +991,7 @@ $(document).ready(function() {
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public documents';
-				alert(msg);
+				toastMsg(msg, 'error');
 				var catLabel = (category && category.length) ? (category.charAt(0).toUpperCase() + category.slice(1)) : 'Public';
 				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All ' + catLabel + ' Public Docs');
 			}
@@ -1010,13 +1012,15 @@ $(document).ready(function() {
 			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
 			data: { client_id: clientId },
 			success: function(response) {
-				if (response.message) alert(response.message);
+				if (response.message) {
+					toastMsg(response.message, response.success ? 'success' : 'warning');
+				}
 				if ($detailsContent.length) loadClientDetails(clientId, $detailsContent);
 				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3');
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
-				alert(msg);
+				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3');
 			}
 		});
@@ -1043,13 +1047,13 @@ $(document).ready(function() {
 					var deleteBtn = '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc ml-1" data-document-id="' + (response.document_id || documentId) + '" title="Delete the local copy (document remains on S3)"><i class="fas fa-trash-alt"></i> Delete public doc</button>';
 					$viewLink.after(deleteBtn);
 				} else {
-					alert(response.message || 'Upload failed');
+					toastMsg(response.message || 'Upload failed', 'error');
 					$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
 				}
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
-				alert(msg);
+				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
 			}
 		});
@@ -1071,13 +1075,13 @@ $(document).ready(function() {
 				if (response.success) {
 					$btn.closest('li').fadeOut(300, function() { $(this).remove(); });
 				} else {
-					alert(response.message || 'Delete failed');
+					toastMsg(response.message || 'Delete failed', 'error');
 					$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete Document');
 				}
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete document';
-				alert(msg);
+				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete Document');
 			}
 		});
@@ -1099,13 +1103,13 @@ $(document).ready(function() {
 				if (response.success) {
 					$btn.remove();
 				} else {
-					alert(response.message || 'Delete failed');
+					toastMsg(response.message || 'Delete failed', 'error');
 					$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete public doc');
 				}
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public doc';
-				alert(msg);
+				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete public doc');
 			}
 		});
@@ -1143,7 +1147,7 @@ $(document).ready(function() {
 		console.log('[BulkArchive] IDs type:', typeof ids, 'isArray:', Array.isArray(ids));
 		
 		if (ids.length === 0) {
-			alert('Please select at least one client to archive.');
+			toastMsg('Please select at least one client to archive.', 'warning');
 			return;
 		}
 		if (!confirm('Are you sure you want to archive ' + ids.length + ' client(s)? They will be moved to archived clients.')) {
@@ -1174,10 +1178,10 @@ $(document).ready(function() {
 					if (response.debug) {
 						msg += '\n\n[DEBUG] ' + JSON.stringify(response.debug, null, 2);
 					}
-					alert(msg);
+					toastMsg(msg, 'success');
 					window.location.reload();
 				} else {
-					alert('Error: ' + (response.message || 'Failed to archive clients'));
+					toastMsg(response.message || 'Failed to archive clients', 'error');
 					$btn.prop('disabled', false);
 					$btn.html(originalHtml);
 				}
@@ -1188,7 +1192,7 @@ $(document).ready(function() {
 				if (xhr.responseJSON && xhr.responseJSON.message) {
 					errorMsg = xhr.responseJSON.message;
 				}
-				alert('Error: ' + errorMsg);
+				toastMsg(errorMsg, 'error');
 				$btn.prop('disabled', false);
 				$btn.html(originalHtml);
 			}
@@ -1204,7 +1208,7 @@ $(document).ready(function() {
 		});
 
 		if (ids.length === 0) {
-			alert('First Select Client atlest 1 client.');
+			toastMsg('First Select Client atlest 1 client.', 'warning');
 			return;
 		}
 
@@ -1254,12 +1258,12 @@ $(document).ready(function() {
 					},
 					data: { client_ids: ids },
 					success: function(response) {
-						alert(response.message || 'Bulk upload completed.');
+						toastMsg(response.message || 'Bulk upload completed.', response.success ? 'success' : 'warning');
 						window.location.reload();
 					},
 					error: function(xhr) {
 						var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Bulk upload failed';
-						alert(msg);
+						toastMsg(msg, 'error');
 						$btn.prop('disabled', false).html(originalHtml);
 						updateBulkArchiveState();
 					}
@@ -1267,7 +1271,7 @@ $(document).ready(function() {
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load upload summary';
-				alert(msg);
+				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html(originalHtml);
 				updateBulkArchiveState();
 			}
@@ -1301,7 +1305,7 @@ $(document).ready(function() {
 				success: function(response) {
 					if (response.success) {
 						// Show success message
-						alert(response.message);
+						toastMsg(response.message, 'success');
 						
 						// Reload the client details to reflect the new archive status
 						if ($detailsContent.length) {
@@ -1311,7 +1315,7 @@ $(document).ready(function() {
 						// Optionally reload the page to refresh the list
 						// window.location.reload();
 					} else {
-						alert('Error: ' + (response.message || 'Failed to ' + actionText + ' client'));
+						toastMsg(response.message || ('Failed to ' + actionText + ' client'), 'error');
 						$btn.prop('disabled', false);
 						$btn.html(originalHtml);
 					}
@@ -1321,7 +1325,7 @@ $(document).ready(function() {
 					if (xhr.responseJSON && xhr.responseJSON.message) {
 						errorMsg = xhr.responseJSON.message;
 					}
-					alert('Error: ' + errorMsg);
+					toastMsg(errorMsg, 'error');
 					$btn.prop('disabled', false);
 					$btn.html(originalHtml);
 				}

@@ -332,7 +332,9 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof flatpickr !== 'undefined') {
-        flatpickr('.audit-datepicker', { dateFormat: 'd/m/Y', allowInput: true });
+        document.querySelectorAll('.audit-datepicker').forEach(function (el) {
+            flatpickr(el, { dateFormat: 'd/m/Y', allowInput: true });
+        });
     }
     if (typeof whenTomSelectReady === 'function') {
         whenTomSelectReady(function () {
@@ -348,6 +350,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 allowClear: true
             });
         });
+    }
+
+    function renderAuditCharts() {
+    if (typeof ApexCharts === 'undefined') {
+        return;
     }
 
     var loginsByHour = @json(array_values($loginsByHour));
@@ -400,6 +407,23 @@ document.addEventListener('DOMContentLoaded', function() {
             xaxis: { categories: trendLabels, labels: { style: { fontSize: '11px' } } },
             colors: ['#8b5cf6'],
         }).render();
+    }
+    }
+
+    if (typeof ApexCharts !== 'undefined') {
+        renderAuditCharts();
+    } else {
+        var apexAttempts = 0;
+        var apexPoll = setInterval(function () {
+            apexAttempts++;
+            if (typeof ApexCharts !== 'undefined') {
+                clearInterval(apexPoll);
+                renderAuditCharts();
+            } else if (apexAttempts >= 100) {
+                clearInterval(apexPoll);
+                console.warn('ApexCharts not loaded — audit charts skipped');
+            }
+        }, 50);
     }
 });
 </script>

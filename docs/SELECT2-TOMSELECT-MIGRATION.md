@@ -268,7 +268,7 @@ Add-modal / edit-modal `contact_name` AJAX fields remain **commented out** in bl
 | Check-in modal | `.js-data-example-ajax-check` → `RecipientSelect.init` (replaces Select2 in `legacy-init.js`) |
 | `partner-detail.js`, `client-detail.js` | Vendor poll uses `initTomSelect` not Select2 |
 
-**Note:** CSS class names like `select2-result-repository` remain in Tom Select render templates for styling continuity (`tomselect-bridge.css`). `modern-search-simple.js` / `modern-search-debug.js` are dev-only and not loaded in production layouts.
+**Note:** Tom Select render templates use `ts-result-row*` / `ts-category-header` classes (styled in `tomselect-bridge.css` and `modern-search.css`). Legacy `select2-result-*` names were renamed in the Select2 removal pass. Dead Select2 widget rules were removed from `style.css` / `components.css`. `modern-search-simple.js` / `modern-search-debug.js` are dev-only and not loaded in production layouts.
 
 ## Phase 0 test checklist
 

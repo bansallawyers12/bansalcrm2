@@ -970,7 +970,7 @@ $(document).ready(function() {
         var appId = $('#sheet_assignee_application_id').val();
         var assigneeId = $('#sheet_assignee_select').val();
         if (!assigneeId) {
-            alert('Please select an assignee.');
+            toastMsg('Please select an assignee.', 'warning');
             return;
         }
         var $btn = $(this).prop('disabled', true);
@@ -994,7 +994,7 @@ $(document).ready(function() {
                     }
                     location.reload();
                 } else {
-                    alert((res && res.message) || 'Failed to update assignee.');
+                    toastMsg((res && res.message) || 'Failed to update assignee.', 'error');
                 }
             },
             error: function(xhr) {
@@ -1002,7 +1002,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
                 }
-                alert(msg);
+                toastMsg(msg, 'error');
             },
             complete: function() { $btn.prop('disabled', false); }
         });
@@ -1012,7 +1012,7 @@ $(document).ready(function() {
         var appId = $('#sheet_comment_application_id').val();
         var comment = $('#sheet_comment_text').val().trim();
         if (!comment) {
-            alert('Please enter a comment.');
+            toastMsg('Please enter a comment.', 'warning');
             return;
         }
         var $btn = $(this).prop('disabled', true);
@@ -1035,7 +1035,7 @@ $(document).ready(function() {
                 location.reload();
             },
             error: function(xhr) {
-                alert(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to save comment.');
+                toastMsg(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to save comment.', 'error');
             },
             complete: function() { $btn.prop('disabled', false); }
         });
@@ -1065,7 +1065,7 @@ $(document).ready(function() {
                         location.reload();
                     }
                 } else {
-                    alert((res && res.message) || 'Failed to update status.');
+                    toastMsg((res && res.message) || 'Failed to update status.', 'error');
                     $select.val($select.data('previous') || 'active');
                 }
                 $select.prop('disabled', false);
@@ -1075,7 +1075,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
                 }
-                alert(msg);
+                toastMsg(msg, 'error');
                 $select.val($select.data('previous') || 'active');
                 $select.prop('disabled', false);
             }
@@ -1113,7 +1113,7 @@ $(document).ready(function() {
                 if (res && res.success) {
                     location.reload();
                 } else {
-                    alert((res && res.message) || 'Failed to record reminder.');
+                    toastMsg((res && res.message) || 'Failed to record reminder.', 'error');
                 }
             },
             error: function(xhr) {
@@ -1121,7 +1121,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     errMsg = Object.values(xhr.responseJSON.errors).flat().join(' ');
                 }
-                alert(errMsg);
+                toastMsg(errMsg, 'error');
             },
             complete: function() { $btn.prop('disabled', false); }
         });

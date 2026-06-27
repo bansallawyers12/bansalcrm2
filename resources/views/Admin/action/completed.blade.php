@@ -423,9 +423,14 @@ jQuery(document).ready(function($){
         } else {
             $(modalEl).modal('show');
         }
-        if (typeof flatpickr !== 'undefined') {
+        if (typeof initModalFlatpickrDates === 'function') {
+            initModalFlatpickrDates('#actionPopoverModal');
+        } else if (typeof flatpickr !== 'undefined') {
             document.querySelectorAll('#actionPopoverModal .flatpickr-date').forEach(function (el) {
-                flatpickr(el, { dateFormat: 'Y-m-d' });
+                if (el._flatpickr) {
+                    el._flatpickr.destroy();
+                }
+                flatpickr(el, { dateFormat: 'Y-m-d', allowInput: true });
             });
         }
     });
@@ -469,9 +474,14 @@ jQuery(document).ready(function($){
         } else {
             $(modalEl).modal('show');
         }
-        if (typeof flatpickr !== 'undefined') {
+        if (typeof initModalFlatpickrDates === 'function') {
+            initModalFlatpickrDates('#actionPopoverModal');
+        } else if (typeof flatpickr !== 'undefined') {
             document.querySelectorAll('#actionPopoverModal .flatpickr-date').forEach(function (el) {
-                flatpickr(el, { dateFormat: 'Y-m-d' });
+                if (el._flatpickr) {
+                    el._flatpickr.destroy();
+                }
+                flatpickr(el, { dateFormat: 'Y-m-d', allowInput: true });
             });
         }
     });

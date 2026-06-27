@@ -1049,10 +1049,10 @@ if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg" || extn ==
 		}
 
 	} else {
-		alert("This browser does not support FileReader.");
+		toastMsg("This browser does not support FileReader.", 'error');
 	}
 } else {
-	alert("Pls select only images or pdf");
+	toastMsg("Pls select only images or pdf", 'warning');
 }
     });
 });

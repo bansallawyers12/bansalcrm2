@@ -60,9 +60,15 @@ const UIComponents = {
             console.warn('Flatpickr is not loaded');
             return;
         }
-        
+
+        var opts = options || {};
         try {
-            flatpickr(selector, options || {});
+            document.querySelectorAll(selector).forEach(function (el) {
+                if (el._flatpickr) {
+                    el._flatpickr.destroy();
+                }
+                flatpickr(el, opts);
+            });
         } catch (e) {
             console.error('Error initializing Flatpickr:', e);
         }

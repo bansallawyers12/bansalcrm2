@@ -2743,12 +2743,6 @@ use App\Http\Controllers\Controller;
 @section('scripts')
 <script src="{{ asset('js/popover.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/popover.js')) }}"></script>
 
-@if($showAlert)
-    <script>
-        alert("Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?");
-    </script>
-@endif
-
 {{-- Configuration Script: Pass Blade variables to JavaScript --}}
 <script>
     window.AppConfig = window.AppConfig || {};
@@ -2945,6 +2939,20 @@ $(function () {
 <script src="{{ asset('js/common/config.js') }}"></script>
 <script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
 <script src="{{ asset('js/common/utilities.js') }}"></script>
+@if($showAlert)
+<script>
+(function () {
+    var msg = "Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?";
+    if (typeof window.toastMsg === 'function') {
+        window.toastMsg(msg, 'warning');
+    } else if (typeof window.showToast === 'function') {
+        window.showToast(msg, 'warning');
+    } else {
+        alert(msg);
+    }
+})();
+</script>
+@endif
 <script src="{{ asset('js/common/crud-operations.js') }}"></script>
 <script src="{{ asset('js/common/activity-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/activity-handlers.js')) }}"></script>
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
@@ -3250,7 +3258,7 @@ $(document).ready(function(){
 		var applicationId = $('#sendSms_application_id').val() || '';
 		var phone = $('#sendSms_phone').val();
 		var message = applySendSmsTemplateVariables($('#sendSms_message').val());
-		if (!phone || !message) { alert('Please select a phone and enter a message.'); return; }
+		if (!phone || !message) { toastMsg('Please select a phone and enter a message.', 'warning'); return; }
 		$('#sendSms_submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
 		$.ajax({
 			url: sendSmsSendUrl,
@@ -3258,15 +3266,15 @@ $(document).ready(function(){
 			data: { _token: $('input[name="_token"]').val(), client_id: clientId, application_id: applicationId, phone: phone, message: message },
 			success: function(res){
 				if (res.success) {
-					alert('SMS sent successfully!');
+					toastMsg('SMS sent successfully!', 'success');
 					$('#sendSmsModal').modal('hide');
 				} else {
-					alert('Error: ' + (res.message || 'Failed to send SMS'));
+					toastMsg(res.message || 'Failed to send SMS', 'error');
 				}
 			},
 			error: function(xhr){
 				var res = xhr.responseJSON;
-				alert(res && res.message ? 'Error: ' + res.message : 'Failed to send SMS');
+				toastMsg(res && res.message ? res.message : 'Failed to send SMS', 'error');
 			},
 			complete: function(){
 				$('#sendSms_submitBtn').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send SMS');
@@ -3298,22 +3306,22 @@ $(document).ready(function(){
 					s--; $('#leadVerifyOtpResendBtn').text(s ? 'Resend code ('+s+'s)' : 'Resend code');
 					if (s <= 0) { clearInterval(leadVerifyResendTimer); $('#leadVerifyOtpResendBtn').prop('disabled', false); }
 				}, 1000);
-			} else { alert(r.message || 'Failed to send code'); }
-		}).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Code'); });
+			} else { toastMsg(r.message || 'Failed to send code', 'error'); }
+		}).fail(function(){ toastMsg('Request failed', 'error'); }).always(function(){ btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Code'); });
 	});
 	$('#leadVerifyOtpVerifyBtn').on('click', function(){
 		var id = $('#lead_verify_otp_lead_id').val();
 		var code = $('#lead_verify_otp_code').val();
-		if (!code || code.length !== 6) { alert('Enter 6-digit code'); return; }
+		if (!code || code.length !== 6) { toastMsg('Enter 6-digit code', 'warning'); return; }
 		var btn = $(this);
 		btn.prop('disabled', true);
 		$.post('{{ route("leads.phone.verifyOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id, otp_code: code }, function(r){
 			if (r.success) {
-				alert('Phone verified successfully!');
+				toastMsg('Phone verified successfully!', 'success');
 				$('#leadVerifyOtpModal').modal('hide');
 				location.reload();
-			} else { alert(r.message || 'Invalid code'); }
-		}).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false); });
+			} else { toastMsg(r.message || 'Invalid code', 'error'); }
+		}).fail(function(){ toastMsg('Request failed', 'error'); }).always(function(){ btn.prop('disabled', false); });
 	});
 	$('#leadVerifyOtpResendBtn').on('click', function(){
 		if ($(this).prop('disabled')) return;
@@ -3325,7 +3333,7 @@ $(document).ready(function(){
 			if (s <= 0) { clearInterval(leadVerifyResendTimer); $('#leadVerifyOtpResendBtn').prop('disabled', false); }
 		}, 1000);
 		$.post('{{ route("leads.phone.resendOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id }, function(r){
-			if (!r.success) alert(r.message || 'Resend failed');
+			if (!r.success) toastMsg(r.message || 'Resend failed', 'error');
 		});
 	});
 });
