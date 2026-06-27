@@ -155,33 +155,34 @@ function getallnotes() {
  */
 function deleteactivitylog(id) {
     if (!id) {
-        alert('Activity ID is required');
+        toastMsg('Activity ID is required', 'warning');
         return;
     }
-    
-    var conf = confirm('Are you sure you want to delete this activity?');
-    if (!conf) {
-        return;
-    }
-    
-    var url = App.getUrl('deleteActivityLog');
-    if (!url) {
-        url = App.getUrl('deleteAction'); // Fallback
-    }
-    
-    AjaxHelper.post(
-        url,
-        { id: id, table: 'activity_logs' },
-        function(resp) {
-            var obj = typeof resp === 'string' ? $.parseJSON(resp) : resp;
-            if (obj.status == 1) {
-                $('#activity_' + id).remove();
-                getallactivities(); // Refresh activities
-            } else {
-                alert(obj.message || 'Error deleting activity');
-            }
+
+    crmConfirm('Are you sure you want to delete this activity?').then(function (ok) {
+        if (!ok) {
+            return;
         }
-    );
+
+        var url = App.getUrl('deleteActivityLog');
+        if (!url) {
+            url = App.getUrl('deleteAction');
+        }
+
+        AjaxHelper.post(
+            url,
+            { id: id, table: 'activity_logs' },
+            function(resp) {
+                var obj = typeof resp === 'string' ? $.parseJSON(resp) : resp;
+                if (obj.status == 1) {
+                    $('#activity_' + id).remove();
+                    getallactivities();
+                } else {
+                    toastMsg(obj.message || 'Error deleting activity', 'error');
+                }
+            }
+        );
+    });
 }
 
 // Export functions for use in other modules

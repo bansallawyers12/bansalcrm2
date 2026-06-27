@@ -459,7 +459,13 @@ jQuery(document).ready(function($){
         var invoiceid = $(this).data('invoiceid');
         var invoicetype = $(this).data('invoicetype');
         var partnerid = $(this).data('partnerid');
-        if( invoiceid != "" && confirm('Are you sure you want to delete this invoice?') ) {
+        if (!invoiceid) {
+            return;
+        }
+        crmConfirm('Are you sure you want to delete this invoice?').then(function (ok) {
+            if (!ok) {
+                return;
+            }
             $.ajax({
                 type:'post',
                 url: App.getUrl('partnersDeleteStudentRecordByInvoiceId'),
@@ -473,7 +479,7 @@ jQuery(document).ready(function($){
                     }
                 }
             });
-        }
+        });
     });
 
     function getEnrolledStudentListInEditMode(partnerid,uniqueRowId) {
@@ -571,7 +577,13 @@ jQuery(document).ready(function($){
         var id = $(this).data('uniqueid');
         var invoicetype = $(this).data('invoicetype');
         var partnerid = $(this).data('partnerid');
-        if( id != "" && confirm('Are you sure you want to delete this record invoice?') ) {
+        if (!id) {
+            return;
+        }
+        crmConfirm('Are you sure you want to delete this record invoice?').then(function (ok) {
+            if (!ok) {
+                return;
+            }
             $.ajax({
                 type:'post',
                 url: App.getUrl('partnersDeleteStudentRecordInvoiceByInvoiceId'),
@@ -585,7 +597,7 @@ jQuery(document).ready(function($){
                     }
                 }
             });
-        }
+        });
     });
 
     // ============================================================================
@@ -683,7 +695,13 @@ jQuery(document).ready(function($){
         var id = $(this).data('uniqueid');
         var invoicetype = $(this).data('invoicetype');
         var partnerid = $(this).data('partnerid');
-        if( id != "" && confirm('Are you sure you want to delete this payment invoice?') ) {
+        if (!id) {
+            return;
+        }
+        crmConfirm('Are you sure you want to delete this payment invoice?').then(function (ok) {
+            if (!ok) {
+                return;
+            }
             $.ajax({
                 type:'post',
                 url: App.getUrl('partnersDeleteStudentPaymentInvoiceByInvoiceId'),
@@ -697,7 +715,7 @@ jQuery(document).ready(function($){
                     }
                 }
             });
-        }
+        });
     });
 });
 

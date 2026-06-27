@@ -513,9 +513,10 @@ jQuery(document).ready(function($){
             toastMsg('At least one email address is required.', 'warning');
             return;
         }
-        crmConfirm('Are you sure you want to delete this email?').then(function (ok) { if (!ok) return;
+        crmConfirm('Are you sure you want to delete this email?').then(function (ok) {
+            if (!ok) return;
             $('#' + emailId).remove();
-        }
+        });
     });
 
     // Edit client email
@@ -742,21 +743,19 @@ jQuery(document).ready(function($){
 
     // Delete service taken
     $(document).delegate('.service_taken_trash', 'click', function(e){
-        var conf = confirm('Are you sure you want to delete this service?');
-        if(conf){
-            var sel_service_taken_id = $(this).attr('id');
-            
+        var sel_service_taken_id = $(this).attr('id');
+        crmConfirm('Are you sure you want to delete this service?').then(function (conf) {
+            if (!conf) {
+                return false;
+            }
             AjaxHelper.post(
                 App.getUrl('removeServiceTaken') || App.getUrl('siteUrl') + '/client/removeservicetaken',
                 {sel_service_taken_id: sel_service_taken_id},
                 function(response){
                     var obj = typeof response === 'string' ? $.parseJSON(response) : response;
                     if(obj.status){
-                        // Remove the service card with animation
                         $('#service-card-' + obj.record_id).fadeOut(300, function(){
                             $(this).remove();
-                            
-                            // Check if no services left, show empty message
                             if($('.services-taken-grid .service-card').length === 0) {
                                 var emptyHtml = '<div class="no-services-message">';
                                 emptyHtml += crmIcon('inbox', { size: '3x', class: 'text-muted mb-3' });
@@ -766,17 +765,13 @@ jQuery(document).ready(function($){
                                 $('.services-taken-grid').html(emptyHtml);
                             }
                         });
-                        
-                        // Show success message
                         toastMsg(obj.message, 'success');
                     } else {
                         toastMsg(obj.message, 'error');
                     }
                 }
             );
-        } else {
-            return false;
-        }
+        });
     });
 
     // ============================================================================

@@ -1793,14 +1793,22 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             prefillCompose({ title: 'New Message' });
         }
 
-        function closeModal(force) {
-            if (!force && isComposeDirty() && !window.confirm('Discard this message?')) {
-                return false;
-            }
+        function doCloseModal() {
             if (overlay) overlay.style.display = 'none';
             composeBaseline = '';
             composeReady = false;
-            return true;
+        }
+
+        function closeModal(force) {
+            if (!force && isComposeDirty()) {
+                crmConfirm('Discard this message?').then(function (ok) {
+                    if (ok) {
+                        doCloseModal();
+                    }
+                });
+                return;
+            }
+            doCloseModal();
         }
 
         function requestCloseModal() {

@@ -399,8 +399,10 @@ $(function () {
 
         var url = $(this).data('remote');
 
-        var deleteConfirm = confirm("Are you sure?");
-        if (deleteConfirm == true) {
+        crmConfirm("Are you sure?").then(function (deleteConfirm) {
+            if (!deleteConfirm) {
+                return;
+            }
             $.ajax({
                 url: url,
                 type: 'DELETE',
@@ -409,7 +411,7 @@ $(function () {
             }).always(function (data) {
                 $('.yajra-datatable').DataTable().draw(false);
             });
-        }
+        });
     });
 });
 

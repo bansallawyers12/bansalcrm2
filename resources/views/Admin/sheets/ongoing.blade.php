@@ -1090,9 +1090,12 @@ $(document).ready(function() {
         e.preventDefault();
         e.stopPropagation();
         var msg = $(this).data('msg') || 'Continue?';
-        if (confirm(msg)) {
-            window.location.href = $(this).attr('href');
-        }
+        var href = $(this).attr('href');
+        crmConfirm(msg).then(function (ok) {
+            if (ok) {
+                window.location.href = href;
+            }
+        });
     });
 
     // Checklist sheet: Phone reminder — confirm then AJAX
@@ -1102,28 +1105,32 @@ $(document).ready(function() {
         var $btn = $(this);
         var appId = $btn.data('app-id');
         var msg = $btn.data('msg') || 'Record phone reminder now?';
-        if (!confirm(msg)) return;
-        $btn.prop('disabled', true);
-        $.ajax({
-            url: '{{ route("clients.sheets.checklist.phone-reminder") }}',
-            method: 'POST',
-            data: { _token: '{{ csrf_token() }}', application_id: appId },
-            dataType: 'json',
-            success: function(res) {
-                if (res && res.success) {
-                    location.reload();
-                } else {
-                    toastMsg((res && res.message) || 'Failed to record reminder.', 'error');
-                }
-            },
-            error: function(xhr) {
-                var errMsg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to record reminder.';
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    errMsg = Object.values(xhr.responseJSON.errors).flat().join(' ');
-                }
-                toastMsg(errMsg, 'error');
-            },
-            complete: function() { $btn.prop('disabled', false); }
+        crmConfirm(msg).then(function (ok) {
+            if (!ok) {
+                return;
+            }
+            $btn.prop('disabled', true);
+            $.ajax({
+                url: '{{ route("clients.sheets.checklist.phone-reminder") }}',
+                method: 'POST',
+                data: { _token: '{{ csrf_token() }}', application_id: appId },
+                dataType: 'json',
+                success: function(res) {
+                    if (res && res.success) {
+                        location.reload();
+                    } else {
+                        toastMsg((res && res.message) || 'Failed to record reminder.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    var errMsg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to record reminder.';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        errMsg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                    }
+                    toastMsg(errMsg, 'error');
+                },
+                complete: function() { $btn.prop('disabled', false); }
+            });
         });
     });
 });

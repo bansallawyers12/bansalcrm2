@@ -268,7 +268,19 @@ Add-modal / edit-modal `contact_name` AJAX fields remain **commented out** in bl
 | Check-in modal | `.js-data-example-ajax-check` → `RecipientSelect.init` (replaces Select2 in `legacy-init.js`) |
 | `partner-detail.js`, `client-detail.js` | Vendor poll uses `initTomSelect` not Select2 |
 
-**Note:** Tom Select render templates use `ts-result-row*` / `ts-category-header` classes (styled in `tomselect-bridge.css` and `modern-search.css`). Legacy `select2-result-*` names were renamed in the Select2 removal pass. Dead Select2 widget rules were removed from `style.css` / `components.css`. `modern-search-simple.js` / `modern-search-debug.js` are dev-only and not loaded in production layouts.
+**Note:** Tom Select render templates use `ts-result-row*` / `ts-category-header` classes (styled in `tomselect-bridge.css` and `modern-search.css`). Legacy `select2-result-*` names were renamed in the Select2 removal pass. Dead Select2 widget rules were removed from `style.css` / `components.css`.
+
+## Phase status
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| 0 | Foundation — both libraries, helper, bridge CSS, exclude migrated from global init | **Done** |
+| 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
+| 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
+| 3 | Filter pages — audit logs staff filter, insights branch multi-select | **Done** |
+| 4 | Related files AJAX + leads source/subagent | **Done** |
+| 5 | Product partner→branch chain; partner create/edit address selects | **Done** |
+| 6 | Application modals, invoice/staff/agents, modern search, ongoing sheet, Select2 CDN removal | **Done** |
 
 ## Phase 0 test checklist
 
@@ -333,14 +345,4 @@ s.remove();
 | npm `^2.4.3` resolved to 2.6.1 while CDN uses 2.4.3 | Pinned `"tom-select": "2.4.3"` to match CDN |
 | Empty CSS rule block | Removed |
 
-## Phase status
-
-| Phase | Scope | Status |
-|-------|-------|--------|
-| 0 | Foundation — both libraries, helper, bridge CSS, exclude migrated from global init | **Done** |
-| 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
-| 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
-| 3 | Filter pages — audit logs staff filter, insights branch multi-select | **Done** |
-| 4 | Related files AJAX + leads source/subagent | **Done** |
-| 5 | Product partner→branch chain; partner create/edit address selects | **Done** |
-| 6+ | Application modals, invoice/staff/agents, modern search, ongoing sheet | Pending |
+## Phase 0 test checklist

@@ -279,33 +279,35 @@ $(document).ready(function(){
 	
 	// Mark all notifications as read
 	$('#markAllReadBtn').on('click', function(){
-		if(!confirm('Are you sure you want to mark all notifications as read?')){
-			return;
-		}
-		
 		var btn = $(this);
-		btn.prop('disabled', true).html(crmIconSpinner(' Processing...'));
-		
-		$.ajax({
-			url: "{{route('notifications.mark-all-read')}}",
-			method: 'POST',
-			data: {
-				_token: '{{csrf_token()}}'
-			},
-			success: function(response){
-				if(response.success){
-					// Reload the page to reflect changes
-					window.location.reload();
-				}
-			},
-			error: function(){
-				btn.prop('disabled', false).html(crmIcon('check-double') + ' Mark All as Read');
-				iziToast.error({
-					title: 'Error',
-					message: 'Failed to mark all notifications as read',
-					position: 'topRight'
-				});
+		crmConfirm('Are you sure you want to mark all notifications as read?').then(function (ok) {
+			if (!ok) {
+				return;
 			}
+
+			btn.prop('disabled', true).html(crmIconSpinner(' Processing...'));
+
+			$.ajax({
+				url: "{{route('notifications.mark-all-read')}}",
+				method: 'POST',
+				data: {
+					_token: '{{csrf_token()}}'
+				},
+				success: function(response){
+					if(response.success){
+						// Reload the page to reflect changes
+						window.location.reload();
+					}
+				},
+				error: function(){
+					btn.prop('disabled', false).html(crmIcon('check-double') + ' Mark All as Read');
+					iziToast.error({
+						title: 'Error',
+						message: 'Failed to mark all notifications as read',
+						position: 'topRight'
+					});
+				}
+			});
 		});
 	});
 });

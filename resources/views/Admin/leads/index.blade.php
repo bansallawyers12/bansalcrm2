@@ -142,7 +142,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">@icon('eye') View Details</a>
 														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode($leadIdForLinks))}}">@icon('edit') Assign To</a>
 										@if($list->converted == 0)
-											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" onclick="return confirm('Are you sure?')">@icon('user') Convert To Client</a>	
+											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" data-crm-confirm="Are you sure?">@icon('user') Convert To Client</a>	
 											@endif
 													</div>
 												</div>	

@@ -400,7 +400,10 @@ jQuery(document).ready(function($){
 
     //merge task
     /*$(document).delegate('.is_checked_client_merge', 'click', function(){
-        if (confirm("Are you sure want to merge these records?")) {
+        crmConfirm("Are you sure want to merge these records?").then(function (ok) {
+            if (!ok) {
+                return;
+            }
             var array = [];
             $('.cb-element:checked').each(function(){
                 var id = $(this).attr('data-id');
@@ -419,7 +422,7 @@ jQuery(document).ready(function($){
                     location.reload(true);
                 }
             });
-        }
+        });
         return false;
     });*/
     
@@ -450,7 +453,10 @@ jQuery(document).ready(function($){
         if ( clickedOrder.length > 0 && clickedOrder.length == 2 )
         {
             var mergeStr = "Are you sure want to merge "+clickedOrder[0]+" record into this "+clickedOrder[1]+" record?";
-            if (confirm(mergeStr)) {
+            crmConfirm(mergeStr).then(function (ok) {
+                if (!ok) {
+                    return;
+                }
                 $.ajax({
                     type:'post',
                     url:"{{URL::to('/')}}/merge_records",
@@ -462,8 +468,7 @@ jQuery(document).ready(function($){
                         location.reload(true);
                     }
                 });
-                //return false;
-            }
+            });
         }
     });
 

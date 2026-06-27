@@ -923,7 +923,10 @@ $(document).ready(function() {
 		var clientId = $btn.data('client-id');
 		var category = $btn.data('category');
 		if (!clientId || !category) return;
-		if (!confirm('Delete all local (public) copies for these documents? They will remain on S3.')) return;
+		crmConfirm('Delete all local (public) copies for these documents? They will remain on S3.').then(function (ok) {
+			if (!ok) {
+				return;
+			}
 		$btn.prop('disabled', true).html(crmIconSpinner(' Deleting...'));
 		$.ajax({
 			url: '{{ route("adminconsole.recentclients.deleteallpublicdocsbycategory") }}',
@@ -996,6 +999,7 @@ $(document).ready(function() {
 				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete All ' + catLabel + ' Public Docs');
 			}
 		});
+		});
 	});
 
 	// Upload all Application, Education, Migration documents to S3 (button in expanded client details)
@@ -1003,7 +1007,10 @@ $(document).ready(function() {
 		var $btn = $(this);
 		var clientId = $btn.data('client-id');
 		if (!clientId) return;
-		if (!confirm('Upload all Application, Education and Migration documents (in public folder) to S3 for this client?')) return;
+		crmConfirm('Upload all Application, Education and Migration documents (in public folder) to S3 for this client?').then(function (ok) {
+			if (!ok) {
+				return;
+			}
 		$btn.prop('disabled', true).html(crmIconSpinner(' Uploading...'));
 		var $detailsContent = $('#client-details-content-' + clientId);
 		$.ajax({
@@ -1023,6 +1030,7 @@ $(document).ready(function() {
 				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html('' + crmIcon('cloud-upload-alt') + ' Upload All These Docs to S3');
 			}
+		});
 		});
 	});
 
@@ -1064,7 +1072,10 @@ $(document).ready(function() {
 		var $btn = $(this);
 		var documentId = $btn.data('document-id');
 		if (!documentId) return;
-		if (!confirm('Are you sure you want to permanently delete this document? It will be removed from the documents list and from the server.')) return;
+		crmConfirm('Are you sure you want to permanently delete this document? It will be removed from the documents list and from the server.').then(function (ok) {
+			if (!ok) {
+				return;
+			}
 		$btn.prop('disabled', true).html(crmIconSpinner(' Deleting...'));
 		$.ajax({
 			url: '{{ route("adminconsole.recentclients.deletedocument") }}',
@@ -1085,6 +1096,7 @@ $(document).ready(function() {
 				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete Document');
 			}
 		});
+		});
 	});
 
 	// Delete public doc (after S3 upload): remove local file, clear doc_public_path
@@ -1092,7 +1104,10 @@ $(document).ready(function() {
 		var $btn = $(this);
 		var documentId = $btn.data('document-id');
 		if (!documentId) return;
-		if (!confirm('Delete the local (public) copy? The document will remain on S3.')) return;
+		crmConfirm('Delete the local (public) copy? The document will remain on S3.').then(function (ok) {
+			if (!ok) {
+				return;
+			}
 		$btn.prop('disabled', true).html(crmIconSpinner(''));
 		$.ajax({
 			url: '{{ route("adminconsole.recentclients.deletepublicdoc") }}',
@@ -1112,6 +1127,7 @@ $(document).ready(function() {
 				toastMsg(msg, 'error');
 				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete public doc');
 			}
+		});
 		});
 	});
 	
@@ -1150,9 +1166,10 @@ $(document).ready(function() {
 			toastMsg('Please select at least one client to archive.', 'warning');
 			return;
 		}
-		if (!confirm('Are you sure you want to archive ' + ids.length + ' client(s)? They will be moved to archived clients.')) {
-			return;
-		}
+		crmConfirm('Are you sure you want to archive ' + ids.length + ' client(s)? They will be moved to archived clients.').then(function (ok) {
+			if (!ok) {
+				return;
+			}
 		var $btn = $('#bulkArchiveBtn');
 		$btn.prop('disabled', true);
 		var originalHtml = $btn.html();
@@ -1196,6 +1213,7 @@ $(document).ready(function() {
 				$btn.prop('disabled', false);
 				$btn.html(originalHtml);
 			}
+		});
 		});
 	});
 
@@ -1242,11 +1260,12 @@ $(document).ready(function() {
 					(lines.length ? lines.join('\n') : 'No clients found') +
 					'\n\nProceed with upload to S3 and remove public path copies?';
 
-				if (!confirm(confirmText)) {
-					$btn.prop('disabled', false).html(originalHtml);
-					updateBulkArchiveState();
-					return;
-				}
+				crmConfirm(confirmText).then(function (ok) {
+					if (!ok) {
+						$btn.prop('disabled', false).html(originalHtml);
+						updateBulkArchiveState();
+						return;
+					}
 
 				$btn.prop('disabled', true).html(crmIconSpinner(' Uploading...'));
 
@@ -1268,6 +1287,7 @@ $(document).ready(function() {
 						updateBulkArchiveState();
 					}
 				});
+				});
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load upload summary';
@@ -1286,7 +1306,10 @@ $(document).ready(function() {
 		var actionText = action === 'archive' ? 'archive' : 'unarchive';
 		var $detailsContent = $('#client-details-content-' + clientId);
 		
-		if (confirm('Are you sure you want to ' + actionText + ' this client?')) {
+		crmConfirm('Are you sure you want to ' + actionText + ' this client?').then(function (ok) {
+			if (!ok) {
+				return;
+			}
 			// Disable button and show loading
 			$btn.prop('disabled', true);
 			var originalHtml = $btn.html();
@@ -1330,7 +1353,7 @@ $(document).ready(function() {
 					$btn.html(originalHtml);
 				}
 			});
-		}
+		});
 	});
 });
 </script>

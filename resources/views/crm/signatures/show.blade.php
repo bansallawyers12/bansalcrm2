@@ -601,7 +601,7 @@
                                     </button>
                                     
                                     {{-- Cancel Signature Button --}}
-                                    <form action="{{ route('signatures.cancel', $document->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel signature for {{ $signer->name }}? They will no longer be able to sign this document.')">
+                                    <form action="{{ route('signatures.cancel', $document->id) }}" method="POST" style="display: inline;" data-crm-confirm="Are you sure you want to cancel signature for {{ $signer->name }}? They will no longer be able to sign this document.">
                                         @csrf
                                         <input type="hidden" name="signer_id" value="{{ $signer->id }}">
                                         <button type="submit" class="btn-signer-action btn-cancel-sig">
@@ -726,7 +726,7 @@
                 @elseif($canSendForSignature)
                     <form action="{{ route('signatures.send', $document->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn-action-success" onclick="return confirm('This will send signing link emails to all pending signers ({{ $pendingSigners->count() }}). Continue?')">
+                        <button type="submit" class="btn-action-success" data-crm-confirm="This will send signing link emails to all pending signers ({{ $pendingSigners->count() }}). Continue?">
                             @icon('paper-plane') Send for Signature
                         </button>
                     </form>
@@ -759,7 +759,7 @@
                         </div>
                         <form action="{{ route('signatures.detach', $document->id) }}" method="POST" class="mt-3">
                             @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Are you sure you want to detach this document from the client?')">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" data-crm-confirm="Are you sure you want to detach this document from the client?">
                                 @icon('unlink') Detach
                             </button>
                         </form>

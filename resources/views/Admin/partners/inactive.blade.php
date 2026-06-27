@@ -345,8 +345,11 @@ a.dropdown-item {padding-top: 5px !important;}
 @section('scripts')
 <script>
 function partnerchangetoactive( id, table ) {
-    var conf = confirm('Do you want to change status to active?');
-    if(conf){
+    crmConfirm('Do you want to change status to active?').then(function (conf) {
+        if (!conf) {
+            $("#loader").hide();
+            return;
+        }
         if(id == '') {
             alert('Please select ID to update the record.');
             return false;
@@ -379,9 +382,7 @@ function partnerchangetoactive( id, table ) {
             });
             $('html, body').animate({scrollTop:0}, 'slow');
         }
-    } else{
-        $("#loader").hide();
-    }
+    });
 }
   
 jQuery(document).ready(function($){

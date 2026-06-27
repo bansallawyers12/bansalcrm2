@@ -48,6 +48,23 @@ Lists `public/js/**/*.js` files not imported via `@legacy` and not referenced el
 
 ## Removed rollback copies (Track B)
 
-- `public/assets/tinymce/` — old self-hosted TinyMCE tree (replaced by npm `tinymce` + `resources/js/tinymce-init.js`)
-- `public/js/tinymce-init.js` — deprecated duplicate of the Vite entry
-- `public/js/apexcharts.min.js` — replaced by npm `apexcharts` + `resources/js/apexcharts-init.js`
+All removed — do not restore:
+
+| Path | Replacement |
+|------|-------------|
+| `public/assets/tinymce/` | npm `tinymce` + `resources/js/tinymce-init.js` |
+| `public/js/tinymce-init.js` | `resources/js/tinymce-init.js` (Vite entry) |
+| `public/js/apexcharts.min.js` | npm `apexcharts` + `resources/js/apexcharts-init.js` |
+| `public/js/modern-search-simple.js`, `modern-search-debug.js` | Dev-only; removed (production uses `modern-search.js`) |
+
+## UI helpers (toast / confirm)
+
+| Helper | File | Notes |
+|--------|------|-------|
+| `showToast(message, type)` | `resources/js/vendor-libs.js` | iziToast; loaded in layout `<head>` |
+| `toastMsg(message, type)` | `public/js/common/utilities.js` | Thin wrapper around `showToast` |
+| `window.alert()` | shim in `vendor-libs.js` | Routes to `showToast` (non-blocking) |
+| `crmConfirm(message)` | `public/js/common/confirm-dialog.js` | Bootstrap 5 modal; returns `Promise<boolean>` |
+| `data-crm-confirm="…"` | same | Declarative confirm on forms/links/buttons |
+
+Import `confirm-dialog.js` from layout script entries (`admin-layout-scripts.js`, `adminconsole-layout-scripts.js`, `agent-layout-scripts.js`).

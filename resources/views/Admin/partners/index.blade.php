@@ -347,8 +347,11 @@
 @section('scripts')
 <script>
  function partnerchangetoinactive( id, table ) {
-    var conf = confirm('Do you want to change status to inactive?');
-    if(conf){
+    crmConfirm('Do you want to change status to inactive?').then(function (conf) {
+        if (!conf) {
+            $("#loader").hide();
+            return;
+        }
         if(id == '') {
             alert('Please select ID to update the record.');
             return false;
@@ -381,9 +384,7 @@
             });
             $('html, body').animate({scrollTop:0}, 'slow');
         }
-    } else{
-        $("#loader").hide();
-    }
+    });
 }
   
 jQuery(document).ready(function($){

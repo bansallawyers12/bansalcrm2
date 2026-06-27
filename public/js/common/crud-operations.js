@@ -12,26 +12,42 @@
 
 'use strict';
 
+function runCrudIfConfirmed(message, fn) {
+    if (typeof window.crmConfirm === 'function') {
+        window.crmConfirm(message).then(function (ok) {
+            if (ok) {
+                fn();
+            } else {
+                $("#loader").hide();
+            }
+        });
+        return;
+    }
+    if (confirm(message)) {
+        fn();
+    } else {
+        $("#loader").hide();
+    }
+}
+
 /**
  * Archive/Unarchive action
  * @param {number|string} id - Record ID
  * @param {string} table - Table name
  */
 function arcivedAction(id, table) {
-    var conf = confirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.');
-    
-    if (conf) {
+    runCrudIfConfirmed('Are you sure, you would like to delete this record. Remember all Related data would be deleted.', function () {
         if (id == '' || id === null || id === undefined) {
-            alert('Please select ID to delete the record.');
+            toastMsg('Please select ID to delete the record.', 'warning');
             return false;
         }
-        
+
         $('#popuploader').show();
-        $(".server-error").html(''); // Remove server error
-        $(".custom-error-msg").html(''); // Remove custom error
-        
+        $(".server-error").html('');
+        $(".custom-error-msg").html('');
+
         var deleteUrl = App.getUrl('deleteAction') || App.getUrl('siteUrl') + '/delete_action';
-        
+
         $.ajax({
             type: 'post',
             headers: { 'X-CSRF-TOKEN': App.getCsrf() },
@@ -40,7 +56,7 @@ function arcivedAction(id, table) {
             success: function(resp) {
                 $('#popuploader').hide();
                 var obj = typeof resp === 'string' ? $.parseJSON(resp) : resp;
-                
+
                 if (obj.status == 1) {
                     location.reload();
                 } else {
@@ -57,11 +73,9 @@ function arcivedAction(id, table) {
                 $("#popuploader").hide();
             }
         });
-        
+
         $('html, body').animate({scrollTop: 0}, 'slow');
-    } else {
-        $("#loader").hide();
-    }
+    });
 }
 
 /**
@@ -70,25 +84,23 @@ function arcivedAction(id, table) {
  * @param {string} table - Table name
  */
 function deleteAction(id, table) {
-    var conf = confirm('Are you sure you want to delete this record?');
-    
-    if (conf) {
+    runCrudIfConfirmed('Are you sure you want to delete this record?', function () {
         if (id == '' || id === null || id === undefined) {
-            alert('Please select ID to delete the record.');
+            toastMsg('Please select ID to delete the record.', 'warning');
             return false;
         }
-        
+
         $('#popuploader').show();
         $(".server-error").html('');
         $(".custom-error-msg").html('');
-        
+
         AjaxHelper.post(
             App.getUrl('deleteAction'),
             { 'id': id, 'table': table },
             function(resp) {
                 $('#popuploader').hide();
                 var obj = typeof resp === 'string' ? $.parseJSON(resp) : resp;
-                
+
                 if (obj.status == 1) {
                     location.reload();
                 } else {
@@ -100,7 +112,7 @@ function deleteAction(id, table) {
                 $('#popuploader').hide();
             }
         );
-    }
+    });
 }
 
 // Export functions for use in other modules
@@ -108,4 +120,3 @@ if (typeof window !== 'undefined') {
     window.arcivedAction = arcivedAction;
     window.deleteAction = deleteAction;
 }
-

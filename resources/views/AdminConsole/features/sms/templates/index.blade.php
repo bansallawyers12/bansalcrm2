@@ -76,7 +76,10 @@
 @section('scripts')
 <script>
 function deleteTemplate(templateId) {
-    if (confirm('Are you sure you want to delete this template?')) {
+    crmConfirm('Are you sure you want to delete this template?').then(function (ok) {
+        if (!ok) {
+            return;
+        }
         $.ajax({
             url: '{{ url("adminconsole/features/sms/templates") }}/' + templateId,
             method: 'DELETE',
@@ -94,7 +97,7 @@ function deleteTemplate(templateId) {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while deleting the template');
             }
         });
-    }
+    });
 }
 </script>
 @endsection

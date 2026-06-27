@@ -581,12 +581,14 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (newSlug === followupConsultantSlugBaseline) {
 				return;
 			}
-			if (!window.confirm('Do you want to update the consultant for this followup?')) {
-				sel.value = followupConsultantSlugBaseline;
-				return;
-			}
-			clearModalAlert();
-			performConsultantReassign();
+			crmConfirm('Do you want to update the consultant for this followup?').then(function (ok) {
+				if (!ok) {
+					sel.value = followupConsultantSlugBaseline;
+					return;
+				}
+				clearModalAlert();
+				performConsultantReassign();
+			});
 		});
 	}
 

@@ -18,12 +18,16 @@
       "_rolldown-runtime-QTnfLwEv.js"
     ]
   },
+  "_confirm-dialog-CzAbGt7k.js": {
+    "file": "assets/confirm-dialog-CzAbGt7k.js",
+    "name": "confirm-dialog"
+  },
   "_crm-icon-CboWdR86.js": {
     "file": "assets/crm-icon-CboWdR86.js",
     "name": "crm-icon"
   },
-  "_custom-98zDE1bU.js": {
-    "file": "assets/custom-98zDE1bU.js",
+  "_custom-1w-YxSFj.js": {
+    "file": "assets/custom-1w-YxSFj.js",
     "name": "custom"
   },
   "_custom-form-validation-Dlj6GUY3.js": {
@@ -34,8 +38,8 @@
     "file": "assets/dataTables.bootstrap5-DsvO-t8U.js",
     "name": "dataTables.bootstrap5"
   },
-  "_document-context-menu-GogwP9e_.js": {
-    "file": "assets/document-context-menu-GogwP9e_.js",
+  "_document-context-menu-DhqYxzSX.js": {
+    "file": "assets/document-context-menu-DhqYxzSX.js",
     "name": "document-context-menu"
   },
   "_inactivity-logout-ZEyikFla.js": {
@@ -58,7 +62,7 @@
     ]
   },
   "resources/js/admin-layout-scripts.js": {
-    "file": "assets/admin-layout-scripts-DtEfASqb.js",
+    "file": "assets/admin-layout-scripts-QnWnk2Ve.js",
     "name": "admin-layout-scripts",
     "src": "resources/js/admin-layout-scripts.js",
     "isEntry": true,
@@ -67,13 +71,14 @@
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_inactivity-logout-ZEyikFla.js",
+      "_confirm-dialog-CzAbGt7k.js",
       "_action-popover-tomselect-mS1jw8qY.js",
       "_custom-form-validation-Dlj6GUY3.js",
-      "_custom-98zDE1bU.js"
+      "_custom-1w-YxSFj.js"
     ]
   },
   "resources/js/adminconsole-layout-scripts.js": {
-    "file": "assets/adminconsole-layout-scripts-BmZ20G5Q.js",
+    "file": "assets/adminconsole-layout-scripts-kZp_pHPT.js",
     "name": "adminconsole-layout-scripts",
     "src": "resources/js/adminconsole-layout-scripts.js",
     "isEntry": true,
@@ -82,12 +87,13 @@
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_inactivity-logout-ZEyikFla.js",
+      "_confirm-dialog-CzAbGt7k.js",
       "_custom-form-validation-Dlj6GUY3.js",
-      "_custom-98zDE1bU.js"
+      "_custom-1w-YxSFj.js"
     ]
   },
   "resources/js/agent-adminconsole-layout-scripts.js": {
-    "file": "assets/agent-adminconsole-layout-scripts-BnHFe_R5.js",
+    "file": "assets/agent-adminconsole-layout-scripts-DFEeVxHC.js",
     "name": "agent-adminconsole-layout-scripts",
     "src": "resources/js/agent-adminconsole-layout-scripts.js",
     "isEntry": true,
@@ -96,12 +102,12 @@
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_inactivity-logout-ZEyikFla.js",
-      "_custom-98zDE1bU.js",
+      "_custom-1w-YxSFj.js",
       "_agent-custom-form-validation-BPp-XZ_V.js"
     ]
   },
   "resources/js/agent-layout-scripts.js": {
-    "file": "assets/agent-layout-scripts-Ct1E4USl.js",
+    "file": "assets/agent-layout-scripts-B6mTU98s.js",
     "name": "agent-layout-scripts",
     "src": "resources/js/agent-layout-scripts.js",
     "isEntry": true,
@@ -110,8 +116,9 @@
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
       "_inactivity-logout-ZEyikFla.js",
+      "_confirm-dialog-CzAbGt7k.js",
       "_action-popover-tomselect-mS1jw8qY.js",
-      "_custom-98zDE1bU.js",
+      "_custom-1w-YxSFj.js",
       "_agent-custom-form-validation-BPp-XZ_V.js"
     ]
   },
@@ -199,7 +206,7 @@
     ]
   },
   "resources/js/minimal-layout-scripts.js": {
-    "file": "assets/minimal-layout-scripts-B3Alp5qs.js",
+    "file": "assets/minimal-layout-scripts-hpnlCG05.js",
     "name": "minimal-layout-scripts",
     "src": "resources/js/minimal-layout-scripts.js",
     "isEntry": true,
@@ -207,7 +214,7 @@
       "_crm-icon-CboWdR86.js",
       "resources/js/lucide-init.js",
       "resources/js/lucide-init.js",
-      "_custom-98zDE1bU.js"
+      "_custom-1w-YxSFj.js"
     ]
   },
   "resources/js/pages/admin/account.js": {
@@ -226,19 +233,19 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-DZMtLbkX.js",
+    "file": "assets/client-detail-entry-ChS27DgN.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
     "imports": [
       "_config-Sgxc2SGK.js",
       "_ui-components-CYgj0lGP.js",
-      "_document-context-menu-GogwP9e_.js",
+      "_document-context-menu-DhqYxzSX.js",
       "_popover-CEqONn3s.js"
     ]
   },
   "resources/js/pages/admin/client-edit-entry.js": {
-    "file": "assets/client-edit-entry-DmeS3KD4.js",
+    "file": "assets/client-edit-entry-CGTWMU-K.js",
     "name": "client-edit-entry",
     "src": "resources/js/pages/admin/client-edit-entry.js",
     "isEntry": true,
@@ -261,13 +268,13 @@
     "isEntry": true
   },
   "resources/js/pages/admin/partner-detail-entry.js": {
-    "file": "assets/partner-detail-entry-B8au3A6R.js",
+    "file": "assets/partner-detail-entry-guC7Go7d.js",
     "name": "partner-detail-entry",
     "src": "resources/js/pages/admin/partner-detail-entry.js",
     "isEntry": true,
     "imports": [
       "_config-Sgxc2SGK.js",
-      "_document-context-menu-GogwP9e_.js"
+      "_document-context-menu-DhqYxzSX.js"
     ],
     "dynamicImports": [
       "resources/js/datatables-buttons-init.js"
@@ -303,7 +310,7 @@
     ]
   },
   "resources/js/vendor-libs.js": {
-    "file": "assets/vendor-libs-CsXnGK6L.js",
+    "file": "assets/vendor-libs-BegUmehq.js",
     "name": "vendor-libs",
     "src": "resources/js/vendor-libs.js",
     "isEntry": true,

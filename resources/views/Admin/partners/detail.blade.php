@@ -2189,28 +2189,30 @@ use App\Http\Controllers\Controller;
     
     // Delete agreement
     function deleteAgreement(agreementId) {
-        if (!confirm('Are you sure you want to delete this agreement?')) {
-            return;
-        }
-        
-        $.ajax({
-            url: '{{ url("/partner/agreement/delete") }}',
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                agreement_id: agreementId
-            },
-            success: function(response) {
-                if (response.status) {
-                    toastMsg(response.message, 'success');
-                    loadPartnerAgreements();
-                } else {
-                    toastMsg(response.message, 'error');
-                }
-            },
-            error: function() {
-                toastMsg('Error deleting agreement', 'error');
+        crmConfirm('Are you sure you want to delete this agreement?').then(function (ok) {
+            if (!ok) {
+                return;
             }
+
+            $.ajax({
+                url: '{{ url("/partner/agreement/delete") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    agreement_id: agreementId
+                },
+                success: function(response) {
+                    if (response.status) {
+                        toastMsg(response.message, 'success');
+                        loadPartnerAgreements();
+                    } else {
+                        toastMsg(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    toastMsg('Error deleting agreement', 'error');
+                }
+            });
         });
     }
     

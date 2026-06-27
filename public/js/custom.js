@@ -17,10 +17,27 @@ function crmToast(message, type) {
 	}
 }
 
+function runIfConfirmed(message, fn) {
+	if (typeof window.crmConfirm === 'function') {
+		window.crmConfirm(message).then(function (ok) {
+			if (ok) {
+				fn();
+			} else {
+				$("#loader").hide();
+			}
+		});
+		return;
+	}
+	if (confirm(message)) {
+		fn();
+	} else {
+		$("#loader").hide();
+	}
+}
+
 //Delete Function Start
 	function declineAction( id, table ) {
-			var conf = confirm('Do you want to change status to declined?');
-		if(conf){	 
+		runIfConfirmed('Do you want to change status to declined?', function() {
 			if(id == '') {
 				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
@@ -54,14 +71,11 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 	
 	function approveAction( id, table ) {
-			var conf = confirm('Do you want to change status to Approve?');
-		if(conf){	 
+		runIfConfirmed('Do you want to change status to Approve?', function() {
 			if(id == '') {
 				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
@@ -97,14 +111,11 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 	
 	function processedAction( id, table ) {
-			var conf = confirm('Do you want to change status to Process?');
-		if(conf){	 
+		runIfConfirmed('Do you want to change status to Process?', function() {
 			if(id == '') {
 				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
@@ -141,14 +152,11 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 	
 	function archiveAction( id, table ) {
-			var conf = confirm('Do you want to change status to Archive?');
-		if(conf){	 
+		runIfConfirmed('Do you want to change status to Archive?', function() {
 			if(id == '') {
 				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
@@ -183,9 +191,7 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 
 
@@ -271,8 +277,7 @@ function crmToast(message, type) {
 	}*/
 	
 	function deleteAction( id, table ) {
-		var conf = confirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.');
-		if(conf){	 
+		runIfConfirmed('Are you sure, you would like to delete this record. Remember all Related data would be deleted.', function() {
 			if(id == '') {
 				crmToast('Please select ID to delete the record.', 'warning');
 				return false;	
@@ -321,15 +326,12 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 	
 	
 	function movetoclientAction( id, table, col ) {
-		var conf = confirm('Are you sure you want to restore this client to the active list?');
-		if(conf){	 
+		runIfConfirmed('Are you sure you want to restore this client to the active list?', function() {
 			if(id == '') {
 				crmToast('Please select ID to delete the record.', 'warning');
 				return false;	
@@ -366,15 +368,12 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 
 
 	function permanentDeleteAction( id, table ) {
-		var conf = confirm('WARNING: This will permanently delete this client and all related data. This action cannot be undone. Are you absolutely sure?');
-		if(conf){	 
+		runIfConfirmed('WARNING: This will permanently delete this client and all related data. This action cannot be undone. Are you absolutely sure?', function() {
 			if(id == '') {
 				crmToast('Please select ID to permanently delete the record.', 'warning');
 				return false;	
@@ -420,9 +419,7 @@ function crmToast(message, type) {
 				});
 				$('html, body').animate({scrollTop:0}, 'slow');
 			}
-		} else{
-			$("#loader").hide();
-		}
+		});
 	}
 
 
@@ -484,7 +481,7 @@ function crmToast(message, type) {
 	
 	function successMessage(msg){
 		var html = '<div class="alert alert-success alert-dismissible fade show" role="alert"><div class="alert-body">';
-		html +=	'<button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>';
+		html +=	'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
 		html += '<strong>'+msg+'</strong>';
 		html += '</div></div>';
 		
@@ -492,7 +489,7 @@ function crmToast(message, type) {
 	}
 	function errorMessage(msg){
 		var html = '<div class="alert alert-danger alert-dismissible fade show"><div class="alert-body">';
-		html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>'+msg;	
+		html += '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'+msg;	
 		html += '</div></div>';
 		
 		return html;	

@@ -27,40 +27,41 @@
     }
 
 window.arcivedAction = function(id, table) {
-    var conf = confirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.');
-    if(conf){
-        if(id == '') {
-            alert('Please select ID to delete the record.');
-            return false;
-        } else {
-            $('#popuploader').show();
-            $(".server-error").html('');
-            $(".custom-error-msg").html('');
-            $.ajax({
-                type:'post',
-                headers: { 'X-CSRF-TOKEN': App.getCsrf() },
-                url: App.getUrl('deleteAction') + '/delete_action',
-                data:{'id': id, 'table' : table},
-                success:function(resp) {
-                    $('#popuploader').hide();
-                    var obj = $.parseJSON(resp);
-                    if(obj.status == 1) {
-                        window.location.href = App.getUrl('siteUrl') + '/partners';
-                    } else{
-                        var html = errorMessage(obj.message);
-                        $(".custom-error-msg").html(html);
-                    }
-                    $("#popuploader").hide();
-                },
-                beforeSend: function() {
-                    $("#popuploader").show();
-                }
-            });
-            $('html, body').animate({scrollTop:0}, 'slow');
+    crmConfirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.').then(function (ok) {
+        if (!ok) {
+            $("#loader").hide();
+            return;
         }
-    } else{
-        $("#loader").hide();
-    }
+        if (id == '') {
+            toastMsg('Please select ID to delete the record.', 'warning');
+            return false;
+        }
+
+        $('#popuploader').show();
+        $(".server-error").html('');
+        $(".custom-error-msg").html('');
+        $.ajax({
+            type:'post',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf() },
+            url: App.getUrl('deleteAction') + '/delete_action',
+            data:{'id': id, 'table' : table},
+            success:function(resp) {
+                $('#popuploader').hide();
+                var obj = $.parseJSON(resp);
+                if(obj.status == 1) {
+                    window.location.href = App.getUrl('siteUrl') + '/partners';
+                } else{
+                    var html = errorMessage(obj.message);
+                    $(".custom-error-msg").html(html);
+                }
+                $("#popuploader").hide();
+            },
+            beforeSend: function() {
+                $("#popuploader").show();
+            }
+        });
+        $('html, body').animate({scrollTop:0}, 'slow');
+    });
 };
 
 })(); // End async wrapper

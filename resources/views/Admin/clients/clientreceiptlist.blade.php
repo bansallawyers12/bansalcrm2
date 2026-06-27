@@ -314,7 +314,10 @@ jQuery(document).ready(function($){
         if ( clickedReceiptIds.length > 0)
         {
             var mergeStr = "Are you sure want to validate these receipt?";
-            if (confirm(mergeStr)) {
+            crmConfirm(mergeStr).then(function (ok) {
+                if (!ok) {
+                    return;
+                }
                 $.ajax({
                     type:'post',
                     url:"{{URL::to('/')}}/validate_receipt",
@@ -338,7 +341,7 @@ jQuery(document).ready(function($){
                         });
                     }
                 });
-            }
+            });
         } else {
             alert('Please select atleast 1 receipt.');
         }

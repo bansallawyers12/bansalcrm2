@@ -130,8 +130,8 @@ use App\Http\Controllers\Controller;
 							</div>
 							
 							<div style="display: flex; gap: 8px; justify-content: center; margin: 12px 0; flex-wrap: wrap;">
-								<a onclick="return confirm('Are you sure?')" class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}">Client</a>
-								<a onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
+								<a class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}" data-crm-confirm="Are you sure?">Client</a>
+								<a href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>" data-crm-confirm="Are you sure?">Lead</a>
 							</div>
 							
 							<button type="button" class="btn btn-primary btn-block btn-assignaction" data-bs-container="body" data-role="popover" data-bs-placement="auto" data-html="true" data-content="<div id=&quot;popover-content&quot;>

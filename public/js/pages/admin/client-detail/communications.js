@@ -16,9 +16,10 @@
             } else {
                 is_greview_mail_sent = 1;
             }
-            var conf = confirm('Do you want to sent google review link in email?');
-            //If review email not sent till now
-            if(conf && is_greview_mail_sent != 1 ){
+            crmConfirm('Do you want to sent google review link in email?').then(function (conf) {
+                if (!conf || is_greview_mail_sent == 1) {
+                    return;
+                }
                 var url = App.getUrl('isGReviewMailSent') || App.getUrl('siteUrl') + '/is_greview_mail_sent';
                 $.ajax({
                     url: url,
@@ -28,17 +29,13 @@
                     data:{id: App.getPageConfig('clientId'), is_greview_mail_sent: is_greview_mail_sent},
                     success: function(response){
                         var obj = typeof response === 'string' ? $.parseJSON(response) : response;
-                        if(obj.status){
-                            alert(obj.message);
+                        toastMsg(obj.message, obj.status ? 'success' : 'error');
+                        if (obj.status) {
                             location.reload();
-                        } else {
-                            alert(obj.message);
                         }
                     }
                 });
-            } else {
-                return false;
-            }
+            });
         });
 
         /////////////////////////////////////////////

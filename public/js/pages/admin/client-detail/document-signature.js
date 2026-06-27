@@ -399,19 +399,22 @@
         },
 
         removeSignature: function(docId) {
-            crmConfirm('Remove signature request? This will cancel pending signers.').then(function (ok) { if (!ok) return;
-            fetch(baseUrl + '/document-signature/remove', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
-                body: JSON.stringify({ _token: csrf, doc_id: docId })
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res.status) {
-                    this.reloadDocuments();
-                }
-            })
-            .catch(() => alert('Failed to remove. Please try again.'));
+            var self = this;
+            crmConfirm('Remove signature request? This will cancel pending signers.').then(function (ok) {
+                if (!ok) return;
+                fetch(baseUrl + '/document-signature/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                    body: JSON.stringify({ _token: csrf, doc_id: docId })
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (res.status) {
+                        self.reloadDocuments();
+                    }
+                })
+                .catch(function () { toastMsg('Failed to remove. Please try again.', 'error'); });
+            });
         }
     };
 
