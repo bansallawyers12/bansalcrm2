@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
 
         Blade::directive('icon', function (string $expression): string {
-            return "<?php echo \\App\\Helpers\\IconHelper::render{$expression}; ?>";
+            return "<?php echo \\App\\Helpers\\IconHelper::render({$expression}); ?>";
         });
 
         require_once app_path('Support/followups_console_route.php');
