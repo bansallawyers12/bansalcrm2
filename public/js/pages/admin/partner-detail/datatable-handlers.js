@@ -38,7 +38,11 @@
     const activeTabForButtons = (typeof PageConfig !== 'undefined' && PageConfig.activeTab) ? PageConfig.activeTab : 'application';
 
     if (activeTabForButtons === 'student') {
-        await import('@/datatables-buttons-init.js');
+        try {
+            await import('@/datatables-buttons-init.js');
+        } catch (err) {
+            console.error('[partner-detail] Failed to load DataTables Buttons:', err);
+        }
     }
 
 // ============================================================================

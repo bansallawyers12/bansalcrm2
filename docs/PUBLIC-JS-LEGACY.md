@@ -39,11 +39,12 @@ New third-party libraries should go through npm and a dedicated `resources/js/*-
 ## Auditing unused files
 
 ```bash
-node scripts/audit-legacy-js.cjs
+npm run audit:legacy-js
+# or: node scripts/audit-legacy-js.cjs
 ```
 
 Lists `public/js/**/*.js` files not imported via `@legacy` and not referenced elsewhere.  
-`jquery-3.7.1.min.js` is intentionally loaded via `asset()` and will appear as unused to the script—that is expected.
+`jquery-3.7.1.min.js` is excluded automatically (loaded via `asset()` in layouts).
 
 ## Removed rollback copies (Track B)
 

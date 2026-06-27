@@ -53,7 +53,7 @@
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">
 								<a style="margin-right:5px;" href="{{route('email.index')}}" class="btn btn-primary">@icon('arrow-left') Back</a>  
-								{!! Form::button('@icon('edit') Update Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-holidaytype")' ])  !!}
+								{!! Form::button(\App\Helpers\IconHelper::render('edit') . ' Update Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-holidaytype")'])  !!}
 							</div>
 							<div class="form-group row"> 
 								<label for="title" class="col-sm-2 col-form-label">Name <span style="color:#ff0000;">*</span></label>
@@ -91,7 +91,7 @@
 						  </div>
 						  
 						  <div class="form-group float-end">
-							{!! Form::button('@icon('edit') Update Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-holidaytype")' ])  !!}
+							{!! Form::button(\App\Helpers\IconHelper::render('edit') . ' Update Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-holidaytype")'])  !!}
 						  </div> 
 						</div> 
 					  {!! Form::close()  !!}

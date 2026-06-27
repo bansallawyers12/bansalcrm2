@@ -726,7 +726,7 @@ $(document).ready(function() {
 	
 	// Function to load client details via AJAX
 	function loadClientDetails(clientId, $container) {
-		$container.html('<div class="text-center">@icon('spinner', 'solid', ['spin' => true]) Loading...</div>');
+		$container.html('<div class="text-center">' + crmIconSpinner(' Loading...') + '</div>');
 		
 		var detailsUrl = '{{ route("adminconsole.recentclients.getdetails") }}';
 		

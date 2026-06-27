@@ -54,7 +54,7 @@
 							{!! Form::open(array('url' => 'invoice/store', 'name'=>"add-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 								<div class="form-group" style="text-align:right;">
 									<a style="margin-right:5px;" href="{{route('invoice.index')}}" class="btn btn-primary">@icon('arrow-left') Back</a> 
-									{!! Form::button('@icon('save') Save Invoice', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-invoice")' ])  !!}
+									{!! Form::button(\App\Helpers\IconHelper::render('save') . ' Save Invoice', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-invoice")'])  !!}
 								</div> 	 
 								<div class="row"> 
 									{{-- NOTE: Tax rate selection has been removed - tax_rates table has been dropped --}}
@@ -347,7 +347,7 @@
 								</div>				
 								<input id="save_type" name="save_type" type="hidden" value="save_send">
 								<div style="margin-bottom:0px;" class="form-group float-end invoice_save_btn">
-									{!! Form::button('@icon('save') Save and Send', ['class'=>'btn btn-primary', 'onClick'=>'customInvoiceValidate("add-invoice", "save_send")' ])  !!}
+									{!! Form::button(\App\Helpers\IconHelper::render('save') . ' Save and Send', ['class'=>'btn btn-primary', 'onClick'=>'customInvoiceValidate("add-invoice", "save_send")'])  !!}
 									<a class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></a>
 									<div class="dropdown-menu" x-placement="top-start">
 										<a savetype="save_print" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_print")'>@icon('print') Save & Print</a>

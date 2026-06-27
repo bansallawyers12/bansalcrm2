@@ -195,7 +195,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 				</div>
 			</div>
 			<div class="modal-footer">
-				{!! Form::button('@icon('save') Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")' ])  !!}
+				{!! Form::button(\App\Helpers\IconHelper::render('save') . ' Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")'])  !!}
 			</div>
 			{!! Form::close()  !!}
 		</div>

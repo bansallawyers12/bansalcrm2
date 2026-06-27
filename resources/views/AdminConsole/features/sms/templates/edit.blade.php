@@ -101,7 +101,7 @@ $(document).ready(function() {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while updating the template');
             },
             complete: function() {
-                $('#saveBtn').prop('disabled', false).html('@icon('save') Update Template');
+                $('#saveBtn').prop('disabled', false).html(crmIcon('save') + ' Update Template');
             }
         });
     });

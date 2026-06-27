@@ -238,9 +238,9 @@ $(document).ready(function(){
 					var row = $('#notification_' + notificationId);
 					row.removeClass('notification-unread').addClass('notification-read');
 					row.find('.badge-danger').removeClass('badge-danger').addClass('badge-success')
-						.html('@icon('check-circle')');
+						.html(crmIcon('check-circle'));
 					row.find('.notification-link, .notification-content span').removeClass('font-weight-bold');
-					btn.replaceWith('<span class="text-muted">@icon('check', 'solid', ['class' => 'text-success'])</span>');
+					btn.replaceWith('<span class="text-muted">' + crmIcon('check', 'solid', { class: 'text-success' }) + '</span>');
 					
 					// Update unread count in tab
 					var unreadBadge = $('.nav-link:contains("Unread")').find('.badge');
@@ -284,7 +284,7 @@ $(document).ready(function(){
 		}
 		
 		var btn = $(this);
-		btn.prop('disabled', true).html('@icon('spinner', 'solid', ['spin' => true]) Processing...');
+		btn.prop('disabled', true).html(crmIconSpinner(' Processing...'));
 		
 		$.ajax({
 			url: "{{route('notifications.mark-all-read')}}",
@@ -299,7 +299,7 @@ $(document).ready(function(){
 				}
 			},
 			error: function(){
-				btn.prop('disabled', false).html('@icon('check-double') Mark All as Read');
+				btn.prop('disabled', false).html(crmIcon('check-double') + ' Mark All as Read');
 				iziToast.error({
 					title: 'Error',
 					message: 'Failed to mark all notifications as read',
@@ -312,3 +312,4 @@ $(document).ready(function(){
 </script>
 
 @endsection
+

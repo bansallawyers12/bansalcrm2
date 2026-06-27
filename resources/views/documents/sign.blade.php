@@ -575,7 +575,7 @@
                 fieldEl.style.width = (field.width_percent || 20) + '%';
                 fieldEl.style.height = (field.height_percent || 10) + '%';
                 
-                fieldEl.innerHTML = '<div class="signature-field-placeholder">@icon('pen') Click to sign</div>';
+                fieldEl.innerHTML = '<div class="signature-field-placeholder">' + crmIcon('pen') + ' Click to sign</div>';
                 fieldEl.onclick = function() { openSignModal(field.id); };
                 
                 wrapper.appendChild(fieldEl);

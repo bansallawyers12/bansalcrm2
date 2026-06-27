@@ -9,6 +9,7 @@
         "dev": "vite",
         "build": "vite build",
         "build:prod": "npm ci && npm run sync-fontawesome && vite build",
+        "audit:legacy-js": "node scripts/audit-legacy-js.cjs",
         "sync-fontawesome": "node scripts/sync-fontawesome.cjs"
     },
     "devDependencies": {

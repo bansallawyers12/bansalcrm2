@@ -743,7 +743,7 @@ jQuery(document).ready(function($){
             },
             success: function(response) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('@icon('check') Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html(crmIcon('check') + ' Complete Action');
                 
                 // Check response status
                 if (response && response.status) {
@@ -770,7 +770,7 @@ jQuery(document).ready(function($){
             },
             error: function(xhr) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('@icon('check') Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html(crmIcon('check') + ' Complete Action');
                 
                 var errorMsg = 'An error occurred. Please try again.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {

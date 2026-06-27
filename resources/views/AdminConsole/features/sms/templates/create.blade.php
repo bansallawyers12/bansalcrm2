@@ -99,7 +99,7 @@ $(document).ready(function() {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while creating the template');
             },
             complete: function() {
-                $('#saveBtn').prop('disabled', false).html('@icon('save') Create Template');
+                $('#saveBtn').prop('disabled', false).html(crmIcon('save') + ' Create Template');
             }
         });
     });

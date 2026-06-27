@@ -87,7 +87,7 @@ $(document).ready(function() {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while sending SMS');
             },
             complete: function() {
-                $('#sendBtn').prop('disabled', false).html('@icon('paper-plane') Send SMS');
+                $('#sendBtn').prop('disabled', false).html(crmIcon('paper-plane') + ' Send SMS');
             }
         });
     });

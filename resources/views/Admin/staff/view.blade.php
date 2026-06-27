@@ -1009,7 +1009,7 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 							.data('id', obj.Id)
 							.data('name', opentime)
 							.append(
-								$('<span>').html('@icon('file-image') '+obj.filename+'.'+obj.filetype)
+								$('<span>').html(crmIcon('file-image') + ' ' + obj.filename + '.' + obj.filetype)
 							);
 							$('#grid_'+obj.Id).html(obj.filename+'.'+obj.filetype);
 					} else {
