@@ -88,7 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
             width: '100%',
             placeholder: 'Select',
             allowClear: true,
-            dropdownParent: '#event-details-modal'
+            dropdownParent: '#event-details-modal',
+            maxOptions: null
         });
     });
 

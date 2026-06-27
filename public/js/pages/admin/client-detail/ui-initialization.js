@@ -59,7 +59,8 @@
             initTomSelect('#changeassignee', {
                 width: '220px',
                 multiple: true,
-                closeOnSelect: false
+                closeOnSelect: false,
+                maxOptions: null
             });
         }
     });

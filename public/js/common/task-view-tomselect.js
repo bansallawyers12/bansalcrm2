@@ -33,7 +33,8 @@
             return initTomSelect(el, {
                 width: '220px',
                 multiple: true,
-                closeOnSelect: false
+                closeOnSelect: false,
+                maxOptions: null
             });
         }
         if (el.tomselect) {
@@ -43,7 +44,8 @@
             width: '100%',
             placeholder: 'Select',
             allowClear: true,
-            dropdownParent: resolveDropdownParent(el)
+            dropdownParent: resolveDropdownParent(el),
+            maxOptions: null
         });
     }
 

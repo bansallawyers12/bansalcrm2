@@ -993,7 +993,7 @@
 </script>
 
 {{-- Load Client Create JavaScript for Shared Functionality --}}
-<script src="{{ asset('js/pages/admin/client-create.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-create.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-create.js')) }}"></script>
 
 {{-- Page-Specific JavaScript --}}
 <script>

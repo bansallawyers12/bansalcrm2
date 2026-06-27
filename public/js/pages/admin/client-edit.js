@@ -815,7 +815,8 @@ jQuery(document).ready(function($){
 
             initTomSelect('#assign_to', Object.assign({}, fullWidth, {
                 plugins: ['remove_button'],
-                closeAfterSelect: false
+                closeAfterSelect: false,
+                maxOptions: null
             }));
 
             if (document.querySelector('#lead_source')) {

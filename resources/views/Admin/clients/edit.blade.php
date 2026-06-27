@@ -1694,7 +1694,7 @@ if($fetchedData->tagname != ''){
 <script src="{{ asset('js/common/google-maps.js') }}"></script>
 
 {{-- Page-Specific JavaScript (load last) --}}
-<script src="{{ asset('js/pages/admin/client-edit.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-edit.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-edit.js')) }}"></script>
 
 {{-- Address Autocomplete Styles --}}
 @push('styles')

@@ -46,7 +46,7 @@
 
     /** Searchable action popover selects (assignee, group, etc.). */
     function selectOpts(dropdownParent) {
-        var opts = { width: '100%' };
+        var opts = { width: '100%', maxOptions: null };
         if (dropdownParent) {
             opts.dropdownParent = dropdownParent;
         }
