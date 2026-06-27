@@ -108,7 +108,8 @@
             }, fullWidth));
 
             initTomSelect('#assign_to', Object.assign({}, fullWidth, {
-                closeAfterSelect: false
+                closeAfterSelect: false,
+                maxOptions: null
             }));
 
             if (document.querySelector('#tag')) {

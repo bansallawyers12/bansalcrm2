@@ -310,7 +310,8 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
             width: '100%',
             placeholder: 'Select',
             allowClear: true,
-            dropdownParent: document.querySelector('#assignlead_modal .modal-content') || '#assignlead_modal'
+            dropdownParent: document.querySelector('#assignlead_modal .modal-content') || '#assignlead_modal',
+            maxOptions: null
         });
     });
 </script>
