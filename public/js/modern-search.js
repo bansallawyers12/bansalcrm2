@@ -501,7 +501,7 @@
             && searchResultNeedsAccessModal(repo));
 
         var quickViewLine = needsAccessFlow
-            ? '<div class="modern-search-result-quickview" data-admin-id="' + escapeHtml(adminIdAttr) + '" data-encoded-id="' + escapeHtml(encIdForRow) + '" data-is-lead="' + (isLeadRow ? '1' : '0') + '" title="Request access (Quick access in modal), then open record"><i class="fas fa-bolt" aria-hidden="true"></i><span>Quick view</span><span class="quickview-hint"> — Request access</span></div>'
+            ? '<div class="modern-search-result-quickview" data-admin-id="' + escapeHtml(adminIdAttr) + '" data-encoded-id="' + escapeHtml(encIdForRow) + '" data-is-lead="' + (isLeadRow ? '1' : '0') + '" title="Request access (Quick access in modal), then open record">' + crmIcon('bolt') + '<span>Quick view</span><span class="quickview-hint"> — Request access</span></div>'
             : '';
 
         var gateDataAttrs = needsAccessFlow
@@ -853,7 +853,7 @@
 
         // Staff only (server flag); hide while a time-boxed grant is active (go straight to record from main row)
         const quickViewLine = needsAccessFlow
-            ? `<div class="modern-search-result-quickview" data-admin-id="${adminIdAttr}" data-encoded-id="${encIdForRow}" data-is-lead="${isLeadRow ? '1' : '0'}" title="Request access (Quick access in modal), then open record"><i class="fas fa-bolt" aria-hidden="true"></i><span>Quick view</span><span class="quickview-hint"> — Request access</span></div>`
+            ? `<div class="modern-search-result-quickview" data-admin-id="${adminIdAttr}" data-encoded-id="${encIdForRow}" data-is-lead="${isLeadRow ? '1' : '0'}" title="Request access (Quick access in modal), then open record">${crmIcon('bolt')}<span>Quick view</span><span class="quickview-hint"> — Request access</span></div>`
             : '';
 
         const gateDataAttrs = needsAccessFlow

@@ -146,11 +146,11 @@
 													<td style="white-space: initial;">{{@$assignedTo ? trim($assignedTo->first_name.' '.$assignedTo->last_name) : 'N/A'}}</td>
 													
 													<td>
-													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fas fa-eye"></i></a>
-												<!--	<a href=""><i class="fas fa-envelope"></i></a>-->
+													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>">@icon('eye')</a>
+												<!--	<a href="">@icon('envelope')</a>-->
 													
-													<!--<a href=""><i class="fas fa-dollor"></i></a>-->
-													<!--<a href=""><i class="fas fa-trash"></i></a>-->
+													<!--<a href="">@icon('dollor')</a>-->
+													<!--<a href="">@icon('trash')</a>-->
 													</td>
 												</tr>
 												<?php

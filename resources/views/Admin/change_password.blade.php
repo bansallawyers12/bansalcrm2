@@ -73,7 +73,7 @@
 									@endif
 								</div>
 								<div class="form-group">
-									{!! Form::button('<i class="fas fa-refresh"></i> Change', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("change-password")'])  !!}
+									{!! Form::button('@icon('refresh') Change', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("change-password")'])  !!}
 								</div>
 							</div>    
 						{!! Form::close()  !!}	

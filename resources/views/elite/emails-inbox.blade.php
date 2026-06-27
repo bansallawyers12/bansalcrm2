@@ -1080,16 +1080,15 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var li = document.createElement('li');
         li.className = 'elite-msg-item'; li.setAttribute('role','option'); li.setAttribute('tabindex','0'); li.dataset.id = e.id||'';
         var icon = document.createElement('span'); icon.className = 'email-dir-icon'; icon.title = 'Incoming';
-        var ic = document.createElement('i'); ic.className = 'fas fa-arrow-down'; ic.setAttribute('aria-hidden','true');
-        icon.appendChild(ic);
+        icon.innerHTML = crmIcon('arrow-down');
         var m = document.createElement('div'); m.className = 'elite-msg-main';
         var l1 = document.createElement('div'); l1.className = 'elite-msg-line1';
         var addr = document.createElement('span'); addr.className = 'elite-msg-addr'; addr.textContent = e.from||'—';
         l1.appendChild(addr);
         if (e.has_attachments) {
             var aiBadge = document.createElement('span'); aiBadge.className = 'elite-msg-attach'; aiBadge.title = 'Has attachments';
-            var aiIc = document.createElement('i'); aiIc.className = 'fas fa-paperclip'; aiIc.setAttribute('aria-hidden','true');
-            aiBadge.appendChild(aiIc); l1.appendChild(aiBadge);
+            aiBadge.innerHTML = crmIcon('paperclip');
+            l1.appendChild(aiBadge);
         }
         var when = document.createElement('span'); when.className = 'elite-msg-when'; when.textContent = e.date||'';
         l1.appendChild(when); m.appendChild(l1);

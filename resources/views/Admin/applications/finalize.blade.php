@@ -25,7 +25,7 @@
 								<a href="#" class="btn btn-primary importmodal"> Import csv</a>
 							</div>
 							<div class="card-header-action">
-							        <a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
+							        <a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 							 </div>
 						</div>
 						<div class="card-body">

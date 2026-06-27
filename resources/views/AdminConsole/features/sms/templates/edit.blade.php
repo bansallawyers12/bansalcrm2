@@ -11,9 +11,9 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4><i class="fas fa-edit"></i> Edit SMS Template</h4>
+                            <h4>@icon('edit') Edit SMS Template</h4>
                             <div class="card-header-action">
-                                <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Templates</a>
+                                <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary">@icon('arrow-left') Back to Templates</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -54,8 +54,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Update Template</button>
-                                    <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                                    <button type="submit" class="btn btn-primary" id="saveBtn">@icon('save') Update Template</button>
+                                    <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary">@icon('times') Cancel</a>
                                 </div>
                             </form>
                         </div>
@@ -83,7 +83,7 @@ $(document).ready(function() {
             _token: $('input[name="_token"]').val(),
             _method: 'PUT'
         };
-        $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Updating...');
+        $('#saveBtn').prop('disabled', true).html(crmIconSpinner('Updating...'));
         $.ajax({
             url: '{{ route("adminconsole.features.sms.templates.update", $template->id) }}',
             method: 'POST',
@@ -101,7 +101,7 @@ $(document).ready(function() {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while updating the template');
             },
             complete: function() {
-                $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Update Template');
+                $('#saveBtn').prop('disabled', false).html('@icon('save') Update Template');
             }
         });
     });

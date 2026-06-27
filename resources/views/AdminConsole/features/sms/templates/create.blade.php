@@ -11,9 +11,9 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4><i class="fas fa-plus"></i> Create SMS Template</h4>
+                            <h4>@icon('plus') Create SMS Template</h4>
                             <div class="card-header-action">
-                                <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Templates</a>
+                                <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary">@icon('arrow-left') Back to Templates</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -53,8 +53,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Create Template</button>
-                                    <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                                    <button type="submit" class="btn btn-primary" id="saveBtn">@icon('save') Create Template</button>
+                                    <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary">@icon('times') Cancel</a>
                                 </div>
                             </form>
                         </div>
@@ -81,7 +81,7 @@ $(document).ready(function() {
             is_active: $('#is_active').is(':checked') ? 1 : 0,
             _token: $('input[name="_token"]').val()
         };
-        $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Creating...');
+        $('#saveBtn').prop('disabled', true).html(crmIconSpinner('Creating...'));
         $.ajax({
             url: '{{ route("adminconsole.features.sms.templates.store") }}',
             method: 'POST',
@@ -99,7 +99,7 @@ $(document).ready(function() {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while creating the template');
             },
             complete: function() {
-                $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Create Template');
+                $('#saveBtn').prop('disabled', false).html('@icon('save') Create Template');
             }
         });
     });

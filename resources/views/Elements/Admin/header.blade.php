@@ -71,7 +71,7 @@
 	<a href="javascript:;" data-bs-toggle="dropdown" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin">@icon('sign-in-alt')</a>
 	</li>
 		<!-- {{--	<li class="dropdown dropdown-list-toggle">
-			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i class="fas fa-envelope"></i><span class="badge headerBadge1">6</span></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle">@icon('envelope')<span class="badge headerBadge1">6</span></a>
             <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Messages
 					<div class="float-end">
@@ -113,7 +113,7 @@
 					</a>
 				</div>
 				<div class="dropdown-footer text-center">
-					<a href="#">View All <i class="fas fa-chevron-right"></i></a>
+					<a href="#">View All @icon('chevron-right')</a>
 				</div>
 			</div>
 		</li>--}} -->
@@ -135,7 +135,7 @@
 				    ?>
 					<a href="{{--$listnoti->url--}}?t={{--$listnoti->id--}}" class="dropdown-item dropdown-item-unread">
 						<span class="dropdown-item-icon bg-primary text-white">
-							<i class="fas fa-code"></i>
+							@icon('code')
 						</span>
 						<span class="dropdown-item-desc">{{--$listnoti->message--}} <span class="time">{{--date('d/m/Y h:i A',strtotime($listnoti->created_at))--}}</span></span>
 					</a>
@@ -143,7 +143,7 @@
 					
 				</div>
 				<div class="dropdown-footer text-center">
-					<a href="{{--URL::to('/all-notifications')--}}">View All <i class="fas fa-chevron-right"></i></a>
+					<a href="{{--URL::to('/all-notifications')--}}">View All @icon('chevron-right')</a>
 				</div>
 			</div>-->
 		</li>

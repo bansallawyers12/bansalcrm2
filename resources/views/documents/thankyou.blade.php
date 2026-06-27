@@ -177,7 +177,7 @@
     
     <div class="container">
         <div class="success-icon">
-            <i class="fas fa-check"></i>
+            @icon('check')
         </div>
         
         <h1>Document Signed Successfully!</h1>
@@ -206,7 +206,7 @@
         <div class="buttons">
             @if(isset($document) && $document->signed_doc_link)
             <a href="{{ route('public.documents.download.signed', $document->id) }}?token={{ $signer->token ?? '' }}" class="btn btn-primary">
-                <i class="fas fa-download"></i> Download Signed Copy
+                @icon('download') Download Signed Copy
             </a>
             @endif
         </div>

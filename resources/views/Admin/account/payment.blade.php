@@ -47,8 +47,8 @@
 												<div class="dropdown d-inline">
 													<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 													<div class="dropdown-menu">
-														<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fas fa-eye"></i> View Receipt</a>
-														<a data-id="{{$list->id}}" data-rec-name="receipt_{{$list->id}}.pdf" data-href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}" data-cus-id="{{@$list->invoice->customer->id}}" data-email="{{@$list->invoice->customer->email}}" data-name="{{@$list->invoice->customer->first_name}} {{@$list->invoice->customer->last_name}}" href="javascript:;" class="clientemail dropdown-item has-icon"><i class="far fa-envelope"></i> Email Receipt</a>
+														<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}">@icon('eye') View Receipt</a>
+														<a data-id="{{$list->id}}" data-rec-name="receipt_{{$list->id}}.pdf" data-href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}" data-cus-id="{{@$list->invoice->customer->id}}" data-email="{{@$list->invoice->customer->email}}" data-name="{{@$list->invoice->customer->first_name}} {{@$list->invoice->customer->last_name}}" href="javascript:;" class="clientemail dropdown-item has-icon">@icon('envelope', 'regular') Email Receipt</a>
 													</div>
 												</div>		
 											</td>

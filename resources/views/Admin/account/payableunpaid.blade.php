@@ -95,7 +95,7 @@
 																	   </td>
 																	<td style="text-align:right;">
 																		<div class="dropdown d-inline">
-																			<a class="dropdown-toggle" href="javascript:;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+																			<a class="dropdown-toggle" href="javascript:;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
 																			<div class="dropdown-menu">
 																			<?php
 																			if(isset($list->invoice) && $list->invoice->status == 1){
@@ -167,7 +167,7 @@
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
+											@icon('clock')
 										</div>
 									</div>	
 									<input data-valid="required"  type="text" name="payment_date" placeholder="" class="datepicker form-control" />

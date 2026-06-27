@@ -272,7 +272,7 @@
 													@else
 														<img id="output"/> 
 													@endif
-														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fas fa-camera if_image"></i>
+														{!! \App\Helpers\IconHelper::render('camera', 'solid', ['class' => 'if_image', 'attrs' => (@$fetchedData->profile_img != '' ? ['style' => 'display:none;'] : [])]) !!}
 														<span <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="if_image">Upload Profile Image</span>
 													</div>
 													<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />

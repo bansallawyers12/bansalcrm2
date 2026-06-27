@@ -17,7 +17,7 @@
 								<p class="text-muted small mb-0 mt-1">One schedule per consultant (linked to <code>followup_calendar_settings</code>).</p>
 							</div>
 							<div class="d-flex flex-wrap gap-2">
-								<a href="{{ route('adminconsole.producttype.index') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-columns me-1"></i> Admin Console</a>
+								<a href="{{ route('adminconsole.producttype.index') }}" class="btn btn-outline-primary btn-sm">@icon('columns', 'solid', ['class' => 'me-1']) Admin Console</a>
 								<a href="{{ route('followups.index') }}" class="btn btn-outline-secondary btn-sm">Followup listing</a>
 							</div>
 						</div>
@@ -43,7 +43,7 @@
 											<div class="card-header py-2 d-flex justify-content-between align-items-center bg-light">
 												<span class="fw-semibold small">{{ $c->name ?? 'Consultant' }}</span>
 												<a href="{{ followups_console_route('calendar-settings.edit', $row) }}" class="btn btn-sm btn-outline-warning" title="Edit">
-													<i class="fas fa-pencil-alt"></i>
+													@icon('pencil-alt')
 												</a>
 											</div>
 											<div class="card-body small">

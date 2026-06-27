@@ -619,19 +619,19 @@ function customValidate(formName, savetype = '')
                                             var trRows = "";
                                             $.each(reqData, function(index, subArray) {
                                                 if(awsUrl != ""){
-                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
+                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                                 } else {
                                                     var awsLink = '';
                                                 }
 
                                                 if(printUrl != ""){
-                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'" title="Print receipt"><i class="fas fa-print" aria-hidden="true"></i></a>';
+                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'" title="Print receipt">' + crmIcon('print') + '</a>';
                                                 } else {
                                                     var printLink = '';
                                                 }
 
-                                                var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
-                                                var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund"><i class="fas fa-undo"></i></a>';
+                                                var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'">' + crmIcon('pencil-alt') + '</a>';
+                                                var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund">' + crmIcon('undo') + '</a>';
 
                                                 trRows += "<tr id=\"TrRow_"+lastInsertedId+"\"><td>"+subArray.trans_date+" "+awsLink+"</td><td>"+subArray.entry_date+"</td><td>"+subArray.trans_no+"</td><td>"+subArray.payment_method+"</td><td>"+subArray.description+"</td><td>$"+subArray.deposit_amount+" "+printLink+" "+editLink+refundLink+"</td></tr>";
                                             });
@@ -661,17 +661,17 @@ function customValidate(formName, savetype = '')
 												var awsLink = '';
 												var printLink = '';
 												var editLink = '';
-												var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+subArray.id+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="'+(subArray.application_id || '')+'" title="Create Refund"><i class="fas fa-undo"></i></a>';
+												var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+subArray.id+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="'+(subArray.application_id || '')+'" title="Create Refund">' + crmIcon('undo') + '</a>';
 												
 												if(awsUrl != ""){
-                                                    awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
+                                                    awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                                 }
 
                                                 if(printUrl != ""){
-                                                    printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
+                                                    printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'">' + crmIcon('print') + '</a>';
                                                 }
 
-												editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
+												editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'">' + crmIcon('pencil-alt') + '</a>';
 
 												// Update each TD cell instead of emptying the entire row
 												$existingRow.find('td:eq(0)').html(subArray.trans_date+" "+awsLink);
@@ -777,17 +777,17 @@ function customValidate(formName, savetype = '')
                                             var trRows = "";
 
                                             if(awsUrl != ""){
-                                                var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
+                                                var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                             } else {
                                                 var awsLink = '';
                                             }
                                             if(printUrl != ""){
-                                                var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
+                                                var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'">' + crmIcon('print') + '</a>';
                                             } else {
                                                 var printLink = '';
                                             }
-                                            var draftlink = '<a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="'+last_invoice_id+'"><i class="fas fa-pencil-alt"></i></a>';
-                                            var dellink = '<a class="link-primary deletestudentinvoice" href="javascript:;" data-invoiceid="'+last_invoice_id+'" data-invoicetype="1" data-partnerid="'+obj.partnerid+'"><i class="fas fa-trash"></i></a>';
+                                            var draftlink = '<a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="'+last_invoice_id+'">' + crmIcon('pencil-alt') + '</a>';
+                                            var dellink = '<a class="link-primary deletestudentinvoice" href="javascript:;" data-invoiceid="'+last_invoice_id+'" data-invoicetype="1" data-partnerid="'+obj.partnerid+'">' + crmIcon('trash') + '</a>';
                                             trRows += "<tr id='TrRow_"+last_invoice_id+"'><td style='padding-top: 5px !important;padding-bottom: 5px !important;'>"+subArray.invoice_date+" "+awsLink+"</td><td style='padding-top: 5px !important;padding-bottom: 5px !important;'>"+subArray.invoice_no+"</td><td style='padding-top: 5px !important;padding-bottom: 5px !important;'>"+db_total_enrolled_student+"</td><td style='padding-top: 5px !important;padding-bottom: 5px !important;'>$"+db_total_amount+" "+printLink+" "+draftlink+" "+dellink+"</td><td style='padding-top: 5px !important;padding-bottom: 5px !important;'><select name='sent_option'  class='sent_option' data-invoiceid="+last_invoice_id+"><option value='No'>No</option><option value='Yes'>Yes</option></select></td></tr>";
                                         }
                                         $('.lastRow').before(trRows);
@@ -818,17 +818,17 @@ function customValidate(formName, savetype = '')
                                                 var last_invoice_id = obj.last_invoice_id;
 
                                                 if(awsUrl2 != ""){
-                                                    var awsLink2 = '<a target="_blank" class="link-primary" href="'+awsUrl2+'"><i class="fas fa-file-pdf"></i></a>';
+                                                    var awsLink2 = '<a target="_blank" class="link-primary" href="'+awsUrl2+'">' + crmIcon('file-pdf') + '</a>';
                                                 } else {
                                                     var awsLink2 = '';
                                                 }
                                                 if(printUrl2 != ""){
-                                                    var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
+                                                    var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'">' + crmIcon('print') + '</a>';
                                                 } else {
                                                     var printLink2 = '';
                                                 }
                                                 var unique_invoice_id2 = "TrRow_"+obj.requestAddData.invoice_id;
-                                                var draftlink2 = '<a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="'+obj.requestAddData.invoice_id+'"><i class="fas fa-pencil-alt"></i></a>';
+                                                var draftlink2 = '<a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="'+obj.requestAddData.invoice_id+'">' + crmIcon('pencil-alt') + '</a>';
                                                 $('#'+unique_invoice_id2+' td:first').html(obj.requestAddData.invoice_date+" "+awsLink2);
                                                 $('#'+unique_invoice_id2+' td:nth-child(3)').html(db_total_enrolled_student2);
                                                 $('#'+unique_invoice_id2+' td:nth-child(4)').html("$"+db_total_amount2+" "+printLink2+" "+draftlink2);
@@ -843,19 +843,19 @@ function customValidate(formName, savetype = '')
                                             var last_invoice_id = obj.last_invoice_id;
 
                                             if(awsUrl2 != ""){
-                                                var awsLink2 = '<a target="_blank" class="link-primary" href="'+awsUrl2+'"><i class="fas fa-file-pdf"></i></a>';
+                                                var awsLink2 = '<a target="_blank" class="link-primary" href="'+awsUrl2+'">' + crmIcon('file-pdf') + '</a>';
                                             } else {
                                                 var awsLink2 = '';
                                             }
 
                                             if(printUrl2 != ""){
-                                                var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
+                                                var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'">' + crmIcon('print') + '</a>';
                                             } else {
                                                 var printLink2 = '';
                                             }
                                             var unique_invoice_id2 = "TrRow_"+obj.requestData.invoice_id;
-                                            var draftlink2 = '<a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="'+obj.requestData.invoice_id+'"><i class="fas fa-pencil-alt"></i></a>';
-                                            var dellink2 = '<a class="link-primary deletestudentinvoice" href="javascript:;" data-invoiceid="'+obj.requestData.invoice_id+'" data-invoicetype="1" data-partnerid="'+obj.partnerid+'"><i class="fas fa-trash"></i></a>';
+                                            var draftlink2 = '<a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="'+obj.requestData.invoice_id+'">' + crmIcon('pencil-alt') + '</a>';
+                                            var dellink2 = '<a class="link-primary deletestudentinvoice" href="javascript:;" data-invoiceid="'+obj.requestData.invoice_id+'" data-invoicetype="1" data-partnerid="'+obj.partnerid+'">' + crmIcon('trash') + '</a>';
                                             $('#'+unique_invoice_id2+' td:first').html(obj.requestData.invoice_date+" "+awsLink2);
                                             $('#'+unique_invoice_id2+' td:nth-child(3)').html(db_total_enrolled_student2);
                                             $('#'+unique_invoice_id2+' td:nth-child(4)').html("$"+db_total_amount2+" "+printLink2+" "+draftlink2+" "+dellink2);
@@ -900,11 +900,11 @@ function customValidate(formName, savetype = '')
                                             var trRows = "";
                                             $.each(reqData, function(index, subArray) {
                                                 if(awsUrl != ""){
-                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
+                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                                 } else {
                                                     var awsLink = '';
                                                 }
-                                                var dellink2 = '<a class="link-primary deletestudentrecordinvoice" href="javascript:;" data-uniqueid="'+subArray.id+'" data-invoicetype="2" data-partnerid="'+subArray.partnerid+'"><i class="fas fa-trash"></i></a>';
+                                                var dellink2 = '<a class="link-primary deletestudentrecordinvoice" href="javascript:;" data-uniqueid="'+subArray.id+'" data-invoicetype="2" data-partnerid="'+subArray.partnerid+'">' + crmIcon('trash') + '</a>';
                                                 trRows += "<tr id='TrRecordRow_"+subArray.id+"'><td>"+subArray.invoice_date+" "+awsLink+"</td><td>"+subArray.sent_date+"</td><td>"+subArray.invoice_no+"</td><td>$"+subArray.amount_aud+" "+dellink2+"</td></tr>";
                                             });
                                         }
@@ -948,11 +948,11 @@ function customValidate(formName, savetype = '')
                                             var trRows = "";
                                             $.each(reqData, function(index, subArray) {
                                                 if(awsUrl != ""){
-                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
+                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                                 } else {
                                                     var awsLink = '';
                                                 }
-                                                var dellink3 = '<a class="link-primary deletestudentpaymentinvoice" href="javascript:;" data-uniqueid="'+subArray.id+'" data-invoicetype="3" data-partnerid="'+subArray.partnerid+'"><i class="fas fa-trash"></i></a>';
+                                                var dellink3 = '<a class="link-primary deletestudentpaymentinvoice" href="javascript:;" data-uniqueid="'+subArray.id+'" data-invoicetype="3" data-partnerid="'+subArray.partnerid+'">' + crmIcon('trash') + '</a>';
                                                 trRows += "<tr id='TrPaymentRow_"+subArray.id+"'><td>"+subArray.invoice_no+" "+awsLink+"</td><td>"+subArray.method_received+"</td><td>"+subArray.verified_by+"</td><td>"+subArray.verified_date+"</td><td>$"+subArray.amount_aud+" "+dellink3+"</td></tr>";
                                             });
                                         }

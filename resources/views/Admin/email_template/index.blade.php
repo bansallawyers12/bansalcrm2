@@ -47,19 +47,19 @@
 					<div class="card"> 
 						<div class="card-header">   
 							<div class="card-title">
-								<a href="{{route('email.create')}}" class="btn btn-primary"><i class="fas fa-plus"></i> Email Templates</a>
-								<a style="display:none;" class="btn btn-primary displayifselected" href="javascript:;" onClick="deleteAllAction('email_templates')"><i class="fas fa-trash"></i> Delete</a> 
+								<a href="{{route('email.create')}}" class="btn btn-primary">@icon('plus') Email Templates</a>
+								<a style="display:none;" class="btn btn-primary displayifselected" href="javascript:;" onClick="deleteAllAction('email_templates')">@icon('trash') Delete</a> 
 							</div> 
 							<div class="card-tools card_tools">
 								<!--<div class="input-group input-group-sm" style="width: 150px;">
 									<input type="text" name="table_search" class="form-control float-end" placeholder="Search">
 									<div class="input-group-append">
-										<button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+										<button type="submit" class="btn btn-primary">@icon('search')</button>
 									</div>
 								</div>-->
 								<div class="row">
 									<div class="col-md-4">
-										<a href="javascript:;" data-bs-toggle="modal" data-bs-target="#amnetsearch_modal" class="btn btn-primary"><i class="fas fa-search"></i></a>
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target="#amnetsearch_modal" class="btn btn-primary">@icon('search')</a>
 									</div>
 								</div>
 							</div>
@@ -89,7 +89,7 @@
 									<div class="nav-item dropdown action_dropdown">
 										<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><span class="caret"></span></a>
 										<div class="dropdown-menu">
-											<a href="{{URL::to('/edit_email_template/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fas fa-edit"></i> Edit</a>
+											<a href="{{URL::to('/edit_email_template/'.base64_encode(convert_uuencode(@$list->id)))}}">@icon('edit') Edit</a>
 											
 										</div>
 									</div>

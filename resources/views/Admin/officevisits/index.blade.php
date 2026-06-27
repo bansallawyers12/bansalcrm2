@@ -48,7 +48,7 @@
 								<div class="mydropdown" style="margin-top:10px;">
 								  <button onclick="myFunction()" class="dropbtn">
 								  <?php echo isset($_GET['office_name']) ? $_GET['office_name'] : 'All Branches'; ?>
-								   <i style="font-size: 10px;" class="fas fa-arrow-down"></i></button>
+								   @icon('arrow-down', 'solid', ['attrs' => ['style' => 'font-size: 10px;']])</button>
 								  <div id="myDropdown" class="dropdown-content">
 								  <a href="{{ URL::to($baseUrl) }}">All Branches</a>
 								  <?php

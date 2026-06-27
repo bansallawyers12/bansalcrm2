@@ -21,7 +21,6 @@
 	<!-- Main styles for this application-->
 		@vite(['resources/sass/app.scss'])
 		<link rel="stylesheet" type="text/css" href="{{asset('css/style.css')}}" />
-		<link rel="stylesheet" type="text/css" href="{{asset('css/pace.min.css')}}" />
 		<link rel="stylesheet" type="text/css" href="{{asset('css/admin.css')}}" />
 </head>
 	<body class="app flex-row align-items-center">
@@ -72,14 +71,10 @@
 	<!-- Bootstrap JS via app.js; CSS loaded in <head> via app.scss -->
 	<!-- Popper.js is already included in Bootstrap 5 bundle via Vite -->
 	
-	<!-- Apnamentor necessary plugins-->
-		<script src="{{asset('js/pace-progress/js/pace.min.js')}}"></script>
-		<script src="{{asset('js/perfect-scrollbar/js/perfect-scrollbar.min.js')}}"></script>
-		<!-- Removed broken reference: icons/@coreui/coreui-pro/js/coreui.min.js (not installed) -->
-		@if(request()->is('agent', 'agent/*'))
-		<script src="{{ asset('js/agent-custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/agent-custom-form-validation.js')) }}"></script>
-		@else
-		<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}"></script>
-		@endif
+	@if(request()->is('agent', 'agent/*'))
+		@vite(['resources/js/exception-agent-entry.js'])
+	@else
+		@vite(['resources/js/exception-entry.js'])
+	@endif
 	</body>
 </html>

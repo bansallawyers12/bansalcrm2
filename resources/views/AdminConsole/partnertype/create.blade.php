@@ -14,7 +14,7 @@
 							<div class="card-header"> 
 								<h4>Add Partner Type</h4>
 								<div class="card-header-action">
-									<a href="{{route('adminconsole.partnertype.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.partnertype.index')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>

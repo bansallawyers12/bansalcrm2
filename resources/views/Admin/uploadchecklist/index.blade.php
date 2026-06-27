@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Checklists</h4>
 								<div class="card-header-action">
-									<a href="{{route('adminconsole.documentchecklist.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.documentchecklist.index')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>
@@ -93,7 +93,7 @@
                                                               <a href="{{asset('checklists/'.$list->file)}}">File</a>							  
                                                           </td>
                                                           <td>
-                                                          <a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'upload_checklists')"><i class="fas fa-trash"></i> Delete</a>							  
+                                                          <a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'upload_checklists')">@icon('trash') Delete</a>							  
                                                           </td>
                                                       </tr>	
                                                   @endforeach	 

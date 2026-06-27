@@ -97,7 +97,7 @@
 
 								@if($label->type === 'system')
 									<div class="alert alert-warning">
-										<i class="fas fa-info-circle"></i> <strong>Note:</strong> System labels have restricted editing. Only color, icon, description, and status can be modified.
+										@icon('info-circle') <strong>Note:</strong> System labels have restricted editing. Only color, icon, description, and status can be modified.
 									</div>
 								@endif
 

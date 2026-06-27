@@ -116,16 +116,16 @@
                                         } ?>
                                         <div class="filter-wrapper">
                                             <div class="btn btn-light filter-checkbox active" data-val="All"> All <span class="countAction">{{ $assigneesCount_All_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Call"><i class="fas fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Checklist"> <i class="fas fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Review"> <i class="fas fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Query"><i class="fas fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Urgent"> <i class="fas fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Personal Task"> <i class="fas fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Call">@icon('phone') Call <span class="countAction">{{ $assigneesCount_call_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Checklist"> @icon('bars') Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Review"> @icon('check') Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Query">@icon('question') Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Urgent"> @icon('flag') Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Personal Task"> @icon('tasks') Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></div>
                                           
-                                          <div class="btn btn-light filter-checkbox" data-val="stage"> <i class="fas fa-flag" aria-hidden="true"></i> Stage <span class="countAction">{{ $assigneesCount_Stage_type }}</span></div>
+                                          <div class="btn btn-light filter-checkbox" data-val="stage"> @icon('flag') Stage <span class="countAction">{{ $assigneesCount_Stage_type }}</span></div>
                                           
-                                          <div class="btn btn-light filter-checkbox" style="margin-top:5px;" data-val="partner"> <i class="fas fa-flag" aria-hidden="true"></i> Partner <span class="countAction">{{ $assigneesCount_partner_type }}</span></div>
+                                          <div class="btn btn-light filter-checkbox" style="margin-top:5px;" data-val="partner"> @icon('flag') Partner <span class="countAction">{{ $assigneesCount_partner_type }}</span></div>
 
 
 
@@ -177,7 +177,7 @@
 
                                                 <div class=&quot;search-element&quot; style=&quot;margin-left: 5px;width:70%;&quot;>
                                                     <select id=&quot;assign_client_id&quot;  class=&quot;form-control js-data-example-ajaxccsearch__addmytask&quot; type=&quot;search&quot; placeholder=&quot;Search&quot; aria-label=&quot;Search&quot; data-width=&quot;200&quot; style=&quot;width:200px&quot;></select>
-                                                    <button class=&quot;btn&quot; type=&quot;submit&quot;><i class=&quot;fas fa-search&quot;></i></button>
+                                                    <button class=&quot;btn&quot; type=&quot;submit&quot;><?php echo htmlspecialchars(\App\Helpers\IconHelper::render('search'), ENT_QUOTES, 'UTF-8'); ?></button>
                                                 </div>
                                             </form>
 
@@ -254,7 +254,7 @@
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
                 <h5 class="modal-title" id="completeActionModalLabel">
-                    <i class="fas fa-check-circle"></i> Complete Action
+                    @icon('check-circle') Complete Action
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -268,7 +268,7 @@
                     <div class="mb-3">
                         <label class="text-muted small">Client/Partner</label>
                         <p id="complete-action-client" style="color: #4b5563; margin: 0; font-weight: 500;">
-                            <i class="fas fa-user"></i> <span></span>
+                            @icon('user') <span></span>
                         </p>
                     </div>
                     
@@ -285,7 +285,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="submitCompleteAction">
-                    <i class="fas fa-check"></i> Complete Action
+                    @icon('check') Complete Action
                 </button>
             </div>
         </div>
@@ -730,7 +730,7 @@ jQuery(document).ready(function($){
         }
         
         // Disable button during submission
-        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Completing...');
+        $(this).prop('disabled', true).html(crmIconSpinner('Completing...'));
         
         $.ajax({
             url: "{{URL::to('/')}}/action/task-complete",
@@ -743,7 +743,7 @@ jQuery(document).ready(function($){
             },
             success: function(response) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('<i class="fas fa-check"></i> Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html('@icon('check') Complete Action');
                 
                 // Check response status
                 if (response && response.status) {
@@ -770,7 +770,7 @@ jQuery(document).ready(function($){
             },
             error: function(xhr) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('<i class="fas fa-check"></i> Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html('@icon('check') Complete Action');
                 
                 var errorMsg = 'An error occurred. Please try again.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {

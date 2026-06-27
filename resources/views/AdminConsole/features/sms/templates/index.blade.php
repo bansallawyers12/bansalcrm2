@@ -11,9 +11,9 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4><i class="fas fa-file-alt"></i> SMS Templates</h4>
+                            <h4>@icon('file-alt') SMS Templates</h4>
                             <div class="card-header-action">
-                                <a href="{{ route('adminconsole.features.sms.templates.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Create Template</a>
+                                <a href="{{ route('adminconsole.features.sms.templates.create') }}" class="btn btn-primary">@icon('plus') Create Template</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -45,16 +45,16 @@
                                             <td><span class="badge badge-primary">{{ $template->usage_count ?? 0 }}</span></td>
                                             <td><small>{{ $template->created_at->format('M d, Y') }}</small></td>
                                             <td>
-                                                <a href="{{ route('adminconsole.features.sms.templates.edit', $template->id) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i> Edit</a>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteTemplate({{ $template->id }})"><i class="fas fa-trash"></i> Delete</button>
+                                                <a href="{{ route('adminconsole.features.sms.templates.edit', $template->id) }}" class="btn btn-sm btn-info">@icon('edit') Edit</a>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteTemplate({{ $template->id }})">@icon('trash') Delete</button>
                                             </td>
                                         </tr>
                                         @empty
                                         <tr>
                                             <td colspan="7" class="text-center py-4">
-                                                <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                                @icon('file-alt', 'solid', ['class' => '2x text-muted mb-2'])
                                                 <p class="text-muted">No templates found</p>
-                                                <a href="{{ route('adminconsole.features.sms.templates.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Create First Template</a>
+                                                <a href="{{ route('adminconsole.features.sms.templates.create') }}" class="btn btn-primary">@icon('plus') Create First Template</a>
                                             </td>
                                         </tr>
                                         @endforelse

@@ -13,7 +13,7 @@
                                                 <div class="tab-content" id="studentContent">
                                                     <div class="student_table_panel">
                                                     <div class="student_drop_table_data" style="display: inline-block;margin-right: 10px;">
-                                                        <button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
+                                                        <button type="button" class="btn btn-primary dropdown-toggle">@icon('columns')</button>
                                                         <div class="dropdown_list student_dropdown_list">
                                                             <label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
                                                             <label class="dropdown-option"><input type="checkbox" value="3" checked /> Student Name</label>
@@ -390,7 +390,7 @@
                                             <div class="tab-pane fade" id="stdinactive" role="tabpanel" aria-labelledby="stdinactive-tab">
                                                 <div class="student_table_panel1">
                                                 <div class="student_drop_table_data1" style="display: inline-block;margin-right: 10px;">
-                                                    <button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
+                                                    <button type="button" class="btn btn-primary dropdown-toggle">@icon('columns')</button>
                                                     <div class="dropdown_list student_dropdown_list1">
                                                         <label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
                                                         <label class="dropdown-option"><input type="checkbox" value="3" checked /> Student Name</label>

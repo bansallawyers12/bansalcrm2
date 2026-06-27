@@ -389,10 +389,10 @@ $(function () {
       if (typeof $.fn.collapse === 'function') {
         $(target).collapse("toggle");
         $(target).on("shown.bs.collapse", function () {
-          me.html('<i class="fas fa-minus"></i>');
+          me.html(crmIcon('minus'));
         });
         $(target).on("hidden.bs.collapse", function () {
-          me.html('<i class="fas fa-plus"></i>');
+          me.html(crmIcon('plus'));
         });
       } else if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
         // Use Bootstrap 5 vanilla JS API as fallback

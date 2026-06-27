@@ -43,7 +43,7 @@ function applyActivitiesResponse(response) {
 function buildLegacyActivityItemHtml(v) {
     var activityId = v.activity_id || v.id || '';
     var pinHtml = (v.pin == 1)
-        ? '<div class="pined_note"><i class="fas fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>'
+        ? '<div class="pined_note">' + crmIcon('thumbtack', 'solid', { attrs: { style: 'font-size: 12px;color: #6777ef;' } }) + '</div>'
         : '';
     var pinLabel = (v.pin == 1) ? 'UnPin' : 'Pin';
     var canDelete = App.getPageConfig && App.getPageConfig('canDeleteActivityLog');
@@ -61,7 +61,7 @@ function buildLegacyActivityItemHtml(v) {
     html += '<div class="activity-actions">';
     html += pinHtml;
     html += '<div class="dropdown d-inline dropdown_ellipsis_icon">';
-    html += '<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>';
+    html += '<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + crmIcon('ellipsis-v') + '</a>';
     html += '<div class="dropdown-menu">';
     html += deleteHtml;
     html += '<a data-id="' + activityId + '" class="dropdown-item pinactivitylog" href="javascript:;">' + pinLabel + '</a>';

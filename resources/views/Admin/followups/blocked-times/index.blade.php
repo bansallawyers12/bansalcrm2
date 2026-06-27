@@ -20,9 +20,9 @@
 								<p class="text-muted small mb-0 mt-1">Block specific times and manage calendar availability.</p>
 							</div>
 							<div class="d-flex flex-wrap gap-2 align-items-center">
-								<a href="{{ route('adminconsole.producttype.index') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-columns me-1"></i> Admin Console</a>
+								<a href="{{ route('adminconsole.producttype.index') }}" class="btn btn-outline-primary btn-sm">@icon('columns', 'solid', ['class' => 'me-1']) Admin Console</a>
 								<a href="{{ followups_console_route('blocked-times.create') }}" class="btn btn-danger">
-									<i class="fas fa-plus me-1"></i> Block time
+									@icon('plus', 'solid', ['class' => 'me-1']) Block time
 								</a>
 							</div>
 						</div>
@@ -80,12 +80,12 @@
 													@endif
 												</td>
 												<td class="text-end text-nowrap">
-													<a href="{{ followups_console_route('blocked-times.show', $row) }}" class="btn btn-sm btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
-													<a href="{{ followups_console_route('blocked-times.edit', $row) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+													<a href="{{ followups_console_route('blocked-times.show', $row) }}" class="btn btn-sm btn-outline-info" title="View">@icon('eye')</a>
+													<a href="{{ followups_console_route('blocked-times.edit', $row) }}" class="btn btn-sm btn-outline-warning" title="Edit">@icon('pencil-alt')</a>
 													<form action="{{ followups_console_route('blocked-times.destroy', $row) }}" method="post" class="d-inline" onsubmit="return confirm('Delete this blocked time?');">
 														@csrf
 														@method('DELETE')
-														<button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash-alt"></i></button>
+														<button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">@icon('trash-alt')</button>
 													</form>
 												</td>
 											</tr>

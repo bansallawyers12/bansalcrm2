@@ -19,7 +19,7 @@
 							<h4>Invoice Report</h4>
 							<div class="card-header-action">
 								<div class="drop_table_data" style="display: inline-block;margin-right: 10px;"> 
-									<button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
+									<button type="button" class="btn btn-primary dropdown-toggle">@icon('columns')</button>
 									<div class="dropdown_list invoice_report_list">  
 										<label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
 										<label class="dropdown-option"><input type="checkbox" value="3" checked /> Created By</label>

@@ -20,7 +20,7 @@
 							<p>Please enter the below fields to change the password.</p>
 						</div>
 						<div class="form-top-right">
-							<i class="fas fa-lock"></i>
+							@icon('lock')
 						</div>
 					</div>
 					<div class="form-bottom  col-lg-12 col-sm-12 col-md-12 col-xs-12">

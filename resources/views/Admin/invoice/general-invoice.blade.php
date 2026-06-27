@@ -37,7 +37,7 @@
 							<div class="card-header">
 								<h4>Create General Invoice</h4>
 								<div class="card-header-action">
-									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>
@@ -121,7 +121,7 @@
 										</thead>
 										<tbody class="productitem">
 											<tr class="clonedrow">
-												<td><a href="#"><i class="fas fa-drag"><i></a></td>
+												<td><a href="#">@icon('grip-vertical')</a></td>
 												<td><input class="form-control" type="text" name="description[]" value="Tuition Fee" data-valid="required"/></td>
 												<td>
 													<select name="income_type[]" class="form-control income_type" data-valid="required">
@@ -146,14 +146,14 @@
 													<input class="form-control totlamt" name="total_amt[]" type="text" readonly />
 												</td>
 												<td>
-												<a class="removeitems" href="javascript:;"><i class="fas fa-times"></i></a>
+												<a class="removeitems" href="javascript:;">@icon('times')</a>
 											</td>
 											</tr>
 										</tbody>										
 									</table>
 								</div>
 								<div class="add_new">
-									<a href="javascript:;" class="openproductrinfo"><i class="fas fa-plus"></i> Add New Line</a>	
+									<a href="javascript:;" class="openproductrinfo">@icon('plus') Add New Line</a>	
 								</div>
 								<div class="row bottom_aligned">
 									<div class="col-md-7 cus_col_7">
@@ -254,7 +254,7 @@
 															<div class="input-group">
 																<div class="input-group-prepend">
 																	<div class="input-group-text">
-																		<i class="fas fa-clock"></i>
+																		@icon('clock')
 																	</div>
 																</div>	
 																<input type="date" name="payment_date[]" placeholder="Date" class=" form-control"value="{{date('Y-m-d')}}"/>
@@ -270,12 +270,12 @@
 															</select>
 														</div>
 														<div class="field_remove_col">
-															<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+															<a href="javascript:;" class="remove_col">@icon('times')</a>
 														</div>
 													</div>
 												</div>
 												<div class="add_payment_field">
-													<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
+													<a href="javascript:;">@icon('plus') Add New Line</a>
 												</div>
 												<div class="clearfix"></div>
 											</div>

@@ -55,7 +55,7 @@ use App\Http\Controllers\Controller;
 									<a href="#">{{$fetchedData->first_name}}</a>
 								</div>
 								<div class="author-mail_sms"> 
-									<a href="{{URL::to('/staff/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fas fa-edit"></i></a>
+									<a href="{{URL::to('/staff/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit">@icon('edit')</a>
 								</div>
 							</div>
 						</div>
@@ -514,7 +514,7 @@ use App\Http\Controllers\Controller;
 												</div>
 												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
-														<i class="fas fa-suitcase"></i>
+														@icon('suitcase')
 													</div>
 												</div>
 											</div>
@@ -535,7 +535,7 @@ use App\Http\Controllers\Controller;
 												</div>
 												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
-														<i class="fas fa-user"></i>
+														@icon('user')
 													</div>
 												</div>
 											</div>
@@ -556,7 +556,7 @@ use App\Http\Controllers\Controller;
 												</div>
 												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
-														<i class="fas fa-file-contract"></i>
+														@icon('file-contract')
 													</div>
 												</div>
 											</div>
@@ -964,8 +964,8 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 			parent.empty().append(
 				$('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
 				
-				$('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
-				$('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+				$('<button class="btn btn-primary btn-sm mb-1">@icon('check')</button>'),
+				$('<button class="btn btn-danger btn-sm mb-1">@icon('trash-alt', 'regular')</button>')
 			);
 
 			return false;
@@ -1009,7 +1009,7 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 							.data('id', obj.Id)
 							.data('name', opentime)
 							.append(
-								$('<span>').html('<i class="fas fa-file-image"></i> '+obj.filename+'.'+obj.filetype)
+								$('<span>').html('@icon('file-image') '+obj.filename+'.'+obj.filetype)
 							);
 							$('#grid_'+obj.Id).html(obj.filename+'.'+obj.filetype);
 					} else {
@@ -1409,7 +1409,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	
 	
 	$(document).delegate('#new_fee_option .fee_option_addbtn a', 'click', function(){
-		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control installment_amount" name="installment_amount[]"></td><td><input type="number" value="1" class="form-control installment" name="installment[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_terms[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td><input value="1" class="add_quotation" type="checkbox" name="add_quotation[]"> <a href="javascript:;" class="removefeetype"><i class="fas fa-trash"></i></a></td></tr>';
+		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control installment_amount" name="installment_amount[]"></td><td><input type="number" value="1" class="form-control installment" name="installment[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_terms[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td><input value="1" class="add_quotation" type="checkbox" name="add_quotation[]"> <a href="javascript:;" class="removefeetype">@icon('trash')</a></td></tr>';
 		$('#new_fee_option #productitemview tbody').append(html);
 				
 			}); 
@@ -1426,7 +1426,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	});
 	
 	$(document).delegate('#editfeeoption .fee_option_addbtn a', 'click', function(){
-		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control installment_amount" name="installment_amount[]"></td><td><input type="number" value="1" class="form-control installment" name="installment[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_terms[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td><input value="1" class="add_quotation" type="checkbox" name="add_quotation[]"> <a href="javascript:;" class="removefeetype"><i class="fas fa-trash"></i></a></td></tr>';
+		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control installment_amount" name="installment_amount[]"></td><td><input type="number" value="1" class="form-control installment" name="installment[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_terms[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td><input value="1" class="add_quotation" type="checkbox" name="add_quotation[]"> <a href="javascript:;" class="removefeetype">@icon('trash')</a></td></tr>';
 		$('#editfeeoption #productitemview tbody').append(html);
 				
 			}); 

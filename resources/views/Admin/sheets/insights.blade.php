@@ -67,7 +67,7 @@
         <div class="section-body">
 
             <div class="insights-page-header">
-                <h4><i class="fas fa-chart-bar"></i> Sheets Insights</h4>
+                <h4>@icon('chart-bar') Sheets Insights</h4>
             </div>
 
             {{-- Filters --}}
@@ -101,7 +101,7 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i> Apply</button>
+                            <button type="submit" class="btn btn-primary w-100">@icon('search', 'solid', ['class' => 'me-1']) Apply</button>
                         </div>
                     </form>
                 </div>
@@ -111,25 +111,25 @@
             <div class="row mb-4">
                 <div class="col-6 col-lg-3 mb-3">
                     <div class="insights-kpi-card kpi-conv">
-                        <h6><i class="fas fa-user-check me-1"></i> Total Converted</h6>
+                        <h6>@icon('user-check', 'solid', ['class' => 'me-1']) Total Converted</h6>
                         <div class="kpi-value">{{ number_format($totalConversions) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3 mb-3">
                     <div class="insights-kpi-card kpi-seen">
-                        <h6><i class="fas fa-eye me-1"></i> Clients Seen</h6>
+                        <h6>@icon('eye', 'solid', ['class' => 'me-1']) Clients Seen</h6>
                         <div class="kpi-value">{{ number_format($totalSeen) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3 mb-3">
                     <div class="insights-kpi-card kpi-disc">
-                        <h6><i class="fas fa-ban me-1"></i> Discontinued</h6>
+                        <h6>@icon('ban', 'solid', ['class' => 'me-1']) Discontinued</h6>
                         <div class="kpi-value">{{ number_format($totalDiscontinued) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3 mb-3">
                     <div class="insights-kpi-card kpi-rate">
-                        <h6><i class="fas fa-percentage me-1"></i> Conversion Rate</h6>
+                        <h6>@icon('percentage', 'solid', ['class' => 'me-1']) Conversion Rate</h6>
                         <div class="kpi-value">{{ $conversionRate }}%</div>
                     </div>
                 </div>

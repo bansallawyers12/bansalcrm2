@@ -55,7 +55,7 @@ use App\Http\Controllers\Controller;
 									<a href="#">{{$fetchedData->name}}</a>
 								</div>
 								<div class="author-mail_sms"> 
-									<a href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fas fa-edit"></i></a>
+									<a href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit">@icon('edit')</a>
 								</div>
 							</div>
 						</div>

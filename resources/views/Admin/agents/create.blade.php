@@ -15,7 +15,7 @@
 							<div class="card-header">
 								<h4>Add New Agent</h4>
 								<div class="card-header-action">
-									<a href="{{route('agents.active')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{route('agents.active')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>
@@ -134,7 +134,7 @@
 																<div class="input-group">
 																	<div class="input-group-prepend">
 																		<div class="input-group-text">
-																			<i class="fas fa-calendar-alt"></i>
+																			@icon('calendar-alt')
 																		</div>
 																	</div>
 																	{!! Form::text('contract_expiry_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}

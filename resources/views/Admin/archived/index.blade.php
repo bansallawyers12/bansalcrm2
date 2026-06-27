@@ -30,7 +30,7 @@
 							<h4>All Clients</h4>
 							<div class="card-header-action">
 								<div class="drop_table_data" style="display: inline-block;margin-right: 10px;">
-									<button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
+									<button type="button" class="btn btn-primary dropdown-toggle">@icon('columns')</button>
 									<div class="dropdown_list">
 										<label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
 										<label class="dropdown-option"><input type="checkbox" value="3" checked /> Assignee</label>
@@ -38,7 +38,7 @@
 										<label class="dropdown-option"><input type="checkbox" value="5" checked /> Archived On</label>
 									</div>
 								</div>
-								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
+								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 							</div>
 						</div>
 						<div class="card-body">
@@ -177,10 +177,10 @@
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="javascript:;" onclick="movetoclientAction({{$list->id}}, 'admins','is_archived')"><i class="fas fa-undo"></i> Move to clients</a>
+																<a class="dropdown-item has-icon" href="javascript:;" onclick="movetoclientAction({{$list->id}}, 'admins','is_archived')">@icon('undo') Move to clients</a>
 																
 																@if($canDelete)
-																	<a class="dropdown-item has-icon text-danger" href="javascript:;" onclick="permanentDeleteAction({{$list->id}}, 'admins')"><i class="fas fa-trash"></i> Permanently Delete</a>
+																	<a class="dropdown-item has-icon text-danger" href="javascript:;" onclick="permanentDeleteAction({{$list->id}}, 'admins')">@icon('trash') Permanently Delete</a>
 																@endif
 															</div>
 														</div>								  

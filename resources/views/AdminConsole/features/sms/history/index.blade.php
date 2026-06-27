@@ -11,7 +11,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4><i class="fas fa-history"></i> SMS History</h4>
+                            <h4>@icon('history') SMS History</h4>
                             <p class="text-muted">View and manage all SMS messages</p>
                         </div>
                         <div class="card-body">
@@ -36,13 +36,13 @@
                                             <td><span class="badge badge-{{ $sms->status === 'sent' ? 'success' : ($sms->status === 'failed' ? 'danger' : 'warning') }}">{{ ucfirst($sms->status) }}</span></td>
                                             <td><span class="badge badge-{{ $sms->provider === 'cellcast' ? 'danger' : 'info' }}">{{ strtoupper($sms->provider) }}</span></td>
                                             <td>
-                                                <a href="{{ route('adminconsole.features.sms.history.show', $sms->id) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> View</a>
+                                                <a href="{{ route('adminconsole.features.sms.history.show', $sms->id) }}" class="btn btn-sm btn-info">@icon('eye') View</a>
                                             </td>
                                         </tr>
                                         @empty
                                         <tr>
                                             <td colspan="6" class="text-center py-4">
-                                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                                @icon('inbox', 'solid', ['class' => '2x text-muted mb-2'])
                                                 <p class="text-muted">No SMS messages found</p>
                                             </td>
                                         </tr>

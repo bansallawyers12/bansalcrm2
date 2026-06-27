@@ -31,7 +31,7 @@
 							<div class="card-header">
 								<h4>Create General Invoice</h4>
 								<div class="card-header-action">
-									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>
@@ -129,7 +129,7 @@
 											$netamount += $invoiceitemdetail->netamount;
 										?>
 											<tr class="<?php if($ir == 0){ ?>clonedrow<?php }else{?>product_field_clone<?php } ?>">
-												<td><a href="#"><i class="fas fa-drag"><i></a></td>
+												<td><a href="#">@icon('grip-vertical')</a></td>
 												<td><input class="form-control" type="text" value="{{$invoiceitemdetail->description}}" name="description[]" /></td>
 												<td>
 													<select name="income_type[]" class="form-control income_type">
@@ -153,7 +153,7 @@
 												<td class="last_td">
 													<input class="form-control totlamt" name="total_amt[]" type="text" value="{{$invoiceitemdetail->netamount}}" readonly />
 													<?php if($ir != 0){ ?>
-													<a class="removeitems" href="javascript:;"><i class="fas fa-times"></i></a>
+													<a class="removeitems" href="javascript:;">@icon('times')</a>
 													<?php } ?>
 												</td>
 											</tr>
@@ -162,7 +162,7 @@
 									</table>
 								</div>
 								<div class="add_new">
-									<a href="javascript:;" class="openproductrinfo"><i class="fas fa-plus"></i> Add New Line</a>	
+									<a href="javascript:;" class="openproductrinfo">@icon('plus') Add New Line</a>	
 								</div>
 								<div class="row bottom_aligned">
 									<div class="col-md-7 cus_col_7">
@@ -275,7 +275,7 @@
 															<div class="input-group">
 																<div class="input-group-prepend">
 																	<div class="input-group-text">
-																		<i class="fas fa-clock"></i>
+																		@icon('clock')
 																	</div>
 																</div>	
 																<input type="text" name="payment_date[]" value="{{$paymentdetail->payment_date}}" placeholder="Received Amount" class="datepicker form-control" />
@@ -291,7 +291,7 @@
 															</select>
 														</div>
 														<div class="field_remove_col">
-															<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+															<a href="javascript:;" class="remove_col">@icon('times')</a>
 														</div>
 													</div>
 													<?php $ir++; } ?>
@@ -308,7 +308,7 @@
 															<div class="input-group">
 																<div class="input-group-prepend">
 																	<div class="input-group-text">
-																		<i class="fas fa-clock"></i>
+																		@icon('clock')
 																	</div>
 																</div>	
 																<input type="text" name="payment_date[]" placeholder="Received Amount" class="datepicker form-control" />
@@ -324,14 +324,14 @@
 															</select>
 														</div>
 														<div class="field_remove_col">
-															<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+															<a href="javascript:;" class="remove_col">@icon('times')</a>
 														</div>
 													</div>
 														<?php
 													} ?>
 												</div>
 												<div class="add_payment_field">
-													<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
+													<a href="javascript:;">@icon('plus') Add New Line</a>
 												</div>
 												<div class="clearfix"></div>
 											</div>

@@ -465,7 +465,7 @@
 	<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
 		<div class="modal-content">
 			<div class="modal-header schedule-followup-header">
-				<h5 class="modal-title" id="scheduleFollowupModalLabel"><i class="far fa-calendar-alt me-2"></i>Schedule Follow-up</h5>
+				<h5 class="modal-title" id="scheduleFollowupModalLabel">@icon('calendar-alt', 'regular', ['class' => 'me-2'])Schedule Follow-up</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -530,7 +530,7 @@
 						<div class="col-md-6">
 							<div class="schedule-followup-section-card schedule-followup-section-card--date h-100">
 								<div class="schedule-section-card-head">
-									<span class="schedule-section-card-title"><i class="far fa-calendar-alt"></i><span>Select date</span></span>
+									<span class="schedule-section-card-title">@icon('calendar-alt', 'regular')<span>Select date</span></span>
 								</div>
 								<div class="schedule-section-card-body">
 									<div id="scheduleFollowupFlatpickr" class="schedule-followup-flatpickr-wrap"></div>
@@ -541,13 +541,13 @@
 						<div class="col-md-6">
 							<div class="schedule-followup-section-card h-100">
 								<div class="schedule-section-card-head">
-									<span class="schedule-section-card-title"><i class="far fa-clock"></i><span>Available time slots</span></span>
+									<span class="schedule-section-card-title">@icon('clock', 'regular')<span>Available time slots</span></span>
 								</div>
 								<div class="schedule-section-card-body">
 									<div class="schedule-slots-panel" id="scheduleSlotsPanel">
 										<div class="schedule-slot-empty" id="scheduleSlotsEmpty">
 											<div class="schedule-slot-empty-icon-wrap">
-												<i class="far fa-clock"></i>
+												@icon('clock', 'regular')
 											</div>
 											<div class="fw-semibold" id="scheduleSlotsEmptyTitle">Select a consultant</div>
 											<div class="small mt-2 text-muted px-1" id="scheduleSlotsEmptyHint">Pick a consultant above, then choose a time for the selected date.</div>
@@ -588,9 +588,9 @@
 				</form>
 			</div>
 			<div class="modal-footer schedule-followup-footer-actions flex-wrap gap-2 justify-content-between">
-				<button type="button" class="btn btn-link text-muted p-0" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> Cancel</button>
+				<button type="button" class="btn btn-link text-muted p-0" data-bs-dismiss="modal">@icon('times', 'solid', ['class' => 'me-1']) Cancel</button>
 				<button type="button" class="btn btn-primary px-4 btn-schedule-followup" id="scheduleFollowupSubmitBtn">
-					<i class="far fa-calendar-check me-2"></i>Schedule Follow-up
+					@icon('calendar-check', 'regular', ['class' => 'me-2'])Schedule Follow-up
 				</button>
 			</div>
 		</div>

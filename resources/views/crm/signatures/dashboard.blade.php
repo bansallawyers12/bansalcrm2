@@ -171,7 +171,7 @@
             </div>
             <div>
                 <a href="{{ route('signatures.create') }}" class="btn-primary-custom">
-                    <i class="fas fa-plus"></i> Send New Document
+                    @icon('plus') Send New Document
                 </a>
             </div>
         </div>
@@ -251,7 +251,7 @@
                        value="{{ request('search') }}" style="flex: 1; min-width: 200px;">
                 
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i> Search
+                    @icon('search') Search
                 </button>
                 
                 @if(request()->anyFilled(['status', 'search']))
@@ -318,11 +318,11 @@
             </div>
             @else
             <div class="empty-state">
-                <i class="fas fa-inbox"></i>
+                @icon('inbox')
                 <h3>No documents found</h3>
                 <p>Start by sending a new document for signature</p>
                 <a href="{{ route('signatures.create') }}" class="btn-primary-custom" style="margin-top: 20px;">
-                    <i class="fas fa-plus"></i> Send New Document
+                    @icon('plus') Send New Document
                 </a>
             </div>
             @endif

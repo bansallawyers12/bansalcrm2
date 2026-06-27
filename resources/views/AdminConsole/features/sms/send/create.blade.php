@@ -11,7 +11,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4><i class="fas fa-paper-plane"></i> Send SMS</h4>
+                            <h4>@icon('paper-plane') Send SMS</h4>
                         </div>
                         <div class="card-body">
                             <form id="smsForm">
@@ -39,8 +39,8 @@
                                     <small class="form-text text-muted"><span id="charCount">0</span>/1600 characters</small>
                                 </div>
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary" id="sendBtn"><i class="fas fa-paper-plane"></i> Send SMS</button>
-                                    <a href="{{ route('adminconsole.features.sms.dashboard') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                                    <button type="submit" class="btn btn-primary" id="sendBtn">@icon('paper-plane') Send SMS</button>
+                                    <a href="{{ route('adminconsole.features.sms.dashboard') }}" class="btn btn-secondary">@icon('arrow-left') Back to Dashboard</a>
                                 </div>
                             </form>
                         </div>
@@ -68,7 +68,7 @@ $(document).ready(function() {
             template_id: $('#template_id').val(),
             _token: $('input[name="_token"]').val()
         };
-        $('#sendBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+        $('#sendBtn').prop('disabled', true).html(crmIconSpinner('Sending...'));
         $.ajax({
             url: '{{ route("adminconsole.features.sms.send") }}',
             method: 'POST',
@@ -87,7 +87,7 @@ $(document).ready(function() {
                 alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while sending SMS');
             },
             complete: function() {
-                $('#sendBtn').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send SMS');
+                $('#sendBtn').prop('disabled', false).html('@icon('paper-plane') Send SMS');
             }
         });
     });

@@ -297,7 +297,7 @@
             
             {{-- Page title header --}}
             <div class="ongoing-sheet-page-header">
-                <h4><i class="fas fa-clipboard-list"></i> {{ $sheetTitle ?? 'Ongoing Sheet' }}</h4>
+                <h4>@icon('clipboard-list') {{ $sheetTitle ?? 'Ongoing Sheet' }}</h4>
             </div>
             
             {{-- Filter Bar --}}
@@ -306,7 +306,7 @@
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             <button class="ongoing-filter-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}" aria-controls="filterPanel">
-                                <i class="fas fa-filter"></i>
+                                @icon('filter')
                                 <span>Filters</span>
                                 @if($activeFilterCount > 0)
                                     <span class="badge">{{ $activeFilterCount }}</span>
@@ -327,7 +327,7 @@
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             @if($activeFilterCount > 0)
                                 <a href="{{ route($sheetRoute ?? 'clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
-                                    <i class="fas fa-times me-1"></i> Clear Filters
+                                    @icon('times', 'solid', ['class' => 'me-1']) Clear Filters
                                 </a>
                             @endif
                             
@@ -426,10 +426,10 @@
                                         <label class="form-label d-none d-md-block">&nbsp;</label>
                                         <div class="d-flex gap-1 flex-wrap">
                                             <button type="submit" class="btn-ongoing-apply">
-                                                <i class="fas fa-search me-1"></i> Apply
+                                                @icon('search', 'solid', ['class' => 'me-1']) Apply
                                             </button>
                                             <a href="{{ route($sheetRoute ?? 'clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
-                                                <i class="fas fa-redo me-1"></i> Reset
+                                                @icon('redo', 'solid', ['class' => 'me-1']) Reset
                                             </a>
                                         </div>
                                     </div>
@@ -445,7 +445,7 @@
                 <div class="card-body p-0">
                     {{-- Scroll hint --}}
                     <div class="ongoing-sheet-scroll-hint px-3 pt-2">
-                        <i class="fas fa-arrows-alt-h"></i> Scroll horizontally to see all columns.
+                        @icon('arrows-alt-h') Scroll horizontally to see all columns.
                     </div>
                     <div class="ongoing-sheet-table-container px-0">
                         <div class="ongoing-sheet-scroll-indicator ongoing-sheet-scroll-indicator-left"></div>
@@ -528,7 +528,7 @@
                                 @if($rows->isEmpty())
                                     <tr>
                                         <td colspan="{{ (isset($sheetType) && $sheetType === 'checklist') ? 15 : 13 }}" class="text-center py-4">
-                                            <i class="fas fa-info-circle fa-2x text-muted mb-2 d-block"></i>
+                                            @icon('info-circle', 'solid', ['class' => '2x text-muted mb-2 d-block'])
                                             <p class="mb-0">No records found.</p>
                                         </td>
                                     </tr>
@@ -591,7 +591,7 @@
                                             @endif
                                             <td>
                                                 <span class="ongoing-assignee-display">{{ trim(($row->assignee_first_name ?? '') . ' ' . ($row->assignee_last_name ?? '')) ?: '—' }}</span>
-                                                <a href="javascript:;" class="ongoing-assignee-edit ms-1" data-app-id="{{ $row->application_id }}" data-assignee-id="{{ $row->assignee_id ?? '' }}" title="Change assignee"><i class="fas fa-edit text-muted small"></i></a>
+                                                <a href="javascript:;" class="ongoing-assignee-edit ms-1" data-app-id="{{ $row->application_id }}" data-assignee-id="{{ $row->assignee_id ?? '' }}" title="Change assignee">@icon('edit', 'solid', ['class' => 'text-muted small'])</a>
                                             </td>
                                             <td>
                                                 @if($row->visaexpiry && $row->visaexpiry != '0000-00-00')
@@ -615,7 +615,7 @@
                                             @endif
                                             <td class="comment-cell">
                                                 <span class="sheet-comment-text">{{ $row->sheet_comment_text ?? '—' }}</span>
-                                                <a href="javascript:;" class="sheet-comment-edit ms-1" data-app-id="{{ $row->application_id }}" data-comment="{{ e($row->sheet_comment_text ?? '') }}" title="Add/Edit comment"><i class="fas fa-edit text-muted small"></i></a>
+                                                <a href="javascript:;" class="sheet-comment-edit ms-1" data-app-id="{{ $row->application_id }}" data-comment="{{ e($row->sheet_comment_text ?? '') }}" title="Add/Edit comment">@icon('edit', 'solid', ['class' => 'text-muted small'])</a>
                                             </td>
                                             @if(isset($sheetType) && $sheetType === 'checklist')
                                             <td class="checklist-status-cell">

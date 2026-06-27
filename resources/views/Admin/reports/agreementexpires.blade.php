@@ -62,7 +62,7 @@ foreach($partners as $partner){
             <div class="modal-content rounded-0">
                 <div class="modal-header rounded-0">
                     <h5 class="modal-title">Schedule Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-times"></i></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">@icon('times')</button>
                 </div>
                 <div class="modal-body rounded-0">
                     <div class="container-fluid">

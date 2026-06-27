@@ -8,7 +8,7 @@
 	<meta name="author" content="">
 	<meta name="keyword" content="Bansal CRM">
 	<meta name="csrf-token" content="{{ csrf_token() }}"> 
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 https://cdn.jsdelivr.net; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 https://cdn.jsdelivr.net https://maps.googleapis.com;">
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 https://maps.googleapis.com;">
 	<!-- Note: IPv6 literals [::1] are NOT supported by CSP spec. Use 'localhost' which resolves to both IPv4 and IPv6. -->
 	<title>Bansal CRM | Admin Console | @yield('title')</title>
 	
@@ -216,7 +216,7 @@
 				</div>
 				<div class="exit-section">
 					<a href="{{route('dashboard')}}" class="btn btn-primary adminconsole-exit-btn">
-						<i class="fas fa-arrow-left"></i> Exit to Main Dashboard
+						@icon('arrow-left') Exit to Main Dashboard
 					</a>
 					@if(Auth::user())
 						<div class="dropdown">
@@ -231,11 +231,11 @@
 							<div class="dropdown-menu dropdown-menu-right pullDown">
 								<div class="dropdown-title">{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}</div>
 								<a href="{{route('my_profile')}}" class="dropdown-item has-icon">
-									<i class="far fa-user"></i> Profile
+									@icon('user', 'regular') Profile
 								</a>
 								<div class="dropdown-divider"></div>
 								<a href="{{route('admin.logout')}}" class="dropdown-item has-icon text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> 
-									<i class="fas fa-sign-out-alt"></i> Logout
+									@icon('sign-out-alt') Logout
 								</a>
 							</div>
 						</div>

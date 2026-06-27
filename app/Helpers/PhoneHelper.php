@@ -169,9 +169,9 @@ class PhoneHelper
         // Only show verification icons for Personal contact type
         if ($contactType === 'Personal') {
             if ($isVerified) {
-                $formatted .= ' <i class="fas fa-check-circle verified-icon fa-lg"></i>';
+                $formatted .= ' ' . IconHelper::render('check-circle', 'solid', ['class' => 'verified-icon', 'size' => 'lg']);
             } else {
-                $formatted .= ' <i class="far fa-circle unverified-icon fa-lg"></i>';
+                $formatted .= ' ' . IconHelper::render('circle', 'regular', ['class' => 'unverified-icon', 'size' => 'lg']);
             }
         }
         

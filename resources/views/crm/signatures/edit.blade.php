@@ -397,13 +397,13 @@
                         </div>
                         
                         <button type="button" class="btn-add-field" id="addFieldBtn">
-                            <i class="fas fa-plus"></i> + Add Signature Field
+                            @icon('plus') + Add Signature Field
                         </button>
                         
                         <form action="{{ route('signatures.save-fields', $document->id) }}" method="POST" id="signatureForm">
                             @csrf
                             <button type="submit" class="btn-save">
-                                <i class="fas fa-save"></i> Save Signature Locations
+                                @icon('save') Save Signature Locations
                             </button>
                             
                             <div id="hiddenFields"></div>

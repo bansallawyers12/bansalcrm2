@@ -15,7 +15,7 @@
 							<div class="card-header-action">
 								@if(isset($unreadCount) && $unreadCount > 0)
 								<button type="button" class="btn btn-sm btn-primary" id="markAllReadBtn">
-									<i class="fas fa-check-double"></i> Mark All as Read
+									@icon('check-double') Mark All as Read
 								</button>
 								@endif
 							</div>
@@ -54,12 +54,12 @@
 									@endif
 									<div class="input-group-append">
 										<button class="btn btn-primary" type="submit">
-											<i class="fas fa-search"></i>
+											@icon('search')
 										</button>
 										@if(request('search'))
 										<a href="{{route('notifications.index', ['filter' => request('filter')])}}" 
 										   class="btn btn-secondary">
-											<i class="fas fa-times"></i>
+											@icon('times')
 										</a>
 										@endif
 									</div>
@@ -85,31 +85,31 @@
 											<td>
 												@if($list->receiver_status == 1)
 													<span class="badge badge-success" title="Read">
-														<i class="fas fa-check-circle"></i>
+														@icon('check-circle')
 													</span>
 												@else
 													<span class="badge badge-danger" title="Unread">
-														<i class="fas fa-circle"></i>
+														@icon('circle')
 													</span>
 												@endif
 											</td>
 											<td>
 												<div class="notification-content">
 													@php
-														$iconClass = 'fas fa-bell';
+														$iconName = 'bell';
 														$iconColor = 'text-primary';
 														if(strpos(strtolower($list->message), 'client') !== false) {
-															$iconClass = 'fas fa-user';
+															$iconName = 'user';
 															$iconColor = 'text-info';
 														} elseif(strpos(strtolower($list->message), 'office visit') !== false || strpos(strtolower($list->message), 'visit') !== false) {
-															$iconClass = 'fas fa-building';
+															$iconName = 'building';
 															$iconColor = 'text-warning';
 														} elseif(strpos(strtolower($list->message), 'followup') !== false || strpos(strtolower($list->message), 'follow up') !== false) {
-															$iconClass = 'fas fa-calendar-check';
+															$iconName = 'calendar-check';
 															$iconColor = 'text-success';
 														}
 													@endphp
-													<i class="{{$iconClass}} {{$iconColor}} me-2"></i>
+													{!! \App\Helpers\IconHelper::render($iconName, 'solid', ['class' => $iconColor . ' me-2']) !!}
 													@if($list->url)
 														<a href="{{$list->url}}?t={{$list->id}}" 
 														   class="notification-link {{$list->receiver_status == 0 ? 'font-weight-bold' : ''}}">
@@ -148,11 +148,11 @@
 														class="btn btn-sm btn-outline-primary mark-read-btn" 
 														data-id="{{$list->id}}"
 														title="Mark as read">
-													<i class="fas fa-check"></i>
+													@icon('check')
 												</button>
 												@else
 												<span class="text-muted">
-													<i class="fas fa-check text-success"></i>
+													@icon('check', 'solid', ['class' => 'text-success'])
 												</span>
 												@endif
 											</td>
@@ -163,7 +163,7 @@
 							</div>
 							@else
 							<div class="text-center py-5">
-								<i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+								@icon('bell-slash', 'solid', ['class' => '3x text-muted mb-3'])
 								<p class="text-muted">No notifications found.</p>
 								@if(request('search') || request('filter'))
 								<a href="{{route('notifications.index')}}" class="btn btn-sm btn-primary">
@@ -238,9 +238,9 @@ $(document).ready(function(){
 					var row = $('#notification_' + notificationId);
 					row.removeClass('notification-unread').addClass('notification-read');
 					row.find('.badge-danger').removeClass('badge-danger').addClass('badge-success')
-						.html('<i class="fas fa-check-circle"></i>');
+						.html('@icon('check-circle')');
 					row.find('.notification-link, .notification-content span').removeClass('font-weight-bold');
-					btn.replaceWith('<span class="text-muted"><i class="fas fa-check text-success"></i></span>');
+					btn.replaceWith('<span class="text-muted">@icon('check', 'solid', ['class' => 'text-success'])</span>');
 					
 					// Update unread count in tab
 					var unreadBadge = $('.nav-link:contains("Unread")').find('.badge');
@@ -284,7 +284,7 @@ $(document).ready(function(){
 		}
 		
 		var btn = $(this);
-		btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+		btn.prop('disabled', true).html('@icon('spinner', 'solid', ['spin' => true]) Processing...');
 		
 		$.ajax({
 			url: "{{route('notifications.mark-all-read')}}",
@@ -299,7 +299,7 @@ $(document).ready(function(){
 				}
 			},
 			error: function(){
-				btn.prop('disabled', false).html('<i class="fas fa-check-double"></i> Mark All as Read');
+				btn.prop('disabled', false).html('@icon('check-double') Mark All as Read');
 				iziToast.error({
 					title: 'Error',
 					message: 'Failed to mark all notifications as read',

@@ -198,7 +198,7 @@
                                                                 <button  class=&quot;btn btn-info&quot; id=&quot;updateTask&quot;>Update Task</button>
                                                                 </div>
                                                             </div>
-                                                    </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fas fa-edit" aria-hidden="true"></i></button>
+                                                    </div>" data-original-title="" title="" style="width: 40px;display: inline;">@icon('edit')</button>
                                                     <?php } ?>
 
                                                         <?php if($list->task_group != 'Personal Task'){?>
@@ -267,13 +267,13 @@
                                                             <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign Staff</button>
                                                             </div>
                                                         </div>
-                                                </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fas fa-tasks" aria-hidden="true"></i></button>
+                                                </div>" data-original-title="" title="" style="width: 40px;display: inline;">@icon('tasks')</button>
                                                         <?php } ?>
 
                                                         @csrf
                                                         @method('DELETE')
 
-                                                        <!--<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');"><i class="fas fa-trash" aria-hidden="true"></i></button>-->
+                                                        <!--<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');">@icon('trash')</button>-->
 
 
 
@@ -641,7 +641,7 @@
         }
         
         // Disable button during submission
-        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Completing...');
+        $(this).prop('disabled', true).html(crmIconSpinner('Completing...'));
         
         $.ajax({
             url: "{{URL::to('/')}}/action/task-complete",

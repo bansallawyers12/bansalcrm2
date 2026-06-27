@@ -73,7 +73,7 @@
             <div class="custom-error-msg"></div>
 
             <div class="audit-page-header">
-                <h4><i class="fas fa-clipboard-list"></i> Staff Login Log</h4>
+                <h4>@icon('clipboard-list') Staff Login Log</h4>
             </div>
 
             {{-- Filters --}}
@@ -113,7 +113,7 @@
                         <div class="col-12 col-md-2">
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                             <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary flex-fill"><i class="fas fa-search me-1"></i> Apply</button>
+                                <button type="submit" class="btn btn-primary flex-fill">@icon('search', 'solid', ['class' => 'me-1']) Apply</button>
                                 <a href="{{ route('auditlogs.index') }}" class="btn btn-outline-secondary flex-fill">Reset</a>
                             </div>
                         </div>
@@ -125,31 +125,31 @@
             <div class="row mb-4">
                 <div class="col-6 col-lg mb-3">
                     <div class="audit-kpi-card kpi-login">
-                        <h6><i class="fas fa-sign-in-alt me-1"></i> Logins Today</h6>
+                        <h6>@icon('sign-in-alt', 'solid', ['class' => 'me-1']) Logins Today</h6>
                         <div class="kpi-value">{{ number_format($todayLogins) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg mb-3">
                     <div class="audit-kpi-card kpi-logout">
-                        <h6><i class="fas fa-sign-out-alt me-1"></i> Logouts Today</h6>
+                        <h6>@icon('sign-out-alt', 'solid', ['class' => 'me-1']) Logouts Today</h6>
                         <div class="kpi-value">{{ number_format($todayLogouts) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg mb-3">
                     <div class="audit-kpi-card kpi-active">
-                        <h6><i class="fas fa-user-check me-1"></i> Active Staff Now</h6>
+                        <h6>@icon('user-check', 'solid', ['class' => 'me-1']) Active Staff Now</h6>
                         <div class="kpi-value">{{ number_format($activeStaffCount) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg mb-3">
                     <div class="audit-kpi-card kpi-week">
-                        <h6><i class="fas fa-users me-1"></i> Staff This Week</h6>
+                        <h6>@icon('users', 'solid', ['class' => 'me-1']) Staff This Week</h6>
                         <div class="kpi-value">{{ number_format($uniqueStaffThisWeek) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg mb-3">
                     <div class="audit-kpi-card kpi-top">
-                        <h6><i class="fas fa-star me-1"></i> Most Active Today</h6>
+                        <h6>@icon('star', 'solid', ['class' => 'me-1']) Most Active Today</h6>
                         <div class="kpi-value" style="font-size:1rem;">{{ $topStaffName }}</div>
                     </div>
                 </div>
@@ -201,7 +201,7 @@
                             </select>
                         </form>
                         <a href="{{ route('auditlogs.export', request()->query()) }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-download me-1"></i> Export CSV
+                            @icon('download', 'solid', ['class' => 'me-1']) Export CSV
                         </a>
                     </div>
                 </div>

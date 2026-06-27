@@ -138,9 +138,9 @@
                             data-bs-target="#accessPendingApprovals"
                             aria-expanded="false"
                             aria-controls="accessPendingApprovals">
-                        <span class="grants-dash-chevron"><i class="fas fa-chevron-down"></i></span>
+                        <span class="grants-dash-chevron">@icon('chevron-down')</span>
                         <span>
-                            <i class="fas fa-clock me-sm-2"></i><strong>Pending approvals</strong>
+                            @icon('clock', 'solid', ['class' => 'me-sm-2'])<strong>Pending approvals</strong>
                             <span class="badge ms-2">{{ $globalPending }}</span>
                         </span>
                     </button>
@@ -176,7 +176,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="5" class="text-center text-muted py-5">
-                                                <i class="fas fa-check-circle text-success me-2"></i>No pending requests
+                                                @icon('check-circle', 'solid', ['class' => 'text-success me-2'])No pending requests
                                             </td>
                                         </tr>
                                     @endforelse
@@ -193,7 +193,7 @@
             {{-- Filterable grants --}}
             <div class="card grants-dash-card">
                 <div class="card-header grants-dash-panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <strong class="d-flex align-items-center gap-2"><i class="fas fa-filter"></i><span>All grants (filterable)</span></strong>
+                    <strong class="d-flex align-items-center gap-2">@icon('filter')<span>All grants (filterable)</span></strong>
                     <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-light">Main dashboard</a>
                 </div>
                 <div class="card-body p-3 p-md-4">

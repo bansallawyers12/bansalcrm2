@@ -370,7 +370,7 @@
                         
                         <div class="page-title">
                             <div class="page-title-icon">
-                                <i class="fas fa-user"></i>
+                                @icon('user')
                             </div>
                             <h1>Add Signer to Document</h1>
                         </div>
@@ -403,7 +403,7 @@
                             {{-- Step 1: Find Signer (Email) --}}
                             <div class="wizard-panel active" id="step1Panel">
                                 <div class="section-header">
-                                    <span class="icon"><i class="fas fa-envelope"></i></span>
+                                    <span class="icon">@icon('envelope')</span>
                                     <h2>Find Signer</h2>
                                 </div>
                                 
@@ -418,7 +418,7 @@
                                 <div class="button-row">
                                     <a href="{{ route('signatures.show', $document->id) }}" class="btn-cancel">Cancel</a>
                                     <button type="button" class="btn-next" id="nextBtn">
-                                        Next <i class="fas fa-arrow-right"></i>
+                                        Next @icon('arrow-right')
                                     </button>
                                 </div>
                             </div>
@@ -426,7 +426,7 @@
                             {{-- Step 2: Signer Information (Name) --}}
                             <div class="wizard-panel" id="step2Panel">
                                 <div class="section-header">
-                                    <span class="icon"><i class="fas fa-user-plus"></i></span>
+                                    <span class="icon">@icon('user-plus')</span>
                                     <h2>Signer Information</h2>
                                 </div>
                                 
@@ -442,10 +442,10 @@
                                     <a href="{{ route('signatures.show', $document->id) }}" class="btn-cancel">Cancel</a>
                                     <div class="button-row-right">
                                         <button type="button" class="btn-back" id="backBtn">
-                                            <i class="fas fa-arrow-left"></i> Back
+                                            @icon('arrow-left') Back
                                         </button>
                                         <button type="submit" class="btn-add-signer">
-                                            <i class="fas fa-user-plus"></i> Add Signer
+                                            @icon('user-plus') Add Signer
                                         </button>
                                     </div>
                                 </div>

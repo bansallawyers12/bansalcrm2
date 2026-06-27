@@ -197,7 +197,7 @@ use App\Http\Controllers\Controller;
 									@if($fetchedData->is_archived == 0)
 										<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'partners')" title="Archive">@icon('archive')</a>
 									@else
-										<a class="arcivedval" style="background-color:red;" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'partners')" title="UnArchive"><i style="color: #fff;" class="fas fa-archive"></i></a>
+										<a class="arcivedval" style="background-color:red;" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'partners')" title="UnArchive">{!! \App\Helpers\IconHelper::render('archive', 'solid', ['attrs' => ['style' => 'color: #fff;']]) !!}</a>
 									@endif
 								</div>
 							</div>
@@ -1124,7 +1124,7 @@ use App\Http\Controllers\Controller;
                                                                 <td><?php echo $inv_val->invoice_no;?></td>
                                                                 <td>
                                                                     <?php echo "$".$inv_val->amount_aud;?>
-                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fas fa-print" aria-hidden="true"></i></a>
+                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}">@icon('print')</a>
                                                                     <a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php //echo $rec_val->id;?>">@icon('pencil-alt')</a>-->
                                                                     <a class="link-primary deletestudentrecordinvoice" href="javascript:;" data-uniqueid="<?php echo $inv_val->id;?>" data-invoicetype="<?php echo $inv_val->invoice_type;?>" data-partnerid="<?php echo $inv_val->partner_id;?>">@icon('trash')</a>
                                                                 </td>
@@ -1200,7 +1200,7 @@ use App\Http\Controllers\Controller;
                                                                 <td><?php echo $pay_val->verified_date;?></td>
                                                                 <td>
                                                                     <?php echo "$".$pay_val->amount_aud;?>
-                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fas fa-print" aria-hidden="true"></i></a>
+                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}">@icon('print')</a>
                                                                     <a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php //echo $rec_val->id;?>">@icon('pencil-alt')</a>-->
                                                                     <a class="link-primary deletestudentpaymentinvoice" href="javascript:;" data-uniqueid="<?php echo $pay_val->id;?>" data-invoicetype="<?php echo $pay_val->invoice_type;?>" data-partnerid="<?php echo $pay_val->partner_id;?>">@icon('trash')</a>
                                                                 </td>
@@ -2238,13 +2238,6 @@ use App\Http\Controllers\Controller;
     }
 
 </script>
-
-@if($activeTab === 'student')
-{{-- Buttons extension (CDN): defer so core DataTables from vendor-libs loads first (Phase 2c) --}}
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-<script defer src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script defer src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-@endif
 
 @if($activeTab !== 'email-v2')
 @push('tinymce-scripts')

@@ -188,7 +188,7 @@ function fetchPresignedPreviewUrl(fileUrl) {
 function showPreviewError(container, message) {
     container.innerHTML = `
         <div class="preview-placeholder">
-            <i class="fas fa-exclamation-circle fa-3x mb-3 text-warning"></i>
+            ' + crmIcon('exclamation-circle', { class: 'mb-3 text-warning' }) + '
             <p>${message}</p>
         </div>
     `;

@@ -22,7 +22,7 @@
 							<h4>All Products</h4>
 							<div class="card-header-action">
 								<a href="{{route('products.create')}}" class="btn btn-primary">Create Product</a>
-								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
+								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 							</div>
 						</div>
 						<div class="card-body">
@@ -96,8 +96,8 @@
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
-																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'products')"><i class="fas fa-trash"></i> Delete</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$list->id)))}}">@icon('edit', 'regular') Edit</a>
+																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'products')">@icon('trash') Delete</a>
 															</div>
 														</div>								  
 													</td>

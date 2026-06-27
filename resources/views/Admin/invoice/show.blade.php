@@ -236,7 +236,7 @@
 													<div class="input-group">
 														<div class="input-group-prepend">
 															<div class="input-group-text">
-																<i class="fas fa-clock"></i>
+																@icon('clock')
 															</div>
 														</div>	
 														<input type="text" name="" placeholder="" value="{{ $invoicedetail->discount_date ? date('d/m/Y', strtotime($invoicedetail->discount_date)) : '' }}" class=" form-control" />
@@ -503,7 +503,7 @@
 																	<td>{{$clientdata->first_name}}</td>
 																	<td><span class="currencyinput">${{$paymentdetail->amount_rec}}</span></td>
 																	<td>{{$paymentdetail->payment_mode}}</td>
-																	<td><!--<a href=""><i class="fas fa-envelope"></i></a>&nbsp;<a href=""><i class="fas fa-inbox"></i></a>--></td>
+																	<td><!--<a href="">@icon('envelope')</a>&nbsp;<a href="">@icon('inbox')</a>--></td>
 																	<td><a data-id="{{$paymentdetail->id}}" class="revertpopup btn btn-danger" href="javascript:;">Revert</a></td>
 																</tr>
 																<?php
@@ -741,7 +741,7 @@
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
+											@icon('clock')
 										</div>
 									</div>	
 									<input type="date" name="payment_date[]" placeholder="" class=" form-control" />
@@ -749,12 +749,12 @@
 								<!-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> -->
 							</div>
 							<div class="field_remove_col">
-								<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+								<a href="javascript:;" class="remove_col">@icon('times')</a>
 							</div>
 						</div>
 					</div>
 					<div class="add_payment_field">
-						<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
+						<a href="javascript:;">@icon('plus') Add New Line</a>
 					</div>
 					<div class="clearfix"></div>
 					<div class="invoiceamount">

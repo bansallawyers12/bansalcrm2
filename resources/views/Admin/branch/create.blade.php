@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Add Branch</h4>
 								<div class="card-header-action">
-									<a href="{{route('branch.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{route('branch.index')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>

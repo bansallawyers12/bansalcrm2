@@ -134,11 +134,11 @@
 													<td><?php echo $totaldue; ?></td>
 													<td>{{date('d/m/Y', strtotime($invoicelist->due_date))}} <?php //echo $invoicelist->due_date; ?></td>
 													<td>
-													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fas fa-eye"></i></a>
-													<a class="clientemail" data-id="{{$invoicelist->id}}" data-rec-name="invoice_{{$invoicelist->id}}.pdf" data-href="{{URL::to('invoice/preview/')}}/{{@$invoicelist->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" href="javascript:;"><i class="fas fa-envelope"></i></a>
-													<a href="{{URL::to('invoice/edit/')}}/<?php echo $invoicelist->id; ?>"><i class="fas fa-edit"></i></a>
+													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>">@icon('eye')</a>
+													<a class="clientemail" data-id="{{$invoicelist->id}}" data-rec-name="invoice_{{$invoicelist->id}}.pdf" data-href="{{URL::to('invoice/preview/')}}/{{@$invoicelist->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" href="javascript:;">@icon('envelope')</a>
+													<a href="{{URL::to('invoice/edit/')}}/<?php echo $invoicelist->id; ?>">@icon('edit')</a>
 													<a href="javascript:;" class="openpaymentform" data-netamount="{{$netamount}}" data-dueamount="{{$totaldue}}" data-invoiceid="{{$invoicelist->id}}">$</a>
-													<a data-id="{{$invoicelist->id}}" href="javascript:;" class="deleteinvoice"><i class="fas fa-trash"></i></a>
+													<a data-id="{{$invoicelist->id}}" href="javascript:;" class="deleteinvoice">@icon('trash')</a>
 													</td>
 												</tr>
 												<?php
@@ -204,7 +204,7 @@
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
+											@icon('clock')
 										</div>
 									</div>	
 									<input type="date" name="payment_date[]" placeholder="" class=" form-control" value="{{date('Y-m-d')}}"/>
@@ -212,12 +212,12 @@
 								<!-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> -->
 							</div>
 							<div class="field_remove_col">
-								<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+								<a href="javascript:;" class="remove_col">@icon('times')</a>
 							</div>
 						</div>
 					</div>
 					<div class="add_payment_field">
-						<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
+						<a href="javascript:;">@icon('plus') Add New Line</a>
 					</div>
 					<div class="clearfix"></div>
 					<div class="invoiceamount">

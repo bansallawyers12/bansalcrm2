@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				<div class="row g-3">
 					<div class="col-lg-6 border-end-lg pe-lg-4">
-						<h6 class="followup-section-label"><i class="far fa-user me-2 text-primary"></i>Client detail</h6>
+						<h6 class="followup-section-label">@icon('user', 'regular', ['class' => 'me-2 text-primary'])Client detail</h6>
 						<dl class="followup-dl followup-dl-compact mb-0">
 							<div class="followup-dl-row">
 								<dt>Client</dt>
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
 						</dl>
 					</div>
 					<div class="col-lg-6 ps-lg-4">
-						<h6 class="followup-section-label"><i class="far fa-calendar-check me-2 text-primary"></i>Followup details</h6>
+						<h6 class="followup-section-label">@icon('calendar-check', 'regular', ['class' => 'me-2 text-primary'])Followup details</h6>
 						<dl class="followup-dl followup-dl-compact mb-0">
 							<div class="followup-dl-row">
 								<dt>Date &amp; time</dt>
@@ -747,14 +747,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				<hr class="my-3 text-muted">
 
-				<h6 class="followup-section-label"><i class="far fa-calendar-alt me-2 text-primary"></i>Reschedule date &amp; time</h6>
+				<h6 class="followup-section-label">@icon('calendar-alt', 'regular', ['class' => 'me-2 text-primary'])Reschedule date &amp; time</h6>
 				<div class="row g-2 g-md-3 align-items-end flex-wrap">
 					<div class="col-md-6 col-lg-5">
 						<label class="form-label small text-muted mb-1" for="followup-reschedule-datetime">Appointment date &amp; time</label>
 						<input type="datetime-local" class="form-control form-control-sm" id="followup-reschedule-datetime" step="60">
 					</div>
 					<div class="col-md-auto">
-						<button type="button" class="btn btn-sm btn-primary" id="followup-reschedule-btn"><i class="far fa-save me-1"></i> Update date &amp; time</button>
+						<button type="button" class="btn btn-sm btn-primary" id="followup-reschedule-btn">@icon('save', 'regular', ['class' => 'me-1']) Update date &amp; time</button>
 					</div>
 				</div>
 
@@ -762,15 +762,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				<div class="row g-3 align-items-start">
 					<div class="col-lg-6">
-						<h6 class="followup-section-label"><i class="fas fa-edit me-2 text-primary"></i>Change status</h6>
+						<h6 class="followup-section-label">@icon('edit', 'solid', ['class' => 'me-2 text-primary'])Change status</h6>
 						<div class="list-group followup-outcome-list border-0 mb-0">
-							<button type="button" class="list-group-item list-group-item-action followup-outcome-btn followup-outcome-confirmed" data-outcome="confirmed"><i class="fas fa-check-circle me-2"></i>Mark as confirmed</button>
-							<button type="button" class="list-group-item list-group-item-action followup-outcome-btn followup-outcome-completed" data-outcome="completed"><i class="fas fa-check-double me-2"></i>Mark as complete</button>
-							<button type="button" class="list-group-item list-group-item-action followup-outcome-btn followup-outcome-cancelled" data-outcome="cancelled"><i class="fas fa-times-circle me-2"></i>Mark as cancelled</button>
+							<button type="button" class="list-group-item list-group-item-action followup-outcome-btn followup-outcome-confirmed" data-outcome="confirmed">@icon('check-circle', 'solid', ['class' => 'me-2'])Mark as confirmed</button>
+							<button type="button" class="list-group-item list-group-item-action followup-outcome-btn followup-outcome-completed" data-outcome="completed">@icon('check-double', 'solid', ['class' => 'me-2'])Mark as complete</button>
+							<button type="button" class="list-group-item list-group-item-action followup-outcome-btn followup-outcome-cancelled" data-outcome="cancelled">@icon('times-circle', 'solid', ['class' => 'me-2'])Mark as cancelled</button>
 						</div>
 					</div>
 					<div class="col-lg-6">
-						<h6 class="followup-section-label"><i class="fas fa-exchange-alt me-2 text-primary"></i>Change consultant</h6>
+						<h6 class="followup-section-label">@icon('exchange-alt', 'solid', ['class' => 'me-2 text-primary'])Change consultant</h6>
 						<div class="followup-consultant-panel border rounded-3 p-3 bg-light">
 							<input type="hidden" id="followup-reassign-note-id" value="">
 							@if(($followupConsultants ?? collect())->isNotEmpty())
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				<hr class="my-3 text-muted">
 
-				<h6 class="followup-section-label mb-2"><i class="far fa-file-alt me-2 text-primary"></i>Followup details</h6>
+				<h6 class="followup-section-label mb-2">@icon('file-alt', 'regular', ['class' => 'me-2 text-primary'])Followup details</h6>
 				<div id="appt-details-only" class="border rounded-3 p-2 p-md-3 bg-light small text-dark" style="white-space:pre-wrap;min-height:56px;"></div>
 			</div>
 			<div class="modal-footer border-top bg-light py-3 px-4 justify-content-end">

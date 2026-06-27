@@ -375,16 +375,16 @@
 
     <header class="header">
         <div class="header-title">
-            <i class="fas fa-file-signature"></i>
+            @icon('file-signature')
             <span>{{ $document->display_title ?? 'Document' }}</span>
         </div>
         <div class="header-actions">
             <div class="progress-bar-container" id="progressContainer" style="display: none;">
-                <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                @icon('check-circle', 'solid', ['attrs' => ['style' => 'color: #28a745;']])
                 <span id="progressText">0 of 0 signed</span>
             </div>
             <button type="button" class="btn btn-success" id="submitBtn" disabled onclick="submitSignatures()">
-                <i class="fas fa-check"></i> Complete Signing
+                @icon('check') Complete Signing
             </button>
         </div>
     </header>
@@ -420,7 +420,7 @@
                 <!-- Upload Tab -->
                 <div class="tab-content" id="tab-upload">
                     <div class="upload-zone" onclick="document.getElementById('uploadInput').click()">
-                        <i class="fas fa-cloud-upload-alt"></i>
+                        @icon('cloud-upload-alt')
                         <p>Click to upload signature image</p>
                         <small style="color: #aaa;">PNG, JPG up to 2MB</small>
                         <img id="uploadPreview" class="upload-preview" style="display: none;">
@@ -430,7 +430,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-clear" onclick="clearCurrentSignature()">
-                    <i class="fas fa-eraser"></i> Clear
+                    @icon('eraser') Clear
                 </button>
                 <button type="button" class="btn btn-cancel" onclick="closeModal()">
                     Cancel
@@ -575,7 +575,7 @@
                 fieldEl.style.width = (field.width_percent || 20) + '%';
                 fieldEl.style.height = (field.height_percent || 10) + '%';
                 
-                fieldEl.innerHTML = '<div class="signature-field-placeholder"><i class="fas fa-pen"></i> Click to sign</div>';
+                fieldEl.innerHTML = '<div class="signature-field-placeholder">@icon('pen') Click to sign</div>';
                 fieldEl.onclick = function() { openSignModal(field.id); };
                 
                 wrapper.appendChild(fieldEl);

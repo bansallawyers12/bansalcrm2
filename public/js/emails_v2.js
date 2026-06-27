@@ -9,18 +9,11 @@
 
     function labelIconHtml(icon, extraClass) {
         const options = extraClass ? { class: extraClass } : {};
-        if (typeof window.crmIconStored === 'function') {
-            return window.crmIconStored(icon || 'tag', options);
-        }
-        const cls = icon || 'fas fa-tag';
-        return `<i class="${cls}${extraClass ? ' ' + extraClass : ''}" aria-hidden="true"></i>`;
+        return window.crmIconStored(icon || 'tag', options);
     }
 
     function spinnerHtml(label) {
-        if (typeof window.crmIconSpinner === 'function') {
-            return window.crmIconSpinner(label || '');
-        }
-        return `<i class="fas fa-spinner fa-spin icon-spin" aria-hidden="true"></i>${label || ''}`;
+        return window.crmIconSpinner(label || '');
     }
 
     // =========================================================================
@@ -240,47 +233,47 @@
      * Get attachment icon class based on content type
      */
     function getAttachmentIcon(contentType) {
-        if (!contentType) return 'fas fa-paperclip';
+        if (!contentType) return 'paperclip';
         
         const type = contentType.toLowerCase();
         
         // Images
         if (type.includes('image')) {
-            return 'fas fa-image';
+            return 'image';
         }
         
         // PDFs
         if (type.includes('pdf')) {
-            return 'fas fa-file-pdf';
+            return 'file-pdf';
         }
         
         // Word documents
         if (type.includes('word') || type.includes('document') || type.includes('.docx')) {
-            return 'fas fa-file-word';
+            return 'file-word';
         }
         
         // Excel spreadsheets
         if (type.includes('excel') || type.includes('spreadsheet') || type.includes('.xlsx')) {
-            return 'fas fa-file-excel';
+            return 'file-excel';
         }
         
         // PowerPoint
         if (type.includes('powerpoint') || type.includes('presentation')) {
-            return 'fas fa-file-powerpoint';
+            return 'file-powerpoint';
         }
         
         // Archives
         if (type.includes('zip') || type.includes('rar') || type.includes('archive')) {
-            return 'fas fa-file-archive';
+            return 'file-archive';
         }
         
         // Code files
         if (type.includes('text/plain') || type.includes('code') || type.includes('javascript') || type.includes('html')) {
-            return 'fas fa-file-code';
+            return 'file-code';
         }
         
         // Default
-        return 'fas fa-paperclip';
+        return 'paperclip';
     }
 
     /**
@@ -1129,7 +1122,7 @@
         // NEW: Attachment indicator
         const hasAttachments = email.attachments && Array.isArray(email.attachments) && email.attachments.length > 0;
         const attachmentIcon = hasAttachments 
-            ? `<i class="fas fa-paperclip attachment-indicator" title="${email.attachments.length} attachment(s)"></i>`
+            ? crmIcon('paperclip', 'solid', { class: 'attachment-indicator', attrs: { title: email.attachments.length + ' attachment(s)' } })
             : '';
 
         // NEW: Label badges
@@ -1202,7 +1195,7 @@
         emailList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">
-                    <i class="fas fa-inbox"></i>
+                    ' + crmIcon('inbox') + '
                 </div>
                 <div class="empty-state-text">
                     <h3>${message || 'No emails found'}</h3>
@@ -1299,7 +1292,7 @@
                 return `
                 <div class="attachment-item" data-attachment-id="${hasNumericId ? att.id : ''}">
                     <div class="attachment-info">
-                        <i class="${getAttachmentIcon(att.content_type)} attachment-icon ${getAttachmentIconColor(att.content_type)}"></i>
+                        ${crmIcon(getAttachmentIcon(att.content_type), 'solid', { class: 'attachment-icon ' + getAttachmentIconColor(att.content_type) })}
                         <div class="attachment-details">
                             ${nameRowHtml}
                             <div class="attachment-size">${formatFileSize(att.file_size || 0)}</div>
@@ -1312,14 +1305,14 @@
                                 data-legacy-index="${hasNumericId ? '' : attIndex}"
                                 data-filename="${escapeHtml(downloadName)}"
                                 title="Download ${escapeHtml(att.filename || 'file')}">
-                            <i class="fas fa-download"></i> Download
+                            ' + crmIcon('download') + ' Download
                         </button>
                         ${hasNumericId && attachmentSupportsBrowserPreview(att) ? `
                         <button type="button" class="preview-btn preview-attachment-btn" 
                                 data-attachment-id="${att.id}" 
                                 data-filename="${escapeHtml(downloadName)}"
                                 title="Open preview in new tab">
-                            <i class="fas fa-eye"></i> Preview
+                            " + crmIcon('eye') + " Preview
                         </button>
                         ` : ''}
                     </div>
@@ -1331,7 +1324,7 @@
                 <div class="attachment-list">
                     <div class="attachment-list-header">
                         <span class="attachment-list-title">
-                            <i class="fas fa-paperclip"></i> 
+                            ' + crmIcon('paperclip') + ' 
                             ${regularAttachments.length} Attachment${regularAttachments.length !== 1 ? 's' : ''}
                         </span>
                         ${regularAttachments.length > 1 ? `
@@ -1339,7 +1332,7 @@
                                 data-mail-report-id="${email.id}"
                                 data-email-subject="${escapeHtml(subject)}"
                                 title="Download all attachments as ZIP">
-                            <i class="fas fa-download"></i> Download All
+                            ' + crmIcon('download') + ' Download All
                         </button>
                         ` : ''}
                     </div>
@@ -1355,7 +1348,7 @@
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
                     <h4 style="margin-bottom: 10px; font-weight: 600;">Original Email File</h4>
                     <a href="${email.preview_url}" target="_blank" class="btn btn-sm btn-primary">
-                        <i class="fas fa-download"></i> Download .msg File
+                        ' + crmIcon('download') + ' Download .msg File
                     </a>
                 </div>
             `;
@@ -1828,7 +1821,7 @@
                             ${labelIconHtml(label.icon)}
                         </span>
                         <span class="submenu-item-text">${escapeHtml(label.name)}</span>
-                        ${isApplied ? '<i class="fas fa-check submenu-item-check"></i>' : ''}
+                        ${isApplied ? crmIcon('check', { class: 'submenu-item-check' }) : ''}
                     </div>
                 `;
             }).join('');
@@ -2019,7 +2012,7 @@
             chip.style.backgroundColor = (label.color || '#3B82F6') + '20';
             chip.style.borderColor = label.color || '#3B82F6';
             chip.style.color = label.color || '#3B82F6';
-            chip.innerHTML = `${labelIconHtml(label.icon)}<span>${escapeHtml(label.name || '')}</span><i class="fas fa-times chip-remove" data-label-id="${label.id}"></i>`;
+            chip.innerHTML = `${labelIconHtml(label.icon)}<span>${escapeHtml(label.name || '')}</span>${crmIcon('times', 'solid', { class: 'chip-remove', attrs: { 'data-label-id': label.id } })}`;
             chip.querySelector('.chip-remove').addEventListener('click', function() {
                 composeSelectedLabelIds = composeSelectedLabelIds.filter(id => id != label.id);
                 renderComposeLabelChips();
@@ -2252,7 +2245,7 @@
             badge.innerHTML = `
                 ${labelIconHtml(label.icon)}
                 <span>${escapeHtml(label.name)}</span>
-                <i class="fas fa-times remove-label" data-label-id="${label.id}"></i>
+                ${crmIcon('times', 'solid', { class: 'remove-label', attrs: { 'data-label-id': label.id } })}
             `;
             
             const removeBtn = badge.querySelector('.remove-label');

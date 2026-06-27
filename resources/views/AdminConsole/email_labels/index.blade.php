@@ -97,13 +97,13 @@
 												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
 													@if($label->type === 'custom')
-														<a class="dropdown-item has-icon" href="{{route('adminconsole.emaillabels.edit', $label->id)}}"><i class="far fa-edit"></i> Edit</a>
+														<a class="dropdown-item has-icon" href="{{route('adminconsole.emaillabels.edit', $label->id)}}">@icon('edit', 'regular') Edit</a>
 													@endif
 													<a class="dropdown-item has-icon toggle-status-btn" href="javascript:;" data-id="{{$label->id}}">
-														<i class="fas fa-toggle-on"></i> Toggle Status
+														@icon('toggle-on') Toggle Status
 													</a>
 													@if($label->type === 'custom')
-														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{$label->id}}, 'email_labels')"><i class="fas fa-trash"></i> Delete</a>
+														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{$label->id}}, 'email_labels')">@icon('trash') Delete</a>
 													@endif
 												</div>
 											</div>

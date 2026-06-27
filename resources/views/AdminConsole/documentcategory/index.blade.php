@@ -97,9 +97,9 @@
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
-													<a class="dropdown-item has-icon" href="{{route('adminconsole.documentcategory.edit', $category->id)}}"><i class="far fa-edit"></i> Edit</a>
+													<a class="dropdown-item has-icon" href="{{route('adminconsole.documentcategory.edit', $category->id)}}">@icon('edit', 'regular') Edit</a>
 													@if(!$category->is_default || $category->name !== 'General')
-														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{$category->id}}, 'document_categories')"><i class="fas fa-trash"></i> Delete</a>
+														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{$category->id}}, 'document_categories')">@icon('trash') Delete</a>
 													@endif
 												</div>
 											</div>

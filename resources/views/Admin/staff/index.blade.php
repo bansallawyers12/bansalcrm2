@@ -35,7 +35,7 @@
 									<div class="" style="display: inline-flex;float: right;margin-left:540px;">
 										<input id="search-input" type="search" name="search_by"  class="form-control" value="{{ isset($_GET['search_by']) && $_GET['search_by'] != '' ? $_GET['search_by'] : '' }}" />
 										<button id="search-button" type="submit" class="btn btn-primary">
-										<i class="fas fa-search"></i>
+										@icon('search')
 										</button>
 									</div>
 								</form>

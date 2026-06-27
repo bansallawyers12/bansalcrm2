@@ -53,7 +53,7 @@
 							<h4>All Clients</h4>
 							<div class="card-header-action">
 								<div class="drop_table_data" style="display: inline-block;margin-right: 10px;"> 
-									<button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
+									<button type="button" class="btn btn-primary dropdown-toggle">@icon('columns')</button>
 									<div class="dropdown_list client_dropdown_list">
 										<label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
 										<label class="dropdown-option"><input type="checkbox" value="3" checked /> Agent</label>
@@ -68,7 +68,7 @@
 										
 									</div>
 								</div>
-								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
+								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 							</div>
 						</div>
 						<div class="card-body">
@@ -217,10 +217,10 @@
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon clientemail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/clients/export/'.$list->id)}}" title="Export Client Data"><i class="fas fa-download"></i> Export</a>
-																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'admins')"><i class="fas fa-trash"></i> Archived</a>
+																<a class="dropdown-item has-icon clientemail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" >@icon('envelope', 'regular') Email</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}">@icon('edit', 'regular') Edit</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/clients/export/'.$list->id)}}" title="Export Client Data">@icon('download') Export</a>
+																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'admins')">@icon('trash') Archived</a>
 															</div>
 														</div>								  
 													</td>

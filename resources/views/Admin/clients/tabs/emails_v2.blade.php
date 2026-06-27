@@ -34,10 +34,10 @@
     <!-- Client detail only: Client | College sub-tabs -->
     <div class="email-v2-category-tabs" role="tablist" aria-label="Email category">
         <button type="button" class="category-tab-btn active" data-category="client" id="category-tab-client" aria-selected="true">
-            <i class="fas fa-user"></i> Client
+            @icon('user') Client
         </button>
         <button type="button" class="category-tab-btn" data-category="college" id="category-tab-college" aria-selected="false">
-            <i class="fas fa-university"></i> College
+            @icon('university') College
         </button>
     </div>
     @endif
@@ -46,10 +46,10 @@
         <div class="control-section mail-type-section">
             <div class="email-v2-folder-tabs" role="tablist">
                 <button type="button" class="folder-tab-btn active" data-folder="inbox" id="folder-tab-inbox" aria-selected="true">
-                    <i class="fas fa-inbox"></i> Inbox
+                    @icon('inbox') Inbox
                 </button>
                 <button type="button" class="folder-tab-btn" data-folder="sent" id="folder-tab-sent" aria-selected="false">
-                    <i class="fas fa-paper-plane"></i> Sent
+                    @icon('paper-plane') Sent
                 </button>
             </div>
             <!-- Hidden select kept for JS compatibility -->
@@ -79,12 +79,12 @@
             <!-- Drag & Drop Upload Section (Collapsible) -->
             <div class="upload-section-header js-upload-toggle" role="button" tabindex="0" aria-expanded="true" aria-controls="upload-section-body" aria-label="Toggle upload section">
                 <span class="upload-title">Upload Emails</span>
-                <i class="fas fa-chevron-down upload-toggle-icon" aria-hidden="true"></i>
+                @icon('chevron-down', 'solid', ['class' => 'upload-toggle-icon'])
             </div>
             <div id="upload-section-body" class="upload-section-container">
                 <div id="upload-area-v2" class="drag-drop-zone">
                     <div class="drag-drop-content">
-                        <i class="fas fa-cloud-upload-alt drag-drop-icon"></i>
+                        @icon('cloud-upload-alt', 'solid', ['class' => 'drag-drop-icon'])
                         <div class="drag-drop-text">Drag & drop .msg files here</div>
                         <div class="drag-drop-subtext">or click to browse</div>
                         <div id="file-count-v2" class="file-count-badge">0</div>
@@ -110,7 +110,7 @@
                 <!-- Email items will be populated here by JavaScript -->
                 <div class="empty-state">
                     <div class="empty-state-icon">
-                        <i class="fas fa-inbox"></i>
+                        @icon('inbox')
                     </div>
                     <div class="empty-state-text">
                         <h3>No emails found</h3>
@@ -124,7 +124,7 @@
         <div class="email-v2-content-pane">
             <div class="email-v2-content-placeholder" id="emailContentPlaceholderV2">
                 <div class="placeholder-content">
-                    <i class="fas fa-envelope-open"></i>
+                    @icon('envelope-open')
                     <h3>Select an email to view its contents</h3>
                 </div>
             </div>
@@ -146,7 +146,7 @@
         </div>
         <div class="preview-modal-body">
             <div class="preview-loading" id="previewLoadingV2">
-                <i class="fas fa-spinner fa-spin"></i>
+                @icon('spinner', 'solid', ['spin' => true])
                 <span>Loading preview&hellip;</span>
             </div>
             <iframe id="previewFrameV2" src="" style="display:none;"></iframe>
@@ -157,21 +157,21 @@
 <!-- Email Context Menu -->
 <div id="emailContextMenuV2" class="email-context-menu" style="display: none;">
     <div class="context-menu-item" data-action="apply-label">
-        <i class="fas fa-tag"></i>
+        @icon('tag')
         <span>Apply Label</span>
-        <i class="fas fa-chevron-right context-menu-arrow"></i>
+        @icon('chevron-right', 'solid', ['class' => 'context-menu-arrow'])
     </div>
     <div class="context-menu-item" data-action="reply">
-        <i class="fas fa-reply"></i>
+        @icon('reply')
         <span>Reply</span>
     </div>
     <div class="context-menu-item" data-action="forward">
-        <i class="fas fa-share"></i>
+        @icon('share')
         <span>Forward</span>
     </div>
     <div class="context-menu-separator"></div>
     <div class="context-menu-item" data-action="delete" style="display: none;">
-        <i class="fas fa-trash"></i>
+        @icon('trash')
         <span>Delete</span>
     </div>
 </div>
@@ -179,7 +179,7 @@
 <!-- Label Submenu -->
 <div id="labelSubmenuV2" class="email-context-submenu" style="display: none;">
     <div class="submenu-header">
-        <i class="fas fa-arrow-left submenu-back"></i>
+        @icon('arrow-left', 'solid', ['class' => 'submenu-back'])
         <span>Select Label</span>
     </div>
     <div class="submenu-content" id="labelSubmenuContentV2">

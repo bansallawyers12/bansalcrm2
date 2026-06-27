@@ -460,16 +460,16 @@
         <div class="header-actions">
             @if($document->signed_doc_link)
                 <a href="{{ route('public.documents.download.signed', $document->id) }}" class="btn-primary-custom">
-                    <i class="fas fa-download"></i> Download Signed
+                    @icon('download') Download Signed
                 </a>
             @elseif($document->myfile)
                 <a href="{{ $document->myfile }}" target="_blank" class="btn-outline-custom">
-                    <i class="fas fa-eye"></i> View Document
+                    @icon('eye') View Document
                 </a>
             @endif
             
             <a href="{{ route('signatures.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back
+                @icon('arrow-left') Back
             </a>
         </div>
     </div>
@@ -506,7 +506,7 @@
             <!-- Document Info -->
             <div class="card-section">
                 <div class="card-section-header">
-                    <h2><i class="fas fa-file-alt"></i> Document Information</h2>
+                    <h2>@icon('file-alt') Document Information</h2>
                 </div>
                 <div class="card-section-body">
                     <div class="info-row">
@@ -546,7 +546,7 @@
                         <span class="value {{ $document->is_overdue ? 'text-danger' : '' }}">
                             {{ $document->due_at->format('M d, Y') }}
                             @if($document->is_overdue)
-                                <i class="fas fa-exclamation-triangle text-danger"></i>
+                                @icon('exclamation-triangle', 'solid', ['class' => 'text-danger'])
                             @endif
                         </span>
                     </div>
@@ -557,10 +557,10 @@
             <!-- Signers -->
             <div class="card-section">
                 <div class="card-section-header">
-                    <h2><i class="fas fa-users"></i> Signers ({{ $document->signers->count() }})</h2>
+                    <h2>@icon('users') Signers ({{ $document->signers->count() }})</h2>
                     @if(!in_array($document->status, ['signed', 'voided', 'archived']))
                         <a href="{{ route('signatures.create', ['document_id' => $document->id]) }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-plus"></i> Add Signer
+                            @icon('plus') Add Signer
                         </a>
                     @endif
                 </div>
@@ -574,7 +574,7 @@
                                     <p>{{ $signer->email }}</p>
                                 </div>
                                 <span class="badge-status badge-{{ $signer->status }}">
-                                    <i class="fas fa-{{ $signer->status === 'pending' ? 'clock' : ($signer->status === 'signed' ? 'check' : 'times') }}"></i>
+                                    @icon('{{', 'solid', ['class' => '$signer->status === 'pending' ? 'clock' : ($signer->status === 'signed' ? 'check' : 'times') }}'])
                                     {{ ucfirst($signer->status) }}
                                 </span>
                             </div>
@@ -591,13 +591,13 @@
                                         @csrf
                                         <input type="hidden" name="signer_id" value="{{ $signer->id }}">
                                         <button type="submit" class="btn-signer-action btn-reminder" {{ !$canSendReminder ? 'disabled' : '' }}>
-                                            <i class="fas fa-bell"></i> Send Reminder ({{ $reminderCount }}/{{ $maxReminders }})
+                                            @icon('bell') Send Reminder ({{ $reminderCount }}/{{ $maxReminders }})
                                         </button>
                                     </form>
                                     
                                     {{-- Copy Link Button --}}
                                     <button type="button" class="btn-signer-action btn-copy-link" onclick="copySigningLink('{{ route('public.documents.sign', ['id' => $document->id, 'token' => $signer->token]) }}')">
-                                        <i class="fas fa-link"></i> Copy Link
+                                        @icon('link') Copy Link
                                     </button>
                                     
                                     {{-- Cancel Signature Button --}}
@@ -605,14 +605,14 @@
                                         @csrf
                                         <input type="hidden" name="signer_id" value="{{ $signer->id }}">
                                         <button type="submit" class="btn-signer-action btn-cancel-sig">
-                                            <i class="fas fa-times"></i> Cancel Signature
+                                            @icon('times') Cancel Signature
                                         </button>
                                     </form>
                                 </div>
                                 
                                 @if($signer->last_reminder_sent_at)
                                 <div class="reminder-info">
-                                    <i class="fas fa-info-circle"></i>
+                                    @icon('info-circle')
                                     @if($reminderCount === 0)
                                         No reminders sent yet
                                     @else
@@ -621,18 +621,18 @@
                                 </div>
                                 @else
                                 <div class="reminder-info">
-                                    <i class="fas fa-info-circle"></i>
+                                    @icon('info-circle')
                                     No reminders sent yet
                                 </div>
                                 @endif
                             @elseif($signer->status === 'signed')
                                 <div class="reminder-info">
-                                    <i class="fas fa-check-circle text-success"></i>
+                                    @icon('check-circle', 'solid', ['class' => 'text-success'])
                                     Signed on {{ $signer->signed_at ? $signer->signed_at->format('M d, Y g:i A') : 'N/A' }}
                                 </div>
                             @elseif($signer->status === 'cancelled')
                                 <div class="reminder-info">
-                                    <i class="fas fa-times-circle text-danger"></i>
+                                    @icon('times-circle', 'solid', ['class' => 'text-danger'])
                                     Cancelled {{ $signer->cancelled_at ? \Carbon\Carbon::parse($signer->cancelled_at)->diffForHumans() : '' }}
                                 </div>
                             @endif
@@ -640,10 +640,10 @@
                         @endforeach
                     @else
                         <div class="no-signers">
-                            <i class="fas fa-user-plus"></i>
+                            @icon('user-plus')
                             <p>No signers added yet.</p>
                             <a href="{{ route('signatures.create', ['document_id' => $document->id]) }}" class="btn-primary-custom">
-                                <i class="fas fa-plus"></i> Add First Signer
+                                @icon('plus') Add First Signer
                             </a>
                         </div>
                     @endif
@@ -653,7 +653,7 @@
             <!-- Activity Timeline -->
             <div class="card-section">
                 <div class="card-section-header">
-                    <h2><i class="fas fa-history"></i> Activity Timeline</h2>
+                    <h2>@icon('history') Activity Timeline</h2>
                 </div>
                 <div class="card-section-body">
                     @if($document->notes->count() > 0)
@@ -684,7 +684,7 @@
                             @endphp
                             <div class="activity-item">
                                 <div class="activity-icon {{ $iconClass }}">
-                                    <i class="fas fa-{{ $icon }}"></i>
+                                    @icon('{{', 'solid', ['class' => '$icon }}'])
                                 </div>
                                 <div class="activity-time">{{ $note->created_at->format('M d, Y g:i A') }}</div>
                                 <div class="activity-text">{{ $note->action_text ?? $note->note }}</div>
@@ -702,12 +702,12 @@
         <div class="col-lg-4">
             <!-- Quick Actions -->
             <div class="quick-actions-section">
-                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                <h3>@icon('bolt') Quick Actions</h3>
                 
                 {{-- Edit Signature Placement Button --}}
                 @if(!in_array($document->status, ['signed', 'voided', 'archived']))
                     <a href="{{ route('signatures.edit', $document->id) }}" class="btn-action-primary">
-                        <i class="fas fa-edit"></i> Edit Signature Placement
+                        @icon('edit') Edit Signature Placement
                     </a>
                 @endif
                 
@@ -721,23 +721,23 @@
                 @if(in_array($document->status, ['sent', 'viewed']))
                     {{-- Document already sent - show success message --}}
                     <div class="sent-success-message">
-                        <i class="fas fa-check-circle"></i> Document sent for signature
+                        @icon('check-circle') Document sent for signature
                     </div>
                 @elseif($canSendForSignature)
                     <form action="{{ route('signatures.send', $document->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn-action-success" onclick="return confirm('This will send signing link emails to all pending signers ({{ $pendingSigners->count() }}). Continue?')">
-                            <i class="fas fa-paper-plane"></i> Send for Signature
+                            @icon('paper-plane') Send for Signature
                         </button>
                     </form>
                 @elseif($document->signers->count() === 0)
                     <button type="button" class="btn-action-success" disabled title="Add a signer first">
-                        <i class="fas fa-paper-plane"></i> Send for Signature
+                        @icon('paper-plane') Send for Signature
                     </button>
                     <small class="text-muted d-block text-center mt-2">Add a signer to enable sending</small>
                 @elseif($document->status === 'signed')
                     <div class="sent-success-message signed">
-                        <i class="fas fa-check-circle"></i> Document signed successfully
+                        @icon('check-circle') Document signed successfully
                     </div>
                 @endif
             </div>
@@ -745,7 +745,7 @@
             <!-- Association -->
             <div class="card-section">
                 <div class="card-section-header">
-                    <h2><i class="fas fa-link"></i> Association</h2>
+                    <h2>@icon('link') Association</h2>
                 </div>
                 <div class="card-section-body">
                     @if($document->documentable)
@@ -760,13 +760,13 @@
                         <form action="{{ route('signatures.detach', $document->id) }}" method="POST" class="mt-3">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Are you sure you want to detach this document from the client?')">
-                                <i class="fas fa-unlink"></i> Detach
+                                @icon('unlink') Detach
                             </button>
                         </form>
                     @else
                         <p class="text-muted mb-3">Not associated with any client.</p>
                         <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#associateModal">
-                            <i class="fas fa-link"></i> Associate with Client
+                            @icon('link') Associate with Client
                         </button>
                     @endif
                 </div>
@@ -776,15 +776,15 @@
             @if($document->status == 'signed' && $document->signed_hash)
             <div class="card-section">
                 <div class="card-section-header">
-                    <h2><i class="fas fa-shield-alt"></i> Signature Verification</h2>
+                    <h2>@icon('shield-alt') Signature Verification</h2>
                 </div>
                 <div class="card-section-body">
                     <div class="hash-display {{ $document->verifySignedHash() ? 'hash-valid' : 'hash-invalid' }}">
                         <small>
                             @if($document->verifySignedHash())
-                                <i class="fas fa-check-circle text-success"></i> Document integrity verified
+                                @icon('check-circle', 'solid', ['class' => 'text-success']) Document integrity verified
                             @else
-                                <i class="fas fa-exclamation-triangle text-danger"></i> Document may have been modified
+                                @icon('exclamation-triangle', 'solid', ['class' => 'text-danger']) Document may have been modified
                             @endif
                         </small>
                         <br><br>

@@ -46,7 +46,7 @@
 							}
 							?>
 								<div class="card-header-action">
-									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary">@icon('arrow-left') Back</a>
 								</div>
 							</div>
 						</div>
@@ -194,14 +194,14 @@
 													</span>
 												</td>
 												<td>
-													<a class="removeitems" href="javascript:;"><i class="fas fa-times"></i></a>
+													<a class="removeitems" href="javascript:;">@icon('times')</a>
 												</td>
 											</tr>
 										</tbody>										
 									</table>
 								</div>
 								<div class="add_new">
-									<a href="javascript:;" class="openproductrinfo"><i class="fas fa-plus"></i> Add New Line</a>	
+									<a href="javascript:;" class="openproductrinfo">@icon('plus') Add New Line</a>	
 								</div>
 								<div class="row bottom_aligned">
 									<div class="col-md-6 cus_col_6">
@@ -218,7 +218,7 @@
 												<div class="input-group">
 													<div class="input-group-prepend">
 														<div class="input-group-text">
-															<i class="fas fa-clock"></i>
+															@icon('clock')
 														</div>
 													</div>	
 													<input type="date" name="discount_date" placeholder="" class="form-control" />
@@ -421,7 +421,7 @@
 															<div class="input-group">
 																<div class="input-group-prepend">
 																	<div class="input-group-text">
-																		<i class="fas fa-clock"></i>
+																		@icon('clock')
 																	</div>
 																</div>	
 																<input type="date" name="payment_date[]" placeholder="Date" class=" form-control" value="{{date('Y-m-d')}}"/>
@@ -437,12 +437,12 @@
 															</select>
 														</div>
 														<div class="field_remove_col">
-															<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+															<a href="javascript:;" class="remove_col">@icon('times')</a>
 														</div>
 													</div>
 												</div>
 												<div class="add_payment_field">
-													<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
+													<a href="javascript:;">@icon('plus') Add New Line</a>
 												</div>
 												<div class="clearfix"></div>
 											</div>

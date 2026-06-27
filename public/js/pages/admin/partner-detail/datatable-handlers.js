@@ -35,6 +35,12 @@
         });
     }
 
+    const activeTabForButtons = (typeof PageConfig !== 'undefined' && PageConfig.activeTab) ? PageConfig.activeTab : 'application';
+
+    if (activeTabForButtons === 'student') {
+        await import('@/datatables-buttons-init.js');
+    }
+
 // ============================================================================
 // DATATABLE INITIALIZATION
 // ============================================================================

@@ -33,10 +33,10 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 						<h4>Leads</h4>
 						<div class="card-header-action">
 							<a href="javascript:;" class="btn btn-theme btn-theme-sm" data-bs-toggle="modal" data-bs-target="#importLeadModal" title="Import Lead">
-								<i class="fas fa-upload"></i> Import Lead
+								@icon('upload') Import Lead
 							</a>
 							<a href="{{route('leads.create')}}" class="btn btn-primary">Add Lead</a>
-							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
+							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 						</div>
 					</div>
 						<div class="card-body">
@@ -118,7 +118,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										$statusDisplay = ($list->status === 0 || $list->status === '0') ? 'Not Contacted' : ((is_string($list->status) && $list->status !== '') ? $list->status : '—');
 										?> 
 										<tr id="id_{{@$list->id}}">
-											<td><i class="fas fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fas fa-calendar-alt"></i> 
+											<td>@icon('ticket-alt') <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/>@icon('calendar-alt') 
 										
 											{{@$list->created_at}}
 											<?php
@@ -131,18 +131,18 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											}else{ echo '-'; }
 											?>
 											</td>
-											<td><i class="fas fa-user"></i>  {{@$list->first_name}} {{@$list->last_name}} <br/> <i class="fas fa-mobile"></i> {{@$list->phone}} <br/> <i class="fas fa-envelope"></i> {{@$list->email}}</td>
+											<td>@icon('user')  {{@$list->first_name}} {{@$list->last_name}} <br/> @icon('mobile') {{@$list->phone}} <br/> @icon('envelope') {{@$list->email}}</td>
 											<td>{{@$list->service}} <br/> {{@$list->created_at}}</td>
-											<td><div class="lead_stars"><i class="fas fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $statusDisplay }}</div></td>
+											<td><div class="lead_stars">@icon('star')<span>{{@$list->lead_quality}}</span> {{ $statusDisplay }}</div></td>
 											<td>{{ $statusDisplay }}</td>
 											<td>
 												<div class="dropdown action_toggle">
-													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
 													<div class="dropdown-menu">
-														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}"><i class="fas fa-eye"></i> View Details</a>
-														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode($leadIdForLinks))}}"><i class="fas fa-edit"></i> Assign To</a>
+														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">@icon('eye') View Details</a>
+														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode($leadIdForLinks))}}">@icon('edit') Assign To</a>
 										@if($list->converted == 0)
-											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" onclick="return confirm('Are you sure?')"><i class="fas fa-user"></i> Convert To Client</a>	
+											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" onclick="return confirm('Are you sure?')">@icon('user') Convert To Client</a>	
 											@endif
 													</div>
 												</div>	
@@ -195,7 +195,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 				</div>
 			</div>
 			<div class="modal-footer">
-				{!! Form::button('<i class="fas fa-save"></i> Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")' ])  !!}
+				{!! Form::button('@icon('save') Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")' ])  !!}
 			</div>
 			{!! Form::close()  !!}
 		</div>
@@ -208,7 +208,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-upload"></i> Import Lead from File
+                    @icon('upload') Import Lead from File
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -218,7 +218,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
                 <form method="post" name="importLeadForm" action="{{ route('leads.import') }}" autocomplete="off" enctype="multipart/form-data">
                     @csrf
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
+                        @icon('info-circle')
                         <strong>Instructions:</strong> Upload a JSON file exported from migrationmanager2, bansalcrm2, or the Office Visit Form (<code>office-visit-{id}-crm.json</code>).
                     </div>
 
@@ -247,7 +247,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-upload"></i> Import Lead
+                            @icon('upload') Import Lead
                         </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>

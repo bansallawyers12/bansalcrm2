@@ -30,6 +30,8 @@ export default defineConfig({
                 'resources/js/adminconsole-layout-scripts.js',
                 'resources/js/agent-adminconsole-layout-scripts.js',
                 'resources/js/minimal-layout-scripts.js',
+                'resources/js/exception-entry.js',
+                'resources/js/exception-agent-entry.js',
             ],
             refresh: true,
         }),

@@ -27,7 +27,7 @@ a.dropdown-item {padding-top: 5px !important;}
 							<div class="card-header-action is_checked_client" style="display:none;">
 								<a class="btn btn-primary emailmodal" href="javascript:;"  >Send Mail</a>
 							</div>
-							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
+							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 						</div>
 						<div class="card-body">
                             <ul class="nav nav-pills" id="partner_tabs" role="tablist">
@@ -169,7 +169,7 @@ a.dropdown-item {padding-top: 5px !important;}
                                                             </div>
                                                             <div class="right">
                                                                 <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                                    <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                                                                    <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
                                                                     <div class="dropdown-menu">
                                                                         <a class="dropdown-item opennoteform" data-id="{{--$latestnote->id--}}" href="javascript:;">Edit</a>
                                                                         <a data-id="{{--$latestnote->id--}}" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -211,9 +211,9 @@ a.dropdown-item {padding-top: 5px !important;}
 												<div class="dropdown d-inline">
 													<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 													<div class="dropdown-menu">
-														<a class="dropdown-item has-icon" href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
-														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')"><i class="fas fa-trash"></i> Delete</a>
-                                                        <a class="dropdown-item has-icon" href="javascript:;" onclick="partnerchangetoactive({{$list->id}}, 'partners')"><i class="fas fa-trash"></i> Active</a>
+														<a class="dropdown-item has-icon" href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$list->id)))}}">@icon('edit', 'regular') Edit</a>
+														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">@icon('trash') Delete</a>
+                                                        <a class="dropdown-item has-icon" href="javascript:;" onclick="partnerchangetoactive({{$list->id}}, 'partners')">@icon('trash') Active</a>
                                                     </div>
 												</div>
 											</td>

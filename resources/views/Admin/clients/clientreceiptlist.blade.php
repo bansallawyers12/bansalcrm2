@@ -70,7 +70,7 @@
                                 </ul>
                                 <?php //} ?>
 
-                                <a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn" style="float: right;"><i class="fas fa-filter"></i> Filter</a>
+                                <a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn" style="float: right;">@icon('filter') Filter</a>
                             </div>
 						</div>
 						<div class="card-body">
