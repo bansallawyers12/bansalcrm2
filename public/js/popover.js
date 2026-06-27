@@ -532,7 +532,7 @@ console.log(timestring);
             return;
         }
         // Support both legacy and Bootstrap 5 popovers
-        $("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function(){
+        $("[data-role=popover], [data-bs-toggle=popover]").each(function(){
             var $el = $(this);
             if (!$el.is(e.target) && $el.has(e.target).length === 0 && !isPopoverInsideClick(e.target)) {
                 // Hide popover using jQuery bridge (works with both Bootstrap 4 and 5)
@@ -561,8 +561,7 @@ console.log(timestring);
 		} 
 
 		// Only initialize popovers that aren't already initialized
-		// Support both data-role (legacy) and data-toggle/data-bs-toggle (Bootstrap 5)
-		$("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function() {
+		$("[data-role=popover], [data-bs-toggle=popover]").each(function() {
 			var $el = $(this);
 			// Check for Bootstrap 5 instance or jQuery data
 			var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;

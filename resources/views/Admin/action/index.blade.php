@@ -250,15 +250,13 @@
 
 <!-- Complete Action Modal -->
 <div class="modal fade" id="completeActionModal" tabindex="-1" role="dialog" aria-labelledby="completeActionModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
                 <h5 class="modal-title" id="completeActionModalLabel">
                     @icon('check-circle') Complete Action
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="completeActionForm">
@@ -336,8 +334,7 @@ $(function () {
 
         "fnDrawCallback": function() {
             // Only initialize popovers that aren't already initialized
-            // Support both data-toggle (legacy) and data-bs-toggle (Bootstrap 5)
-            $('[data-role="popover"], [data-bs-toggle="popover"], [data-bs-toggle="popover"]').each(function() {
+            $('[data-role="popover"], [data-bs-toggle="popover"]').each(function() {
                 var $el = $(this);
                 // Check if Bootstrap 5 instance exists or jQuery data exists
                 var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
@@ -866,7 +863,7 @@ jQuery(document).ready(function($){
                     var obj = $.parseJSON(response);
                     if(obj.success){
                         // Hide all popovers
-                        $("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function(){
+                        $("[data-role=popover], [data-bs-toggle=popover]").each(function(){
                             $(this).popover('hide');
                         });
                         //location.reload();

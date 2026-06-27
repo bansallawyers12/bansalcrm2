@@ -157,15 +157,18 @@ if (typeof window.$ !== 'undefined' && window.bootstrap && window.bootstrap.Moda
                 // Initialize if doesn't exist
                 if (!modalInstance) {
                     const options = {};
-                    // Support data-* attributes
-                    if ($el.attr('data-backdrop') !== undefined) {
-                        options.backdrop = $el.attr('data-backdrop') === 'false' ? false : true;
+                    // Support data-* attributes (BS5 data-bs-* and legacy data-*)
+                    const backdropAttr = $el.attr('data-bs-backdrop') ?? $el.attr('data-backdrop');
+                    if (backdropAttr !== undefined) {
+                        options.backdrop = backdropAttr === 'false' ? false : true;
                     }
-                    if ($el.attr('data-keyboard') !== undefined) {
-                        options.keyboard = $el.attr('data-keyboard') !== 'false';
+                    const keyboardAttr = $el.attr('data-bs-keyboard') ?? $el.attr('data-keyboard');
+                    if (keyboardAttr !== undefined) {
+                        options.keyboard = keyboardAttr !== 'false';
                     }
-                    if ($el.attr('data-focus') !== undefined) {
-                        options.focus = $el.attr('data-focus') !== 'false';
+                    const focusAttr = $el.attr('data-bs-focus') ?? $el.attr('data-focus');
+                    if (focusAttr !== undefined) {
+                        options.focus = focusAttr !== 'false';
                     }
                     
                     modalInstance = new Modal(element, options);
