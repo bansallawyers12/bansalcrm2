@@ -56,6 +56,9 @@ const App = {
     }
 };
 
+// Classic scripts share global lexical scope; Vite ES modules need the global object.
+window.App = App;
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = App;

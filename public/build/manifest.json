@@ -39,6 +39,15 @@
     "src": "resources/js/pages/admin/account.js",
     "isEntry": true
   },
+  "resources/js/pages/admin/client-detail-entry.js": {
+    "file": "assets/client-detail-entry-D0J6x298.js",
+    "name": "client-detail-entry",
+    "src": "resources/js/pages/admin/client-detail-entry.js",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime-QTnfLwEv.js"
+    ]
+  },
   "resources/js/signature-pad-init.js": {
     "file": "assets/signature-pad-init-SSLkgsqX.js",
     "name": "signature-pad-init",

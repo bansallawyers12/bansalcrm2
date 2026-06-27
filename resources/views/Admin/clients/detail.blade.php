@@ -2741,7 +2741,6 @@ use App\Http\Controllers\Controller;
 
 @endsection
 @section('scripts')
-<script src="{{ asset('js/popover.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/popover.js')) }}"></script>
 
 {{-- Configuration Script: Pass Blade variables to JavaScript --}}
 <script>
@@ -2935,9 +2934,6 @@ $(function () {
 </script>
 @endif
 
-{{-- Common JavaScript Files (load first) --}}
-<script src="{{ asset('js/common/config.js') }}"></script>
-<script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
 @if($showAlert)
 <script>
 (function () {
@@ -2957,63 +2953,6 @@ $(function () {
 })();
 </script>
 @endif
-<script src="{{ asset('js/common/crud-operations.js') }}"></script>
-<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/activity-handlers.js')) }}"></script>
-<script src="{{ asset('js/common/document-handlers.js') }}"></script>
-<script>
-(function() {
-    var _previewFile = window.previewFile;
-    if (typeof _previewFile === 'function') {
-        window.previewFile = function(fileType, fileUrl, containerClass) {
-            _previewFile(fileType, fileUrl, containerClass);
-            var container = document.querySelector('.' + containerClass);
-            if (container) {
-                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                var iframe = container.querySelector('.pdf-viewer, .doc-viewer');
-                if (iframe) {
-                    iframe.style.height = '75vh';
-                    iframe.style.minHeight = '500px';
-                }
-            }
-        };
-    }
-})();
-</script>
-<script src="{{ asset('js/common/ui-components.js') }}"></script>
-
-{{-- Page-Specific JavaScript Modules (load in dependency order) --}}
-{{-- Core feature modules --}}
-<script src="{{ asset('js/pages/admin/client-detail/session-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/client-status.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/assignee-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/email-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/email-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-upload.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-categories.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/drag-drop-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/datatable-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/application-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/application-stage.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/commission-handlers.js') }}"></script>
-
-{{-- UI and utility modules --}}
-<script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/download-and-chatgpt.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-signature.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/communications.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/communications.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/ui-initialization.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/assignments.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/schedule-followup.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/schedule-followup.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/delete-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/notes.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/notes.js')) }}"></script>
-
-{{-- Main client-detail file (cleaned up, orchestrates modules) --}}
-<script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
 
 {{-- Initialize Document Category Manager --}}
 <script>
@@ -3415,8 +3354,12 @@ $(document).ready(function(){
 }(jQuery));
 </script>
 
-{{-- Blade-specific inline code (loaded last, uses Blade variables) --}}
-<script src="{{ asset('js/pages/admin/client-detail/blade-inline.js') }}"></script>
+{{-- Blade-specific inline code (defer: runs after Vite bundle) --}}
+<script defer src="{{ asset('js/pages/admin/client-detail/blade-inline.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/blade-inline.js')) }}"></script>
+
+@push('scripts')
+	@vite(['resources/js/pages/admin/client-detail-entry.js'])
+@endpush
 
 @push('tinymce-scripts')
 @include('partials.tinymce')

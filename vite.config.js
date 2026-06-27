@@ -17,6 +17,7 @@ export default defineConfig({
                 'resources/js/legacy-init.js',  // Legacy initialization (waits for vendor libs)
                 'resources/js/app.js',
                 'resources/js/pages/admin/account.js',
+                'resources/js/pages/admin/client-detail-entry.js',
             ],
             refresh: true,
         }),
@@ -33,6 +34,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': '/resources/js',
+            '@legacy': path.resolve(__dirname, 'public/js'),
             jquery: path.resolve(__dirname, 'resources/js/jquery-global-shim.js'),
         },
     },
