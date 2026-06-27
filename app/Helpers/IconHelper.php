@@ -146,10 +146,15 @@ class IconHelper
         ];
 
         if (! empty($options['attrs']) && is_array($options['attrs'])) {
+            if (isset($options['attrs']['class']) && $options['attrs']['class'] !== '') {
+                $attributes['class'] = trim($attributes['class'] . ' ' . $options['attrs']['class']);
+            }
+
             foreach ($options['attrs'] as $key => $value) {
-                if ($value !== null && $value !== '') {
-                    $attributes[$key] = $value;
+                if ($key === 'class' || $value === null || $value === '') {
+                    continue;
                 }
+                $attributes[$key] = $value;
             }
         }
 

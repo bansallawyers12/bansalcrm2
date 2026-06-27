@@ -436,7 +436,7 @@ use App\Http\Controllers\Controller;
 											<div class="extra_content">
 												<div class="left">
 													<p><i class="fas fa-phone" style="margin-right: 20px!important;"></i> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
-													<p><i class="fas fa-envelope-o" style="margin-right: 20px!important;"></i> <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
+													<p>{!! \App\Helpers\IconHelper::render('envelope', 'regular', ['attrs' => ['style' => 'margin-right: 20px!important;']]) !!} <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">

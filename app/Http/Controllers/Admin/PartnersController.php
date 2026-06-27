@@ -2710,7 +2710,7 @@ class PartnersController extends Controller
 					<div class="extra_content">
 						<div class="left">
 							<p><i class="fas fa-phone" style="margin-right: 20px!important;"></i> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
-							<p><i class="fas fa-envelope-o" style="margin-right: 20px!important;"></i> <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
+							<p><?php echo \App\Helpers\IconHelper::render('envelope', 'regular', ['attrs' => ['style' => 'margin-right: 20px!important;']]); ?> <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
 						</div>  
 						<div class="right">
 							<div class="dropdown d-inline dropdown_ellipsis_icon">
@@ -4437,7 +4437,7 @@ class PartnersController extends Controller
 					</div>
 
                     <?php if($list->pin == 1){ ?>
-                        <div class="pined_note"><i class="fas fa-thumbtack"></i></i></div>
+                        <div class="pined_note"><?php echo \App\Helpers\IconHelper::render('thumbtack'); ?></div>
                     <?php } ?>
 				</div>
 				<div class="extra_content">

@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 
-use App\Helpers\IconHelper;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;

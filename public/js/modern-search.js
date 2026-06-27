@@ -469,10 +469,10 @@
 
         var details = [];
         if (repo.email) {
-            details.push(escapeHtml(repo.email));
+            details.push(renderHighlightedField(repo.email));
         }
         if (repo.phone) {
-            details.push('Phone: ' + escapeHtml(repo.phone));
+            details.push('Phone: ' + renderHighlightedField(repo.phone));
         }
         if (repo.dob) {
             details.push('DOB: ' + escapeHtml(String(repo.dob)));
@@ -520,11 +520,7 @@
             ? '<div class="modern-search-result-meta text-end">' + metaParts.join('') + '</div>'
             : '';
 
-        var nameHtml = repo.name || repo.text || '';
-        if (typeof nameHtml === 'string' && nameHtml.indexOf('<') !== -1) {
-            nameHtml = stripHtml(nameHtml);
-        }
-        nameHtml = escapeHtml(nameHtml);
+        var nameHtml = renderHighlightedField(repo.name || repo.text || '');
 
         return (
             '<div class="ts-result-row modern-search-result' +
@@ -548,6 +544,33 @@
         return String(text).replace(/[&<>"']/g, function (m) {
             return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
         });
+    }
+
+    /**
+     * Server search API wraps query matches in <mark class="search-highlight">.
+     * Escape all other text; preserve mark tags so highlights render (not as visible HTML).
+     */
+    function renderHighlightedField(text) {
+        if (text == null || text === '') {
+            return '';
+        }
+        var s = String(text);
+        if (s.indexOf('<mark') === -1) {
+            return escapeHtml(s);
+        }
+
+        var out = '';
+        var lastIndex = 0;
+        var re = /<mark\s+class="search-highlight">([\s\S]*?)<\/mark>/gi;
+        var match;
+
+        while ((match = re.exec(s)) !== null) {
+            out += escapeHtml(s.slice(lastIndex, match.index));
+            out += '<mark class="search-highlight">' + escapeHtml(match[1]) + '</mark>';
+            lastIndex = re.lastIndex;
+        }
+        out += escapeHtml(s.slice(lastIndex));
+        return out;
     }
 
     function flattenGroupedForTomSelect(grouped, ts) {
