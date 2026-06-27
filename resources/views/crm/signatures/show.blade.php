@@ -841,59 +841,19 @@
 @push('scripts')
 <script>
 function copySigningLink(url) {
+    var toast = typeof window.showToast === 'function' ? window.showToast : function (msg, t) { alert(msg); };
     navigator.clipboard.writeText(url).then(function() {
-        // Show a nice toast instead of alert
-        showToast('Signing link copied to clipboard!', 'success');
+        toast('Signing link copied to clipboard!', 'success');
     }, function(err) {
-        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         textArea.value = url;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showToast('Signing link copied to clipboard!', 'success');
+        toast('Signing link copied to clipboard!', 'success');
     });
 }
-
-function showToast(message, type) {
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#10b981' : '#ef4444'};
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 9999;
-        animation: slideIn 0.3s ease;
-    `;
-    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'}-circle"></i> ${message}`;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// Add animation styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
 
 $(document).ready(function() {
     if ($('#entity_id').length && typeof whenTomSelectReady === 'function') {

@@ -28,8 +28,10 @@
         "@fullcalendar/interaction": "^6.1.20",
         "@fullcalendar/list": "^6.1.20",
         "@fullcalendar/timegrid": "^6.1.20",
+        "apexcharts": "^3.54.1",
         "flatpickr": "^4.6.13",
         "izitoast": "^1.4.0",
+        "signature_pad": "^4.2.0",
         "tom-select": "2.4.3"
     }
 }

@@ -1187,7 +1187,7 @@ $(document).ready(function() {
         
         // Validate action ID
         if (!actionId) {
-            alert('Action ID is missing. Please refresh the page and try again.');
+            showToast('Action ID is missing. Please refresh the page and try again.', 'warning');
             return;
         }
         
@@ -1214,7 +1214,7 @@ $(document).ready(function() {
         var message = $('#completion_message').val().trim();
         
         if (!message) {
-            alert('Please enter a completion message.');
+            showToast('Please enter a completion message.', 'warning');
             return;
         }
         
@@ -1256,18 +1256,9 @@ $(document).ready(function() {
                         }
                     });
                     
-                    // Show success message
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.success({
-                            title: 'Success',
-                            message: response.message || 'Action completed successfully!'
-                        });
-                    } else {
-                        alert(response.message || 'Action completed successfully!');
-                    }
+                    showToast(response.message || 'Action completed successfully!', 'success');
                 } else {
-                    // Handle error response
-                    alert(response.message || 'Failed to complete action. Please try again.');
+                    showToast(response.message || 'Failed to complete action. Please try again.', 'error');
                 }
             },
             error: function(xhr) {
@@ -1275,7 +1266,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-                alert(errorMsg);
+                showToast(errorMsg, 'error');
             },
             complete: function() {
                 // Re-enable button

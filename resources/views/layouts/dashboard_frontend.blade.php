@@ -11,6 +11,8 @@
 	
 	<!-- Bootstrap CSS in head (prevents FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
+	<!-- Vendor CSS + JS (flatpickr, iziToast, Tom Select) — CSS in head prevents FOUC (Phase 2b) -->
+	@vite(['resources/js/vendor-libs.js'])
     @include('Elements.font-awesome-styles')
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
@@ -26,14 +28,8 @@
 		//var redirecturl = "<?php echo URL::to('/thanks'); ?>";
 	</script>
 	
-	<!-- Vendor libraries: flatpickr, iziToast, Tom Select (Vite) -->
-	@vite(['resources/js/vendor-libs.js'])
-	
-	<!-- Then load main app with Bootstrap, etc (async) -->
+	<!-- Bootstrap / app JS (vendor-libs loaded in <head>) -->
 	@vite(['resources/js/app.js'])
-	
-	<!-- jQuery should now be available immediately -->
-	<!-- flatpickr now loaded via Vite (vendor-libs.js) --> 
 
 	<script>
 		$(document).ready(function() {

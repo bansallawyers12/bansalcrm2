@@ -7,6 +7,17 @@
 
 // Wait for vendor libraries to be ready, then initialize all components
 (async function() {
+    async function waitForInitTomSelectHelpers(maxAttempts) {
+        var limit = maxAttempts || 200;
+        for (var attempt = 0; attempt < limit; attempt++) {
+            if (typeof window.initTomSelect === 'function') {
+                return;
+            }
+            await new Promise(function (resolve) { setTimeout(resolve, 50); });
+        }
+        console.warn('[legacy-init] initTomSelect helpers not loaded after timeout');
+    }
+
     // Wait for vendorLibsReady promise (created in vendor-libs.js)
     if (typeof window.vendorLibsReady !== 'undefined') {
         await window.vendorLibsReady;
@@ -26,6 +37,9 @@
             check();
         });
     }
+
+    // vendorLibsReady resolves when TomSelect lib loads; helpers come from tomselect-init.js (defer)
+    await waitForInitTomSelectHelpers();
 
     function parseAjaxJson(response) {
         if (response == null || response === '') {

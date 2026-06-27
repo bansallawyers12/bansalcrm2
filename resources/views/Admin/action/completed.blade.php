@@ -423,7 +423,11 @@ jQuery(document).ready(function($){
         } else {
             $(modalEl).modal('show');
         }
-        if ($.fn.flatpickr) { $('#actionPopoverModal .flatpickr-date').flatpickr({ dateFormat: 'Y-m-d' }); }
+        if (typeof flatpickr !== 'undefined') {
+            document.querySelectorAll('#actionPopoverModal .flatpickr-date').forEach(function (el) {
+                flatpickr(el, { dateFormat: 'Y-m-d' });
+            });
+        }
     });
 
     // Reassign task - show modal with form from template
@@ -465,7 +469,11 @@ jQuery(document).ready(function($){
         } else {
             $(modalEl).modal('show');
         }
-        if ($.fn.flatpickr) { $('#actionPopoverModal .flatpickr-date').flatpickr({ dateFormat: 'Y-m-d' }); }
+        if (typeof flatpickr !== 'undefined') {
+            document.querySelectorAll('#actionPopoverModal .flatpickr-date').forEach(function (el) {
+                flatpickr(el, { dateFormat: 'Y-m-d' });
+            });
+        }
     });
 
 

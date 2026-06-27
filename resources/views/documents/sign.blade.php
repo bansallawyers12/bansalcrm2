@@ -7,6 +7,7 @@
     <title>Sign Document - {{ $document->display_title ?? 'Document' }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @include('Elements.font-awesome-styles')
+    @vite(['resources/js/signature-pad-init.js'])
     <style>
         * {
             margin: 0;
@@ -441,7 +442,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script>
         // Configuration
         const documentId = {{ $document->id }};

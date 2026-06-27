@@ -74,30 +74,29 @@ const waitForPlugins = () => {
             const jQueryAvailable = typeof window.$ !== 'undefined' || typeof window.jQuery !== 'undefined';
             const $ = window.$ || window.jQuery;
             
-            // Check if all required plugins are available
-            const tomSelectReady = typeof window.TomSelect !== 'undefined' && typeof window.initTomSelect === 'function';
             const dataTableReady = jQueryAvailable && typeof $.fn.DataTable === 'function';
             const flatpickrReady = typeof window.flatpickr !== 'undefined';
             const iziToastReady = typeof window.iziToast !== 'undefined';
-            
-            // Debug logging
-            if (attempts % 20 === 0) { // Log every 1 second (20 * 50ms)
+
+            const tomSelectLibReady = typeof window.TomSelect === 'function';
+            const initTomSelectReady = typeof window.initTomSelect === 'function';
+
+            if (attempts % 20 === 0) {
                 console.log('Checking plugins...', {
                     jQuery: jQueryAvailable,
-                    tomSelect: tomSelectReady,
+                    tomSelectLib: tomSelectLibReady,
+                    initTomSelect: initTomSelectReady,
                     dataTable: dataTableReady,
                     flatpickr: flatpickrReady,
                     iziToast: iziToastReady,
                     attempts: attempts
                 });
             }
-            
-            const tomSelectLibReady = typeof window.TomSelect !== 'undefined';
 
             // Resolve once Vite-bundled libs are ready. initTomSelect (public/js) may load later.
             if (flatpickrReady && iziToastReady && tomSelectLibReady) {
                 console.log('✅ Vite vendor libraries loaded: flatpickr, iziToast, Tom Select');
-                if (tomSelectReady) {
+                if (initTomSelectReady) {
                     console.log('✅ initTomSelect helpers available');
                 }
                 if (dataTableReady) {

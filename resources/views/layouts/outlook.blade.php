@@ -10,6 +10,8 @@
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
 	@include('Elements.font-awesome-styles')
+	<!-- jQuery 3.7.1 — single source (Phase 2a) -->
+	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	@vite(['resources/sass/app.scss'])
 	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/components.css') }}">
@@ -21,7 +23,6 @@
 	<div id="app">
 		@yield('content')
 	</div>
-	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	@vite(['resources/js/app.js'])
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 	<script src="{{ asset('js/custom.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom.js')) }}" defer></script>

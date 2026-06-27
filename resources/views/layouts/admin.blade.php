@@ -36,6 +36,8 @@
 
 	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
+	<!-- Vendor CSS + JS (flatpickr, iziToast, Tom Select) — CSS in head prevents FOUC (Phase 2b) -->
+	@vite(['resources/js/vendor-libs.js'])
   
 	<link rel="stylesheet" href="{{asset('css/style.css')}}">
   
@@ -292,11 +294,8 @@ i[style*="color:rgba"] {
 	
 	<!-- Load FullCalendar v6 -->
 	@vite(['resources/js/fullcalendar-init.js'])
-	
- 	<!-- Vendor libraries: flatpickr, iziToast, Tom Select (Vite). DataTables: CDN in head. -->
-	@vite(['resources/js/vendor-libs.js'])
-	
-	<!-- Then load main app with Bootstrap, etc -->
+
+	<!-- Bootstrap / app JS (vendor-libs loaded in <head>) -->
 	@vite(['resources/js/app.js'])
 
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->

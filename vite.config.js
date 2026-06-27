@@ -7,7 +7,9 @@ export default defineConfig({
             input: [
                 'resources/sass/app.scss',  // Bootstrap CSS in <head> (JS stays in app.js)
                 'resources/js/fullcalendar-init.js',  // Load FullCalendar v6
-                'resources/js/vendor-libs.js',  // Third-party libraries (flatpickr, izitoast)
+                'resources/js/vendor-libs.js',  // flatpickr, iziToast, Tom Select (CSS in layout head)
+                'resources/js/apexcharts-init.js',
+                'resources/js/signature-pad-init.js',
                 'resources/js/legacy-init.js',  // Legacy initialization (waits for vendor libs)
                 'resources/js/app.js',
                 'resources/js/pages/admin/account.js',
