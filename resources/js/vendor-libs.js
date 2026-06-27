@@ -1,32 +1,22 @@
 /**
  * Third-party Vendor Libraries Entry Point
- * 
- * This file imports and exposes commonly used third-party libraries
- * that were previously loaded from public/js or CDN.
- * 
- * Libraries included:
- * - flatpickr (date picker)
- * - DataTables (tables)
- * - iziToast (notifications)
- * 
- * Note: Tom Select is loaded from CDN (see admin.blade.php)
+ *
+ * Libraries bundled here (Phase 2b+): flatpickr, iziToast, Tom Select.
+ * DataTables remains on CDN in admin layouts (Phase 2c).
  */
 
-// Import flatpickr
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-// DataTables is loaded from CDN (see admin.blade.php / adminconsole.blade.php).
-// The npm packages datatables.net + datatables.net-bs5 were removed from package.json
-// because they are never imported — CDN-only is the intentional loading strategy.
-
-// Import iziToast
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-// Expose libraries globally for legacy scripts
+import TomSelect from 'tom-select';
+import 'tom-select/dist/css/tom-select.bootstrap5.min.css';
+
 window.flatpickr = flatpickr;
 window.iziToast = iziToast;
+window.TomSelect = TomSelect;
 
 /**
  * Shared toast helper for legacy scripts (replaces alert()).
@@ -102,28 +92,26 @@ const waitForPlugins = () => {
                 });
             }
             
-            // Note: DataTables are loaded from CDN/public, so we don't require them to be ready from Vite
-            // We only check Vite-loaded libraries (flatpickr, iziToast)
-            if (flatpickrReady && iziToastReady) {
-                console.log('✅ All Vite vendor libraries loaded: flatpickr, iziToast');
+            const tomSelectLibReady = typeof window.TomSelect !== 'undefined';
+
+            // Resolve once Vite-bundled libs are ready. initTomSelect (public/js) may load later.
+            if (flatpickrReady && iziToastReady && tomSelectLibReady) {
+                console.log('✅ Vite vendor libraries loaded: flatpickr, iziToast, Tom Select');
                 if (tomSelectReady) {
-                    console.log('✅ Tom Select available from CDN');
-                } else {
-                    console.warn('⚠️ Tom Select not yet available (loading from CDN)');
+                    console.log('✅ initTomSelect helpers available');
                 }
                 if (dataTableReady) {
-                    console.log('✅ DataTables available from CDN');
+                    console.log('✅ DataTables available (CDN)');
                 } else {
-                    console.warn('⚠️ DataTables not yet available (loading from CDN)');
+                    console.warn('⚠️ DataTables not yet available (CDN)');
                 }
                 resolve();
             } else if (attempts >= maxAttempts) {
-                // Timeout - log what's missing
                 const missing = [];
                 if (!jQueryAvailable) missing.push('jQuery');
                 if (!flatpickrReady) missing.push('flatpickr');
                 if (!iziToastReady) missing.push('iziToast');
-                if (!tomSelectReady) missing.push('Tom Select (CDN)');
+                if (!tomSelectLibReady) missing.push('Tom Select (Vite)');
                 if (!dataTableReady) missing.push('DataTables (CDN)');
                 
                 console.warn('⚠️ Vendor libraries timeout. Missing:', missing.join(', '));

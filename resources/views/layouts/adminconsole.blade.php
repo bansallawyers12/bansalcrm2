@@ -15,18 +15,16 @@
 	<!-- jQuery 3.7.1 — single source (Phase 2a: sync in head; do not also load via Vite) -->
 	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	
-	<!-- Tom Select (enhanced dropdowns) -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
-	
+	<!-- Tom Select: bundled via Vite (vendor-libs.js, Phase 2b) -->
+
 	<!-- Load DataTables from CDN (after jQuery, before other scripts) -->
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css">
 	<script src="https://cdn.datatables.net/1.13.11/js/jquery.dataTables.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.11/js/dataTables.bootstrap5.min.js"></script>
 	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
- 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr -->
- 	<!-- Note: Tom Select and DataTables are loaded from CDN above to avoid ES module issues -->
+ 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, Tom Select -->
+ 	<!-- Note: DataTables is loaded from CDN in <head> -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
 	<!-- Template CSS -->
@@ -283,8 +281,7 @@
 	<!-- Load FullCalendar v6 -->
 	@vite(['resources/js/fullcalendar-init.js'])
 	
- 	<!-- Load vendor libraries (flatpickr, izitoast) -->
- 	<!-- Note: Tom Select and DataTables are loaded from CDN in <head> section above -->
+ 	<!-- Vendor libraries: flatpickr, iziToast, Tom Select (Vite). DataTables: CDN in head. -->
 	@vite(['resources/js/vendor-libs.js'])
 	
 	<!-- Then load main app with Bootstrap, etc -->

@@ -26,7 +26,7 @@
 		//var redirecturl = "<?php echo URL::to('/thanks'); ?>";
 	</script>
 	
-	<!-- Load vendor libraries (flatpickr, datatables, izitoast, tom-select) -->
+	<!-- Vendor libraries: flatpickr, iziToast, Tom Select (Vite) -->
 	@vite(['resources/js/vendor-libs.js'])
 	
 	<!-- Then load main app with Bootstrap, etc (async) -->
