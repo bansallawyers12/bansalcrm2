@@ -264,7 +264,7 @@ class ClientActionController extends Controller
                     }
                 }
             }
-            // Check if client_id is a raw integer (from Select2)
+            // Check if client_id is a raw integer (from enhanced select)
             elseif (is_numeric($requestData['client_id'])) {
                 $client_id = (int) $requestData['client_id'];
                 $req_clientID = $requestData['client_id'];

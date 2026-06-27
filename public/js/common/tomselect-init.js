@@ -1,25 +1,22 @@
 /**
- * Tom Select utilities (Select2 migration — Phase 0 foundation).
+ * Tom Select utilities — init helpers and legacy option mapping for migrated pages.
  *
  * Usage:
  *   initTomSelect('#my-select', { placeholder: 'Choose…', allowClear: true });
  *   destroyTomSelect('#my-select');
- *   isTomSelect('#my-select');  isSelect2('#my-select');
+ *   isTomSelect('#my-select');
  *   getEnhancementWrapper('#my-select');
  *   await waitForTomSelect();
  *
- * Migrated elements get classes `tomselect` + `tomselect-migrated` (global Select2 init skips both).
- * See docs/SELECT2-TOMSELECT-MIGRATION.md for Select2 → Tom Select option mapping.
+ * Migrated elements get classes `tomselect` + `tomselect-migrated`.
  */
 (function (window) {
     'use strict';
 
     /**
-     * Select2-only keys — never pass through to TomSelect constructor.
-     * NOTE: dropdownParent is intentionally NOT listed here — it is a valid
-     * Tom Select option with the same name and must be preserved after mapping.
+     * Legacy caller option keys — mapped to Tom Select, not passed through verbatim.
      */
-    var SELECT2_ONLY_KEYS = {
+    var LEGACY_OPTION_KEYS = {
         ajax: true,
         data: true,
         templateResult: true,
@@ -94,13 +91,13 @@
         return escape(data && data.text ? data.text : '');
     }
 
-    function stripSelect2Keys(config) {
-        Object.keys(SELECT2_ONLY_KEYS).forEach(function (key) {
+    function stripLegacyOptionKeys(config) {
+        Object.keys(LEGACY_OPTION_KEYS).forEach(function (key) {
             delete config[key];
         });
     }
 
-    function mapSelect2Options(options) {
+    function mapLegacyOptions(options) {
         if (!options || typeof options !== 'object') {
             return {};
         }
@@ -138,10 +135,10 @@
                     mapped._minimumInputLength = options.minimumInputLength;
                     break;
                 case 'ajax':
-                    mapped._select2Ajax = options.ajax;
+                    mapped._compatAjax = options.ajax;
                     break;
                 case 'data':
-                    mapped._select2Data = options.data;
+                    mapped._compatData = options.data;
                     break;
                 case 'templateResult':
                     mapped.render = mapped.render || {};
@@ -156,7 +153,7 @@
                     };
                     break;
                 case 'width':
-                    mapped._select2Width = options.width;
+                    mapped._compatWidth = options.width;
                     break;
                 case 'escapeMarkup':
                     if (typeof options.escapeMarkup === 'function' && !options.templateResult) {
@@ -192,7 +189,7 @@
                     }
                     break;
                 default:
-                    if (!SELECT2_ONLY_KEYS[key]) {
+                    if (!LEGACY_OPTION_KEYS[key]) {
                         mapped[key] = options[key];
                     }
             }
@@ -291,10 +288,6 @@
             return element.tomselect;
         }
 
-        if (isSelect2(element) && window.jQuery) {
-            window.jQuery(element).select2('destroy');
-        }
-
         options = options || {};
 
         if (options.multiple && !element.hasAttribute('multiple')) {
@@ -304,26 +297,26 @@
         ensurePlaceholderOption(element, options.placeholder);
         markMigration(element);
 
-        var config = mapSelect2Options(options);
+        var config = mapLegacyOptions(options);
         var minimumInputLength = config._minimumInputLength || 0;
 
-        if (config._select2Ajax) {
+        if (config._compatAjax) {
             config.valueField = config.valueField || 'id';
             config.labelField = config.labelField || 'text';
             config.searchField = config.searchField || ['text', 'name', 'email'];
-            config.load = buildAjaxLoader(config._select2Ajax, minimumInputLength);
-            config.loadThrottle = config.loadThrottle || config._select2Ajax.delay || 250;
+            config.load = buildAjaxLoader(config._compatAjax, minimumInputLength);
+            config.loadThrottle = config.loadThrottle || config._compatAjax.delay || 250;
         }
 
         if (options.multiple || element.hasAttribute('multiple')) {
             config.plugins = ensurePlugin(config.plugins, 'remove_button');
         }
 
-        if (config._select2Data) {
+        if (config._compatData) {
             config.valueField = config.valueField || 'value';
             config.labelField = config.labelField || 'text';
             config.searchField = config.searchField || ['text', 'name', 'email'];
-            config.options = config._select2Data.map(function (item) {
+            config.options = config._compatData.map(function (item) {
                 var id = item.id != null ? String(item.id) : (item.value != null ? String(item.value) : '');
                 var opt = {
                     value: id,
@@ -351,15 +344,15 @@
             config.controlInput = null;
         }
 
-        var width = config._select2Width;
+        var width = config._compatWidth;
 
         delete config._minimumInputLength;
-        delete config._select2Ajax;
-        delete config._select2Data;
-        delete config._select2Width;
+        delete config._compatAjax;
+        delete config._compatData;
+        delete config._compatWidth;
         delete config._disableSearch;
 
-        stripSelect2Keys(config);
+        stripLegacyOptionKeys(config);
 
         try {
             var instance = new TomSelect(element, config);
@@ -397,8 +390,7 @@
         }
         unmarkMigration(element);
         var next = element.nextElementSibling;
-        while (next && next.classList &&
-            (next.classList.contains('ts-wrapper') || next.classList.contains('select2-container'))) {
+        while (next && next.classList && next.classList.contains('ts-wrapper')) {
             var toRemove = next;
             next = next.nextElementSibling;
             toRemove.remove();
@@ -418,17 +410,6 @@
         return !!(element && element.tomselect);
     }
 
-    function isSelect2(el) {
-        var element = resolveElement(el);
-        if (!element) {
-            return false;
-        }
-        if (window.jQuery && window.jQuery(element).data('select2')) {
-            return true;
-        }
-        return element.classList.contains('select2-hidden-accessible');
-    }
-
     function getEnhancementWrapper(el) {
         var element = resolveElement(el);
         if (!element) {
@@ -437,14 +418,8 @@
         if (element.tomselect && element.tomselect.wrapper) {
             return element.tomselect.wrapper;
         }
-        if (window.jQuery) {
-            var $wrapper = window.jQuery(element).next('.select2-container');
-            if ($wrapper.length) {
-                return $wrapper[0];
-            }
-        }
         var sibling = element.nextElementSibling;
-        if (sibling && sibling.classList.contains('select2-container')) {
+        if (sibling && sibling.classList.contains('ts-wrapper')) {
             return sibling;
         }
         return null;
@@ -474,9 +449,6 @@
             destroyTomSelect(element);
             return;
         }
-        if (isSelect2(element) && window.jQuery) {
-            window.jQuery(element).select2('destroy');
-        }
     }
 
     function reinitTomSelect(el, options) {
@@ -488,7 +460,7 @@
         return initTomSelect(el, options);
     }
 
-    /** Options for compact dropdowns (no search box) — mirrors Select2 minimumResultsForSearch: Infinity */
+    /** Options for compact dropdowns (no search box). */
     function compactTomSelectOptions(extra) {
         return Object.assign({ width: '100%', minimumResultsForSearch: Infinity }, extra || {});
     }
@@ -689,7 +661,6 @@
     window.initTomSelectAll = initTomSelectAll;
     window.destroyTomSelect = destroyTomSelect;
     window.isTomSelect = isTomSelect;
-    window.isSelect2 = isSelect2;
     window.getEnhancementWrapper = getEnhancementWrapper;
     window.placeValidationError = placeValidationError;
     window.destroyEnhancedSelect = destroyEnhancedSelect;
@@ -727,7 +698,6 @@
         clearValue: clearEnhancedSelectValue,
         whenReady: whenTomSelectReady,
         isTomSelect: isTomSelect,
-        isSelect2: isSelect2,
         getEnhancementWrapper: getEnhancementWrapper,
         placeValidationError: placeValidationError,
         waitForTomSelect: waitForTomSelect

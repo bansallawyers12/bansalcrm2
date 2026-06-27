@@ -1,9 +1,8 @@
 /**
- * Tom Select bridge styles — mirrors Select2 layout rules during migration.
- * Targets .ts-wrapper / .ts-control / .ts-dropdown alongside existing .select2-* rules.
+ * Tom Select bridge styles — layout/z-index rules for migrated enhanced selects.
  */
 
-/* Form group width (mirrors custom.css .select2-container rules) */
+/* Form group width */
 .card .card-body .form-group .ts-wrapper,
 .modal .modal-body .form-group .ts-wrapper {
     display: block;
@@ -28,7 +27,7 @@
 
 /*
  * Dropdown width in form groups — full width (Tom Select matches control width).
- * Legacy Select2 used 200px globally in custom.css; migrated controls use 100%.
+ * Legacy Select2 used 200px globally in custom.css; Tom Select controls use 100%.
  */
 .card .card-body .form-group .ts-wrapper.single,
 .card .card-body .form-group .ts-wrapper.multi,
@@ -192,12 +191,12 @@
 
 /* Bootstrap popovers (action pages — assign/reassign) */
 /* Keep assign/reassign popovers wide after Tom Select replaces native selects (intrinsic width) */
-.popover:has(select.assigneeselect2) {
+.popover:has(select.assignee-tomselect) {
     min-width: min(480px, calc(100vw - 2rem));
     overflow: visible !important;
 }
 
-.popover:has(select.assigneeselect2) .popover-body {
+.popover:has(select.assignee-tomselect) .popover-body {
     min-width: min(460px, calc(100vw - 2.5rem));
 }
 
@@ -233,7 +232,7 @@
 }
 
 /* Recipient AJAX dropdown rows (HTML from RecipientSelect / formatRepo) */
-.ts-dropdown .select2-result-repository {
+.ts-dropdown .ts-result-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -242,13 +241,13 @@
     box-sizing: border-box;
 }
 
-.ts-dropdown .select2-result-repository .ag-flex { display: flex; }
-.ts-dropdown .select2-result-repository .ag-flex-column { flex-direction: column; }
-.ts-dropdown .select2-result-repository .ag-align-center { align-items: center; }
-.ts-dropdown .select2-result-repository .ag-align-start { align-items: flex-start; }
-.ts-dropdown .select2-result-repository .ag-align-end { align-items: flex-end; }
-.ts-dropdown .select2-result-repository .ag-space-between { justify-content: space-between; }
-.ts-dropdown .select2-result-repository .col-hr-1 { margin-right: 5px; }
-.ts-dropdown .select2-result-repository__title { font-weight: 600; }
-.ts-dropdown .select2-result-repository__description { font-size: 85%; }
-.ts-dropdown .select2-result-repository__statistics { font-size: 10px; }
+.ts-dropdown .ts-result-row .ag-flex { display: flex; }
+.ts-dropdown .ts-result-row .ag-flex-column { flex-direction: column; }
+.ts-dropdown .ts-result-row .ag-align-center { align-items: center; }
+.ts-dropdown .ts-result-row .ag-align-start { align-items: flex-start; }
+.ts-dropdown .ts-result-row .ag-align-end { align-items: flex-end; }
+.ts-dropdown .ts-result-row .ag-space-between { justify-content: space-between; }
+.ts-dropdown .ts-result-row .col-hr-1 { margin-right: 5px; }
+.ts-dropdown .ts-result-row__title { font-weight: 600; }
+.ts-dropdown .ts-result-row__description { font-size: 85%; }
+.ts-dropdown .ts-result-row__statistics { font-size: 10px; }

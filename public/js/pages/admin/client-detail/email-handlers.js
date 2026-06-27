@@ -360,12 +360,12 @@ jQuery(document).ready(function($){
         var safeCollegeEmail = $('<span>').text(cEmail).html();
         var collegeEntry = buildClientRecipientEntry(cEmail, cName, cEmail, 'College');
         if (collegeEntry) {
-            collegeEntry.html = "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+            collegeEntry.html = "<div class='ts-result-row ag-flex ag-space-between ag-align-center'>" +
                 "<div class='ag-flex ag-align-start'>" +
-                "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>" + safeCollegeName + "</span>&nbsp;</div>" +
-                "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + safeCollegeEmail + "</small></div></div></div>" +
+                "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='ts-result-row__title text-semi-bold'>" + safeCollegeName + "</span>&nbsp;</div>" +
+                "<div class='ag-flex ag-align-center'><small class='ts-result-row__description'>" + safeCollegeEmail + "</small></div></div></div>" +
                 "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                "<span class='badge bg-primary select2-result-repository__statistics'>College</span>" +
+                "<span class='badge bg-primary ts-result-row__statistics'>College</span>" +
                 "</div></div>";
             collegeEntry.text = cName;
             collegeEntry.name = cName;

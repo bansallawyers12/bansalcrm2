@@ -5,7 +5,7 @@
  *
  * Dependencies:
  *   - jQuery
- *   - Select2
+ *   - Tom Select (initTomSelect)
  *   - Summernote
  *   - config.js (App object)
  */

@@ -6,7 +6,7 @@
  * Dependencies:
  *   - jQuery
  *   - Flatpickr
- *   - Select2
+ *   - Tom Select (initTomSelect)
  *   - config.js (App object)
  */
 

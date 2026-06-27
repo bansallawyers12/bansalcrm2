@@ -111,13 +111,6 @@ const UIComponents = {
     init: function() {
         // Initialize date pickers
         this.initDatepicker();
-
-        // Legacy select.select2 markup → Tom Select
-        if (document.querySelectorAll('select.select2:not(.tomselect-migrated)').length > 0) {
-            this.initTomSelect('select.select2:not(.tomselect-migrated):not(.tomselect)', {
-                allowClear: true
-            });
-        }
     }
 };
 

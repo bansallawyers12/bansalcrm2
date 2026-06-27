@@ -333,7 +333,7 @@
     }
 
     /**
-     * Quick view row: Select2's select2:selecting often lacks a reliable originalEvent
+     * Quick view row: Tom Select selecting often lacks a reliable originalEvent
      * (migrationmanager2 opens the modal from select; we intercept the row via delegation).
      */
     function isTruthyLocked(v) {
@@ -383,7 +383,7 @@
             openAccessModalFromSearchRow(this);
             return false;
         });
-        // Main row (title / ID / contact): Select2 would otherwise navigate; open Request access like Quick view.
+        // Main row (title / ID / contact): default selection would navigate; open Request access like Quick view.
         $(document).on('mousedown', '.modern-search-result--access-gate', function(e) {
             if ($(e.target).closest('.modern-search-result-quickview').length) {
                 return;
@@ -450,7 +450,7 @@
         }
 
         if (repo.children) {
-            return '<strong class="select2-category-header">' + escapeHtml(repo.text) + '</strong>';
+            return '<strong class="ts-category-header">' + escapeHtml(repo.text) + '</strong>';
         }
 
         var idStr = repo.id ? String(repo.id) : '';
@@ -527,7 +527,7 @@
         nameHtml = escapeHtml(nameHtml);
 
         return (
-            '<div class="select2-result-repository modern-search-result' +
+            '<div class="ts-result-row modern-search-result' +
             (repo.locked ? ' modern-search-result--locked' : '') +
             accessGateClass + '"' + gateDataAttrs + '>' +
             '<div class="modern-search-result-content">' +
@@ -677,7 +677,7 @@
                     return '<div>' + escape(label) + '</div>';
                 },
                 optgroup_header: function (data, escape) {
-                    return '<strong class="select2-category-header">' + escape(data.label) + '</strong>';
+                    return '<strong class="ts-category-header">' + escape(data.label) + '</strong>';
                 }
             },
             onChange: function (value) {
@@ -780,7 +780,7 @@
 
         // If it's a category header
         if (repo.children) {
-            return $('<strong class="select2-category-header">' + repo.text + '</strong>');
+            return $('<strong class="ts-category-header">' + repo.text + '</strong>');
         }
 
         const idStr = repo.id ? String(repo.id) : '';
@@ -850,7 +850,7 @@
             : '';
 
         const $container = $(`
-            <div class="select2-result-repository modern-search-result${repo.locked ? ' modern-search-result--locked' : ''}${accessGateClass}"${gateDataAttrs}>
+            <div class="ts-result-row modern-search-result${repo.locked ? ' modern-search-result--locked' : ''}${accessGateClass}"${gateDataAttrs}>
                 <div class="modern-search-result-content">
                     <div class="modern-search-result-main">
                         <div class="modern-search-result-title">${lockPrefix}${clientId}${repo.name || repo.text}</div>

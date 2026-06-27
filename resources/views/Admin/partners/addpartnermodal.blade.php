@@ -1601,7 +1601,7 @@
                         <div class="col-3 col-md-3 col-lg-3">
 							<div class="form-group">
 								<label for="task_group">Group<span class="span_req">*</span></label>
-					            <select class="assigneeselect2 tomselect form-control selec_reg" id="task_group" name="task_group" data-valid="required">
+					            <select class="assignee-tomselect tomselect form-control selec_reg" id="task_group" name="task_group" data-valid="required">
                                     <option value="">Select</option>
                                     <option value="Call">Call</option>
                                     <option value="Checklist">Checklist</option>

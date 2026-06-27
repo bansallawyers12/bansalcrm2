@@ -119,7 +119,7 @@ function getFieldValue($field) {
 		}
 	}
 	
-	// Tom Select / Select2 enhanced fields
+	// Tom Select enhanced fields
 	if ($field[0] && ($field[0].tomselect || $field.hasClass('tomselect-migrated') || $field.hasClass('tomselect')) &&
 		typeof getEnhancedSelectValue === 'function') {
 		var enhancedVal = getEnhancedSelectValue($field[0]);

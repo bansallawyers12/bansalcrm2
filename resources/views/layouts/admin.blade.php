@@ -57,8 +57,8 @@
   background-color: transparent;
  border:0;
 }
-.select2-result-repository__statistics,
-.select2resultrepositorystatistics .badge {
+.ts-result-row__statistics,
+.ts-result-row__stats-wrap .badge {
   font-size: 0.75rem;
 }
 .dropbtn:hover, .dropbtn:focus {
@@ -138,7 +138,6 @@
 }
 
 .search-element .form-control,
-.search-element .select2-container .select2-selection__rendered,
 .search-element .ts-control,
 .search-element .ts-wrapper .ts-control input {
     color: #1a202c !important;
@@ -205,12 +204,12 @@
     color: #2d3748 !important;
 }
 
-/* Select2 Dropdown Text */
-.select2-container .select2-selection__rendered {
+/* Tom Select dropdown text */
+.search-element .ts-wrapper .ts-control {
     color: #1a202c !important;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__placeholder {
+.search-element .ts-wrapper .ts-control .placeholder {
     color: #4a5568 !important;
 }
 
@@ -387,7 +386,7 @@ i[style*="color:rgba"] {
 								<?php
 								$assignee = \App\Models\Staff::all();
 								?>
-								<select class="form-control assineeselect2 tomselect" name="assignee">
+								<select class="form-control checkin-assignee-tomselect tomselect" name="assignee">
 								@foreach($assignee as $assigne)
 									<option value="{{$assigne->id}}">{{$assigne->first_name}} ({{$assigne->email}})</option>
 								@endforeach

@@ -100,7 +100,7 @@
         flex-direction: column;
     }
     .ongoing-filter-panel .ongoing-filter-field .form-control,
-    .ongoing-filter-panel .ongoing-filter-field .select2-container {
+    .ongoing-filter-panel .ongoing-filter-field .ts-wrapper {
         width: 100% !important;
         min-width: 0;
         flex: 1 1 auto;
@@ -109,28 +109,12 @@
         min-height: 34px;
         height: 34px;
     }
-    .ongoing-filter-panel .ongoing-filter-field .select2-container .select2-selection {
+    .ongoing-filter-panel .ongoing-filter-field .ts-wrapper .ts-control {
         border-radius: 5px;
         border: 1px solid #d1d5db;
         min-height: 34px;
-        height: 34px;
-        padding: 0 0.5rem;
-    }
-    .ongoing-filter-panel .ongoing-filter-field .select2-container .select2-selection__rendered {
         font-size: 0.8125rem;
-        line-height: 32px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding-right: 1.25rem;
         color: #374151;
-    }
-    .ongoing-filter-panel .ongoing-filter-field .select2-container--default .select2-selection--single .select2-selection__rendered:not(.select2-selection__placeholder) {
-        color: #374151;
-    }
-    .ongoing-filter-panel .ts-wrapper .ts-control {
-        min-height: 34px;
-        font-size: 0.8125rem;
     }
     .ongoing-filter-panel .ts-dropdown {
         z-index: 1056;
@@ -140,7 +124,7 @@
         min-width: 280px;
         max-width: min(calc(100vw - 1.5rem), 360px);
     }
-    .select2-dropdown.ongoing-filter-stage-select2-dropdown .select2-results__option {
+    .ts-dropdown.ongoing-filter-stage-dropdown .option {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -803,7 +787,7 @@ $(document).ready(function() {
         clickOpens: true
     });
     
-    // Tom Select for filter panel (excluded from global scripts.js Select2 init)
+    // Tom Select for filter panel (excluded from global scripts.js auto-init)
     var ongoingStageTomSelectBound = false;
 
     function resolveOngoingStageOptionValue(stageEl, stageVal) {

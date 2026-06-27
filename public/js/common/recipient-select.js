@@ -1,7 +1,7 @@
 /**
  * Recipient Select — shared Tom Select AJAX recipient picker (email modals, notes CC, etc.).
  *
- * Phase 3: Tom Select backend via tomselect-init.js (Select2 API surface retained for callers).
+ * Phase 3: Tom Select backend via tomselect-init.js (legacy option mapping retained for callers).
  *
  * Usage:
  *   RecipientSelect.init('#emailmodal .js-data-example-ajax', { url: '/clients/get-recipients', dropdownParent: '#emailmodal' });
@@ -60,8 +60,8 @@
 
     function statusBadgeClass(status) {
         return status === 'Archived'
-            ? 'badge bg-secondary select2-result-repository__statistics'
-            : 'badge bg-warning text-dark select2-result-repository__statistics';
+            ? 'badge bg-secondary ts-result-row__statistics'
+            : 'badge bg-warning text-dark ts-result-row__statistics';
     }
 
     function buildRecipientHtml(name, email, status) {
@@ -69,11 +69,11 @@
         email = email || '';
         status = status || '';
         return (
-            "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+            "<div class='ts-result-row ag-flex ag-space-between ag-align-center'>" +
             "<div class='ag-flex ag-align-start'>" +
             "<div class='ag-flex ag-flex-column col-hr-1'>" +
-            "<div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>" + name + "</span>&nbsp;</div>" +
-            "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + email + "</small></div>" +
+            "<div class='ag-flex'><span class='ts-result-row__title text-semi-bold'>" + name + "</span>&nbsp;</div>" +
+            "<div class='ag-flex ag-align-center'><small class='ts-result-row__description'>" + email + "</small></div>" +
             "</div></div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
             "<span class='" + statusBadgeClass(status) + "'>" + status + "</span>" +
@@ -111,20 +111,20 @@
         }
 
         var $container = $(
-            "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+            "<div class='ts-result-row ag-flex ag-space-between ag-align-center'>" +
             "<div class='ag-flex ag-align-start'>" +
             "<div class='ag-flex ag-flex-column col-hr-1'>" +
-            "<div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-            "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small></div>" +
+            "<div class='ag-flex'><span class='ts-result-row__title text-semi-bold'></span>&nbsp;</div>" +
+            "<div class='ag-flex ag-align-center'><small class='ts-result-row__description'></small></div>" +
             "</div></div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
             "<span class='" + statusBadgeClass(repo.status) + "'></span>" +
             "</div></div>"
         );
 
-        $container.find('.select2-result-repository__title').text(repo.name || repo.text || '');
-        $container.find('.select2-result-repository__description').text(repo.email || '');
-        $container.find('.select2-result-repository__statistics').text(repo.status || '');
+        $container.find('.ts-result-row__title').text(repo.name || repo.text || '');
+        $container.find('.ts-result-row__description').text(repo.email || '');
+        $container.find('.ts-result-row__statistics').text(repo.status || '');
 
         return $container;
     }
@@ -134,16 +134,7 @@
     }
 
     function isEnhanced(element) {
-        if (!element) {
-            return false;
-        }
-        if (typeof window.isTomSelect === 'function' && window.isTomSelect(element)) {
-            return true;
-        }
-        if (typeof window.isSelect2 === 'function' && window.isSelect2(element)) {
-            return true;
-        }
-        return false;
+        return !!(element && typeof window.isTomSelect === 'function' && window.isTomSelect(element));
     }
 
     function destroyRecipientSelect(el) {
@@ -157,10 +148,6 @@
         }
         if (typeof window.destroyTomSelect === 'function') {
             window.destroyTomSelect(element);
-        }
-        var $ = get$();
-        if ($ && element && $(element).data('select2')) {
-            $(element).select2('destroy');
         }
     }
 

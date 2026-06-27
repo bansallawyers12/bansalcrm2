@@ -7,7 +7,6 @@
 #openassigneview .modal-body ul.navbar-nav li .dropdown-menu{transform: none!important; top:40px!important;}
 .sort_col a { color: #212529 !important; font-weight: 700 !important;}
 .group_type_section a.active {color:black;}
-.select2-container{z-index:100000;width:315px !important;}
 .countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
 .popover .popover-body { overflow: visible !important; }
 .popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
@@ -139,7 +138,7 @@
                                                                 <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                                     <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
                                                                     <div class=&quot;col-sm-9&quot;>
-                                                                        <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
+                                                                        <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
                                                                             <option value=&quot;&quot; >Select</option>
                                                                             {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
                                                                             @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
@@ -175,7 +174,7 @@
                                                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                                 <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
                                                                 <div class=&quot;col-sm-9&quot;>
-                                                                    <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
+                                                                    <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
                                                                         <option value=&quot;&quot;>Select</option>
                                                                         <option value=&quot;Call&quot;>Call</option>
                                                                         <option value=&quot;Checklist&quot;>Checklist</option>
@@ -210,7 +209,7 @@
                                                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                                 <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
                                                                 <div class=&quot;col-sm-9&quot;>
-                                                                    <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
+                                                                    <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
                                                                         <option value=&quot;&quot; >Select</option>
                                                                         @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                         <?php
@@ -245,7 +244,7 @@
                                                         <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                             <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
                                                             <div class=&quot;col-sm-9&quot;>
-                                                                <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
+                                                                <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
                                                                     <option value=&quot;&quot;>Select</option>
                                                                     <option value=&quot;Call&quot;>Call</option>
                                                                     <option value=&quot;Checklist&quot;>Checklist</option>

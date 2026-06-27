@@ -64,7 +64,7 @@
         var dropdownParent = resolveDropdownParent(root, null);
         var instances = [];
 
-        root.querySelectorAll('select.assigneeselect2, select.task_group, select.assineeselect2').forEach(function (element) {
+        root.querySelectorAll('select.assignee-tomselect, select.task_group, select.checkin-assignee-tomselect').forEach(function (element) {
             if (element.tomselect) {
                 return;
             }
@@ -147,7 +147,7 @@
 
     /** Lock width before Tom Select init so popover does not collapse when native selects lose intrinsic sizing. */
     function lockActionPopoverWidth(popover) {
-        if (!popover || !popover.querySelector('select.assigneeselect2')) {
+        if (!popover || !popover.querySelector('select.assignee-tomselect')) {
             return;
         }
         var viewportMax = window.innerWidth ? Math.max(280, window.innerWidth - 32) : ACTION_POPOVER_MIN_WIDTH;

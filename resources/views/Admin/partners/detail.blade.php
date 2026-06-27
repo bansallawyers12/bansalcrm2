@@ -1743,12 +1743,9 @@ use App\Http\Controllers\Controller;
         z-index: 1060;
     }
     
-    /* Fix Select2 dropdown z-index in modals */
-    .select2-container--open {
-        z-index: 9999 !important;
-    }
-    
-    .select2-dropdown {
+    /* Fix Tom Select dropdown z-index in modals */
+    .ts-wrapper.focus,
+    .ts-dropdown {
         z-index: 9999 !important;
     }
     

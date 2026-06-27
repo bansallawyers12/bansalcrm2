@@ -7,7 +7,6 @@
 #openassigneview .modal-body ul.navbar-nav li .dropdown-menu{transform: none!important; top:40px!important;}
 .sort_col a { color: #212529 !important; font-weight: 700 !important;}
 .group_type_section a.active {color:black;}
-.select2-container{z-index:100000;width:315px !important;}
 .countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
 .popover .popover-body { overflow: visible !important; }
 .popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
@@ -213,7 +212,7 @@
                                                                 <div class="form-group row" style="margin-bottom:12px">
                                                                     <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
                                                                     <div class="col-sm-9">
-                                                                        <select class="assigneeselect2 tomselect form-control selec_reg rem_cat" name="rem_cat">
+                                                                        <select class="assignee-tomselect tomselect form-control selec_reg rem_cat" name="rem_cat">
                                                                             <option value="">Select</option>
                                                                             @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
@@ -242,7 +241,7 @@
                                                             <div class="form-group row" style="margin-bottom:12px">
                                                                 <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
                                                                 <div class="col-sm-9">
-                                                                    <select class="assigneeselect2 tomselect form-control task_group" name="task_group">
+                                                                    <select class="assignee-tomselect tomselect form-control task_group" name="task_group">
                                                                         <option value="">Select</option>
                                                                         <option value="Call" {{ $list->task_group == 'Call' ? 'selected' : '' }}>Call</option>
                                                                         <option value="Checklist" {{ $list->task_group == 'Checklist' ? 'selected' : '' }}>Checklist</option>
@@ -278,7 +277,7 @@
                                                                 <div class="form-group row" style="margin-bottom:12px">
                                                                     <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
                                                                     <div class="col-sm-9">
-                                                                        <select class="assigneeselect2 tomselect form-control selec_reg rem_cat" name="rem_cat">
+                                                                        <select class="assignee-tomselect tomselect form-control selec_reg rem_cat" name="rem_cat">
                                                                             <option value="">Select</option>
                                                                             @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
@@ -307,7 +306,7 @@
                                                             <div class="form-group row" style="margin-bottom:12px">
                                                                 <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
                                                                 <div class="col-sm-9">
-                                                                    <select class="assigneeselect2 tomselect form-control task_group" name="task_group">
+                                                                    <select class="assignee-tomselect tomselect form-control task_group" name="task_group">
                                                                         <option value="">Select</option>
                                                                         <option value="Call">Call</option>
                                                                         <option value="Checklist">Checklist</option>

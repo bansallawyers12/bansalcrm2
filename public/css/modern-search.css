@@ -1,6 +1,6 @@
 /**
  * Modern Search Styles
- * Clean, modern design for search results
+ * Clean, modern design for search results (Tom Select)
  */
 
 /* Search highlighting */
@@ -14,7 +14,7 @@ mark.search-highlight {
 }
 
 /* Category headers */
-.select2-category-header {
+.ts-category-header {
     display: block;
     font-size: 11px;
     font-weight: 700;
@@ -51,7 +51,7 @@ mark.search-highlight {
 
 .modern-search-result-main {
     flex: 1;
-    min-width: 0; /* For text truncation */
+    min-width: 0;
 }
 
 .modern-search-result-title {
@@ -66,7 +66,6 @@ mark.search-highlight {
     line-height: 1.4;
 }
 
-/* Locked rows: keep full opacity so dashboard text does not show through */
 .modern-search-result--locked {
     opacity: 1 !important;
     border-left-color: #fd7e14 !important;
@@ -129,40 +128,7 @@ mark.search-highlight {
     white-space: nowrap;
 }
 
-/* Select2 container improvements */
-.select2-container--default .select2-results > .select2-results__options {
-    max-height: 400px;
-}
-
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #e7f3ff !important;
-    color: #212529 !important;
-}
-
-.select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: #f8f9fa !important;
-}
-
-.select2-dropdown.modern-search-dropdown .select2-results__option[role="option"] {
-    cursor: pointer;
-}
-
-/* Search input styling */
-.select2-search--dropdown .select2-search__field {
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-}
-
-.select2-search--dropdown .select2-search__field:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-/* Dropdown panel — header global search only (.modern-search-dropdown from modern-search.js) */
-.select2-dropdown.modern-search-dropdown,
+/* Dropdown panel — header global search only */
 .ts-dropdown.modern-search-dropdown {
     border: 1px solid #ced4da !important;
     border-radius: 6px !important;
@@ -224,7 +190,7 @@ mark.search-highlight {
     opacity: 1 !important;
 }
 
-.ts-dropdown.modern-search-dropdown .optgroup-header .select2-category-header {
+.ts-dropdown.modern-search-dropdown .optgroup-header .ts-category-header {
     display: block;
 }
 
@@ -237,26 +203,10 @@ mark.search-highlight {
     cursor: default;
 }
 
-/* Override tomselect-bridge flex on repository rows — inner content handles layout */
-.ts-dropdown.modern-search-dropdown .select2-result-repository.modern-search-result {
+.ts-dropdown.modern-search-dropdown .ts-result-row.modern-search-result {
     display: block;
     width: 100%;
     box-sizing: border-box;
-}
-
-/* Loading state */
-.select2-results__option.loading-results {
-    text-align: center;
-    padding: 20px;
-    color: #6c757d;
-}
-
-/* Empty state */
-.select2-results__option.select2-results__message {
-    padding: 20px;
-    text-align: center;
-    color: #6c757d;
-    font-size: 13px;
 }
 
 /* Search element in header */
@@ -267,13 +217,6 @@ mark.search-highlight {
     flex-wrap: nowrap;
 }
 
-.search-element .select2-container {
-    min-width: 450px;
-    width: 450px !important;
-    flex: 0 0 auto;
-}
-
-/* Tom Select header search — mirrors select2 layout above */
 .search-element .ts-wrapper {
     display: inline-flex;
     vertical-align: middle;
@@ -300,7 +243,6 @@ mark.search-highlight {
     color: #1a202c !important;
 }
 
-/* Prevent navbar clipping the search dropdown */
 .navbar.main-navbar .form-inline,
 .navbar.main-navbar .form-inline .navbar-nav,
 .navbar.main-navbar .form-inline .navbar-nav > li,
@@ -314,21 +256,14 @@ mark.search-highlight {
     z-index: 10101;
 }
 
-/* Keyboard shortcut hint */
-.search-element .select2-selection__placeholder::after {
+.search-element .ts-wrapper .ts-control .placeholder::after {
     content: ' (Ctrl+K)';
     font-size: 11px;
     color: #adb5bd;
     font-weight: 400;
 }
 
-/* Mobile responsive */
 @media (max-width: 768px) {
-    .search-element .select2-container {
-        min-width: 250px;
-        width: 250px !important;
-    }
-
     .search-element .ts-wrapper {
         min-width: 250px;
         width: 250px !important;
@@ -338,29 +273,23 @@ mark.search-highlight {
     .modern-search-result {
         min-width: 0;
     }
-    
+
     .modern-search-result-content {
         flex-direction: column;
         align-items: flex-start;
         gap: 6px;
     }
-    
+
     .modern-search-result-title {
         font-size: 13px;
     }
-    
+
     .modern-search-result-subtitle {
         font-size: 11px;
     }
 }
 
-/* Tablet responsive */
 @media (min-width: 769px) and (max-width: 1024px) {
-    .search-element .select2-container {
-        min-width: 350px;
-        width: 350px !important;
-    }
-
     .search-element .ts-wrapper {
         min-width: 350px;
         width: 350px !important;
@@ -368,23 +297,21 @@ mark.search-highlight {
     }
 }
 
-/* Dark mode support (optional) */
 @media (prefers-color-scheme: dark) {
     .modern-search-result-title {
         color: #f8f9fa;
     }
-    
+
     .modern-search-result-subtitle {
         color: #adb5bd;
     }
-    
-    .select2-category-header {
+
+    .ts-category-header {
         color: #adb5bd;
         border-bottom-color: #495057;
     }
 }
 
-/* Animation for results appearing */
 @keyframes fadeInResult {
     from {
         opacity: 0;
@@ -395,23 +322,3 @@ mark.search-highlight {
         transform: translateY(0);
     }
 }
-
-.select2-results__option {
-    animation: fadeInResult 0.2s ease;
-}
-
-/* No results message */
-.select2-results__option--no-results {
-    padding: 20px;
-    text-align: center;
-    color: #6c757d;
-}
-
-.select2-results__option--no-results::before {
-    content: '🔍';
-    display: block;
-    font-size: 32px;
-    margin-bottom: 8px;
-    opacity: 0.5;
-}
-

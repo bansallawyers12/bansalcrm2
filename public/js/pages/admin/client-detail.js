@@ -146,7 +146,7 @@ jQuery(document).ready(function($){
 
     // All document rename handlers moved to document-rename.js module
     
-    // Select2 initialization for application forms moved to application-handlers.js module
+    // Tom Select initialization for application forms moved to application-handlers.js module
     
     // Checklist file selection handler moved to datatable-handlers.js module
     

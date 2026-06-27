@@ -102,7 +102,7 @@ const waitForPlugins = () => {
                 });
             }
             
-            // Note: select2 and DataTables are loaded from CDN/public, so we don't require them to be ready from Vite
+            // Note: DataTables are loaded from CDN/public, so we don't require them to be ready from Vite
             // We only check Vite-loaded libraries (flatpickr, iziToast)
             if (flatpickrReady && iziToastReady) {
                 console.log('✅ All Vite vendor libraries loaded: flatpickr, iziToast');

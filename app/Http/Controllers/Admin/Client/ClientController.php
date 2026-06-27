@@ -1012,7 +1012,7 @@ class ClientController extends Controller
 					$fullName = trim(($clint->first_name ?? '') . ' ' . ($clint->last_name ?? ''));
 					$items[] = array(
 						'id' => $clint->id,
-						'text' => $fullName, // Required by Select2
+						'text' => $fullName, // Required by Tom Select / AJAX recipient format
 						'name' => $fullName,
 						'email' => $clint->email ?? '',
 						'status' => $clint->type ?? 'Client',

@@ -400,32 +400,32 @@ console.log(timestring);
         }
 
         var $container = $(
-            "<div dataid="+repo.cid+" class='selectclient select2-result-repository ag-flex ag-space-between ag-align-center')'>" +
+            "<div dataid="+repo.cid+" class='selectclient ts-result-row ag-flex ag-space-between ag-align-center')'>" +
 
             "<div  class='ag-flex ag-align-start'>" +
-                "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-                "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
+                "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='ts-result-row__title text-semi-bold'></span>&nbsp;</div>" +
+                "<div class='ag-flex ag-align-center'><small class='ts-result-row__description'></small ></div>" +
 
             "</div>" +
             "</div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
 
-                "<span class='select2resultrepositorystatistics'>" +
+                "<span class='ts-result-row__stats-wrap'>" +
 
                 "</span>" +
             "</div>" +
             "</div>"
         );
 
-        $container.find(".select2-result-repository__title").text(repo.name);
-        $container.find(".select2-result-repository__description").text(repo.email);
+        $container.find(".ts-result-row__title").text(repo.name);
+        $container.find(".ts-result-row__description").text(repo.email);
         if(repo.status == 'Archived'){
-            $container.find(".select2resultrepositorystatistics").append(
-                $('<span class="badge bg-secondary select2-result-repository__statistics"></span>').text(repo.status)
+            $container.find(".ts-result-row__stats-wrap").append(
+                $('<span class="badge bg-secondary ts-result-row__statistics"></span>').text(repo.status)
             );
         }else{
-            $container.find(".select2resultrepositorystatistics").append(
-                $('<span class="badge bg-warning text-dark select2-result-repository__statistics"></span>').text(repo.status)
+            $container.find(".ts-result-row__stats-wrap").append(
+                $('<span class="badge bg-warning text-dark ts-result-row__statistics"></span>').text(repo.status)
             );
         }
         return $container;

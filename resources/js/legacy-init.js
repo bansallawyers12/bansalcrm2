@@ -39,9 +39,9 @@
 
     function appendCheckinStatusBadge($container, status) {
         var badgeClass = status === 'Archived'
-            ? 'badge bg-secondary select2-result-repository__statistics'
-            : 'badge bg-warning text-dark select2-result-repository__statistics';
-        $container.find('.select2resultrepositorystatistics')
+            ? 'badge bg-secondary ts-result-row__statistics'
+            : 'badge bg-warning text-dark ts-result-row__statistics';
+        $container.find('.ts-result-row__stats-wrap')
             .append($('<span></span>').addClass(badgeClass).text(status || ''));
     }
 
