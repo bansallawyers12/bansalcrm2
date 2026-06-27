@@ -59,8 +59,9 @@ mark.search-highlight {
     font-weight: 600;
     color: #212529;
     margin-bottom: 2px;
-    overflow: visible;
+    overflow-wrap: anywhere;
     word-wrap: break-word;
+    word-break: break-word;
     white-space: normal;
     line-height: 1.4;
 }
@@ -81,10 +82,13 @@ mark.search-highlight {
     font-weight: 600;
     color: #5b21b6;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
     cursor: pointer;
     user-select: none;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 .modern-search-result-quickview:hover {
     text-decoration: underline;
@@ -100,8 +104,9 @@ mark.search-highlight {
 .modern-search-result-subtitle {
     font-size: 12px;
     color: #6c757d;
-    overflow: visible;
+    overflow-wrap: anywhere;
     word-wrap: break-word;
+    word-break: break-word;
     white-space: normal;
     line-height: 1.4;
 }
@@ -163,7 +168,7 @@ mark.search-highlight {
     border-radius: 6px !important;
     border-top: 1px solid #ced4da !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    min-width: 550px;
+    min-width: 0;
     background: #fff !important;
     background-color: #fff !important;
     background-image: none !important;
@@ -197,6 +202,9 @@ mark.search-highlight {
     opacity: 1 !important;
     animation: fadeInResult 0.2s ease;
     cursor: pointer;
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .ts-dropdown.modern-search-dropdown .option.active,
@@ -325,12 +333,6 @@ mark.search-highlight {
         min-width: 250px;
         width: 250px !important;
         max-width: 250px;
-    }
-
-    .ts-dropdown.modern-search-dropdown {
-        min-width: calc(100vw - 24px) !important;
-        width: calc(100vw - 24px) !important;
-        max-width: calc(100vw - 24px) !important;
     }
 
     .modern-search-result {

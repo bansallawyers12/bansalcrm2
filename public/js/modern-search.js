@@ -421,8 +421,7 @@
 
         var rect = ts.control.getBoundingClientRect();
         var dropdown = ts.dropdown;
-        var maxWidth = Math.min(600, window.innerWidth - 24);
-        var width = Math.min(Math.max(Math.round(rect.width), 550), maxWidth);
+        var width = Math.max(Math.round(rect.width), 1);
         var left = Math.round(rect.left);
         if (left + width > window.innerWidth - 12) {
             left = Math.max(12, window.innerWidth - width - 12);
@@ -433,7 +432,7 @@
         dropdown.style.left = left + 'px';
         dropdown.style.width = width + 'px';
         dropdown.style.minWidth = width + 'px';
-        dropdown.style.maxWidth = maxWidth + 'px';
+        dropdown.style.maxWidth = width + 'px';
         dropdown.style.zIndex = '10100';
         dropdown.style.visibility = 'visible';
         dropdown.style.display = 'block';
