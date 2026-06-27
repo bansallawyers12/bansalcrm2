@@ -852,7 +852,7 @@ $(document).on('click', '.updateclientreceipt', function() {
                             </td>
                             <td style="text-align:center;">
                                 <a class="removeitems text-danger" href="javascript:;" title="Remove row">
-                                    <i class="fa fa-times"></i>
+                                    <i class="fas fa-times"></i>
                                 </a>
                             </td>
                         </tr>
@@ -952,7 +952,7 @@ $(document).on('change', '.docclientreceiptupload', function() {
         $('.selected-file-info').slideDown();
         
         // Change button text to indicate file is attached
-        $('.upload-receipt-doc-btn').html('<i class="fa fa-check"></i> Document Attached');
+        $('.upload-receipt-doc-btn').html('<i class="fas fa-check"></i> Document Attached');
         $('.upload-receipt-doc-btn').removeClass('btn-outline-primary').addClass('btn-success');
     }
 });
@@ -966,7 +966,7 @@ $(document).on('click', '.remove-selected-file', function() {
     $('.selected-file-info').slideUp();
     
     // Reset button
-    $('.upload-receipt-doc-btn').html('<i class="fa fa-plus"></i> Add Document');
+    $('.upload-receipt-doc-btn').html('<i class="fas fa-plus"></i> Add Document');
     $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
 });
 

@@ -16,11 +16,11 @@
 
 				<div class="activity-actions">
 					@if($activit->pin == 1)
-						<div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
+						<div class="pined_note">@icon('thumbtack', 'solid', ['attrs' => ['style' => 'font-size: 12px;color: #6777ef;']])</div>
 					@endif
 
 					<div class="dropdown d-inline dropdown_ellipsis_icon">
-						<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+						<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
 						<div class="dropdown-menu">
 							@if(Auth::user()->role == 1)
 								<a data-id="{{ $activit->id }}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;">Delete</a>

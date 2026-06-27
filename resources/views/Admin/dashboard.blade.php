@@ -661,7 +661,7 @@
 					</div>
 					<div>
 						<span class="badge badge-primary" style="background: linear-gradient(135deg, #6777ef 0%, #5568d3 100%); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;">
-							<i class="fa fa-calendar"></i> {{ date('l, F j, Y') }}
+							<i class="fas fa-calendar"></i> {{ date('l, F j, Y') }}
 						</span>
 					</div>
 				</div>
@@ -678,7 +678,7 @@
 								<div class="col-lg-12 col-md-12">
 									<div class="card-content">
 										<h5 class="font-14">
-											<i class="fa fa-user-clock"></i> Login Statistics
+											<i class="fas fa-user-clock"></i> Login Statistics
 										</h5>
 										<div class="login-stats mt-2">
 											<div class="stat-item mb-2">
@@ -714,7 +714,7 @@
                         <div class="card-content cus_card_content">
                             <div class="card_header">
                                 <h5 class="font-14">
-                                    <i class="fa fa-tasks"></i> My Actions
+                                    <i class="fas fa-tasks"></i> My Actions
                                 </h5>
                             </div>
                             <div class="card_body">
@@ -749,7 +749,7 @@
                                                     </td>
                                                     <td style="font-size: 0.8125rem;">
                                                         <small class="text-muted" style="font-size: 0.75rem;">
-                                                            <i class="fa fa-user"></i> {{$clientName}}
+                                                            <i class="fas fa-user"></i> {{$clientName}}
                                                         </small>
                                                         @if($messagePreview)
                                                         <br>
@@ -764,7 +764,7 @@
                                                                 data-client-id="{{$alist->client_id ?? ''}}"
                                                                 data-client-name="{{$clientName}}"
                                                                 style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
-                                                            <i class="fa fa-check"></i> Complete
+                                                            <i class="fas fa-check"></i> Complete
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -791,7 +791,7 @@
                         <div class="card-content cus_card_content">
                             <div class="card_header">
                                 <h5 class="font-14">
-                                    <i class="fa fa-users"></i> Check-In Queue
+                                    <i class="fas fa-users"></i> Check-In Queue
                                 </h5>
                             </div>
                             <div class="card_body">
@@ -945,19 +945,19 @@
                                             <td>
                                                 @if($clientActivity->activity_type == 'email')
                                                     <span class="badge" style="background: #6777ef; color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
-                                                        <i class="fa fa-envelope"></i> Email
+                                                        <i class="fas fa-envelope"></i> Email
                                                     </span>
                                                 @elseif($clientActivity->activity_type == 'file')
                                                     <span class="badge" style="background: #10b981; color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
-                                                        <i class="fa fa-file"></i> File
+                                                        <i class="fas fa-file"></i> File
                                                     </span>
                                                 @elseif($clientActivity->activity_type == 'note')
                                                     <span class="badge" style="background: #f59e0b; color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
-                                                        <i class="fa fa-sticky-note"></i> Note
+                                                        <i class="fas fa-sticky-note"></i> Note
                                                     </span>
                                                 @else
                                                     <span class="badge" style="background: #6b7280; color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
-                                                        <i class="fa fa-circle"></i> Activity
+                                                        <i class="fas fa-circle"></i> Activity
                                                     </span>
                                                 @endif
                                             </td>
@@ -1000,13 +1000,13 @@
                                         <div class="d-flex align-items-start">
                                             <div class="activity-icon me-3" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(103, 119, 239, 0.1); flex-shrink: 0;">
                                                 @if($activity->activity_type == 'email')
-                                                    <i class="fa fa-envelope" style="color: #6777ef; font-size: 14px;"></i>
+                                                    <i class="fas fa-envelope" style="color: #6777ef; font-size: 14px;"></i>
                                                 @elseif($activity->activity_type == 'file')
-                                                    <i class="fa fa-file" style="color: #6777ef; font-size: 14px;"></i>
+                                                    <i class="fas fa-file" style="color: #6777ef; font-size: 14px;"></i>
                                                 @elseif($activity->activity_type == 'note')
-                                                    <i class="fa fa-sticky-note" style="color: #6777ef; font-size: 14px;"></i>
+                                                    <i class="fas fa-sticky-note" style="color: #6777ef; font-size: 14px;"></i>
                                                 @else
-                                                    <i class="fa fa-circle" style="color: #6777ef; font-size: 8px;"></i>
+                                                    <i class="fas fa-circle" style="color: #6777ef; font-size: 8px;"></i>
                                                 @endif
                                             </div>
                                             <div class="activity-content flex-grow-1" style="min-width: 0;">
@@ -1050,7 +1050,7 @@
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
                 <h5 class="modal-title" id="completeActionModalLabel">
-                    <i class="fa fa-check-circle"></i> Complete Action
+                    <i class="fas fa-check-circle"></i> Complete Action
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -1064,7 +1064,7 @@
                     <div class="mb-3">
                         <label class="text-muted small">Client/Partner</label>
                         <p id="complete-action-client" style="color: #4b5563; margin: 0; font-weight: 500;">
-                            <i class="fa fa-user"></i> <span></span>
+                            <i class="fas fa-user"></i> <span></span>
                         </p>
                     </div>
                     
@@ -1081,7 +1081,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="submitCompleteAction">
-                    <i class="fa fa-check"></i> Complete Action
+                    <i class="fas fa-check"></i> Complete Action
                 </button>
             </div>
         </div>
@@ -1094,7 +1094,7 @@
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
                 <h5 class="modal-title" id="actionDetailModalLabel">
-                    <i class="fa fa-tasks"></i> Action Details
+                    <i class="fas fa-tasks"></i> Action Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -1108,13 +1108,13 @@
                 <div class="mb-3">
                     <label class="text-muted small">Client/Partner</label>
                     <p id="modal-action-client" style="color: #4b5563; margin: 0;">
-                        <i class="fa fa-user"></i> <span></span>
+                        <i class="fas fa-user"></i> <span></span>
                     </p>
                 </div>
                 <div class="mb-3">
                     <label class="text-muted small">Due Date</label>
                     <p id="modal-action-date" style="color: #4b5563; margin: 0;">
-                        <i class="fa fa-clock"></i> <span></span>
+                        <i class="fas fa-clock"></i> <span></span>
                     </p>
                 </div>
                 <div class="mb-3">
@@ -1219,7 +1219,7 @@ $(document).ready(function() {
         }
         
         // Disable button during submission
-        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Completing...');
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Completing...');
         
         $.ajax({
             url: '{{ route("admin.complete-action") }}',
@@ -1232,7 +1232,7 @@ $(document).ready(function() {
             },
             success: function(response) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fas fa-check"></i> Complete Action');
                 
                 // Check response status
                 if (response && response.status) {
@@ -1279,7 +1279,7 @@ $(document).ready(function() {
             },
             complete: function() {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fas fa-check"></i> Complete Action');
             }
         });
     });

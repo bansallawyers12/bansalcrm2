@@ -266,7 +266,7 @@
 								</div>
 								<div class="card-header-action">
 								    <a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$fetchedData->id))) }}" class="btn btn-outline-secondary me-2">
-								    	<i class="fa fa-arrow-left"></i> Back
+								    	<i class="fas fa-arrow-left"></i> Back
 								    </a>
 								    <button type="button" class="btn btn-primary" onclick="return validateEditClientForm()">
 								    	<i class="fas fa-save"></i> Save Changes
@@ -295,7 +295,7 @@
 													@else
 														<img id="output"/> 
 													@endif
-														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fa fa-camera if_image"></i>
+														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fas fa-camera if_image"></i>
 														<span <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="if_image">Upload Profile Image</span>
 													</div>
 													<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
@@ -445,7 +445,7 @@
 											<div class="d-flex justify-content-between align-items-center mb-2">
 												<label class="section-label mb-0"><i class="fas fa-phone-alt"></i> Phone Numbers</label>
 												<a href="javascript:;" class="btn btn-xs btn-primary openclientphonenew">
-													<i class="fa fa-plus"></i> Add
+													<i class="fas fa-plus"></i> Add
 												</a>
 											</div>
 											@if ($errors->has('contact_type') || $errors->has('client_phone'))
@@ -498,7 +498,7 @@
 																data-country="<?php echo htmlspecialchars($countryCode); ?>"
 																data-phone="<?php echo htmlspecialchars($phone); ?>"
 																title="Edit">
-																<i class="fa fa-edit"></i>
+																<i class="fas fa-edit"></i>
 															</a>
 															<?php if($contactType == "Personal") {
 																$cp = !empty($phoneId) ? \App\Models\ClientPhone::find($phoneId) : null;
@@ -510,7 +510,7 @@
 															} ?>
 															<?php if($contactType != "Personal") { ?>
 																<a href="javascript:;" dataid="<?php echo $iii; ?>" contactid="<?php echo htmlspecialchars($phoneId); ?>" class="deletecontact btn-delete">
-																	<i class="fa fa-trash"></i>
+																	<i class="fas fa-trash"></i>
 																</a>
 															<?php } ?>
 														</div>
@@ -562,7 +562,7 @@
 																	data-country="{{$clientphone->client_country_code}}"
 																	data-phone="{{$clientphone->client_phone}}"
 																	title="Edit">
-																	<i class="fa fa-edit"></i>
+																	<i class="fas fa-edit"></i>
 																</a>
 																@if($clientphone->is_verified)
 																<span class="verified-badge text-success" title="Verified"><i class="fas fa-check-circle"></i></span>
@@ -571,7 +571,7 @@
 															@endif
 																<?php if( isset($clientphone->contact_type) && $clientphone->contact_type != "Personal" ) { ?>
 																	<a href="javascript:;" dataid="{{$iii}}" contactid="{{$clientphone->id}}" class="deletecontact btn-delete">
-																		<i class="fa fa-trash"></i>
+																		<i class="fas fa-trash"></i>
 																	</a>
 																<?php } ?>
 															</div>
@@ -596,7 +596,7 @@
 											<div class="d-flex justify-content-between align-items-center mb-2">
 												<label class="section-label mb-0"><i class="fas fa-envelope"></i> Email Addresses <span class="text-muted small">(first = primary, stored in system)</span></label>
 												<a href="javascript:;" class="btn btn-xs btn-primary openclientemailnew">
-													<i class="fa fa-plus"></i> Add
+													<i class="fas fa-plus"></i> Add
 												</a>
 											</div>
 											@if ($errors->has('email') || $errors->has('email.0'))
@@ -683,7 +683,7 @@
 															data-type="{{ $emailRow->email_type }}"
 															data-email="{{ $emailRow->client_email }}"
 															title="Edit">
-															<i class="fa fa-edit"></i>
+															<i class="fas fa-edit"></i>
 														</a>
 														@if($emailRow->email_verified)
 															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
@@ -693,7 +693,7 @@
 															</button>
 														@endif
 														<a href="javascript:;" class="deleteemail btn-delete" data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}" title="Delete">
-															<i class="fa fa-trash"></i>
+															<i class="fas fa-trash"></i>
 														</a>
 													</div>
 													<input type="hidden" name="email[]" value="{{ $emailRow->client_email }}">
@@ -1260,7 +1260,7 @@
 										<div class="services-taken-header d-flex justify-content-between align-items-center mb-3">
 											<h6 class="mb-0"><i class="fas fa-briefcase"></i> Services Taken</h6>
 											<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-sm btn-primary serviceTaken">
-												<i class="fa fa-plus"></i> Add Service
+												<i class="fas fa-plus"></i> Add Service
 											</a>
 										</div>
                                        
@@ -1280,10 +1280,10 @@
 															</span>
 															<div class="service-actions">
 																<a href="javascript:;" class="service_taken_edit text-primary" id="<?php echo $tokenval['id']; ?>" title="Edit">
-																	<i class="fa fa-edit"></i>
+																	<i class="fas fa-edit"></i>
 																</a>
 																<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="<?php echo $tokenval['id']; ?>" title="Delete">
-																	<i class="fa fa-trash"></i>
+																	<i class="fas fa-trash"></i>
 																</a>
 															</div>
 														</div>

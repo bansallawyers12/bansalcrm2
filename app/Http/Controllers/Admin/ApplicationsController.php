@@ -276,13 +276,13 @@ class ApplicationsController extends Controller
 						<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
-									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-file-alt"></i></a>
-									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-file-image"></i></a>
+									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-file-alt"></i></a>
+									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-file-image"></i></a>
                                     
-									<!--<a data-app-type="<?php //echo $stages->name; ?>" title="Add Appointments" class="openappappoint" data-id="<?php //echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-calendar"></i></a>-->
-                                    <a data-course="<?php echo $course_name; ?>" data-school="<?php echo $school_name; ?>" data-app-type="<?php echo $stages->name; ?>" title="Actions" class="openappaction" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-calendar"></i></a>
+									<!--<a data-app-type="<?php //echo $stages->name; ?>" title="Add Appointments" class="openappappoint" data-id="<?php //echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-calendar"></i></a>-->
+                                    <a data-course="<?php echo $course_name; ?>" data-school="<?php echo $school_name; ?>" data-app-type="<?php echo $stages->name; ?>" title="Actions" class="openappaction" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-calendar"></i></a>
 
-									<a data-app-type="<?php echo $stages->name; ?>" title="Email" data-id="{{@$fetchData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="openclientemail" title="Compose Mail" href="javascript:;"><i class="fa fa-envelope"></i></a>
+									<a data-app-type="<?php echo $stages->name; ?>" title="Email" data-id="{{@$fetchData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="openclientemail" title="Compose Mail" href="javascript:;"><i class="fas fa-envelope"></i></a>
 								</div>
 							</div>
 							<?php
@@ -735,7 +735,7 @@ class ApplicationsController extends Controller
 							</span>
 							</div>
 							<div class="cl_del" style="display: inline-block;">
-								<a href="javascript:;" data-href="superagent" data-id="'.$request->siapp_id.'" class="deletenote"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" data-href="superagent" data-id="'.$request->siapp_id.'" class="deletenote"><i class="fas fa-times"></i></a>
 							</div>
 						</div>';
 			}else{
@@ -778,7 +778,7 @@ class ApplicationsController extends Controller
 							</span>
 							</div>
 							<div class="cl_del" style="display: inline-block;">
-								<a href="javascript:;" data-href="subagent" data-id="'.$request->sbapp_id.'" class="deletenote"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" data-href="subagent" data-id="'.$request->sbapp_id.'" class="deletenote"><i class="fas fa-times"></i></a>
 							</div>
 						</div>';
 			}else{
@@ -1308,14 +1308,14 @@ class ApplicationsController extends Controller
 				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
-					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
+					$checklistdata .= '<td><span class="check"><i class="fas fa-check"></i></span></td>';
 				}else{
 					$checklistdata .= '<td><span class="round"></span></td>';
 				}
 					
 					$checklistdata .= '<td>'.@$applicationdocument->document_type.'</td>';
 					$checklistdata .= '<td><div class="circular-box cursor-pointer"><button class="transparent-button paddingNone">'.$appcount.'</button></div></td>';
-					$checklistdata .= '<td><a data-aid="'.$app_id.'" data-type="'.$type.'" data-typename="'.$typename.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fa fa-plus"></i></a></td>';
+					$checklistdata .= '<td><a data-aid="'.$app_id.'" data-type="'.$type.'" data-typename="'.$typename.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fas fa-plus"></i></a></td>';
 				$checklistdata .= '</tr>';
 			}
 			$checklistdata .= '</tbody></table>';
@@ -1423,7 +1423,7 @@ class ApplicationsController extends Controller
                 $obj1->user_id = Auth::user()->id;
                 $obj1->save();
                 $uploadSummary['uploaded_count']++;
-                $imageData .= '<li><i class="fa fa-file"></i> '.htmlspecialchars($nameWithoutExtension, ENT_QUOTES, 'UTF-8').'</li>';
+                $imageData .= '<li><i class="fas fa-file"></i> '.htmlspecialchars($nameWithoutExtension, ENT_QUOTES, 'UTF-8').'</li>';
             } else {
                 $uploadSummary['failed_count']++;
                 $uploadSummary['failed_files'][] = [
@@ -1438,7 +1438,7 @@ class ApplicationsController extends Controller
 		foreach($doclists as $doclist){
 			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
-            $doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
+            $doclistdata .= '<td><i class="fas fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
             $doclistdata .= '<td>';
             $doclistdata .=  $doclist->typename;
             $doclistdata .= '</td>';
@@ -1448,7 +1448,7 @@ class ApplicationsController extends Controller
 			$doclistdata .= '<td>'.date('d/m/Y',strtotime($doclist->created_at)).'</td>';
 			$doclistdata .= '<td>';
 			if($doclist->status == 1){
-			    $doclistdata .= '<span class="check"><i class="fa fa-eye"></i></span>';
+			    $doclistdata .= '<span class="check"><i class="fas fa-eye"></i></span>';
 			}
             $doclistdata .= '<div class="dropdown d-inline">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
@@ -1477,14 +1477,14 @@ class ApplicationsController extends Controller
             $appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
             $checklistdata .= '<tr>';
             if($appcount >0){
-                $checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
+                $checklistdata .= '<td><span class="check"><i class="fas fa-check"></i></span></td>';
             }else{
                 $checklistdata .= '<td><span class="round"></span></td>';
             }
 
             $checklistdata .= '<td>'.@$applicationdocument->document_type.'</td>';
             $checklistdata .= '<td><div class="circular-box cursor-pointer"><button class="transparent-button paddingNone">'.$appcount.'</button></div></td>';
-            $checklistdata .= '<td><a data-aid="'.$application_id.'" data-type="'.$request->type.'" data-typename="'.$request->typename.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fa fa-plus"></i></a></td>';
+            $checklistdata .= '<td><a data-aid="'.$application_id.'" data-type="'.$request->type.'" data-typename="'.$request->typename.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fas fa-plus"></i></a></td>';
             $checklistdata .= '</tr>';
         }
 		$checklistdata .= '</tbody></table>';
@@ -1540,7 +1540,7 @@ class ApplicationsController extends Controller
 		foreach($doclists as $doclist){
 			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
-				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
+				$doclistdata .= '<td><i class="fas fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
@@ -1550,7 +1550,7 @@ class ApplicationsController extends Controller
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
 			$doclistdata .= '<td>';
 			if($doclist->status == 1){
-				$doclistdata .= '<span class="check"><i class="fa fa-eye"></i></span>';
+				$doclistdata .= '<span class="check"><i class="fas fa-eye"></i></span>';
 			}
 				$doclistdata .= '<div class="dropdown d-inline">
 					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
@@ -1584,14 +1584,14 @@ class ApplicationsController extends Controller
 				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
-					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
+					$checklistdata .= '<td><span class="check"><i class="fas fa-check"></i></span></td>';
 				}else{
 					$checklistdata .= '<td><span class="round"></span></td>';
 				}
 					
 					$checklistdata .= '<td>'.@$applicationdocument->document_type.'</td>';
 					$checklistdata .= '<td><div class="circular-box cursor-pointer"><button class="transparent-button paddingNone">'.$appcount.'</button></div></td>';
-					$checklistdata .= '<td><a data-aid="'.$application_id.'" data-type="'.$appdoc->type.'"data-typename="'.$appdoc->typename.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fa fa-plus"></i></a></td>';
+					$checklistdata .= '<td><a data-aid="'.$application_id.'" data-type="'.$appdoc->type.'"data-typename="'.$appdoc->typename.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fas fa-plus"></i></a></td>';
 				$checklistdata .= '</tr>';
 			}
 			$checklistdata .= '</tbody></table>';
@@ -1626,7 +1626,7 @@ class ApplicationsController extends Controller
 		foreach($doclists as $doclist){
 			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
-				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
+				$doclistdata .= '<td><i class="fas fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
@@ -1636,7 +1636,7 @@ class ApplicationsController extends Controller
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
 			$doclistdata .= '<td>';
 			if($doclist->status == 1){
-				$doclistdata .= '<span class="check"><i class="fa fa-eye"></i></span>';
+				$doclistdata .= '<span class="check"><i class="fas fa-eye"></i></span>';
 			}
 				$doclistdata .= '<div class="dropdown d-inline">
 					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>

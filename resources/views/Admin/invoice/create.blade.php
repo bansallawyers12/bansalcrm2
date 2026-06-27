@@ -53,8 +53,8 @@
 							<!-- form start -->
 							{!! Form::open(array('url' => 'invoice/store', 'name'=>"add-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 								<div class="form-group" style="text-align:right;">
-									<a style="margin-right:5px;" href="{{route('invoice.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a> 
-									{!! Form::button('<i class="fa fa-save"></i> Save Invoice', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-invoice")' ])  !!}
+									<a style="margin-right:5px;" href="{{route('invoice.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a> 
+									{!! Form::button('<i class="fas fa-save"></i> Save Invoice', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-invoice")' ])  !!}
 								</div> 	 
 								<div class="row"> 
 									{{-- NOTE: Tax rate selection has been removed - tax_rates table has been dropped --}}
@@ -210,8 +210,8 @@
 															<input type="text" value="0.00" class="form-control amount" placeholder="Amount" name="amount" disabled />
 														</div>
 														<div class="item_action">
-															<!--<a class="item_clone" href="javascript:;"><i class="fa fa-copy"></i></a>-->
-															<a class="item_remove" href="javascript:;"><i class="fa fa-close"></i></a>
+															<!--<a class="item_clone" href="javascript:;"><i class="fas fa-copy"></i></a>-->
+															<a class="item_remove" href="javascript:;"><i class="fas fa-close"></i></a>
 														</div>
 													</td>
 													</tr>
@@ -243,8 +243,8 @@
 																<input type="text" class="form-control amount" value="0.00" name="amount" disabled />
 															</div>
 															<div class="item_action">
-																<!--<a class="item_clone" href="javascript:;"><i class="fa fa-copy"></i></a>-->
-																<a class="item_remove" href="javascript:;"><i class="fa fa-close"></i></a>
+																<!--<a class="item_clone" href="javascript:;"><i class="fas fa-copy"></i></a>-->
+																<a class="item_remove" href="javascript:;"><i class="fas fa-close"></i></a>
 															</div>
 														</td>
 													</tr>
@@ -327,7 +327,7 @@
 												<label for="attach_file" class="col-form-label">Attach File(s) to Invoice</label>
 												<div class="upload_btn">
 													<input type="file" name="attach_file"/>
-													<i class="fa fa-upload"></i>
+													<i class="fas fa-upload"></i>
 												</div>
 												<button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Upload File <span class="caret"></span></button>
 													<div class="dropdown-menu" x-placement="top-start">
@@ -347,16 +347,16 @@
 								</div>				
 								<input id="save_type" name="save_type" type="hidden" value="save_send">
 								<div style="margin-bottom:0px;" class="form-group float-end invoice_save_btn">
-									{!! Form::button('<i class="fa fa-save"></i> Save and Send', ['class'=>'btn btn-primary', 'onClick'=>'customInvoiceValidate("add-invoice", "save_send")' ])  !!}
+									{!! Form::button('<i class="fas fa-save"></i> Save and Send', ['class'=>'btn btn-primary', 'onClick'=>'customInvoiceValidate("add-invoice", "save_send")' ])  !!}
 									<a class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></a>
 									<div class="dropdown-menu" x-placement="top-start">
-										<a savetype="save_print" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_print")'><i class="fa fa-print"></i> Save & Print</a>
+										<a savetype="save_print" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_print")'><i class="fas fa-print"></i> Save & Print</a>
 										
-										<a savetype="save_send" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_send")'><i class="fa fa-envelope"></i> Save & Send</a>
+										<a savetype="save_send" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_send")'><i class="fas fa-envelope"></i> Save & Send</a>
 										
-										<a savetype="save_share" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_share")'><i class="fa fa-share"></i> Save & Share</a>
+										<a savetype="save_share" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_share")'><i class="fas fa-share"></i> Save & Share</a>
 										
-										<a savetype="save_send_later" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_send_later")'><i class="fa fa-times"></i> Save & Send Later</a>
+										<a savetype="save_send_later" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_send_later")'><i class="fas fa-times"></i> Save & Send Later</a>
 									</div>
 									<button type="button" class="btn btn-default cancel_btn">Cancel</button>
 									<div class="clearfix"></div>

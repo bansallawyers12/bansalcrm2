@@ -104,7 +104,7 @@
             tabsHTML += `
                 <button class="btn btn-success add-document-category-btn" 
                         style="margin-bottom: 10px;">
-                    <i class="fa fa-plus"></i> Add Category
+                    <i class="fas fa-plus"></i> Add Category
                 </button>
             `;
             
@@ -274,7 +274,7 @@
                             <input type="hidden" name="type" value="client">
                             <input type="hidden" name="doctype" value="documents">
                             <input type="hidden" name="category_id" value="${this.currentCategoryId}">
-                            <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+                            <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
                             <input class="alldocupload" data-fileid="${doc.id}" type="file" name="document_upload"/>
                         </form>
                     </div>

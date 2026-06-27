@@ -119,7 +119,7 @@
 <body>
     <div class="container">
         <div class="error-icon {{ $iconClass ?? '' }}">
-            <i class="fas {{ $icon ?? 'fa-exclamation-triangle' }}"></i>
+            {!! \App\Helpers\IconHelper::render($icon ?? 'exclamation-triangle') !!}
         </div>
         
         <h1>{{ $title ?? 'Something Went Wrong' }}</h1>
@@ -134,7 +134,7 @@
         
         @if(isset($actionUrl) && isset($actionText))
         <a href="{{ $actionUrl }}" class="btn btn-primary">
-            <i class="fas {{ $actionIcon ?? 'fa-arrow-left' }}"></i> {{ $actionText }}
+            {!! \App\Helpers\IconHelper::render($actionIcon ?? 'arrow-left') !!} {{ $actionText }}
         </a>
         @endif
         

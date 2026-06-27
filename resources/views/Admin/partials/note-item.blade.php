@@ -3,7 +3,7 @@
 	<div class="note_content">
 		<h4><a @if($color) style="color: #fff!important;" @endif class="viewnote" data-id="{{ $list->id }}" href="javascript:;">{{ @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...') }}</a></h4>
 		@if($list->pin == 1)
-			<div class="pined_note"><i class="fa fa-thumbtack"></i></i></div>
+			<div class="pined_note">@icon('thumbtack')</div>
 		@endif
 	</div>
 	<div class="extra_content">
@@ -41,7 +41,7 @@
 		</div>
 		<div class="right">
 			<div class="dropdown d-inline dropdown_ellipsis_icon">
-				<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+				<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
 				<div class="dropdown-menu">
 					<a class="dropdown-item opennoteform" data-id="{{ $list->id }}" href="javascript:;">Edit</a>
 					@if(Auth::user()->role == 1)

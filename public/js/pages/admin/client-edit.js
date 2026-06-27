@@ -228,7 +228,7 @@ jQuery(document).ready(function($){
             html += '<div class="contact-actions">';
             
             if(contact_type != 'Personal') {
-                html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete"><i class="fa fa-trash"></i></a>';
+                html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete"><i class="fas fa-trash"></i></a>';
             }
             
             html += '</div>';
@@ -468,9 +468,9 @@ jQuery(document).ready(function($){
             html += '<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+emailDomId+'"><i class="far fa-star text-muted"></i></a>';
             html += '<span class="contact-email">'+escapedEmail+'</span>';
             html += '<div class="contact-actions">';
-            html += '<a href="javascript:;" class="editclientemail btn-edit" data-email-id="'+emailDomId+'" data-type="'+escapedType+'" data-email="'+escapedEmail+'" title="Edit"><i class="fa fa-edit"></i></a>';
+            html += '<a href="javascript:;" class="editclientemail btn-edit" data-email-id="'+emailDomId+'" data-type="'+escapedType+'" data-email="'+escapedEmail+'" title="Edit"><i class="fas fa-edit"></i></a>';
             html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + (App.getPageConfig('clientFirstName') || '') + '" data-email="'+escapedEmail+'" data-clientid="' + (App.getPageConfig('clientId') || '') + '" title="Verify"><i class="fas fa-paper-plane"></i></button>';
-            html += '<a href="javascript:;" class="deleteemail btn-delete" data-email-id="'+emailDomId+'" title="Delete"><i class="fa fa-trash"></i></a>';
+            html += '<a href="javascript:;" class="deleteemail btn-delete" data-email-id="'+emailDomId+'" title="Delete"><i class="fas fa-trash"></i></a>';
             html += '</div>';
             html += '<input type="hidden" name="email[]" value="'+escapedEmail+'">';
             html += '<input type="hidden" name="email_type[]" value="'+escapedType+'">';
@@ -719,8 +719,8 @@ jQuery(document).ready(function($){
                     cardHtml += '<div class="service-card-header">';
                     cardHtml += '<span class="service-type-badge badge badge-' + badgeClass + '">' + value.service_type + '</span>';
                     cardHtml += '<div class="service-actions">';
-                    cardHtml += '<a href="javascript:;" class="service_taken_edit text-primary" id="' + value.id + '" title="Edit"><i class="fa fa-edit"></i></a>';
-                    cardHtml += '<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="' + value.id + '" title="Delete"><i class="fa fa-trash"></i></a>';
+                    cardHtml += '<a href="javascript:;" class="service_taken_edit text-primary" id="' + value.id + '" title="Edit"><i class="fas fa-edit"></i></a>';
+                    cardHtml += '<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="' + value.id + '" title="Delete"><i class="fas fa-trash"></i></a>';
                     cardHtml += '</div></div>';
                     cardHtml += '<div class="service-card-body">';
                     
@@ -860,10 +860,10 @@ jQuery(document).ready(function($){
         const section = $('.additional-contact-section');
         if (section.css('display') == 'none') {
             section.slideDown(300);
-            $(this).html('<i class="fa fa-minus" aria-hidden="true"></i> Hide');
+            $(this).html('<i class="fas fa-minus" aria-hidden="true"></i> Hide');
         } else {
             section.slideUp(300);
-            $(this).html('<i class="fa fa-plus" aria-hidden="true"></i> Add More');
+            $(this).html('<i class="fas fa-plus" aria-hidden="true"></i> Add More');
         }
     });
     

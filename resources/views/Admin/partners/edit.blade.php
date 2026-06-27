@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Edit Partners</h4>
 								<div class="card-header-action">
-									<a href="{{route('partners.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('partners.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -37,7 +37,7 @@
 																<img id="output"/>@if(@$fetchedData->profile_img != '')
 																<img  src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
 															@else
-																<i class="fa fa-camera"></i>
+																<i class="fas fa-camera"></i>
 																<span>Upload Profile Image</span>
 															@endif
 															</div>
@@ -306,7 +306,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group">
 														<label for="email">Email <span class="span_req">*</span></label>
-                                                        <a href="javascript:;" class="btn btn-outline-primary openpartneremailnew" style="margin-bottom: 5px;margin-left: 145px;"><i class="fa fa-plus"></i> Add Email</a>
+                                                        <a href="javascript:;" class="btn btn-outline-primary openpartneremailnew" style="margin-bottom: 5px;margin-left: 145px;"><i class="fas fa-plus"></i> Add Email</a>
 
 														{{--Form::text('partner_email[]', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Email' ))--}}
 														{{--@if ($errors->has('partner_email'))--}}
@@ -319,12 +319,12 @@
                                             </div>-->
 
                                             
-											<!--<a href="javascript:;" class="btn btn-outline-primary openpartnerphonenew"><i class="fa fa-plus"></i> Add Phone</a>-->
+											<!--<a href="javascript:;" class="btn btn-outline-primary openpartnerphonenew"><i class="fas fa-plus"></i> Add Phone</a>-->
 
                                             <div class="col-12 col-md-12 col-lg-12">
                                                 <div class="row">
                                                     <div class="col-6 col-md-6 col-lg-6">
-                                                       <a href="javascript:;" class="btn btn-outline-primary openpartnerphonenew" style="margin: 10px 0px 15px 0px;"><i class="fa fa-plus"></i> Add Contact</a>
+                                                       <a href="javascript:;" class="btn btn-outline-primary openpartnerphonenew" style="margin: 10px 0px 15px 0px;"><i class="fas fa-plus"></i> Add Contact</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -380,8 +380,8 @@
                                                                 <input autocomplete="off" placeholder="" name="partnerphoneid[]" type="hidden" value="{{$partnerphone->id}}">
                                                             </div>
                                                             {{--<div class="col-12 col-md-1 col-lg-1">
-                                                            <a href="javascript:;" dataid="{{$iii}}" class="editpartnerphone"><i class="fa fa-edit"></i></a>-->
-                                                                <a href="javascript:;" dataid="{{$iii}}" partnerphoneid="{{$partnerphone->id}}" class="deletepartnerphone"><i class="fa fa-times"></i></a>
+                                                            <a href="javascript:;" dataid="{{$iii}}" class="editpartnerphone"><i class="fas fa-edit"></i></a>-->
+                                                                <a href="javascript:;" dataid="{{$iii}}" partnerphoneid="{{$partnerphone->id}}" class="deletepartnerphone"><i class="fas fa-times"></i></a>
                                                             </div>--}}
                                                         </div>
                                                     </div>
@@ -395,7 +395,7 @@
                                             <div class="col-12 col-md-12 col-lg-12">
                                                 <div class="row">
                                                     <div class="col-6 col-md-6 col-lg-6">
-                                                    <a href="javascript:;" class="btn btn-outline-primary openpartneremailnew" style="margin: 10px 0px 15px 0px;"><i class="fa fa-plus"></i> Add Email</a>
+                                                    <a href="javascript:;" class="btn btn-outline-primary openpartneremailnew" style="margin: 10px 0px 15px 0px;"><i class="fas fa-plus"></i> Add Email</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -443,8 +443,8 @@
                                                                 <input autocomplete="off" placeholder="" name="partneremailid[]" type="hidden" value="{{$partneremail->id}}">
                                                             </div>
                                                             {{--<div class="col-12 col-md-1 col-lg-1">
-                                                            <a href="javascript:;" dataid="{{$ii}}" class="editpartneremail"><i class="fa fa-edit"></i></a>-->
-                                                                <a href="javascript:;" dataid="{{$ii}}" partneremailid="{{$partneremail->id}}" class="deletepartneremail"><i class="fa fa-times"></i></a>
+                                                            <a href="javascript:;" dataid="{{$ii}}" class="editpartneremail"><i class="fas fa-edit"></i></a>-->
+                                                                <a href="javascript:;" dataid="{{$ii}}" partneremailid="{{$partneremail->id}}" class="deletepartneremail"><i class="fas fa-times"></i></a>
                                                             </div>--}}
                                                         </div>
                                                     </div>
@@ -501,7 +501,7 @@
 										<div class="accordion-body collapse show" id="branch" data-parent="#accordion">
                                             <div class="row">
                                                 <div class="col-12 col-md-12 col-lg-12">
-                                                    <a href="javascript:;" class="btn btn-outline-primary openbranchnew" ><i class="fa fa-plus"></i> Add Branch</a>
+                                                    <a href="javascript:;" class="btn btn-outline-primary openbranchnew" ><i class="fas fa-plus"></i> Add Branch</a>
                                                 </div>
                                             </div>
                                             <script>
@@ -557,8 +557,8 @@
                                                                 <input autocomplete="off" placeholder="" name="branchid[]" type="hidden" value="{{$branch->id}}">
                                                         </div>
                                                         <div class="col-12 col-md-1 col-lg-1">
-                                                            <a href="javascript:;" dataid="{{$i}}" class="editbranch"><i class="fa fa-edit"></i></a>
-                                                            <a href="javascript:;" dataid="{{$i}}" branchid="{{$branch->id}}" class="deletebranch"><i class="fa fa-times"></i></a>
+                                                            <a href="javascript:;" dataid="{{$i}}" class="editbranch"><i class="fas fa-edit"></i></a>
+                                                            <a href="javascript:;" dataid="{{$i}}" branchid="{{$branch->id}}" class="deletebranch"><i class="fas fa-times"></i></a>
                                                         </div>
                                                     </div>
                                                     <?php
@@ -951,8 +951,8 @@ jQuery(document).ready(function($){
 				html += '</div>';
 				html += '<input autocomplete="off" placeholder="" name="branchstate[]" type="hidden" value="'+str[4].value+'"><input autocomplete="off" placeholder="" name="branchaddress[]" type="hidden" value="'+str[5].value+'"><input autocomplete="off" placeholder="" name="branchzip[]" type="hidden" value="'+str[6].value+'"><input autocomplete="off" placeholder="" name="branchreg[]" type="hidden" value="'+str[7].value+'"><input autocomplete="off" placeholder="" name="branchcountry_code[]" type="hidden" value="'+str[8].value+'"><input autocomplete="off" placeholder="" name="branchphone[]" type="hidden" value="'+str[9].value+'"><input autocomplete="off" placeholder="" name="branchid[]" type="hidden" value="<?php if(isset($branch->id)){echo $branch->id;} ?>"></div>';
 				html += '<div class="col-12 col-md-1 col-lg-1">';
-                html +=  '<a href="javascript:;" dataid="'+itag+'" class="editbranch"><i class="fa fa-edit"></i></a>';
-                html +=  '<a href="javascript:;" dataid="'+itag+'" class="deletebranch"><i class="fa fa-times"></i></a>';
+                html +=  '<a href="javascript:;" dataid="'+itag+'" class="editbranch"><i class="fas fa-edit"></i></a>';
+                html +=  '<a href="javascript:;" dataid="'+itag+'" class="deletebranch"><i class="fas fa-times"></i></a>';
                 html += '</div>';
 				html += '</div></div>';
 				$('.branchdata').append(html);
@@ -1030,8 +1030,8 @@ jQuery(document).ready(function($){
             html += '</div>';
             html += '<input autocomplete="off" placeholder="" name="branchstate[]" type="hidden" value="'+str[4].value+'"><input autocomplete="off" placeholder="" name="branchaddress[]" type="hidden" value="'+str[5].value+'"><input autocomplete="off" placeholder="" name="branchzip[]" type="hidden" value="'+str[6].value+'"><input autocomplete="off" placeholder="" name="branchreg[]" type="hidden" value="'+str[7].value+'"><input autocomplete="off" placeholder="" name="branchcountry_code[]" type="hidden" value="'+str[8].value+'"><input autocomplete="off" placeholder="" name="branchphone[]" type="hidden" value="'+str[9].value+'"><input autocomplete="off" placeholder="" name="branchid[]" type="hidden" value="<?php if(isset($branch->id)){echo $branch->id;} ?>"></div>';
             html += '<div class="col-12 col-md-1 col-lg-1">';
-            html +=  '<a href="javascript:;" dataid="'+mtval+'" class="editbranch"><i class="fa fa-edit"></i></a>';
-            html +=  '<a href="javascript:;" dataid="'+mtval+'" class="deletebranch"><i class="fa fa-times"></i></a>';
+            html +=  '<a href="javascript:;" dataid="'+mtval+'" class="editbranch"><i class="fas fa-edit"></i></a>';
+            html +=  '<a href="javascript:;" dataid="'+mtval+'" class="deletebranch"><i class="fas fa-times"></i></a>';
             html += '</div>';
             html += '</div>';
             $('#metatag_'+mtval).html(html);
@@ -1198,8 +1198,8 @@ jQuery(document).ready(function($){
                     html += '<input autocomplete="off" placeholder="" name="partneremailid[]" type="hidden" value="<?php //if(isset($partneremail->id)){echo $partneremail->id;} ?>"></div>';
 
                     //html += '<div class="col-12 col-md-1 col-lg-1">';
-                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="editpartneremail"><i class="fa fa-edit"></i></a>';
-                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="deletepartneremail"><i class="fa fa-times"></i></a>';
+                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="editpartneremail"><i class="fas fa-edit"></i></a>';
+                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="deletepartneremail"><i class="fas fa-times"></i></a>';
                     //html += '</div>';
                     html += '</div>';
                 $('.partneremaildata').append(html);
@@ -1236,8 +1236,8 @@ jQuery(document).ready(function($){
                 html += '<input autocomplete="off" placeholder="" name="partneremailid[]" type="text" value="<?php //if(isset($partneremail->id)){echo $partneremail->id;} ?>"></div>';
 
                 //html += '<div class="col-12 col-md-1 col-lg-1">';
-                //html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="editpartneremail"><i class="fa fa-edit"></i></a>';
-                //html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="deletepartneremail"><i class="fa fa-times"></i></a>';
+                //html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="editpartneremail"><i class="fas fa-edit"></i></a>';
+                //html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="deletepartneremail"><i class="fas fa-times"></i></a>';
                 //html += '</div>';
                 html += '</div>';
             $('#metatag1_'+mtval_email).html(html);
@@ -1369,8 +1369,8 @@ jQuery(document).ready(function($){
 
 
                     //html += '<div class="col-12 col-md-1 col-lg-1">';
-                    //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="editpartnerphone"><i class="fa fa-edit"></i></a>';
-                    //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="deletepartnerphone"><i class="fa fa-times"></i></a>';
+                    //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="editpartnerphone"><i class="fas fa-edit"></i></a>';
+                    //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="deletepartnerphone"><i class="fas fa-times"></i></a>';
                     //html += '</div>';
                     html += '</div></div>';
                 $('.partnerphonedata').append(html);

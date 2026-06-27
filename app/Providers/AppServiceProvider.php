@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\Paginator;
@@ -18,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
+
+        Blade::directive('icon', function (string $expression): string {
+            return "<?php echo \\App\\Helpers\\IconHelper::render{$expression}; ?>";
+        });
 
         require_once app_path('Support/followups_console_route.php');
     }
@@ -36,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         $loader->alias('Excel', \Maatwebsite\Excel\Facades\Excel::class);
         $loader->alias('Settings', \App\Helpers\Settings::class);
         $loader->alias('Helper', \App\Helpers\Helper::class);
+        $loader->alias('IconHelper', \App\Helpers\IconHelper::class);
         $loader->alias('PhoneHelper', \App\Helpers\PhoneHelper::class);
         $loader->alias('DataTables', \Yajra\DataTables\Facades\DataTables::class);
     }

@@ -63,8 +63,8 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="author-mail_sms">
 									<a href="#" title="Compose SMS"><i class="fas fa-comment-alt"></i></a>
-									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->full_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>  
-									<a href="{{URL::to('/agents/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->full_name}}" class="clientemail" title="Compose Mail"><i class="fas fa-envelope"></i></a>  
+									<a href="{{URL::to('/agents/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fas fa-edit"></i></a>
 								</div>
 							</div>
 						</div>
@@ -135,7 +135,7 @@ use App\Http\Controllers\Controller;
 							<div class="tab-content" id="agentContent" style="padding-top:15px;">
 								<div class="tab-pane fade show active" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fas fa-plus"></i> Add</a>
 									</div>
 									<div class="note_term_list"> 									
 									<?php									
@@ -159,7 +159,7 @@ use App\Http\Controllers\Controller;
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item opennoteform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$list->id}}" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -334,7 +334,7 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="tab-pane fade" id="represent_partner" role="tabpanel" aria-labelledby="represent_partner-tab">
 									<div class="card-header-action text-end if_applicationdetail" style="padding-bottom:15px;">
-										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_represent_partner" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_represent_partner" class="btn btn-primary"><i class="fas fa-plus"></i> Add</a>
 									</div>	
 									<div class="table-responsive if_partnerdetail"> 
 										<table class="table text_wrap table-2">
@@ -364,7 +364,7 @@ use App\Http\Controllers\Controller;
 													<td><?php echo $partnertlist->partners->email; ?></td>
 													<td><?php echo rtrim($branch, ','); ?></td>  
 													<td><?php echo $partnertlist->partners->workflow->name; ?></td>
-													<td><a onclick="deleteAction({{$partnertlist->id}}, 'representing_partners')" href="javascript:;"><i class="fa fa-link"></i></a></td>
+													<td><a onclick="deleteAction({{$partnertlist->id}}, 'representing_partners')" href="javascript:;"><i class="fas fa-link"></i></a></td>
 												</tr>
 												<?php } ?>
 												<tr><td colspan="5" class="text-center">No data available - RepresentingPartner table has been removed</td></tr>

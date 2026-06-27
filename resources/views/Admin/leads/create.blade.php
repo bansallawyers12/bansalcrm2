@@ -243,7 +243,7 @@
 								</div>
 								<div class="card-header-action">
 								    <a href="{{route('leads.index')}}" class="btn btn-outline-secondary me-2">
-								    	<i class="fa fa-arrow-left"></i> Back
+								    	<i class="fas fa-arrow-left"></i> Back
 								    </a>
 								    <button type="submit" class="btn btn-primary" onclick="customValidate('add-leads')">
 								    	<i class="fas fa-save"></i> Create Lead
@@ -272,7 +272,7 @@
 													@else
 														<img id="output"/> 
 													@endif
-														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fa fa-camera if_image"></i>
+														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fas fa-camera if_image"></i>
 														<span <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="if_image">Upload Profile Image</span>
 													</div>
 													<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />

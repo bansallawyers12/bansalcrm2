@@ -118,7 +118,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										$statusDisplay = ($list->status === 0 || $list->status === '0') ? 'Not Contacted' : ((is_string($list->status) && $list->status !== '') ? $list->status : '—');
 										?> 
 										<tr id="id_{{@$list->id}}">
-											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
+											<td><i class="fas fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fas fa-calendar-alt"></i> 
 										
 											{{@$list->created_at}}
 											<?php
@@ -131,18 +131,18 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											}else{ echo '-'; }
 											?>
 											</td>
-											<td><i class="fa fa-user"></i>  {{@$list->first_name}} {{@$list->last_name}} <br/> <i class="fa fa-mobile"></i> {{@$list->phone}} <br/> <i class="fa fa-envelope"></i> {{@$list->email}}</td>
+											<td><i class="fas fa-user"></i>  {{@$list->first_name}} {{@$list->last_name}} <br/> <i class="fas fa-mobile"></i> {{@$list->phone}} <br/> <i class="fas fa-envelope"></i> {{@$list->email}}</td>
 											<td>{{@$list->service}} <br/> {{@$list->created_at}}</td>
-											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $statusDisplay }}</div></td>
+											<td><div class="lead_stars"><i class="fas fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $statusDisplay }}</div></td>
 											<td>{{ $statusDisplay }}</td>
 											<td>
 												<div class="dropdown action_toggle">
 													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 													<div class="dropdown-menu">
-														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}"><i class="fa fa-eye"></i> View Details</a>
-														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode($leadIdForLinks))}}"><i class="fa fa-edit"></i> Assign To</a>
+														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}"><i class="fas fa-eye"></i> View Details</a>
+														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode($leadIdForLinks))}}"><i class="fas fa-edit"></i> Assign To</a>
 										@if($list->converted == 0)
-											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" onclick="return confirm('Are you sure?')"><i class="fa fa-user"></i> Convert To Client</a>	
+											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" onclick="return confirm('Are you sure?')"><i class="fas fa-user"></i> Convert To Client</a>	
 											@endif
 													</div>
 												</div>	
@@ -195,7 +195,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 				</div>
 			</div>
 			<div class="modal-footer">
-				{!! Form::button('<i class="fa fa-save"></i> Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")' ])  !!}
+				{!! Form::button('<i class="fas fa-save"></i> Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")' ])  !!}
 			</div>
 			{!! Form::close()  !!}
 		</div>

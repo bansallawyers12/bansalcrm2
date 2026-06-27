@@ -124,7 +124,7 @@ class PromotionController extends Controller
 				<div class="extra_content">
 					<div class="left">
 						<div class="dropdown d-inline dropdown_ellipsis_icon">
-							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item openpromotonform" data-id="<?php echo $promotion->id; ?>" href="javascript:;">Edit</a>
 							</div>

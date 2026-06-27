@@ -116,16 +116,16 @@
                                         } ?>
                                         <div class="filter-wrapper">
                                             <div class="btn btn-light filter-checkbox active" data-val="All"> All <span class="countAction">{{ $assigneesCount_All_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Call"><i class="fa fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Checklist"> <i class="fa fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Review"> <i class="fa fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Query"><i class="fa fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Urgent"> <i class="fa fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></div>
-                                            <div class="btn btn-light filter-checkbox" data-val="Personal Task"> <i class="fa fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Call"><i class="fas fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Checklist"> <i class="fas fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Review"> <i class="fas fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Query"><i class="fas fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Urgent"> <i class="fas fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></div>
+                                            <div class="btn btn-light filter-checkbox" data-val="Personal Task"> <i class="fas fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></div>
                                           
-                                          <div class="btn btn-light filter-checkbox" data-val="stage"> <i class="fa fa-flag" aria-hidden="true"></i> Stage <span class="countAction">{{ $assigneesCount_Stage_type }}</span></div>
+                                          <div class="btn btn-light filter-checkbox" data-val="stage"> <i class="fas fa-flag" aria-hidden="true"></i> Stage <span class="countAction">{{ $assigneesCount_Stage_type }}</span></div>
                                           
-                                          <div class="btn btn-light filter-checkbox" style="margin-top:5px;" data-val="partner"> <i class="fa fa-flag" aria-hidden="true"></i> Partner <span class="countAction">{{ $assigneesCount_partner_type }}</span></div>
+                                          <div class="btn btn-light filter-checkbox" style="margin-top:5px;" data-val="partner"> <i class="fas fa-flag" aria-hidden="true"></i> Partner <span class="countAction">{{ $assigneesCount_partner_type }}</span></div>
 
 
 
@@ -254,7 +254,7 @@
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
                 <h5 class="modal-title" id="completeActionModalLabel">
-                    <i class="fa fa-check-circle"></i> Complete Action
+                    <i class="fas fa-check-circle"></i> Complete Action
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -268,7 +268,7 @@
                     <div class="mb-3">
                         <label class="text-muted small">Client/Partner</label>
                         <p id="complete-action-client" style="color: #4b5563; margin: 0; font-weight: 500;">
-                            <i class="fa fa-user"></i> <span></span>
+                            <i class="fas fa-user"></i> <span></span>
                         </p>
                     </div>
                     
@@ -285,7 +285,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="submitCompleteAction">
-                    <i class="fa fa-check"></i> Complete Action
+                    <i class="fas fa-check"></i> Complete Action
                 </button>
             </div>
         </div>
@@ -728,7 +728,7 @@ jQuery(document).ready(function($){
         }
         
         // Disable button during submission
-        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Completing...');
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Completing...');
         
         $.ajax({
             url: "{{URL::to('/')}}/action/task-complete",
@@ -741,7 +741,7 @@ jQuery(document).ready(function($){
             },
             success: function(response) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fas fa-check"></i> Complete Action');
                 
                 // Check response status
                 if (response && response.status) {
@@ -768,7 +768,7 @@ jQuery(document).ready(function($){
             },
             error: function(xhr) {
                 // Re-enable button
-                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fas fa-check"></i> Complete Action');
                 
                 var errorMsg = 'An error occurred. Please try again.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {

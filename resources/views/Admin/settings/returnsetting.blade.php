@@ -106,7 +106,7 @@
 								</div>
 								<div class="col-sm-12 <?php if(@Auth::user()->is_business_gst != ''){ if(@Auth::user()->is_business_gst == 'yes'){ ?><?php }else{ ?><?php }}else{ ?>is_gst_yes<?php } ?>" >
 									<div class="form-group float-end">
-										{!! Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-city")' ])  !!}
+										{!! Form::button('<i class="fas fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-city")' ])  !!}
 									</div> 
 								</div> 
 							</div> 

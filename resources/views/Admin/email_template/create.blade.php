@@ -52,8 +52,8 @@
 					   
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">
-								<a style="margin-right:5px;" href="{{route('email.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>  
-								{!! Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
+								<a style="margin-right:5px;" href="{{route('email.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>  
+								{!! Form::button('<i class="fas fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
 							</div>
 							<div class="form-group row"> 
 								<label for="title" class="col-sm-2 col-form-label">Name <span style="color:#ff0000;">*</span></label>
@@ -91,7 +91,7 @@
 						  </div>
 						  
 						  <div class="form-group float-end">
-							{!! Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
+							{!! Form::button('<i class="fas fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
 						  </div> 
 						</div> 
 					  {!! Form::close()  !!}

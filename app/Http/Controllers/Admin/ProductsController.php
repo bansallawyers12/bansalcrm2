@@ -328,8 +328,8 @@ class ProductsController extends Controller
 					<h4 class="text-info"><?php echo $feeoption->name; ?></h4>
 				</div>
 				<div class="col-md-2">
-					<a href="javascript:;" class="editfeeoption" data-id="<?php echo $feeoption->id; ?>"><i class="fa fa-edit"></i></a>
-					<a href="javascript:;" class="deletenote" data-href="deletefee" data-id="<?php echo $feeoption->id; ?>"><i class="fa fa-trash"></i></a>
+					<a href="javascript:;" class="editfeeoption" data-id="<?php echo $feeoption->id; ?>"><i class="fas fa-edit"></i></a>
+					<a href="javascript:;" class="deletenote" data-href="deletefee" data-id="<?php echo $feeoption->id; ?>"><i class="fas fa-trash"></i></a>
 				</div>
 				<div class="col-md-2">
 					<div class="validfor">
@@ -482,7 +482,7 @@ return ob_get_clean();
 											<td>
 												<input value="1" <?php if($feeoptiontype->quotation == 1){ echo 'checked'; } ?> class="add_quotation" type="checkbox" name="add_quotation[]">
 												<?php if($i != 0){ ?>
-												<a href="javascript:;" class="removefeetype"><i class="fa fa-trash"></i></a>
+												<a href="javascript:;" class="removefeetype"><i class="fas fa-trash"></i></a>
 												<?php } ?>
 											</td>
 									
