@@ -31,7 +31,7 @@
 						</div>
 					</div>
 					<div class="col-12 col-md-12 col-lg-12">
-						<div class="card">
+						<div class="card partner-create-form-card">
 							<div class="card-body">
 								<div id="accordion">
 									<div class="accordion">
@@ -61,7 +61,7 @@
 													<div class="row">
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
-																<label for="master_category">Master Category <span class="span_req">*</span></label>
+																<label for="getpartnertype">Master Category <span class="span_req">*</span></label>
 																<select data-valid="required" id="getpartnertype" class="form-control tomselect" name="master_category">
 																	<option value="">Select a Master Category</option>
 																	@foreach(\App\Models\Category::all() as $clist)
@@ -113,7 +113,7 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="service_workflow">Service Workflow <span class="span_req">*</span></label>
-																<select data-valid="required" class="form-control tomselect" name="service_workflow">
+																<select data-valid="required" id="service_workflow" class="form-control tomselect" name="service_workflow">
 																	<option value="">Choose Service workflow</option>
 																	@foreach(\App\Models\Workflow::all() as $wlist)
 																		<option value="{{$wlist->id}}">{{$wlist->name}}</option>
@@ -652,12 +652,50 @@
 	</div>
 </div>
 
-
-
+@endsection
 @section('scripts') 
 <script>
 // Cache buster: <?php echo time(); ?>
 window.countryCodeOptionsHtml = {!! json_encode(view('partials.country-code-options')->render()) !!};
+
+function partnerFormTomSelectOptions() {
+	return { width: '100%', allowClear: true };
+}
+
+function initPartnerFormTomSelects() {
+	if (window.__partnerCreateTomSelectInitialized) {
+		return true;
+	}
+	if (typeof TomSelect === 'undefined' || typeof initTomSelect !== 'function') {
+		return false;
+	}
+	if (!document.getElementById('getpartnertype')) {
+		return false;
+	}
+
+	var opts = partnerFormTomSelectOptions();
+
+	initTomSelectPreserveValue('#getpartnertype', opts);
+	initTomSelectPreserveValue('#partner_type', opts);
+	initTomSelectPreserveValue('#service_workflow', opts);
+	initTomSelectPreserveValue('select[name="country"]', opts);
+
+	window.__partnerCreateTomSelectInitialized = true;
+	return true;
+}
+
+function bootPartnerFormTomSelects() {
+	if (initPartnerFormTomSelects()) {
+		return;
+	}
+	if (typeof whenTomSelectReady === 'function') {
+		whenTomSelectReady(initPartnerFormTomSelects);
+		return;
+	}
+	if (typeof waitForTomSelect === 'function') {
+		waitForTomSelect().then(initPartnerFormTomSelects);
+	}
+}
 
 jQuery(document).ready(function($){
 
@@ -680,27 +718,6 @@ jQuery(document).ready(function($){
 			return;
 		}
 		$(document).one('VendorLibsLoaded', callback);
-	}
-
-	function initPartnerFormTomSelects() {
-		if (window.__partnerCreateTomSelectInitialized) {
-			return;
-		}
-		if (typeof TomSelect === 'undefined' || typeof initTomSelect !== 'function') {
-			console.warn('Tom Select not available yet, skipping partner form init');
-			return;
-		}
-
-		var compact = typeof compactTomSelectOptions === 'function'
-			? compactTomSelectOptions()
-			: { width: '100%', minimumResultsForSearch: Infinity };
-
-		initTomSelectPreserveValue('#getpartnertype', compact);
-		initTomSelectPreserveValue('#partner_type', compact);
-		initTomSelectPreserveValue('select[name="service_workflow"]', compact);
-		initTomSelectPreserveValue('select[name="country"]', compact);
-
-		window.__partnerCreateTomSelectInitialized = true;
 	}
 
 	var branchdata = new Array();
@@ -738,10 +755,7 @@ jQuery(document).ready(function($){
 		if (!v) {
 			$('.popuploader').hide();
 			if (typeof reinitTomSelectAfterHtml === 'function') {
-				var emptyCompact = typeof compactTomSelectOptions === 'function'
-					? compactTomSelectOptions()
-					: { width: '100%', minimumResultsForSearch: Infinity };
-				reinitTomSelectAfterHtml('#partner_type', '<option value="">Select a Partner Type</option>', emptyCompact);
+				reinitTomSelectAfterHtml('#partner_type', '<option value="">Select a Partner Type</option>', partnerFormTomSelectOptions());
 			}
 			return;
 		}
@@ -752,10 +766,7 @@ jQuery(document).ready(function($){
 			success:function(response){
 				$('.popuploader').hide();
 				if (typeof reinitTomSelectAfterHtml === 'function') {
-					var compact = typeof compactTomSelectOptions === 'function'
-						? compactTomSelectOptions()
-						: { width: '100%', minimumResultsForSearch: Infinity };
-					reinitTomSelectAfterHtml('#partner_type', response, compact);
+					reinitTomSelectAfterHtml('#partner_type', response, partnerFormTomSelectOptions());
 				} else {
 					$('#partner_type').html(response);
 				}
@@ -972,17 +983,6 @@ jQuery(document).ready(function($){
 		var v = $(this).attr('dataid');
 		$('#metatag_'+v).remove();
 	});
-
-	(function bootPartnerFormTomSelect() {
-		function run() {
-			initPartnerFormTomSelects();
-		}
-		if (typeof whenTomSelectReady === 'function') {
-			whenTomSelectReady(run);
-		} else {
-			whenVendorLibsReady(run);
-		}
-	})();
 
     
     ////////////////////////////////////////
@@ -1250,5 +1250,7 @@ var loadFile = function(event) {
 	  $('.if_image').hide();
     }
 };
+
+bootPartnerFormTomSelects();
 </script>
 @endsection

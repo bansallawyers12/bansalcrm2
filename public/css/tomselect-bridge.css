@@ -242,6 +242,21 @@
     min-width: 0;
 }
 
+/* Partner create form — Tom Select menus inside main-content (overflow:hidden) */
+.partner-create-form-card .card-body,
+.partner-create-form-card .accordion-body {
+    overflow: visible !important;
+}
+
+.partner-create-form-card .ts-wrapper.focus,
+.partner-create-form-card .ts-wrapper.dropdown-active {
+    z-index: 10050 !important;
+}
+
+.partner-create-form-card .ts-dropdown {
+    z-index: 10050 !important;
+}
+
 /* Recipient AJAX dropdown rows (HTML from RecipientSelect / formatRepo) */
 .ts-dropdown .ts-result-row {
     display: flex;
