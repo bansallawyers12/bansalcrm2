@@ -254,14 +254,14 @@
 
             var seq = ++loadState.seq;
 
-            loadState.xhr = window.jQuery.ajax({
+            var xhr = window.jQuery.ajax({
                 url: url,
                 dataType: 'json',
                 cache: false,
                 data: { q: query },
                 success: function (data) {
+                    // Ignore superseded responses — never call callback() or we wipe newer results.
                     if (seq !== loadState.seq) {
-                        callback();
                         return;
                     }
 
@@ -278,14 +278,22 @@
                     clearUnselectedRecipientOptions(self);
                     callback(normalized);
                 },
-                error: function () {
-                    // Always invoke callback (including abort) so Tom Select clears its loader.
+                error: function (_jqXHR, _textStatus) {
+                    // Only the latest in-flight request may clear the loader / show empty state.
+                    // Aborted older requests must not run after a newer success (race fix).
+                    if (seq !== loadState.seq) {
+                        return;
+                    }
                     callback();
                 },
                 complete: function () {
-                    loadState.xhr = null;
+                    if (loadState.xhr === xhr) {
+                        loadState.xhr = null;
+                    }
                 }
             });
+
+            loadState.xhr = xhr;
         };
     }
 
