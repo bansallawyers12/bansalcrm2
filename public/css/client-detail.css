@@ -505,6 +505,11 @@
 	flex: 1;
 	min-width: 0;
 	line-height: 1.5;
+	overflow: hidden;
+}
+
+.activity-title p {
+	margin-top: 0;
 }
 
 .activity-title b {
@@ -518,6 +523,8 @@
 	gap: 10px;
 	flex-shrink: 0;
 	margin-left: auto;
+	position: relative;
+	z-index: 2;
 }
 
 .activity-date {
@@ -534,6 +541,11 @@
 	align-items: center;
 	gap: 6px;
 	flex-shrink: 0;
+}
+
+.client-detail-container .activity-actions .dropdown-menu,
+.client-detail-container .dropdown_ellipsis_icon .dropdown-menu {
+	z-index: 1050;
 }
 
 .activity-detail p {

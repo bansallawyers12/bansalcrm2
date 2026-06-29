@@ -61,7 +61,7 @@ function buildLegacyActivityItemHtml(v) {
     html += '<div class="activity-actions">';
     html += pinHtml;
     html += '<div class="dropdown d-inline dropdown_ellipsis_icon">';
-    html += '<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + crmIcon('ellipsis-v') + '</a>';
+    html += '<a class="dropdown-toggle" href="javascript:;" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + crmIcon('ellipsis-v') + '</a>';
     html += '<div class="dropdown-menu">';
     html += deleteHtml;
     html += '<a data-id="' + activityId + '" class="dropdown-item pinactivitylog" href="javascript:;">' + pinLabel + '</a>';

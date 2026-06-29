@@ -20,7 +20,7 @@
 					@endif
 
 					<div class="dropdown d-inline dropdown_ellipsis_icon">
-						<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
+						<a class="dropdown-toggle" href="javascript:;" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
 						<div class="dropdown-menu">
 							@if(Auth::user()->role == 1)
 								<a data-id="{{ $activit->id }}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;">Delete</a>
