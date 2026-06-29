@@ -42,6 +42,39 @@
     min-width: 0;
 }
 
+/*
+ * Tom Select + Bootstrap form-control: one focus ring on the wrapper.
+ * Tom Select copies form-control onto .ts-wrapper and removes the inner border,
+ * but tom-select.bootstrap5 still adds box-shadow on .focus .ts-control. That
+ * shadow extends below the wrapper and shows as a stray blue line after selection
+ * (Partner Assign Staff Group dropdown and other assignee/group selects).
+ * Match normal focus styling from public/css/custom.css .form-control:focus.
+ */
+.ts-wrapper.form-control.focus:not(.disabled) .ts-control,
+.ts-wrapper.form-control:focus-within:not(.disabled) .ts-control {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.ts-wrapper.form-control.focus:not(.disabled):not(.is-invalid):not(.is-valid),
+.ts-wrapper.form-control:focus-within:not(.disabled):not(.is-invalid):not(.is-valid) {
+    border-color: #5468e8;
+    box-shadow: 0 0 0 4px rgba(84, 104, 232, 0.15);
+    outline: none;
+}
+
+.ts-wrapper.form-control.is-invalid.focus:not(.disabled),
+.ts-wrapper.form-control.is-invalid:focus-within:not(.disabled) {
+    border-color: var(--bs-form-invalid-color, #dc3545);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb, 220, 53, 69), 0.25);
+}
+
+.ts-wrapper.form-control.is-valid.focus:not(.disabled),
+.ts-wrapper.form-control.is-valid:focus-within:not(.disabled) {
+    border-color: var(--bs-form-valid-color, #198754);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb, 25, 135, 84), 0.25);
+}
+
 /* Modal z-index — Tom Select adds .focus to .ts-wrapper when dropdown is open */
 .modal.show .ts-wrapper.focus,
 .modal.show .ts-dropdown {
