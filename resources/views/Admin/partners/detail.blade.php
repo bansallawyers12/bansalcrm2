@@ -207,7 +207,7 @@ use App\Http\Controllers\Controller;
                             
 						</div>
 					</div>
-					<div class="card">
+					<div class="card left_section_lower">
 						<div class="card-header">
 							<h4>General Information</h4>
 						</div>
