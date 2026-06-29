@@ -50,6 +50,9 @@
         // Use setTimeout to ensure DOM is fully ready and active tab is set
         setTimeout(function() {
             handlePersonalDetailsVisibility();
+            if ($('#accounts-tab').hasClass('active') && $('.popuploader').length && $('.popuploader').is(':visible')) {
+                $('.popuploader').hide();
+            }
         }, 50);
 
         // Tab click handler - update visibility when tabs are clicked
@@ -63,6 +66,10 @@
         // Also listen to Bootstrap's shown.bs.tab event for more reliable handling
         $('#client_tabs a').on('shown.bs.tab', function () {
             handlePersonalDetailsVisibility();
+            var targetHref = $(this).attr('href') || '';
+            if (targetHref === '#accounts' && $('.popuploader').length && $('.popuploader').is(':visible')) {
+                $('.popuploader').hide();
+            }
         });
 
         // Layout: adjust add_note width on sidebar toggle

@@ -5,6 +5,11 @@
 
 (function() {
     jQuery(document).ready(function($){
+        // Clear stuck full-page loader so Accounts receipt icons remain clickable
+        if ($('.popuploader').length && $('.popuploader').is(':visible')) {
+            $('.popuploader').hide();
+        }
+
         // ============================================================================
         // RECEIPT HELPERS
         // ============================================================================
@@ -84,7 +89,8 @@
         });
 
         // Open Create Refund modal
-        $(document).on('click', '.createclientrefund', function() {
+        $(document).on('click', '.createclientrefund', function(e) {
+            e.preventDefault();
             var id = $(this).attr('data-id');
             var transNo = $(this).attr('data-trans-no') || 'Rec' + id;
             var amount = parseFloat($(this).attr('data-amount')) || 0;

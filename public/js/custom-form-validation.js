@@ -619,25 +619,28 @@ function customValidate(formName, savetype = '')
                                             var trRows = "";
                                             $.each(reqData, function(index, subArray) {
                                                 if(awsUrl != ""){
-                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
+                                                    var awsLink = '<a target="_blank" class="link-primary client-receipt-action" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                                 } else {
                                                     var awsLink = '';
                                                 }
 
                                                 if(printUrl != ""){
-                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'" title="Print receipt">' + crmIcon('print') + '</a>';
+                                                    var printLink = '<a target="_blank" class="link-primary client-receipt-action" href="'+printUrl+'" title="Print receipt">' + crmIcon('print') + '</a>';
                                                 } else {
                                                     var printLink = '';
                                                 }
 
-                                                var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'">' + crmIcon('pencil-alt') + '</a>';
-                                                var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund">' + crmIcon('undo') + '</a>';
+                                                var editLink = '<a class="link-primary client-receipt-action updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'" title="Edit receipt">' + crmIcon('pencil-alt') + '</a>';
+                                                var refundLink = ' <a class="link-primary client-receipt-action createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund">' + crmIcon('undo') + '</a>';
 
                                                 trRows += "<tr id=\"TrRow_"+lastInsertedId+"\"><td>"+subArray.trans_date+" "+awsLink+"</td><td>"+subArray.entry_date+"</td><td>"+subArray.trans_no+"</td><td>"+subArray.payment_method+"</td><td>"+subArray.description+"</td><td>$"+subArray.deposit_amount+" "+printLink+" "+editLink+refundLink+"</td></tr>";
                                             });
                                         }
                                         //console.log('trRows='+trRows);
                                         $('.productitemList .lastRow, .lastRow').first().before(trRows);
+                                        if (typeof window.refreshCrmIcons === 'function') {
+                                            window.refreshCrmIcons(document.querySelector('.productitemList'));
+                                        }
                                     }
                                     if(obj.function_type == 'edit')
                                     {
@@ -661,17 +664,17 @@ function customValidate(formName, savetype = '')
 												var awsLink = '';
 												var printLink = '';
 												var editLink = '';
-												var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+subArray.id+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="'+(subArray.application_id || '')+'" title="Create Refund">' + crmIcon('undo') + '</a>';
+												var refundLink = ' <a class="link-primary client-receipt-action createclientrefund" href="javascript:;" data-id="'+subArray.id+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="'+(subArray.application_id || '')+'" title="Create Refund">' + crmIcon('undo') + '</a>';
 												
 												if(awsUrl != ""){
-                                                    awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
+                                                    awsLink = '<a target="_blank" class="link-primary client-receipt-action" href="'+awsUrl+'">' + crmIcon('file-pdf') + '</a>';
                                                 }
 
                                                 if(printUrl != ""){
-                                                    printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'">' + crmIcon('print') + '</a>';
+                                                    printLink = '<a target="_blank" class="link-primary client-receipt-action" href="'+printUrl+'" title="Print receipt">' + crmIcon('print') + '</a>';
                                                 }
 
-												editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'">' + crmIcon('pencil-alt') + '</a>';
+												editLink = '<a class="link-primary client-receipt-action updateclientreceipt" href="javascript:;" data-id="'+subArray.id+'" title="Edit receipt">' + crmIcon('pencil-alt') + '</a>';
 
 												// Update each TD cell instead of emptying the entire row
 												$existingRow.find('td:eq(0)').html(subArray.trans_date+" "+awsLink);
@@ -681,6 +684,9 @@ function customValidate(formName, savetype = '')
 												$existingRow.find('td:eq(4)').html(subArray.description);
 												$existingRow.find('td:eq(5)').html("$"+subArray.deposit_amount+" "+printLink+" "+editLink+refundLink);
 											});
+                                            if (typeof window.refreshCrmIcons === 'function') {
+                                                window.refreshCrmIcons(document.querySelector('.productitemList'));
+                                            }
 										}
                                     }
 									if(obj.db_total_deposit_amount){

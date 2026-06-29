@@ -781,7 +781,8 @@ function escapeHtml(text) {
 // This handler was causing the modal to open twice (Issue #3).
 
 // Handle "Edit Client Receipt" button click (from the pencil icon)
-$(document).on('click', '.updateclientreceipt', function() {
+$(document).on('click', '.updateclientreceipt', function(e) {
+    e.preventDefault();
     var receipt_id = $(this).attr('data-id');
     var url = App.getUrl('clientGetReceiptInfo') || App.getUrl('siteUrl') + '/clients/getClientReceiptInfoById';
     
@@ -890,10 +891,12 @@ $(document).on('click', '.updateclientreceipt', function() {
             }
         },
         error: function() {
+            toastMsg('Error loading receipt data. Please try again.', 'error');
+        },
+        complete: function() {
             if ($('.popuploader').length) {
                 $('.popuploader').hide();
             }
-            toastMsg('Error loading receipt data. Please try again.', 'error');
         }
     });
 });

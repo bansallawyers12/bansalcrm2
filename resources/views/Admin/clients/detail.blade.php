@@ -1652,9 +1652,8 @@ use App\Http\Controllers\Controller;
 										<div class="clearfix"></div>
 									</div>
 									<div class="table-responsive">
-
-                                      	<caption>Client Receipts</caption>
                                         <table border="1" style="margin-bottom:0rem !important;" class="table text_wrap table-striped table-hover table-md vertical_align">
+                                            <caption>Client Receipts</caption>
                                             <thead>
                                                 <tr>
                                                     <th>Trans. Date</th>
@@ -1698,7 +1697,7 @@ use App\Http\Controllers\Controller;
                                                                     $awsUrl = $url.$client_info->client_id.'/'.$client_doc_list->doc_type.'/'.$client_doc_list->myfile; 
                                                                 }
                                                                 ?>
-                                                                <a target="_blank" class="link-primary" href="<?php echo $awsUrl;?>">@icon('file-pdf')</a>
+                                                                <a target="_blank" class="link-primary client-receipt-action" href="<?php echo $awsUrl;?>">@icon('file-pdf')</a>
                                                             <?php
                                                             }
                                                         } ?>
@@ -1718,14 +1717,14 @@ use App\Http\Controllers\Controller;
                                                         ?>
                                                         <span class="<?php echo $isRefund ? 'text-danger' : ''; ?>">$<?php echo $rec_val->deposit_amount; ?></span>
                                                         <?php if($isRefund): ?><span class="badge bg-secondary">Refund</span><?php endif; ?>
-                                                        <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}">{!! \App\Helpers\IconHelper::render('print') !!}</a>
+                                                        <a target="_blank" class="link-primary client-receipt-action" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}" title="Print receipt">{!! \App\Helpers\IconHelper::render('print') !!}</a>
                                                        <?php
                                                         if($rec_val->receipt_type == 1){
                                                         ?>
-                                              			<a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php echo $rec_val->id;?>">
+                                              			<a class="link-primary client-receipt-action updateclientreceipt" href="javascript:;" data-id="<?php echo $rec_val->id;?>" title="Edit receipt">
                                                           @icon('pencil-alt')
                                                         </a>
-                                                        <a class="link-primary createclientrefund" href="javascript:;" data-id="<?php echo $rec_val->id;?>" data-trans-no="<?php echo e($rec_val->trans_no);?>" data-amount="<?php echo $rec_val->deposit_amount;?>" data-application-id="<?php echo $rec_val->application_id ?? '';?>" title="Create Refund">
+                                                        <a class="link-primary client-receipt-action createclientrefund" href="javascript:;" data-id="<?php echo $rec_val->id;?>" data-trans-no="<?php echo e($rec_val->trans_no);?>" data-amount="<?php echo $rec_val->deposit_amount;?>" data-application-id="<?php echo $rec_val->application_id ?? '';?>" title="Create Refund">
                                                           @icon('undo')
                                                         </a>
                                                        <?php
