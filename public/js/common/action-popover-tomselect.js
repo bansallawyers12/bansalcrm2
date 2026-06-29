@@ -38,6 +38,10 @@
             (select && select.closest && select.closest('.modal'));
 
         if (modal) {
+            // Create In Person Client: menu stays on .ts-wrapper (see initModalTomSelects omitDropdownParent)
+            if (modal.id === 'checkinmodal') {
+                return null;
+            }
             return modal.querySelector('.modal-content') || modal;
         }
 

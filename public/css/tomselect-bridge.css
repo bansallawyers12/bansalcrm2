@@ -222,6 +222,27 @@
     overflow: visible !important;
 }
 
+/* Create In Person Client modal (#checkinmodal) — assignee Tom Select */
+#checkinmodal .ts-wrapper,
+#checkinmodal .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#checkinmodal .ts-wrapper.focus,
+#checkinmodal .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
+#checkinmodal .modal-body,
+#checkinmodal .modal-content {
+    overflow: visible !important;
+}
+
+#checkinmodal .ts-dropdown-content {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
 /* Action assign/update modal (completed activities page) */
 #actionPopoverModal .ts-wrapper,
 #actionPopoverModal .ts-dropdown {
