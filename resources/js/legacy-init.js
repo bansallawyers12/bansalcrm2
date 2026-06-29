@@ -65,7 +65,8 @@
             // This provides better performance with debouncing, keyboard shortcuts, and categorization
             
 
-            $(document).delegate('.opencheckin', 'click', function(){
+            $(document).delegate('.opencheckin', 'click', function(e){
+                e.preventDefault();
                 $('#checkinmodal').modal('show');
             });
             
@@ -700,38 +701,59 @@
                 $('.card .card-body .grid_data').show();
             });
             
-            // Check-in contact search — Tom Select via RecipientSelect
-            function initCheckinContactSelect() {
+            // Check-in contact search — Tom Select via RecipientSelect (init on modal shown)
+            function bindCheckinContactSelectEvents(instance) {
+                if (!instance || typeof instance.on !== 'function') {
+                    return;
+                }
+                instance.on('item_add', function (value) {
+                    var opt = instance.options[value];
+                    if (opt && opt.status) {
+                        $('#utype').val(opt.status);
+                    }
+                });
+            }
+
+            function initCheckinContactSelect(options) {
+                options = options || {};
                 var selector = '.js-data-example-ajax-check';
                 var el = document.querySelector(selector);
-                if (!el || (typeof isTomSelect === 'function' && isTomSelect(el))) {
+                if (!el) {
                     return;
                 }
                 if (typeof RecipientSelect === 'undefined' || typeof RecipientSelect.init !== 'function') {
+                    return;
+                }
+                if (!options.force && typeof isTomSelect === 'function' && isTomSelect(el)) {
                     return;
                 }
                 var instance = RecipientSelect.init(selector, {
                     url: site_url + '/clients/get-recipients',
                     dropdownParent: '#checkinmodal',
                     multiple: true,
-                    closeOnSelect: false
+                    closeOnSelect: false,
+                    minimumInputLength: 4,
+                    force: !!options.force
                 });
-                if (instance && typeof instance.on === 'function') {
-                    instance.on('item_add', function (value) {
-                        var opt = instance.options[value];
-                        if (opt && opt.status) {
-                            $('#utype').val(opt.status);
-                        }
-                    });
-                }
+                bindCheckinContactSelectEvents(instance);
             }
 
+            $(document).on('shown.bs.modal', '#checkinmodal', function () {
+                initCheckinContactSelect({ force: true });
+            });
+
             if (typeof waitForRecipientSelect === 'function') {
-                waitForRecipientSelect().then(initCheckinContactSelect);
+                waitForRecipientSelect().then(function () {
+                    initCheckinContactSelect();
+                });
             } else if (typeof whenTomSelectReady === 'function') {
-                whenTomSelectReady(initCheckinContactSelect);
+                whenTomSelectReady(function () {
+                    initCheckinContactSelect();
+                });
             } else if (typeof waitForTomSelect === 'function') {
-                waitForTomSelect().then(initCheckinContactSelect);
+                waitForTomSelect().then(function () {
+                    initCheckinContactSelect();
+                });
             }
         }); // End of $(document).ready
     }

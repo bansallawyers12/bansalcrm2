@@ -335,6 +335,9 @@
             config.searchField = config.searchField || ['text', 'name', 'email'];
             config.load = buildAjaxLoader(config._compatAjax, minimumInputLength);
             config.loadThrottle = config.loadThrottle || config._compatAjax.delay || 250;
+        } else if (config.load) {
+            config.valueField = config.valueField || 'id';
+            config.labelField = config.labelField || 'text';
         }
 
         if (options.multiple || element.hasAttribute('multiple')) {

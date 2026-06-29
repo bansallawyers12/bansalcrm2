@@ -415,8 +415,10 @@ i[style*="color:rgba"] {
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('checkinmodalsave')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<div class="checkin-modal-actions">
+								<button onclick="customValidate('checkinmodalsave')" type="button" class="btn btn-primary">Send</button>
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							</div>
 						</div>
 					</div>
 				</form>

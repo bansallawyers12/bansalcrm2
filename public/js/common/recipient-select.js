@@ -205,25 +205,118 @@
         }
     }
 
-    function resolveEmailModalDropdownParent(options) {
-        // Always use body for compose modal fields — modal-content/hidden modal breaks dropdown_parent plugin
+    function resolveRecipientDropdownParent(options) {
+        options = options || {};
+        // Check-in modal: omit dropdownParent so the menu stays on .ts-wrapper (below the control).
+        // Reparenting to .modal-content breaks placement — same pattern as assignee Tom Select.
+        if (options.dropdownParent === '#checkinmodal' || options.omitDropdownParent === true) {
+            return null;
+        }
+        // Compose email modal — body avoids hidden-modal reparenting bugs
         return document.body;
+    }
+
+    function clearUnselectedRecipientOptions(instance) {
+        if (!instance || !instance.options) {
+            return;
+        }
+        Object.keys(instance.options).forEach(function (key) {
+            if (key === '' || (instance.items && instance.items.indexOf(key) !== -1)) {
+                return;
+            }
+            instance.removeOption(key, true);
+        });
+    }
+
+    function buildRecipientRemoteLoad(url, options, loadState) {
+        options = options || {};
+        loadState = loadState || { seq: 0, xhr: null };
+        var minimumInputLength = options.minimumInputLength || 0;
+
+        return function (query, callback) {
+            var self = this;
+
+            if (!query || query.length < minimumInputLength) {
+                callback();
+                return;
+            }
+
+            if (!window.jQuery || !window.jQuery.ajax) {
+                callback();
+                return;
+            }
+
+            if (loadState.xhr && typeof loadState.xhr.abort === 'function') {
+                loadState.xhr.abort();
+            }
+
+            clearUnselectedRecipientOptions(self);
+
+            var seq = ++loadState.seq;
+
+            loadState.xhr = window.jQuery.ajax({
+                url: url,
+                dataType: 'json',
+                cache: false,
+                data: { q: query },
+                success: function (data) {
+                    if (seq !== loadState.seq) {
+                        callback();
+                        return;
+                    }
+
+                    var results = (data && data.items) ? data.items : [];
+                    var normalized = results.map(function (item) {
+                        var id = item && item.id != null ? String(item.id) : '';
+                        return Object.assign({}, item, {
+                            id: id,
+                            text: (item && (item.text || item.name)) || id,
+                            _recipientLoadToken: seq
+                        });
+                    });
+
+                    clearUnselectedRecipientOptions(self);
+                    callback(normalized);
+                },
+                error: function () {
+                    // Always invoke callback (including abort) so Tom Select clears its loader.
+                    callback();
+                },
+                complete: function () {
+                    loadState.xhr = null;
+                }
+            });
+        };
     }
 
     function buildInitOptions(url, options) {
         options = options || {};
         var isMultiple = options.multiple !== false;
-        var dropdownParent = resolveEmailModalDropdownParent(options);
+        var dropdownParent = resolveRecipientDropdownParent(options);
+        var loadState = { seq: 0, xhr: null };
 
         var initOpts = {
             multiple: isMultiple,
             closeOnSelect: false,
-            dropdownParent: dropdownParent,
             width: '100%',
-            ajax: buildAjaxOptions(url, options),
+            valueField: 'id',
+            labelField: 'text',
+            load: buildRecipientRemoteLoad(url, options, loadState),
+            loadThrottle: options.delay || 250,
+            searchField: options.searchField || ['text', 'name', 'email', 'phone', 'client_id'],
+            // Only show options from the latest successful API response (avoids stale partial matches).
+            score: function () {
+                return function (item) {
+                    return item && item._recipientLoadToken === loadState.seq ? 1 : 0;
+                };
+            },
             templateResult: formatRepo,
             templateSelection: formatRepoSelection
         };
+
+        if (dropdownParent) {
+            initOpts.dropdownParent = dropdownParent;
+        }
 
         if (options.minimumInputLength) {
             initOpts.minimumInputLength = options.minimumInputLength;
@@ -239,11 +332,11 @@
     function buildStaticOptions(options) {
         options = options || {};
         var isMultiple = options.multiple !== false;
+        var dropdownParent = resolveRecipientDropdownParent(options);
 
-        return {
+        var staticOpts = {
             multiple: isMultiple,
             closeOnSelect: false,
-            dropdownParent: resolveEmailModalDropdownParent(options),
             width: '100%',
             escapeMarkup: function (markup) {
                 return markup;
@@ -255,6 +348,12 @@
                 return wrapTomSelectLabel(data.text || data.name || '');
             }
         };
+
+        if (dropdownParent) {
+            staticOpts.dropdownParent = dropdownParent;
+        }
+
+        return staticOpts;
     }
 
     function collectRelatedFileEntries() {

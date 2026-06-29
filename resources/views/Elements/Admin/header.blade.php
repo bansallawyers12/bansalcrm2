@@ -67,8 +67,8 @@
 		</ul>
 	</div>
 	<ul class="navbar-nav navbar-right">
-	<li class="dropdown dropdown-list-toggle">
-	<a href="javascript:;" data-bs-toggle="dropdown" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin">@icon('sign-in-alt')</a>
+	<li>
+		<a href="javascript:;" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin">@icon('sign-in-alt')</a>
 	</li>
 		<!-- {{--	<li class="dropdown dropdown-list-toggle">
 			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle">@icon('envelope')<span class="badge headerBadge1">6</span></a>

@@ -222,7 +222,11 @@
     overflow: visible !important;
 }
 
-/* Create In Person Client modal (#checkinmodal) — assignee Tom Select */
+/* Create In Person Client modal (#checkinmodal) — contact + assignee Tom Select */
+#checkinmodal .form-group .ts-wrapper {
+    position: relative;
+}
+
 #checkinmodal .ts-wrapper,
 #checkinmodal .ts-dropdown {
     z-index: 9999 !important;
@@ -241,6 +245,19 @@
 #checkinmodal .ts-dropdown-content {
     max-height: 280px;
     overflow-y: auto;
+}
+
+#checkinmodal .checkin-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+#checkinmodal .checkin-modal-actions .btn {
+    width: auto;
+    min-width: 5.5rem;
 }
 
 /* Action assign/update modal (completed activities page) */

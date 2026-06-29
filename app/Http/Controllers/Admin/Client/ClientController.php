@@ -991,45 +991,39 @@ class ClientController extends Controller
 	}
 
 	public function getrecipients(Request $request){
-		$squery = $request->q ?? '';
-		if($squery != ''){
-			try {
-				$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
-				$clients = Admin::where('is_archived', '=', 0)
-					->where(function($query) use ($squery, $operator) {
-						$query->where('email', $operator, '%'.$squery.'%')
-							->orWhere('first_name', $operator, '%'.$squery.'%')
-							->orWhere('last_name', $operator, '%'.$squery.'%')
-							->orWhere('client_id', $operator, '%'.$squery.'%')
-							->orWhere('phone', $operator, '%'.$squery.'%')
-							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, '%'.$squery.'%');
-					});
-				$user = Auth::guard('admin')->user();
-				if ($user instanceof Staff) {
-					StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
-				}
-				$clients = $clients->get();
-
-				$items = array();
-				foreach($clients as $clint){
-					$fullName = trim(($clint->first_name ?? '') . ' ' . ($clint->last_name ?? ''));
-					$items[] = array(
-						'id' => $clint->id,
-						'text' => $fullName, // Required by Tom Select / AJAX recipient format
-						'name' => $fullName,
-						'email' => $clint->email ?? '',
-						'status' => $clint->type ?? 'Client',
-						'cid' => base64_encode(convert_uuencode($clint->id))
-					);
-				}
-
-				return response()->json(array('items'=>$items));
-			} catch (\Exception $e) {
-				Log::error('getrecipients error: ' . $e->getMessage());
-				return response()->json(array('items'=>array(), 'error' => $e->getMessage()));
-			}
-		} else {
+		$squery = trim($request->q ?? '');
+		if($squery === ''){
 			return response()->json(array('items'=>array()));
+		}
+
+		try {
+			$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+			$clients = $this->buildRecipientsSearchQuery($squery, $operator);
+			$user = Auth::guard('admin')->user();
+			if ($user instanceof Staff) {
+				StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
+			}
+			$clients = $clients->get();
+
+			$items = array();
+			foreach($clients as $clint){
+				$fullName = trim(($clint->first_name ?? '') . ' ' . ($clint->last_name ?? ''));
+				$items[] = array(
+					'id' => $clint->id,
+					'text' => $fullName, // Required by Tom Select / AJAX recipient format
+					'name' => $fullName,
+					'email' => $clint->email ?? '',
+					'phone' => $this->formatRecipientPhone($clint),
+					'client_id' => $clint->client_id ?? '',
+					'status' => $clint->type ?? 'Client',
+					'cid' => base64_encode(convert_uuencode($clint->id))
+				);
+			}
+
+			return response()->json(array('items'=>$items));
+		} catch (\Exception $e) {
+			Log::error('getrecipients error: ' . $e->getMessage());
+			return response()->json(array('items'=>array(), 'error' => $e->getMessage()));
 		}
 	}
 
@@ -1480,6 +1474,139 @@ class ClientController extends Controller
             'ok' => false,
             'message' => $result['message'] ?? $result['error'] ?? 'Failed to send SMS',
         ], 422);
+    }
+
+    /**
+     * Recipient / check-in contact search — name, email, client reference, and phone numbers.
+     */
+    private function buildRecipientsSearchQuery(string $squery, string $operator)
+    {
+        $phoneSubquery = $this->clientPhonesSubquery();
+        $query = Admin::query()->where('admins.is_archived', '=', 0);
+
+        if ($phoneSubquery) {
+            $query->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
+                ->select('admins.*', 'phone_data.phones as aggregated_phones');
+        } else {
+            $query->select('admins.*');
+        }
+
+        $digitsOnly = preg_replace('/[^\d]/', '', $squery);
+        $isNumericQuery = $digitsOnly !== ''
+            && strlen($digitsOnly) >= 4
+            && preg_match('/^[\d\s\-+().]+$/', $squery);
+
+        $query->where(function ($q) use ($squery, $operator, $phoneSubquery, $isNumericQuery) {
+            if ($isNumericQuery) {
+                $q->where('admins.client_id', $operator, '%' . $squery . '%');
+
+                foreach ($this->recipientPhonePatterns($squery) as $pattern) {
+                    $q->orWhere('admins.phone', $operator, $pattern);
+                    if ($phoneSubquery) {
+                        $q->orWhere('phone_data.phones', $operator, $pattern);
+                    }
+                }
+
+                return;
+            }
+
+            $q->where('admins.email', $operator, '%' . $squery . '%')
+                ->orWhere('admins.first_name', $operator, '%' . $squery . '%')
+                ->orWhere('admins.last_name', $operator, '%' . $squery . '%')
+                ->orWhere('admins.client_id', $operator, '%' . $squery . '%');
+
+            foreach ($this->recipientPhonePatterns($squery) as $pattern) {
+                $q->orWhere('admins.phone', $operator, $pattern);
+                if ($phoneSubquery) {
+                    $q->orWhere('phone_data.phones', $operator, $pattern);
+                }
+            }
+
+            if (DB::getDriverName() === 'pgsql') {
+                $q->orWhere(
+                    DB::raw("COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')"),
+                    $operator,
+                    '%' . $squery . '%'
+                );
+            } else {
+                $q->orWhere(
+                    DB::raw("CONCAT(COALESCE(admins.first_name, ''), ' ', COALESCE(admins.last_name, ''))"),
+                    $operator,
+                    '%' . $squery . '%'
+                );
+            }
+        });
+
+        return $query->distinct();
+    }
+
+    private function clientPhonesSubquery()
+    {
+        if (! Schema::hasTable('client_phones')) {
+            return null;
+        }
+
+        $agg = DB::getDriverName() === 'pgsql'
+            ? "STRING_AGG(TRIM(CONCAT(COALESCE(client_country_code, ''), ' ', client_phone)), ', ')"
+            : "GROUP_CONCAT(TRIM(CONCAT(COALESCE(client_country_code, ''), ' ', client_phone)) SEPARATOR ', ')";
+
+        return DB::table('client_phones')
+            ->select('client_id', DB::raw("{$agg} as phones"))
+            ->groupBy('client_id');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function recipientPhonePatterns(string $squery): array
+    {
+        $patterns = ['%' . $squery . '%'];
+        $digitsOnly = preg_replace('/[^\d]/', '', $squery);
+
+        if ($digitsOnly === '' || strlen($digitsOnly) < 4) {
+            return array_values(array_unique($patterns));
+        }
+
+        $core = $digitsOnly;
+        if (preg_match('/^61(4\d+)$/', $digitsOnly, $matches)) {
+            $core = $matches[1];
+        } elseif (preg_match('/^0(4\d+)$/', $digitsOnly, $matches)) {
+            $core = $matches[1];
+        }
+
+        if (preg_match('/^4\d+$/', $core)) {
+            return array_values(array_unique([
+                '%' . $core . '%',
+                '%0' . $core . '%',
+                '%61' . $core . '%',
+                '%' . $squery . '%',
+            ]));
+        }
+
+        $patterns[] = '%' . $digitsOnly . '%';
+
+        return array_values(array_unique($patterns));
+    }
+
+    private function formatRecipientPhone($client): string
+    {
+        $parts = [];
+        $primary = trim((string) ($client->phone ?? ''));
+        if ($primary !== '') {
+            $parts[] = $primary;
+        }
+
+        $extra = trim((string) ($client->aggregated_phones ?? ''));
+        if ($extra !== '') {
+            foreach (preg_split('/,\s*/', $extra) as $chunk) {
+                $chunk = trim($chunk);
+                if ($chunk !== '' && ! in_array($chunk, $parts, true)) {
+                    $parts[] = $chunk;
+                }
+            }
+        }
+
+        return implode(', ', $parts);
     }
 
     /**
