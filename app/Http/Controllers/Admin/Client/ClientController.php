@@ -810,9 +810,10 @@ class ClientController extends Controller
                     ->get();
                 $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
                 $followupConsultants = $this->followupConsultantsForSchedule();
+                $canEditClient = $this->canEditClient($fetchedData);
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants','canEditClient'])
                 );
             }
             // Fallback: legacy lead in leads table (unmigrated) - use DB, not Lead model
