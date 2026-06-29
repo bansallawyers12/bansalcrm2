@@ -1,7 +1,7 @@
 {{-- Single note item (shared by client/lead detail and AJAX refresh) --}}
 <div class="note_col" id="note_id_{{ $list->id }}">
 	<div class="note_content">
-		<h4><a @if($color) style="color: #fff!important;" @endif class="viewnote" data-id="{{ $list->id }}" href="javascript:;">{{ @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...') }}</a></h4>
+		<h4><a class="viewnote" data-id="{{ $list->id }}" href="javascript:;">{{ @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...') }}</a></h4>
 		@if($list->pin == 1)
 			<div class="pined_note">@icon('thumbtack')</div>
 		@endif
