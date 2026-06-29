@@ -1499,6 +1499,36 @@ class PartnersController extends Controller
 	}
 
 	/**
+	 * Parse DOB search input (DD/MM/YYYY) to database format (Y-m-d).
+	 */
+	private function parsePartnerStudentTabDobSearch(string $searchValue): ?string
+	{
+		if (! str_contains($searchValue, '/')) {
+			return null;
+		}
+
+		$parts = array_map('trim', explode('/', $searchValue));
+		if (count($parts) !== 3) {
+			return null;
+		}
+
+		[$day, $month, $year] = $parts;
+		if (! ctype_digit($day) || ! ctype_digit($month) || ! ctype_digit($year)) {
+			return null;
+		}
+
+		$day = (int) $day;
+		$month = (int) $month;
+		$year = (int) $year;
+
+		if (strlen((string) $year) !== 4 || ! checkdate($month, $day, $year)) {
+			return null;
+		}
+
+		return sprintf('%04d-%02d-%02d', $year, $month, $day);
+	}
+
+	/**
 	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @return \Illuminate\Database\Query\Builder
 	 */
@@ -1510,18 +1540,22 @@ class PartnersController extends Controller
 
 		$like = '%'.addcslashes($searchValue, '%_\\').'%';
 		$likeOp = $this->partnerStudentTabLikeOperator();
+		$dobDb = $this->parsePartnerStudentTabDobSearch($searchValue);
 
-		return $query->where(function ($q) use ($like, $likeOp) {
+		return $query->where(function ($q) use ($like, $likeOp, $dobDb) {
 			$q->where('applications.student_id', $likeOp, $like)
 				->orWhere('applications.stage', $likeOp, $like)
-				->orWhereExists(function ($sub) use ($like, $likeOp) {
+				->orWhereExists(function ($sub) use ($like, $likeOp, $dobDb) {
 					$sub->select(DB::raw('1'))
 						->from('admins')
 						->whereColumn('admins.id', 'applications.client_id')
-						->where(function ($a) use ($like, $likeOp) {
+						->where(function ($a) use ($like, $likeOp, $dobDb) {
 							$a->where('admins.first_name', $likeOp, $like)
 								->orWhere('admins.last_name', $likeOp, $like)
 								->orWhere('admins.client_id', $likeOp, $like);
+							if ($dobDb !== null) {
+								$a->orWhere('admins.dob', '=', $dobDb);
+							}
 						});
 				})
 				->orWhereExists(function ($sub) use ($like, $likeOp) {
