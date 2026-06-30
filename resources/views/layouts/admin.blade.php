@@ -200,6 +200,14 @@
     color: #1a202c !important;
 }
 
+/* Normal weight for non-active items (theme style.css sets font-weight: 600 on all li a) */
+.main-sidebar .sidebar-menu > li:not(.active) > a.nav-link,
+.main-sidebar .sidebar-menu > li:not(.active) > a.nav-link span,
+.main-sidebar .sidebar-menu li ul.dropdown-menu li:not(.active) > a.nav-link,
+.main-sidebar .sidebar-menu li ul.dropdown-menu li:not(.active) > a.nav-link span {
+    font-weight: 400 !important;
+}
+
 .sidebar-menu .active .nav-link,
 .sidebar-menu .active .nav-link i,
 .sidebar-menu .active .nav-link .crm-icon,
@@ -207,6 +215,10 @@
 .sidebar-menu .active .nav-link svg.lucide,
 .sidebar-menu .active .nav-link span {
     color: #1a202c !important;
+}
+
+.main-sidebar .sidebar-menu li.active > a.nav-link,
+.main-sidebar .sidebar-menu li.active > a.nav-link span {
     font-weight: 600 !important;
 }
 
