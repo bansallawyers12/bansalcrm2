@@ -315,8 +315,9 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 .application_grid_col .grid_column span{color: #9c9c9c;font-weight: 600;font-size:12px;line-height:16px;display:block;}
 .application_grid_col .grid_column p{color: #424242;font-size:12px;line-height:16px;font-weight: normal;margin:5px 0px 0px;}
 .application_other_info ul#applicat_detail_tabs li a{padding: 8px 10px!important;border-radius: 30px!important;font-size:13px;line-height:16px;} 
-.application_other_info .cus_accrodian h4{display:inline-block;} 
-.application_other_info .cus_accrodian .accord_hover{float:right;display:none;} 
+.application_other_info .cus_accrodian h4{display:inline-block;}
+.application_other_info .cus_accrodian h4.stage-collapse-toggle{cursor:pointer;margin-bottom:0;}
+.application_other_info .cus_accrodian .accord_hover{float:right;display:none;}
 .application_other_info .cus_accrodian .accordion-header:hover .accord_hover{display:inline-block;}
 .application_other_info .cus_accrodian .accord_hover a{margin-right:5px;} 
 .application_other_info .cus_accrodian .accordion-header .accord_hover a{color:#fff;}

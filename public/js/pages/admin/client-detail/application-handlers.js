@@ -337,6 +337,16 @@ jQuery(document).ready(function($){
                 if (typeof initExpectDatepickers === 'function') {
                     initExpectDatepickers('.ifapplicationdetailnot', appliid);
                 }
+
+                if (typeof reinitializeAccordions === 'function') {
+                    reinitializeAccordions();
+                }
+                if (typeof window.refreshCrmIcons === 'function') {
+                    var appDetailRoot = document.querySelector('.ifapplicationdetailnot');
+                    if (appDetailRoot) {
+                        window.refreshCrmIcons(appDetailRoot);
+                    }
+                }
             },
             error: function(xhr, status, error) {
                 $('.popuploader').hide();
@@ -450,9 +460,29 @@ jQuery(document).ready(function($){
 
     // ============================================================================
     // APPLICATION MODAL OPENERS
+    // Icons sit beside (not inside) the collapse trigger; stop propagation as a safeguard.
     // ============================================================================
-    
-    $(document).on('click', '.openappnote', function(){
+
+    function isolateActivityIconClick(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
+    $(document).on('change', '#activity_filter_type', function(){
+        var val = $(this).val();
+        if (val === 'sheet_comment') {
+            $('#accordion').hide();
+            $('#activities_sheet_comment_section').show();
+        } else {
+            $('#accordion').show();
+            $('#activities_sheet_comment_section').hide();
+        }
+    });
+
+    $(document).on('click', '.openappnote', function(event){
+        isolateActivityIconClick(event);
         var apptype = $(this).attr('data-app-type');
         var id = $(this).attr('data-id');
         $('#create_applicationnote #noteid').val(id);
@@ -460,7 +490,8 @@ jQuery(document).ready(function($){
         $('#create_applicationnote').modal('show');
     });
 
-    $(document).on('click', '.openappappoint', function(){
+    $(document).on('click', '.openappappoint', function(event){
+        isolateActivityIconClick(event);
         var id = $(this).attr('data-id');
         var apptype = $(this).attr('data-app-type');
         $('#create_applicationappoint #type').val(apptype);
@@ -468,7 +499,8 @@ jQuery(document).ready(function($){
         $('#create_applicationappoint').modal('show');
     });
 
-    $(document).on('click', '.openappaction', function(){
+    $(document).on('click', '.openappaction', function(event){
+        isolateActivityIconClick(event);
         var assign_application_id = $(this).attr('data-id');
         $('#create_applicationaction #assign_application_id').val(assign_application_id);
         var stage_name = $(this).attr('data-app-type');
@@ -483,7 +515,8 @@ jQuery(document).ready(function($){
         $('#create_applicationaction').modal('show');
     });
 
-    $(document).on('click', '.openclientemail', function(){
+    $(document).on('click', '.openclientemail', function(event){
+        isolateActivityIconClick(event);
         var id = $(this).attr('data-id');
         var apptype = $(this).attr('data-app-type');
         $('#applicationemailmodal #type').val(apptype);

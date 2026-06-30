@@ -103,8 +103,9 @@ class ApplicationsController extends Controller
 	 
 	public function getapplicationdetail(Request $request){
 		$fetchData = Application::find($request->id);
+		$fetchedData = ($fetchData && $fetchData->client_id) ? Admin::find($fetchData->client_id) : null;
 		$assignees = \App\Models\Staff::where('status', 1)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']);
-		return view('Admin.clients.applicationdetail', compact(['fetchData', 'assignees']));
+		return view('Admin.clients.applicationdetail', compact(['fetchData', 'fetchedData', 'assignees']));
 	}
 	
 	public function completestage(Request $request){

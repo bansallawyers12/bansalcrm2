@@ -138,7 +138,11 @@ jQuery(document).ready(function($){
     });
 
     // Handler for opendocnote - Add Document icon in application detail
-    $(document).on('click', '.opendocnote', function(){
+    $(document).on('click', '.opendocnote', function(event){
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         var apptype = $(this).attr('data-app-type');
         var typename = $(this).attr('data-typename');
         var aid = $(this).attr('data-id');

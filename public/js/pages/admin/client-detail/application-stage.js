@@ -38,6 +38,168 @@
     }
 
 // ============================================================================
+// FEE MODAL HELPERS (Bootstrap 5 native API with jQuery fallback)
+// ============================================================================
+
+var feeModalTriggers = {
+    new_fee_option: null,
+    new_fee_option_latest: null
+};
+
+function feeModalLog(step, detail) {
+    if (typeof console === 'undefined' || typeof console.log !== 'function') {
+        return;
+    }
+    if (detail !== undefined) {
+        console.log('[fee-modal]', step, detail);
+    } else {
+        console.log('[fee-modal]', step);
+    }
+}
+
+function feeModalSnapshot(modalEl) {
+    if (!modalEl) {
+        return { found: false };
+    }
+    var instance = (typeof bootstrap !== 'undefined' && bootstrap.Modal)
+        ? bootstrap.Modal.getInstance(modalEl)
+        : null;
+    var computedDisplay = '';
+    try {
+        computedDisplay = window.getComputedStyle(modalEl).display;
+    } catch (e) {
+        computedDisplay = 'unknown';
+    }
+    return {
+        found: true,
+        id: modalEl.id,
+        hasShowClass: modalEl.classList.contains('show'),
+        ariaHidden: modalEl.getAttribute('aria-hidden'),
+        inlineDisplay: modalEl.style.display || '',
+        computedDisplay: computedDisplay,
+        bodyModalOpen: document.body.classList.contains('modal-open'),
+        hasBootstrapInstance: !!instance,
+        bootstrapIsShown: instance && typeof instance._isShown !== 'undefined' ? instance._isShown : null
+    };
+}
+
+function hideClientDetailModal(modalEl) {
+    if (!modalEl) {
+        feeModalLog('hide skipped — no modal element');
+        return;
+    }
+    feeModalLog('hide requested', feeModalSnapshot(modalEl));
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var instance = bootstrap.Modal.getInstance(modalEl);
+        if (instance) {
+            instance.hide();
+            return;
+        }
+    }
+    if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+        jQuery(modalEl).modal('hide');
+    }
+}
+
+function ensureFeeModalCanShow(modalEl) {
+    if (!modalEl || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        feeModalLog('ensureCanShow skipped', {
+            hasModalEl: !!modalEl,
+            hasBootstrap: typeof bootstrap !== 'undefined' && !!bootstrap.Modal
+        });
+        return;
+    }
+    var instance = bootstrap.Modal.getInstance(modalEl);
+    // Recover from stale Bootstrap state (_isShown true while DOM is hidden)
+    if (instance && !modalEl.classList.contains('show')) {
+        feeModalLog('disposing stale Bootstrap instance', feeModalSnapshot(modalEl));
+        instance.dispose();
+    }
+}
+
+function showClientDetailModal(modalEl, triggerEl) {
+    if (!modalEl) {
+        feeModalLog('show failed — modal element not in DOM', { expectedIds: ['new_fee_option', 'new_fee_option_latest'] });
+        console.error('[fee-modal] Modal element not found');
+        return;
+    }
+
+    feeModalLog('show requested', {
+        before: feeModalSnapshot(modalEl),
+        triggerTag: triggerEl ? triggerEl.tagName : null,
+        triggerClass: triggerEl ? triggerEl.className : null
+    });
+
+    var modalId = modalEl.id;
+    if (modalId === 'new_fee_option' || modalId === 'new_fee_option_latest') {
+        if (triggerEl) {
+            feeModalTriggers[modalId] = triggerEl;
+        }
+        var otherModalId = modalId === 'new_fee_option' ? 'new_fee_option_latest' : 'new_fee_option';
+        var otherModalEl = document.getElementById(otherModalId);
+        if (otherModalEl && otherModalEl.classList.contains('show')) {
+            feeModalLog('closing other fee modal first', { otherModalId: otherModalId });
+            hideClientDetailModal(otherModalEl);
+        }
+        ensureFeeModalCanShow(modalEl);
+    }
+
+    try {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            feeModalLog('calling bootstrap.Modal.show()', { modalId: modalId });
+            modalInstance.show();
+        } else if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+            feeModalLog('calling jQuery.modal(show) fallback', { modalId: modalId });
+            jQuery(modalEl).modal('show');
+        } else {
+            feeModalLog('show failed — no Bootstrap or jQuery modal API available');
+        }
+    } catch (err) {
+        feeModalLog('show threw an error', { message: err && err.message ? err.message : String(err) });
+        console.error('[fee-modal] show error', err);
+    }
+
+    feeModalLog('show call finished', { after: feeModalSnapshot(modalEl) });
+}
+
+function restoreFeeModalFocus(modalId) {
+    var modalEl = document.getElementById(modalId);
+    if (!modalEl) {
+        feeModalLog('focus restore skipped — modal not found', { modalId: modalId });
+        return;
+    }
+
+    // Sibling fee modal opened — skip focus restore for the one that just closed
+    var otherModalId = modalId === 'new_fee_option' ? 'new_fee_option_latest' : 'new_fee_option';
+    var otherModalEl = document.getElementById(otherModalId);
+    if (otherModalEl && otherModalEl.classList.contains('show')) {
+        feeModalLog('focus restore skipped — sibling modal open', { modalId: modalId, otherModalId: otherModalId });
+        feeModalTriggers[modalId] = null;
+        return;
+    }
+
+    var trigger = feeModalTriggers[modalId];
+    feeModalTriggers[modalId] = null;
+
+    feeModalLog('focus restore on hidden', { modalId: modalId, hasTrigger: !!trigger });
+
+    if (trigger && document.contains(trigger)) {
+        try {
+            trigger.focus({ preventScroll: true });
+            return;
+        } catch (e) {
+            feeModalLog('focus restore on trigger failed', { message: e && e.message ? e.message : String(e) });
+        }
+    }
+
+    var active = document.activeElement;
+    if (active && modalEl.contains(active) && typeof active.blur === 'function') {
+        active.blur();
+    }
+}
+
+// ============================================================================
 // APPLICATION STAGE HANDLERS
 // ============================================================================
 
@@ -314,13 +476,43 @@ jQuery(document).ready(function($){
     // PRODUCT FEE/COMMISSION STATUS HANDLERS
     // ============================================================================
 
+    // Restore focus after hide completes (not on hide.bs — that breaks Bootstrap's cycle)
+    $(document).on('show.bs.modal', '#new_fee_option, #new_fee_option_latest', function() {
+        feeModalLog('Bootstrap show.bs.modal', feeModalSnapshot(this));
+    });
+
+    $(document).on('shown.bs.modal', '#new_fee_option, #new_fee_option_latest', function() {
+        feeModalLog('Bootstrap shown.bs.modal', feeModalSnapshot(this));
+    });
+
+    $(document).on('hide.bs.modal', '#new_fee_option, #new_fee_option_latest', function() {
+        feeModalLog('Bootstrap hide.bs.modal', feeModalSnapshot(this));
+    });
+
+    $(document).on('hidden.bs.modal', '#new_fee_option, #new_fee_option_latest', function() {
+        feeModalLog('Bootstrap hidden.bs.modal', feeModalSnapshot(this));
+        restoreFeeModalFocus(this.id);
+    });
+
     // Handler for "Edit Product Fees" button
-    $(document).on('click', '.openpaymentfee', function(){
+    $(document).on('click', '.openpaymentfee', function(e){
+        e.preventDefault();
+        feeModalLog('click .openpaymentfee', {
+            applicationId: $(this).attr('data-id'),
+            partnerId: $(this).attr('data-partnerid'),
+            targetTag: e.target ? e.target.tagName : null,
+            modalInDom: !!document.getElementById('new_fee_option'),
+            openpaymentfeeCount: $('.openpaymentfee').length
+        });
+
+        var triggerEl = this;
         var appliid = $(this).attr('data-id');
         var partnerid = $(this).attr('data-partnerid');
         
         // Load product fee form via AJAX
         var url = App.getUrl('showProductFee') || App.getUrl('siteUrl') + '/showproductfee';
+        feeModalLog('AJAX start showproductfee', { url: url, id: appliid, partnerid: partnerid });
+
         $.ajax({
             url: url,
             type: 'GET',
@@ -329,32 +521,54 @@ jQuery(document).ready(function($){
                 partnerid: partnerid
             },
             beforeSend: function() {
-                // Show loading indicator
-                $('.showproductfee').html('<div style="text-align:center;padding:20px;">' + crmIconSpinner(' Loading...') + '</div>');
-                $('#new_fee_option').modal('show');
-            },
-            success: function(response){
-                // Load the HTML form into modal body
-                $('.showproductfee').html(response);
-                
-                // Reinitialize form validation if needed
-                if (typeof customValidate === 'function') {
-                    // Form validation will be handled by the loaded form
+                try {
+                    var $body = $('#new_fee_option .showproductfee');
+                    feeModalLog('AJAX beforeSend', {
+                        bodyTargetCount: $body.length,
+                        crmIconSpinnerAvailable: typeof crmIconSpinner === 'function'
+                    });
+                    $body.html('<div style="text-align:center;padding:20px;">' + crmIconSpinner(' Loading...') + '</div>');
+                    showClientDetailModal(document.getElementById('new_fee_option'), triggerEl);
+                } catch (beforeSendErr) {
+                    feeModalLog('AJAX beforeSend error', { message: beforeSendErr && beforeSendErr.message ? beforeSendErr.message : String(beforeSendErr) });
+                    console.error('[fee-modal] beforeSend error', beforeSendErr);
                 }
             },
+            success: function(response){
+                feeModalLog('AJAX success showproductfee', {
+                    responseType: typeof response,
+                    responseLength: response ? String(response).length : 0,
+                    looksLikeLoginPage: response ? String(response).indexOf('<!DOCTYPE') !== -1 : false
+                });
+                $('#new_fee_option .showproductfee').html(response);
+            },
             error: function(xhr, status, error){
-                $('.showproductfee').html('<div style="text-align:center;padding:20px;color:red;">' + crmIcon('exclamation-triangle') + ' Error loading fee details. Please try again.</div>');
-                console.error('Error loading product fee:', error);
+                feeModalLog('AJAX error showproductfee', {
+                    status: xhr && xhr.status,
+                    statusText: status,
+                    error: error
+                });
+                $('#new_fee_option .showproductfee').html('<div style="text-align:center;padding:20px;color:red;">' + crmIcon('exclamation-triangle') + ' Error loading fee details. Please try again.</div>');
+                console.error('[fee-modal] Error loading product fee:', error);
             }
         });
     });
 
     // Handler for "Edit Commission Status" button (Latest)
-    $(document).on('click', '.openpaymentfeeLatest', function(){
+    $(document).on('click', '.openpaymentfeeLatest', function(e){
+        e.preventDefault();
+        feeModalLog('click .openpaymentfeeLatest', {
+            applicationId: $(this).attr('data-id'),
+            modalInDom: !!document.getElementById('new_fee_option_latest')
+        });
+
+        var triggerEl = this;
         var appliid = $(this).attr('data-id');
         
         // Load commission status form via AJAX
         var url = App.getUrl('showProductFeeLatest') || App.getUrl('siteUrl') + '/showproductfeelatest';
+        feeModalLog('AJAX start showproductfeelatest', { url: url, id: appliid });
+
         $.ajax({
             url: url,
             type: 'GET',
@@ -362,13 +576,21 @@ jQuery(document).ready(function($){
                 id: appliid
             },
             beforeSend: function() {
-                // Show loading indicator
-                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;">' + crmIconSpinner(' Loading...') + '</div>');
-                $('#new_fee_option_latest').modal('show');
+                try {
+                    var $body = $('#new_fee_option_latest .showproductfee_latest');
+                    feeModalLog('AJAX beforeSend latest', { bodyTargetCount: $body.length });
+                    $body.html('<div style="text-align:center;padding:20px;">' + crmIconSpinner(' Loading...') + '</div>');
+                    showClientDetailModal(document.getElementById('new_fee_option_latest'), triggerEl);
+                } catch (beforeSendErr) {
+                    feeModalLog('AJAX beforeSend latest error', { message: beforeSendErr && beforeSendErr.message ? beforeSendErr.message : String(beforeSendErr) });
+                    console.error('[fee-modal] beforeSend latest error', beforeSendErr);
+                }
             },
             success: function(response){
-                // Load the HTML form into modal body
-                $('.showproductfee_latest').html(response);
+                feeModalLog('AJAX success showproductfeelatest', {
+                    responseLength: response ? String(response).length : 0
+                });
+                $('#new_fee_option_latest .showproductfee_latest').html(response);
                 
                 // Initialize flatpickr for date fields in the loaded modal
                 if (typeof flatpickr !== 'undefined') {
@@ -377,15 +599,15 @@ jQuery(document).ready(function($){
                         allowInput: true
                     });
                 }
-                
-                // Reinitialize form validation if needed
-                if (typeof customValidate === 'function') {
-                    // Form validation will be handled by the loaded form
-                }
             },
             error: function(xhr, status, error){
-                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;color:red;">' + crmIcon('exclamation-triangle') + ' Error loading commission status. Please try again.</div>');
-                console.error('Error loading commission status:', error);
+                feeModalLog('AJAX error showproductfeelatest', {
+                    status: xhr && xhr.status,
+                    statusText: status,
+                    error: error
+                });
+                $('#new_fee_option_latest .showproductfee_latest').html('<div style="text-align:center;padding:20px;color:red;">' + crmIcon('exclamation-triangle') + ' Error loading commission status. Please try again.</div>');
+                console.error('[fee-modal] Error loading commission status:', error);
             }
         });
     });
@@ -437,6 +659,12 @@ jQuery(document).ready(function($){
     });
 
     console.log('[application-stage.js] Application stage handlers initialized');
+    feeModalLog('module ready', {
+        bootstrapAvailable: typeof bootstrap !== 'undefined' && !!bootstrap.Modal,
+        jQueryModalAvailable: typeof jQuery !== 'undefined' && !!jQuery.fn.modal,
+        newFeeOptionInDom: !!document.getElementById('new_fee_option'),
+        newFeeOptionLatestInDom: !!document.getElementById('new_fee_option_latest')
+    });
 });
 
 })(); // End async wrapper

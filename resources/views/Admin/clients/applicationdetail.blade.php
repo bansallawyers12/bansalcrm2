@@ -250,8 +250,8 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							?>
 						<div class="accordion cus_accrodian">
 							
-							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
-								<h4><?php echo $stages->name; ?></h4>
+							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>">
+								<h4 class="stage-collapse-toggle" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false" tabindex="0"><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
 									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;">@icon('file-alt')</a>
 									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" data-appdocclientid="<?php echo $fetchData->client_id;?>" href="javascript:;">@icon('file-image')</a>
@@ -758,24 +758,9 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 
 {{-- Application Change Assignee Modal is now in detail.blade.php (parent page) to avoid Bootstrap issues with AJAX-loaded content --}}
 
-<script>
-(function() {
-	$(document).off('change', '#activity_filter_type').on('change', '#activity_filter_type', function() {
-		var val = $(this).val();
-		if (val === 'sheet_comment') {
-			$('#accordion').hide();
-			$('#activities_sheet_comment_section').show();
-		} else {
-			$('#accordion').show();
-			$('#activities_sheet_comment_section').hide();
-		}
-	});
-})();
-
 @if(isset($assignees))
-{{-- Assignee change handlers are in application-handlers.js (uses event delegation, works with AJAX-loaded content) --}}
+{{-- Activity filter + assignee handlers are in application-handlers.js (delegated; works with AJAX-loaded content) --}}
 @endif
-</script>
 
 <script>
 (function($) {
