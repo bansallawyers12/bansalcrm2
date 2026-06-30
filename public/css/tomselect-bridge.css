@@ -175,7 +175,13 @@
     overflow: visible !important;
 }
 
-/* Add Checklist modal (#openalldocsmodal) and application checklist modal (#create_checklist) */
+/* Add Checklist modal (#openalldocsmodal) and application checklist modal (#create_checklist) —
+   dropdown on .ts-wrapper (omit dropdownParent in initModalTomSelects) */
+#openalldocsmodal .form-group .ts-wrapper,
+#create_checklist .form-group .ts-wrapper {
+    position: relative;
+}
+
 #openalldocsmodal .ts-wrapper,
 #openalldocsmodal .ts-dropdown,
 #create_checklist .ts-wrapper,
@@ -183,11 +189,24 @@
     z-index: 9999 !important;
 }
 
+#openalldocsmodal .ts-wrapper.focus,
+#openalldocsmodal .ts-wrapper.dropdown-active,
+#create_checklist .ts-wrapper.focus,
+#create_checklist .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
 #openalldocsmodal .modal-body,
 #openalldocsmodal .modal-content,
 #create_checklist .modal-body,
 #create_checklist .modal-content {
     overflow: visible !important;
+}
+
+#openalldocsmodal .ts-dropdown-content,
+#create_checklist .ts-dropdown-content {
+    max-height: 280px;
+    overflow-y: auto;
 }
 
 /* Compose email modal (#emailmodal) — template + To recipient dropdowns */

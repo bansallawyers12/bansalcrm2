@@ -559,7 +559,10 @@
         var isAgreementModal = modal.id === 'agreementModal';
         var isPartnerAssignModal = modal.id === 'create_partneraction';
         var isCheckinModal = modal.id === 'checkinmodal';
-        var omitDropdownParent = isAddApplicationModal || isAgreementModal || isPartnerAssignModal || isCheckinModal;
+        var isCreateChecklistModal = modal.id === 'create_checklist';
+        var isOpenAllDocsModal = modal.id === 'openalldocsmodal';
+        var omitDropdownParent = isAddApplicationModal || isAgreementModal || isPartnerAssignModal ||
+            isCheckinModal || isCreateChecklistModal || isOpenAllDocsModal;
         var base = Object.assign({ width: '100%' }, options || {});
         if (!omitDropdownParent) {
             base.dropdownParent = resolveModalDropdownParent(modal);
@@ -575,6 +578,8 @@
             if (element.tomselect) {
                 if (isAddApplicationModal && typeof destroyEnhancedSelect === 'function') {
                     destroyEnhancedSelect(element);
+                } else if ((isCreateChecklistModal || isOpenAllDocsModal) && typeof destroyTomSelect === 'function') {
+                    destroyTomSelect(element);
                 } else {
                     return;
                 }
@@ -583,11 +588,12 @@
             if (modal.id === 'emailmodal') {
                 opts.dropdownParent = document.body;
             }
-            // Add Application / Agreement / Partner Assign Staff / Check-in modal: omit dropdownParent
-            // (same as Assign Staff popover) so the menu stays on .ts-wrapper and CSS
-            // top:100% places it under each control. Reparenting to .modal-content breaks
+            // Add Application / Agreement / Partner Assign Staff / Check-in / Checklist modals:
+            // omit dropdownParent (same as Assign Staff popover) so the menu stays on .ts-wrapper
+            // and CSS top:100% places it under each control. Reparenting to .modal-content breaks
             // placement (Tom Select only positionDropdown() when dropdownParent is 'body').
-            if (isAddApplicationModal || isAgreementModal || isPartnerAssignModal || isCheckinModal) {
+            if (isAddApplicationModal || isAgreementModal || isPartnerAssignModal || isCheckinModal ||
+                isCreateChecklistModal || isOpenAllDocsModal) {
                 opts.maxOptions = null;
             }
             if (omitDropdownParent) {
