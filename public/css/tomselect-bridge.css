@@ -81,35 +81,35 @@
     z-index: 9999 !important;
 }
 
-/* Commission Invoice Modal */
-#opencommissionmodal .ts-dropdown-content {
-    max-height: 300px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+/* Commission Invoice Modal — dropdown on .ts-wrapper (omit dropdownParent in initModalTomSelects) */
+#opencommissionmodal .form-group .ts-wrapper,
+#opengeneralinvoice .form-group .ts-wrapper {
+    position: relative;
 }
 
-#opencommissionmodal .ts-wrapper,
-#opencommissionmodal .ts-dropdown {
-    z-index: 9999 !important;
-}
-
-#opencommissionmodal .modal-body,
-#opencommissionmodal .modal-content {
-    overflow: visible !important;
-}
-
-/* General Invoice Modal */
+#opencommissionmodal .ts-dropdown-content,
 #opengeneralinvoice .ts-dropdown-content {
     max-height: 300px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
 
+#opencommissionmodal .ts-wrapper,
+#opencommissionmodal .ts-dropdown,
 #opengeneralinvoice .ts-wrapper,
 #opengeneralinvoice .ts-dropdown {
     z-index: 9999 !important;
 }
 
+#opencommissionmodal .ts-wrapper.focus,
+#opencommissionmodal .ts-wrapper.dropdown-active,
+#opengeneralinvoice .ts-wrapper.focus,
+#opengeneralinvoice .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
+#opencommissionmodal .modal-body,
+#opencommissionmodal .modal-content,
 #opengeneralinvoice .modal-body,
 #opengeneralinvoice .modal-content {
     overflow: visible !important;

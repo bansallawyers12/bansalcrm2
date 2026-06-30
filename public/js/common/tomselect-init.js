@@ -561,8 +561,11 @@
         var isCheckinModal = modal.id === 'checkinmodal';
         var isCreateChecklistModal = modal.id === 'create_checklist';
         var isOpenAllDocsModal = modal.id === 'openalldocsmodal';
+        var isCommissionInvoiceModal = modal.id === 'opencommissionmodal';
+        var isGeneralInvoiceModal = modal.id === 'opengeneralinvoice';
         var omitDropdownParent = isAddApplicationModal || isAgreementModal || isPartnerAssignModal ||
-            isCheckinModal || isCreateChecklistModal || isOpenAllDocsModal;
+            isCheckinModal || isCreateChecklistModal || isOpenAllDocsModal ||
+            isCommissionInvoiceModal || isGeneralInvoiceModal;
         var base = Object.assign({ width: '100%' }, options || {});
         if (!omitDropdownParent) {
             base.dropdownParent = resolveModalDropdownParent(modal);
@@ -578,7 +581,9 @@
             if (element.tomselect) {
                 if (isAddApplicationModal && typeof destroyEnhancedSelect === 'function') {
                     destroyEnhancedSelect(element);
-                } else if ((isCreateChecklistModal || isOpenAllDocsModal) && typeof destroyTomSelect === 'function') {
+                } else if ((isCreateChecklistModal || isOpenAllDocsModal ||
+                    isCommissionInvoiceModal || isGeneralInvoiceModal) &&
+                    typeof destroyTomSelect === 'function') {
                     destroyTomSelect(element);
                 } else {
                     return;
@@ -588,12 +593,13 @@
             if (modal.id === 'emailmodal') {
                 opts.dropdownParent = document.body;
             }
-            // Add Application / Agreement / Partner Assign Staff / Check-in / Checklist modals:
+            // Add Application / Agreement / Partner Assign Staff / Check-in / Checklist / Invoice modals:
             // omit dropdownParent (same as Assign Staff popover) so the menu stays on .ts-wrapper
             // and CSS top:100% places it under each control. Reparenting to .modal-content breaks
             // placement (Tom Select only positionDropdown() when dropdownParent is 'body').
             if (isAddApplicationModal || isAgreementModal || isPartnerAssignModal || isCheckinModal ||
-                isCreateChecklistModal || isOpenAllDocsModal) {
+                isCreateChecklistModal || isOpenAllDocsModal ||
+                isCommissionInvoiceModal || isGeneralInvoiceModal) {
                 opts.maxOptions = null;
             }
             if (omitDropdownParent) {
