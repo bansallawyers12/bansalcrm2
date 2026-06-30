@@ -901,21 +901,22 @@
 		</div>
 	</div>
 </div>
+-->
 
 
-<div id="applicationemailmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
+<div id="applicationemailmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="applicationEmailModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="clientModalLabel">Compose Email</h5>
+				<h5 class="modal-title" id="applicationEmailModalLabel">Compose Email</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<form method="post" name="appkicationsendmail" id="appkicationsendmail" action="{{URL::to('/application-sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
-				<input type="hidden" id="type" name="type" value="application">
-				<input type="hidden" id="appointid" name="noteid" value="">
+				<input type="hidden" id="application_email_type" name="type" value="application">
+				<input type="hidden" id="application_email_appointid" name="noteid" value="">
 				<input type="hidden"  name="atype" value="application">
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
@@ -1168,6 +1169,7 @@
 		</div>
 	</div>
 </div>
+-->
 
 <div class="modal fade custom_modal" id="uploadmail" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
 	<div class="modal-dialog modal-lg">

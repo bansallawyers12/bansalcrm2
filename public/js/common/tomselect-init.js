@@ -558,14 +558,16 @@
         var isAddApplicationModal = modal.classList.contains('add_appliation');
         var isAgreementModal = modal.id === 'agreementModal';
         var isPartnerAssignModal = modal.id === 'create_partneraction';
+        var isApplicationAssignModal = modal.id === 'create_applicationaction';
+        var isApplicationEmailModal = modal.id === 'applicationemailmodal';
         var isCheckinModal = modal.id === 'checkinmodal';
         var isCreateChecklistModal = modal.id === 'create_checklist';
         var isOpenAllDocsModal = modal.id === 'openalldocsmodal';
         var isCommissionInvoiceModal = modal.id === 'opencommissionmodal';
         var isGeneralInvoiceModal = modal.id === 'opengeneralinvoice';
         var omitDropdownParent = isAddApplicationModal || isAgreementModal || isPartnerAssignModal ||
-            isCheckinModal || isCreateChecklistModal || isOpenAllDocsModal ||
-            isCommissionInvoiceModal || isGeneralInvoiceModal;
+            isApplicationAssignModal || isApplicationEmailModal || isCheckinModal || isCreateChecklistModal ||
+            isOpenAllDocsModal || isCommissionInvoiceModal || isGeneralInvoiceModal;
         var base = Object.assign({ width: '100%' }, options || {});
         if (!omitDropdownParent) {
             base.dropdownParent = resolveModalDropdownParent(modal);
@@ -582,7 +584,8 @@
                 if (isAddApplicationModal && typeof destroyEnhancedSelect === 'function') {
                     destroyEnhancedSelect(element);
                 } else if ((isCreateChecklistModal || isOpenAllDocsModal ||
-                    isCommissionInvoiceModal || isGeneralInvoiceModal) &&
+                    isCommissionInvoiceModal || isGeneralInvoiceModal ||
+                    isApplicationAssignModal || isApplicationEmailModal) &&
                     typeof destroyTomSelect === 'function') {
                     destroyTomSelect(element);
                 } else {
@@ -597,7 +600,8 @@
             // omit dropdownParent (same as Assign Staff popover) so the menu stays on .ts-wrapper
             // and CSS top:100% places it under each control. Reparenting to .modal-content breaks
             // placement (Tom Select only positionDropdown() when dropdownParent is 'body').
-            if (isAddApplicationModal || isAgreementModal || isPartnerAssignModal || isCheckinModal ||
+            if (isAddApplicationModal || isAgreementModal || isPartnerAssignModal ||
+                isApplicationAssignModal || isApplicationEmailModal || isCheckinModal ||
                 isCreateChecklistModal || isOpenAllDocsModal ||
                 isCommissionInvoiceModal || isGeneralInvoiceModal) {
                 opts.maxOptions = null;

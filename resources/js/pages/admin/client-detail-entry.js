@@ -11,6 +11,7 @@ import '@legacy/common/activity-handlers.js';
 import '@legacy/common/document-handlers.js';
 import '@legacy/pages/admin/client-detail/preview-file-scroll.js';
 import '@legacy/common/ui-components.js';
+import '@legacy/common/modal-utils.js';
 
 import '@legacy/pages/admin/client-detail/session-handlers.js';
 import '@legacy/pages/admin/client-detail/client-status.js';

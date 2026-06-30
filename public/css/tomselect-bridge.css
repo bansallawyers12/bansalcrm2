@@ -306,6 +306,56 @@
     overflow: visible !important;
 }
 
+/* Client application detail — Assign Staff modal (Select Assignee) */
+#create_applicationaction .form-group .ts-wrapper {
+    position: relative;
+}
+
+#create_applicationaction .ts-wrapper,
+#create_applicationaction .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#create_applicationaction .ts-wrapper.focus,
+#create_applicationaction .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
+#create_applicationaction .modal-body,
+#create_applicationaction .modal-content {
+    overflow: visible !important;
+}
+
+#create_applicationaction .ts-dropdown-content {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+/* Client application detail — stage Compose Email modal (Templates select) */
+#applicationemailmodal .form-group .ts-wrapper {
+    position: relative;
+}
+
+#applicationemailmodal .ts-wrapper,
+#applicationemailmodal .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#applicationemailmodal .ts-wrapper.focus,
+#applicationemailmodal .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
+#applicationemailmodal .modal-body,
+#applicationemailmodal .modal-content {
+    overflow: visible !important;
+}
+
+#applicationemailmodal .ts-dropdown-content {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
 /* Bootstrap popovers (action pages — assign/reassign) */
 /* Keep assign/reassign popovers wide after Tom Select replaces native selects (intrinsic width) */
 .popover:has(select.assignee-tomselect) {

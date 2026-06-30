@@ -694,6 +694,12 @@ function reloadApplicationActivities(appliid) {
             if (typeof reinitializeAccordions === 'function') {
                 reinitializeAccordions();
             }
+            if (typeof window.refreshCrmIcons === 'function') {
+                var accordionRoot = document.getElementById('accordion');
+                if (accordionRoot) {
+                    window.refreshCrmIcons(accordionRoot);
+                }
+            }
             console.log('Activities reloaded successfully');
         },
         error: function(xhr, status, error) {

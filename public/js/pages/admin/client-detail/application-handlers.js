@@ -460,7 +460,8 @@ jQuery(document).ready(function($){
 
     // ============================================================================
     // APPLICATION MODAL OPENERS
-    // Icons sit beside (not inside) the collapse trigger; stop propagation as a safeguard.
+    // Collapse toggle is on h4.stage-collapse-toggle only (not the icon strip).
+    // stopPropagation on icon clicks prevents accidental interaction with ancestors.
     // ============================================================================
 
     function isolateActivityIconClick(event) {
@@ -519,9 +520,13 @@ jQuery(document).ready(function($){
         isolateActivityIconClick(event);
         var id = $(this).attr('data-id');
         var apptype = $(this).attr('data-app-type');
-        $('#applicationemailmodal #type').val(apptype);
-        $('#applicationemailmodal #appointid').val(id);
-        $('#applicationemailmodal').modal('show');
+        $('#applicationemailmodal #application_email_type').val(apptype);
+        $('#applicationemailmodal #application_email_appointid').val(id);
+        if (typeof window.showCrmModal === 'function') {
+            window.showCrmModal('applicationemailmodal');
+        } else {
+            $('#applicationemailmodal').modal('show');
+        }
     });
 
     $(document).on('click', '.openchecklist', function(){

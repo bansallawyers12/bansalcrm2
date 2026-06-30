@@ -134,7 +134,11 @@ jQuery(document).ready(function($){
         $(".checklistid").val(id);
         $(".checklisttypename").val(typename);
         $(".application_id").val(aid);
-        $('#openfileuploadmodal').modal('show');
+        if (typeof window.showCrmModal === 'function') {
+            window.showCrmModal('openfileuploadmodal');
+        } else {
+            $('#openfileuploadmodal').modal('show');
+        }
     });
 
     // Handler for opendocnote - Add Document icon in application detail
@@ -152,7 +156,11 @@ jQuery(document).ready(function($){
         $(".checklisttypename").val(typename);
         $(".application_id").val(aid);
         $(".app_doc_client_id").val(clientid);
-        $('#openfileuploadmodal').modal('show');
+        if (typeof window.showCrmModal === 'function') {
+            window.showCrmModal('openfileuploadmodal');
+        } else {
+            $('#openfileuploadmodal').modal('show');
+        }
     });
 
     console.log('[document-upload.js] Document upload handlers initialized');

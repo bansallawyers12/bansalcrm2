@@ -274,11 +274,11 @@ class ApplicationsController extends Controller
 				
 					<div class="accordion cus_accrodian">
 						
-						<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
-								<h4><?php echo $stages->name; ?></h4>
+						<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>">
+								<h4 class="stage-collapse-toggle" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false" tabindex="0"><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
 									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><?php echo \App\Helpers\IconHelper::render('file-alt'); ?></a>
-									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><?php echo \App\Helpers\IconHelper::render('file-image'); ?></a>
+									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" data-appdocclientid="<?php echo $fetchData->client_id; ?>" href="javascript:;"><?php echo \App\Helpers\IconHelper::render('file-image'); ?></a>
                                     
 									<!--<a data-app-type="<?php //echo $stages->name; ?>" title="Add Appointments" class="openappappoint" data-id="<?php //echo $fetchData->id; ?>" href="javascript:;"><?php echo \App\Helpers\IconHelper::render('calendar'); ?></a>-->
                                     <a data-course="<?php echo $course_name; ?>" data-school="<?php echo $school_name; ?>" data-app-type="<?php echo $stages->name; ?>" title="Actions" class="openappaction" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><?php echo \App\Helpers\IconHelper::render('calendar'); ?></a>

@@ -315,15 +315,23 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 .application_grid_col .grid_column span{color: #9c9c9c;font-weight: 600;font-size:12px;line-height:16px;display:block;}
 .application_grid_col .grid_column p{color: #424242;font-size:12px;line-height:16px;font-weight: normal;margin:5px 0px 0px;}
 .application_other_info ul#applicat_detail_tabs li a{padding: 8px 10px!important;border-radius: 30px!important;font-size:13px;line-height:16px;} 
-.application_other_info .cus_accrodian h4{display:inline-block;}
-.application_other_info .cus_accrodian h4.stage-collapse-toggle{cursor:pointer;margin-bottom:0;}
-.application_other_info .cus_accrodian .accord_hover{float:right;display:none;}
-.application_other_info .cus_accrodian .accordion-header:hover .accord_hover{display:inline-block;}
-.application_other_info .cus_accrodian .accord_hover a{margin-right:5px;} 
+.application_other_info .cus_accrodian .accordion-header{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:default;}
+.application_other_info .cus_accrodian h4{display:inline-block;flex:1;min-width:0;margin-bottom:0;}
+.application_other_info .cus_accrodian h4.stage-collapse-toggle{cursor:pointer;}
+.application_other_info .cus_accrodian .accord_hover{float:none;display:none;align-items:center;flex-shrink:0;gap:2px;}
+.application_other_info .cus_accrodian .accordion-header:hover .accord_hover,
+.application_other_info .cus_accrodian .accordion-header:focus-within .accord_hover{display:flex;}
+@media (hover: none){
+.application_other_info .cus_accrodian .accord_hover{display:flex;}
+}
+.application_other_info .cus_accrodian .accord_hover a{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding:6px;margin-right:0;border-radius:4px;line-height:1;text-decoration:none;}
 .application_other_info .cus_accrodian .accordion-header .accord_hover a{color:#fff;}
 .application_other_info .cus_accrodian .accordion-header.collapsed .accord_hover a{color:#6777ef;}
-.application_other_info .cus_accrodian .accord_hover a:last-child{margin-right:0px;}
+.application_other_info .cus_accrodian .accordion-header .accord_hover a:hover{background-color:rgba(255,255,255,0.18);}
+.application_other_info .cus_accrodian .accordion-header.collapsed .accord_hover a:hover{background-color:rgba(103,119,239,0.12);}
 .application_other_info .cus_accrodian .accord_hover a i{font-size:16px;}
+.application_other_info .cus_accrodian .accord_hover a .crm-icon,
+.application_other_info .cus_accrodian .accord_hover a svg.crm-icon{pointer-events:none;}
 .application_other_info .activity_list{} 
 .application_other_info .activity_list .activity_col .activity_txt_time{display: flex;justify-content: space-between;} 
 .application_other_info .activity_list .activity_col{padding-bottom:8px;}
