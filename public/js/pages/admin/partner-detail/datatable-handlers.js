@@ -563,7 +563,8 @@ jQuery(document).ready(function($){
                     targets: 22,
                     render: enrolmentTypeColumnRender(options.enrolmentClass)
                 },
-                { targets: 23, visible: false }
+                { targets: 23, visible: false },
+                { targets: [24, 25], orderable: false, searchable: false }
             ],
             order: [],
             initComplete: function () {

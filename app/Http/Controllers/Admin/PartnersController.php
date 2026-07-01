@@ -1807,6 +1807,49 @@ class PartnersController extends Controller
 	}
 
 	/**
+	 * DataTables column index => latest application_fee_options field used for ordering.
+	 *
+	 * @return array<int, string>
+	 */
+	private function partnerStudentTabFeeOrderColumns(): array
+	{
+		return [
+			9  => 'total_course_fee_amount',
+			10 => 'enrolment_fee_amount',
+			11 => 'material_fees',
+			12 => 'tution_fees',
+			13 => 'fee_reported_by_college',
+			14 => 'bonus_amount',
+			15 => 'bonus_pending_amount',
+			16 => 'scholarship_fee_amount',
+			17 => 'commission_as_per_fee_reported',
+			18 => 'commission_payable_as_per_anticipated_fee',
+			19 => 'commission_paid_as_per_fee_reported',
+			20 => 'commission_pending',
+		];
+	}
+
+	private function partnerStudentTabLatestFeeOrderExpression(string $feeColumn): string
+	{
+		if (! in_array($feeColumn, $this->partnerStudentTabFeeOrderColumns(), true)) {
+			throw new \InvalidArgumentException('Invalid fee column for ordering.');
+		}
+
+		return '(SELECT afo.'.$feeColumn.' FROM application_fee_options afo'
+			.' WHERE afo.app_id = applications.id'
+			.' AND afo.id = (SELECT MAX(afo2.id) FROM application_fee_options afo2 WHERE afo2.app_id = applications.id))';
+	}
+
+	private function partnerStudentTabNumericOrderRaw(string $valueExpression, string $dirSql, string $nullsSuffix): string
+	{
+		if (DB::getDriverName() === 'pgsql') {
+			return "COALESCE(({$valueExpression})::numeric, 0) {$dirSql}{$nullsSuffix}";
+		}
+
+		return "COALESCE(CAST({$valueExpression} AS DECIMAL(15,2)), 0) {$dirSql}";
+	}
+
+	/**
 	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @return \Illuminate\Database\Query\Builder
 	 */
@@ -1814,6 +1857,16 @@ class PartnersController extends Controller
 	{
 		$dirSql = strtolower($dir) === 'desc' ? 'DESC' : 'ASC';
 		$nullsSuffix = $this->partnerStudentTabOrderNullsSuffix();
+
+		$feeColumns = $this->partnerStudentTabFeeOrderColumns();
+		if (isset($feeColumns[$colIndex])) {
+			$feeExpr = $this->partnerStudentTabLatestFeeOrderExpression($feeColumns[$colIndex]);
+
+			return $query
+				->orderByRaw($this->partnerStudentTabNumericOrderRaw($feeExpr, $dirSql, $nullsSuffix))
+				->orderBy('applications.id', $dir)
+				->select('applications.id');
+		}
 
 		switch ($colIndex) {
 			case 1:
