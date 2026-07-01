@@ -685,6 +685,7 @@ jQuery(document).ready(function($){
         $.ajax({
             url: App.getUrl('partnersSaveStudentNote'),
             method: 'POST',
+            dataType: 'json',
             data: { rowId: studentid, note: newValue, _token: App.getCsrf()},
             success: function (response) {
                 if (response && response.status) {
@@ -697,13 +698,14 @@ jQuery(document).ready(function($){
                     if (rowIndex.length > 0) {
                         table33.cell(rowIndex[0], 24).data(studentNote).draw(false);
                     }
-                    $('.custom-error-msg').html('<span class="alert alert-success">'+response.message+'</span>');
+                    $('.custom-error-msg').html('<span class="alert alert-success">' + (response.message || 'Student note saved successfully.') + '</span>');
                 } else {
-                    $('.custom-error-msg').html('<span class="alert alert-danger">'+(response ? response.message : 'Failed to save note')+'</span>');
+                    $('.custom-error-msg').html('<span class="alert alert-danger">' + ((response && response.message) || 'Failed to save note') + '</span>');
                 }
             },
             error: function (error) {
                 console.error('Error saving note:', error);
+                $('.custom-error-msg').html('<span class="alert alert-danger">Failed to save note. Please try again.</span>');
             }
         });
     });
@@ -714,6 +716,7 @@ jQuery(document).ready(function($){
         $.ajax({
             url: App.getUrl('partnersSaveStudentNote'),
             method: 'POST',
+            dataType: 'json',
             data: { rowId: studentid, note: newValue, _token: App.getCsrf()},
             success: function (response) {
                 if (response && response.status) {
@@ -729,13 +732,14 @@ jQuery(document).ready(function($){
                     if (rowIndex.length > 0) {
                         table331.cell(rowIndex[0], 24).data(studentNote).draw(false);
                     }
-                    $('.custom-error-msg').html('<span class="alert alert-success">'+response.message+'</span>');
+                    $('.custom-error-msg').html('<span class="alert alert-success">' + (response.message || 'Student note saved successfully.') + '</span>');
                 } else {
-                    $('.custom-error-msg').html('<span class="alert alert-danger">'+(response ? response.message : 'Failed to save note')+'</span>');
+                    $('.custom-error-msg').html('<span class="alert alert-danger">' + ((response && response.message) || 'Failed to save note') + '</span>');
                 }
             },
             error: function (error) {
                 console.error('Error saving note:', error);
+                $('.custom-error-msg').html('<span class="alert alert-danger">Failed to save note. Please try again.</span>');
             }
         });
     });

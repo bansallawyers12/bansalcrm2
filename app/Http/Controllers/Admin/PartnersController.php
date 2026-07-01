@@ -1735,6 +1735,7 @@ class PartnersController extends Controller
 		return $query->where(function ($q) use ($like, $likeOp, $dobDb) {
 			$q->where('applications.student_id', $likeOp, $like)
 				->orWhere('applications.stage', $likeOp, $like)
+				->orWhere('applications.student_add_notes', $likeOp, $like)
 				->orWhereExists(function ($sub) use ($like, $likeOp, $dobDb) {
 					$sub->select(DB::raw('1'))
 						->from('admins')
@@ -2448,6 +2449,7 @@ class PartnersController extends Controller
 			'Fee Reported by College', 'Total Bonus', 'Bonus Pending', 'Scholarship Fee',
 			'Commission as per Fee reported', 'Commission payable as per anticipated fee',
 			'Commission paid as per fee Reported', 'Commission Pending', 'Student Status', 'Enrolment Type',
+			'Add Note',
 		];
 	}
 
@@ -2514,6 +2516,8 @@ class PartnersController extends Controller
 
 			return trim($text);
 		}, array_slice($formatted, 1, 22));
+
+		$plain[] = trim((string) ($row->student_add_notes ?? ''));
 
 		return array_merge([(string) $sno], $plain);
 	}
@@ -4688,7 +4692,8 @@ class PartnersController extends Controller
             $response['studentId']	=  "";
             $response['studentNote']	= "";
         }
-        echo json_encode($response);
+
+        return response()->json($response);
     }
   
     
