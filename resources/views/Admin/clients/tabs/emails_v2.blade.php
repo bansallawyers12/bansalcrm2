@@ -29,7 +29,8 @@
 <div class="email-v2-interface-container" 
      data-entity-id="{{ $entityData->id ?? '' }}" 
      data-entity-type="{{ $entityType }}"
-     data-show-email-category="{{ $entityType !== 'partner' ? '1' : '0' }}">
+     data-show-email-category="{{ $entityType !== 'partner' ? '1' : '0' }}"
+     data-user-role="{{ Auth::user()->role ?? '' }}">
     @if($entityType !== 'partner')
     <!-- Client detail only: Client | College sub-tabs -->
     <div class="email-v2-category-tabs" role="tablist" aria-label="Email category">

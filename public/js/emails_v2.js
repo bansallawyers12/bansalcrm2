@@ -1722,16 +1722,92 @@
     }
 
     /**
+     * Handle Delete action (super admin only)
+     */
+    async function handleDeleteEmail(email) {
+        if (!email || !email.id) {
+            showNotification('No email selected for delete', 'error');
+            return;
+        }
+
+        if (!isEmailAdminUser()) {
+            showNotification('Only administrators can delete emails.', 'error');
+            return;
+        }
+
+        const confirmMessage = 'Are you sure you want to delete this email?';
+        let confirmed = false;
+        if (typeof window.crmConfirm === 'function') {
+            confirmed = await window.crmConfirm(confirmMessage);
+        } else {
+            confirmed = window.confirm(confirmMessage);
+        }
+        if (!confirmed) return;
+
+        const deleteUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('deleteAction'))
+            ? App.getUrl('deleteAction')
+            : '/delete_action';
+
+        try {
+            const body = new URLSearchParams({
+                id: String(email.id),
+                table: 'emails'
+            });
+
+            const response = await fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: body.toString()
+            });
+
+            const result = await response.json();
+            if (result.status === 1) {
+                showNotification(result.message || 'Email deleted successfully', 'success');
+                const emailContentView = document.getElementById('emailContentViewV2');
+                const emailContentPlaceholder = document.getElementById('emailContentPlaceholderV2');
+                if (emailContentView && emailContentPlaceholder) {
+                    emailContentView.style.display = 'none';
+                    emailContentView.innerHTML = '';
+                    emailContentPlaceholder.style.display = '';
+                }
+                document.querySelectorAll('.email-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                loadEmailsFromServer();
+            } else {
+                showNotification(result.message || 'Failed to delete email', 'error');
+            }
+        } catch (error) {
+            console.error('Delete email error:', error);
+            showNotification('Failed to delete email', 'error');
+        }
+    }
+
+    /**
      * Show context menu at specified coordinates
      */
+    function isEmailAdminUser() {
+        const container = document.querySelector('.email-v2-interface-container');
+        return container && String(container.dataset.userRole) === '1';
+    }
+
     function showContextMenu(x, y, email) {
-        const contextMenu = document.getElementById('emailContextMenu');
-        const overlay = document.getElementById('contextMenuOverlay');
+        const contextMenu = document.getElementById('emailContextMenuV2');
+        const overlay = document.getElementById('contextMenuOverlayV2');
         
         if (!contextMenu || !overlay) return;
         
         // Store current email
         currentContextEmail = email;
+
+        const deleteItem = contextMenu.querySelector('[data-action="delete"]');
+        if (deleteItem) {
+            deleteItem.style.display = isEmailAdminUser() ? 'flex' : 'none';
+        }
         
         // Position menu
         contextMenu.style.display = 'block';
@@ -1760,9 +1836,9 @@
      * Hide context menu
      */
     function hideContextMenu() {
-        const contextMenu = document.getElementById('emailContextMenu');
-        const submenu = document.getElementById('labelSubmenu');
-        const overlay = document.getElementById('contextMenuOverlay');
+        const contextMenu = document.getElementById('emailContextMenuV2');
+        const submenu = document.getElementById('labelSubmenuV2');
+        const overlay = document.getElementById('contextMenuOverlayV2');
         
         if (contextMenu) contextMenu.style.display = 'none';
         if (submenu) submenu.style.display = 'none';
@@ -1775,9 +1851,9 @@
      * Show label submenu
      */
     function showLabelSubmenu() {
-        const contextMenu = document.getElementById('emailContextMenu');
-        const submenu = document.getElementById('labelSubmenu');
-        const labelContent = document.getElementById('labelSubmenuContent');
+        const contextMenu = document.getElementById('emailContextMenuV2');
+        const submenu = document.getElementById('labelSubmenuV2');
+        const labelContent = document.getElementById('labelSubmenuContentV2');
         
         if (!submenu || !labelContent || !currentContextEmail) return;
         
@@ -1873,8 +1949,8 @@
      * Initialize context menu handlers
      */
     function initializeContextMenu() {
-        const contextMenu = document.getElementById('emailContextMenu');
-        const overlay = document.getElementById('contextMenuOverlay');
+        const contextMenu = document.getElementById('emailContextMenuV2');
+        const overlay = document.getElementById('contextMenuOverlayV2');
         
         if (!contextMenu || !overlay) return;
         
@@ -1902,8 +1978,9 @@
                     hideContextMenu();
                     break;
                 case 'delete':
-                    // TODO: Implement delete functionality
-                    console.log('Delete:', currentContextEmail);
+                    if (currentContextEmail) {
+                        handleDeleteEmail(currentContextEmail);
+                    }
                     hideContextMenu();
                     break;
                 default:
