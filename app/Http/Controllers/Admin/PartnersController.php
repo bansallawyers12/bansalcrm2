@@ -37,7 +37,10 @@ use App\Models\PartnerPhone;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Helpers\PhoneHelper;
+use App\Exports\PartnerAccountsTabExport;
+use App\Exports\PartnerStudentTabExport;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PartnersController extends Controller
 {
@@ -1069,6 +1072,157 @@ class PartnersController extends Controller
 	}
 
 	/**
+	 * Export all invoice rows for a partner Accounts tab (CSV or XLSX).
+	 */
+	public function exportAccountsTabData(Request $request, ?string $id = null)
+	{
+		$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
+		$partner = $partnerId ? Partner::query()->select(['id', 'partner_name'])->find($partnerId) : null;
+
+		if (!$partner) {
+			abort(404, 'Partner not found');
+		}
+
+		$searchValue = trim((string) $request->input('search', ''));
+		$format = strtolower(trim((string) $request->input('format', 'csv')));
+		$isXlsx = in_array($format, ['xlsx', 'excel'], true);
+
+		$exportHeaders = $this->partnerAccountsTabExportHeaders();
+		$baseFilename = 'Partner_Accounts_'.preg_replace('/[^a-z0-9]+/i', '_', $partner->partner_name).'_'.date('Y-m-d');
+		$invoiceIds = $this->partnerAccountsTabExportInvoiceIds($partnerId, $searchValue);
+
+		if ($isXlsx) {
+			$rows = $invoiceIds->isEmpty()
+				? []
+				: $this->buildPartnerAccountsTabExportRows($invoiceIds, $partner);
+
+			return Excel::download(
+				new PartnerAccountsTabExport($rows, $exportHeaders),
+				$baseFilename.'.xlsx'
+			);
+		}
+
+		$filename = $baseFilename.'.csv';
+
+		$headers = [
+			'Content-Type'        => 'text/csv; charset=UTF-8',
+			'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+		];
+
+		if ($invoiceIds->isEmpty()) {
+			$callback = function () use ($exportHeaders) {
+				$handle = fopen('php://output', 'w');
+				fputcsv($handle, $exportHeaders);
+				fclose($handle);
+			};
+
+			return response()->stream($callback, 200, $headers);
+		}
+
+		$callback = function () use ($invoiceIds, $partner, $exportHeaders) {
+			$handle = fopen('php://output', 'w');
+			fputcsv($handle, $exportHeaders);
+
+			foreach ($invoiceIds->chunk(200) as $chunk) {
+				$invoices = Invoice::query()
+					->whereIn('id', $chunk->all())
+					->with([
+						'application.workflow:id,name',
+						'invoiceDetails',
+						'invoicePayments',
+					])
+					->orderBy('invoice_date', 'desc')
+					->orderBy('id', 'desc')
+					->get();
+
+				foreach ($invoices as $invoice) {
+					fputcsv($handle, $this->formatPartnerAccountsTabExportRow($invoice, $partner));
+				}
+			}
+
+			fclose($handle);
+		};
+
+		return response()->stream($callback, 200, $headers);
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private function partnerAccountsTabExportHeaders(): array
+	{
+		return [
+			'Invoice No.',
+			'Issue Date',
+			'Claim Type',
+			'Service',
+			'Partner Name',
+			'Invoice Amount',
+			'Paid Amount',
+			'Status',
+		];
+	}
+
+	/**
+	 * @return \Illuminate\Support\Collection<int, int|string>
+	 */
+	private function partnerAccountsTabExportInvoiceIds(int $partnerId, string $searchValue = '')
+	{
+		$applicationIds = Application::query()
+			->where('partner_id', $partnerId)
+			->pluck('id');
+
+		if ($applicationIds->isEmpty()) {
+			return collect();
+		}
+
+		$query = Invoice::query()->whereIn('application_id', $applicationIds);
+
+		if ($searchValue !== '') {
+			$like = '%'.addcslashes($searchValue, '%_\\').'%';
+			$query->where(function ($q) use ($like) {
+				$q->where('id', 'ilike', $like)
+					->orWhereHas('application.workflow', function ($w) use ($like) {
+						$w->where('name', 'ilike', $like);
+					});
+			});
+		}
+
+		return (clone $query)
+			->orderBy('invoice_date', 'desc')
+			->orderBy('id', 'desc')
+			->pluck('id');
+	}
+
+	/**
+	 * @param  \Illuminate\Support\Collection<int, int|string>  $invoiceIds
+	 * @return array<int, array<int, string>>
+	 */
+	private function buildPartnerAccountsTabExportRows($invoiceIds, Partner $partner): array
+	{
+		$rows = [];
+
+		foreach ($invoiceIds->chunk(200) as $chunk) {
+			$invoices = Invoice::query()
+				->whereIn('id', $chunk->all())
+				->with([
+					'application.workflow:id,name',
+					'invoiceDetails',
+					'invoicePayments',
+				])
+				->orderBy('invoice_date', 'desc')
+				->orderBy('id', 'desc')
+				->get();
+
+			foreach ($invoices as $invoice) {
+				$rows[] = $this->formatPartnerAccountsTabExportRow($invoice, $partner);
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
 	 * Sidebar phone/email for partner detail (single query each, no redundant exists()).
 	 *
 	 * @return array<string, mixed>
@@ -1225,6 +1379,42 @@ class PartnersController extends Controller
 			e((string) $amount_rec),
 			$statusHtml,
 			$actionsHtml,
+		];
+	}
+
+	/**
+	 * Plain-text row for Accounts tab CSV export (no HTML).
+	 *
+	 * @return array<int, string>
+	 */
+	private function formatPartnerAccountsTabExportRow(Invoice $invoicelist, ?Partner $partner): array
+	{
+		$workflow = $invoicelist->application?->workflow;
+
+		$amountRec = 0;
+		foreach ($invoicelist->invoicePayments as $paymentdetail) {
+			$amountRec += $paymentdetail->amount_rec;
+		}
+
+		if ((int) $invoicelist->type === 1) {
+			$rtype = 'Net Claim';
+		} elseif ((int) $invoicelist->type === 2) {
+			$rtype = 'Gross Claim';
+		} else {
+			$rtype = 'General';
+		}
+
+		$status = ((int) $invoicelist->status === 1) ? 'Paid' : 'UnPaid';
+
+		return [
+			(string) $invoicelist->id,
+			(string) ($invoicelist->invoice_date ?? ''),
+			$rtype,
+			(string) ($workflow->name ?? ''),
+			(string) ($partner->partner_name ?? ''),
+			'AUD '.(string) ($invoicelist->net_fee_rec ?? ''),
+			(string) $amountRec,
+			$status,
 		];
 	}
 
@@ -2154,7 +2344,7 @@ class PartnersController extends Controller
 	}
 
 	/**
-	 * Export all student rows for a partner list (CSV — opens in Excel).
+	 * Export all student rows for a partner list (CSV or XLSX).
 	 */
 	public function exportStudentTabData(Request $request, ?string $id = null)
 	{
@@ -2169,28 +2359,38 @@ class PartnersController extends Controller
 		$isActive = $list !== 'inactive';
 		$searchValue  = trim((string) $request->input('search', ''));
 		$statusFilter = $this->normalisePartnerStudentTabStatusFilter((string) $request->input('status_filter', ''));
+		$format = strtolower(trim((string) $request->input('format', 'csv')));
+		$isXlsx = in_array($format, ['xlsx', 'excel'], true);
 
 		$idQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
 		$idQuery = $this->applyPartnerStudentTabSearch($idQuery, $searchValue);
 		$idQuery = $this->applyPartnerStudentTabStatusFilter($idQuery, $statusFilter);
 		$applicationIds = $idQuery->orderBy('applications.id')->pluck('applications.id');
 
-		$filename = 'Partner_Student_Data'.($isActive ? '' : '_Inactive').'_'.preg_replace('/[^a-z0-9]+/i', '_', $partner->partner_name).'_'.date('Y-m-d').'.csv';
+		$exportHeaders = $this->partnerStudentTabExportHeaders();
+		$baseFilename = 'Partner_Student_Data'.($isActive ? '' : '_Inactive').'_'.preg_replace('/[^a-z0-9]+/i', '_', $partner->partner_name).'_'.date('Y-m-d');
+
+		if ($isXlsx) {
+			$rows = $applicationIds->isEmpty()
+				? []
+				: $this->buildPartnerStudentTabExportRows($applicationIds, $partner, $isActive);
+
+			return Excel::download(
+				new PartnerStudentTabExport($rows, $exportHeaders),
+				$baseFilename.'.xlsx'
+			);
+		}
+
+		$filename = $baseFilename.'.csv';
 
 		$headers = [
 			'Content-Type'        => 'text/csv; charset=UTF-8',
 			'Content-Disposition' => 'attachment; filename="'.$filename.'"',
 		];
 
-		$callback = function () use ($applicationIds, $partner, $isActive) {
+		$callback = function () use ($applicationIds, $partner, $isActive, $exportHeaders) {
 			$handle = fopen('php://output', 'w');
-			fputcsv($handle, [
-				'SNo', 'CRM Ref', 'Student Name', 'Date of Birth', 'Student Id', 'College Name', 'Course Name',
-				'Start Date', 'End Date', 'Total Course Fee', 'Enrolment Fee', 'Material Fee', 'Tution Fee',
-				'Fee Reported by College', 'Total Bonus', 'Bonus Pending', 'Scholarship Fee',
-				'Commission as per Fee reported', 'Commission payable as per anticipated fee',
-				'Commission paid as per fee Reported', 'Commission Pending', 'Student Status', 'Enrolment Type',
-			]);
+			fputcsv($handle, $exportHeaders);
 
 			$chunkSize = 200;
 			$sno = 0;
@@ -2226,19 +2426,8 @@ class PartnersController extends Controller
 						}
 					}
 
-					$formatted = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
-					$plain = array_map(function ($cell) {
-						if (!is_string($cell)) {
-							return $cell;
-						}
-						$text = strip_tags($cell);
-						$text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-						return trim($text);
-					}, array_slice($formatted, 1, 22));
-
 					$sno++;
-					fputcsv($handle, array_merge([(string) $sno], $plain));
+					fputcsv($handle, $this->formatPartnerStudentTabExportRow($row, $isActive, $partner->partner_name, $sno));
 				}
 			}
 
@@ -2246,6 +2435,87 @@ class PartnersController extends Controller
 		};
 
 		return response()->stream($callback, 200, $headers);
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private function partnerStudentTabExportHeaders(): array
+	{
+		return [
+			'SNo', 'CRM Ref', 'Student Name', 'Date of Birth', 'Student Id', 'College Name', 'Course Name',
+			'Start Date', 'End Date', 'Total Course Fee', 'Enrolment Fee', 'Material Fee', 'Tution Fee',
+			'Fee Reported by College', 'Total Bonus', 'Bonus Pending', 'Scholarship Fee',
+			'Commission as per Fee reported', 'Commission payable as per anticipated fee',
+			'Commission paid as per fee Reported', 'Commission Pending', 'Student Status', 'Enrolment Type',
+		];
+	}
+
+	/**
+	 * @param  \Illuminate\Support\Collection<int, int|string>  $applicationIds
+	 * @return array<int, array<int, string>>
+	 */
+	private function buildPartnerStudentTabExportRows($applicationIds, Partner $partner, bool $isActive): array
+	{
+		$exportRows = [];
+		$sno = 0;
+
+		foreach ($applicationIds->chunk(200) as $chunk) {
+			$rows = DB::table('applications')
+				->join('admins', 'admins.id', '=', 'applications.client_id')
+				->leftJoin('products', 'products.id', '=', 'applications.product_id')
+				->whereIn('applications.id', $chunk->all())
+				->select(
+					'applications.*',
+					'admins.client_id as client_reference',
+					'admins.first_name',
+					'admins.last_name',
+					'admins.dob',
+					'products.name as coursename'
+				)
+				->orderBy('applications.id')
+				->get();
+
+			$latestFees = $this->partnerStudentLatestFeesForIds($chunk);
+
+			foreach ($rows as $row) {
+				$fee = $latestFees[$row->id] ?? null;
+				if ($fee) {
+					foreach ([
+						'total_course_fee_amount', 'enrolment_fee_amount', 'material_fees', 'tution_fees',
+						'fee_reported_by_college', 'bonus_amount', 'bonus_pending_amount', 'scholarship_fee_amount',
+						'commission_as_per_fee_reported', 'commission_payable_as_per_anticipated_fee',
+						'commission_paid_as_per_fee_reported', 'commission_pending',
+					] as $feeField) {
+						$row->{$feeField} = $fee->{$feeField} ?? '0.00';
+					}
+				}
+
+				$sno++;
+				$exportRows[] = $this->formatPartnerStudentTabExportRow($row, $isActive, $partner->partner_name, $sno);
+			}
+		}
+
+		return $exportRows;
+	}
+
+	/**
+	 * @return array<int, string|int>
+	 */
+	private function formatPartnerStudentTabExportRow(object $row, bool $isActive, string $partnerName, int $sno): array
+	{
+		$formatted = $this->formatPartnerStudentTabRow($row, $isActive, $partnerName);
+		$plain = array_map(function ($cell) {
+			if (!is_string($cell)) {
+				return $cell;
+			}
+			$text = strip_tags($cell);
+			$text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+			return trim($text);
+		}, array_slice($formatted, 1, 22));
+
+		return array_merge([(string) $sno], $plain);
 	}
 
 	/**

@@ -37,7 +37,7 @@
 
     const activeTabForButtons = (typeof PageConfig !== 'undefined' && PageConfig.activeTab) ? PageConfig.activeTab : 'application';
 
-    if (activeTabForButtons === 'student') {
+    if (activeTabForButtons === 'student' || activeTabForButtons === 'accounts') {
         try {
             await import('@/datatables-buttons-init.js');
         } catch (err) {
@@ -230,12 +230,61 @@ jQuery(document).ready(function($){
             ? AppConfig.urls.partnersGetAccountsTabData
             : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetAccountsTabData') : null);
 
+        var accountsExportUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersExportAccountsTabData)
+            ? AppConfig.urls.partnersExportAccountsTabData
+            : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersExportAccountsTabData') : null);
+
+        var accountsToolbarDom = '<"row student-dt-toolbar accounts-dt-toolbar align-items-center g-2 flex-nowrap"<"col-auto"l><"col-auto"B>>rtip';
+
+        function buildAccountsExportUrl(format) {
+            if (!accountsExportUrl) {
+                return '#';
+            }
+            var params = new URLSearchParams();
+            params.set('partner_id', partnerNumericId);
+            params.set('format', format === 'xlsx' ? 'xlsx' : 'csv');
+            return accountsExportUrl + '?' + params.toString();
+        }
+
+        function buildAccountsExportButtons() {
+            return [
+                {
+                    text: crmIcon('file-excel') + ' Excel',
+                    className: 'btn btn-success btn-sm',
+                    action: function () {
+                        window.location.href = buildAccountsExportUrl('xlsx');
+                    }
+                },
+                {
+                    text: crmIcon('file-csv') + ' CSV',
+                    className: 'btn btn-info btn-sm',
+                    action: function () {
+                        window.location.href = buildAccountsExportUrl('csv');
+                    }
+                }
+            ];
+        }
+
+        function setupAccountsToolbar(api) {
+            var $wrapper = $(api.table().container()).closest('.dataTables_wrapper');
+            var $toolbar = $wrapper.children('.student-dt-toolbar, .accounts-dt-toolbar').first();
+            var $toolbarHost = $('.accounts-dt-toolbar-host');
+
+            if (!$toolbar.length || !$toolbarHost.length) {
+                return;
+            }
+
+            $toolbar.detach().appendTo($toolbarHost);
+        }
+
         $(".invoicetable").DataTable({
             processing: true,
             serverSide: true,
             searching: false,
             lengthChange: true,
             pageLength: 10,
+            dom: accountsToolbarDom,
+            buttons: buildAccountsExportButtons(),
             ajax: {
                 url: accountsDataUrl,
                 type: 'GET',
@@ -257,6 +306,9 @@ jQuery(document).ready(function($){
                 { targets: '_all', defaultContent: '' }
             ],
             order: [[1, 'desc']],
+            initComplete: function () {
+                setupAccountsToolbar(this.api());
+            },
             rowCallback: function (row, data) {
                 if (data[0]) {
                     $(row).attr('id', 'iid_' + data[0]);
@@ -385,14 +437,14 @@ jQuery(document).ready(function($){
         { data: 20 }, { data: 21 }, { data: 22 }, { data: 23 }, { data: 24 }, { data: 25 }
     ];
 
-    function buildStudentExportUrl(list, api) {
+    function buildStudentExportUrl(list, api, format) {
         if (!studentExportUrl) {
             return '#';
         }
         var params = new URLSearchParams();
         params.set('partner_id', partnerNumericId);
         params.set('list', list);
-        params.set('format', 'csv');
+        params.set('format', format === 'xlsx' ? 'xlsx' : 'csv');
         if (api && typeof api.search === 'function') {
             var searchVal = api.search();
             if (searchVal) {
@@ -445,7 +497,7 @@ jQuery(document).ready(function($){
                 className: 'btn btn-success btn-sm',
                 action: function () {
                     var api = typeof apiGetter === 'function' ? apiGetter() : null;
-                    window.location.href = buildStudentExportUrl(list, api);
+                    window.location.href = buildStudentExportUrl(list, api, 'xlsx');
                 }
             },
             {
@@ -453,7 +505,7 @@ jQuery(document).ready(function($){
                 className: 'btn btn-info btn-sm',
                 action: function () {
                     var api = typeof apiGetter === 'function' ? apiGetter() : null;
-                    window.location.href = buildStudentExportUrl(list, api);
+                    window.location.href = buildStudentExportUrl(list, api, 'csv');
                 }
             }
         ];

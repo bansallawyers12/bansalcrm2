@@ -103,6 +103,20 @@
 .student-dt-toolbar-host .student-dt-toolbar .dt-buttons {
     margin-bottom: 0;
 }
+.student-dt-toolbar-host .student-dt-toolbar .dataTables_length label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    white-space: nowrap;
+}
+.student-dt-toolbar-host .student-dt-toolbar .dt-buttons {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 6px;
+    float: none;
+}
 .student-dt-toolbar-host .student-dt-toolbar .dataTables_filter {
     float: none !important;
     text-align: left !important;
@@ -781,7 +795,7 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="tab-pane fade <?php echo ($activeTab === 'accounts') ? 'show active' : ''; ?>" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
 									@if($activeTab === 'accounts')
-									
+									<div class="student-dt-toolbar-host accounts-dt-toolbar-host"></div>
 									<div class="table-responsive"> 
 										<table class="table invoicetable text_wrap">
 											<thead>
@@ -1805,6 +1819,7 @@ use App\Http\Controllers\Controller;
         partnersExportStudentTabData: '{{ url("/partners/exportStudentTabData") }}',
         partnersGetApplicationTabData: '{{ url("/partners/getApplicationTabData") }}',
         partnersGetAccountsTabData: '{{ url("/partners/getAccountsTabData") }}',
+        partnersExportAccountsTabData: '{{ url("/partners/exportAccountsTabData") }}',
         getPartnerActivities: '{{ url("/get-partner-activities") }}',
         getPartnerNotes: '{{ url("/get-partner-notes") }}',
         getPartner: '{{ url("/getpartner") }}',
