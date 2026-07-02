@@ -521,7 +521,7 @@ class InvoiceController extends Controller
 					$rtype = 'General';
 				} ?>
 				<span title="<?php echo $rtype; ?>" class="ui label zippyLabel"><?php echo $rtype; ?></span></td>
-				<td><?php echo $workflowdaa->name; ?><br><?php echo @$partnerdata->partner_name; ?></td>
+				<td class="invoice-service-col"><?php echo $workflowdaa->name; ?><br><?php echo @$partnerdata->partner_name; ?></td>
 				<td>AUD <?php echo $invoicelist->net_fee_rec; ?></td>	
 				<td><?php echo $invoicelist->discount; ?></td>
 				<td>-</td>
@@ -824,7 +824,6 @@ class InvoiceController extends Controller
 		$obj->payment_option		=	@$requestData['paymentoption'];  
 		
 		$obj->attachments			=	implode(",",$attachfile);  
-		$obj->status				=	0;
 		$obj->currency				=	'AUD';
 		
 		$saved				=	$obj->save();  
@@ -879,6 +878,9 @@ class InvoiceController extends Controller
 	
 	$res= InvoicePayment::where('invoice_id',$obj->id)->delete();
 			for($ia =0; $ia<count(@$requestData['payment_amount']); $ia++){
+				if(!isset($requestData['payment_amount'][$ia]) || $requestData['payment_amount'][$ia] === '' || $requestData['payment_amount'][$ia] === null){
+					continue;
+				}
 				$objf				= 	new InvoicePayment;
 				$objf->invoice_id	=	$obj->id;
 				$objf->amount_rec	=	@$requestData['payment_amount'][$ia];
@@ -888,35 +890,7 @@ class InvoiceController extends Controller
 				$followupsaved				=	$objf->save(); 
 			}
 			
-			$invoicedetail = \App\Models\Invoice::where('id',$obj->id)->first();
-		$invoiceitemdetails = \App\Models\InvoiceDetail::where('invoice_id', $obj->id)->orderby('id','ASC')->get();
-		$coom_amt = 0;
-		$total_fee = 0;
-		$netamount = 0;		
-		foreach($invoiceitemdetails as $invoiceitemdetail){
-			$coom_amt += $invoiceitemdetail->comm_amt;
-			$total_fee += $invoiceitemdetail->total_fee;
-			$netamount += $invoiceitemdetail->netamount;
-		}
-		$paymentdetails = \App\Models\InvoicePayment::where('invoice_id',$obj->id)->orderby('created_at', 'DESC')->get();
-		$amount_rec = 0;
-		foreach($paymentdetails as $paymentdetail){
-			$amount_rec += $paymentdetail->amount_rec;
-		}
-		if($invoicedetail->type == 2){
-			$totaldue = $coom_amt - $amount_rec;
-		}else if($invoicedetail->type == 3){
-			$totaldue = $netamount - $amount_rec;
-		}else{
-			$feepaid = $total_fee - $coom_amt;
-			$totaldue = $feepaid - $amount_rec;
-		}
-		
-		if($totaldue == 0){
-			$objss = \App\Models\Invoice::find($obj->id);
-			$objss->status = 1;
-			$objss->save();
-		}
+			$this->finalizeInvoiceStatusAfterUpdate($obj->id, $requestData);
 		
 			if(@$requestData['btn'] == 'savepreview'){
 				return Redirect::to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
@@ -1079,7 +1053,6 @@ class InvoiceController extends Controller
 		$obj->payment_option		=	@$requestData['paymentoption'];  
 		$obj->attachments			=	$attachfile;  
 		$obj->currency				=	'AUD';
-		$obj->status				=	0;
 		$obj->profile				=	@$pdetail;  
 		$saved				=	$obj->save();  
 		$res= InvoiceDetail::where('invoice_id',$obj->id)->delete();
@@ -1105,6 +1078,9 @@ class InvoiceController extends Controller
 		{ 
 	$res= InvoicePayment::where('invoice_id',$obj->id)->delete();
 			for($ia =0; $ia<count(@$requestData['payment_amount']); $ia++){
+				if(!isset($requestData['payment_amount'][$ia]) || $requestData['payment_amount'][$ia] === '' || $requestData['payment_amount'][$ia] === null){
+					continue;
+				}
 				$objf				= 	new InvoicePayment;
 				$objf->invoice_id	=	$obj->id;
 				$objf->amount_rec	=	@$requestData['payment_amount'][$ia];
@@ -1113,6 +1089,8 @@ class InvoiceController extends Controller
 				
 				$followupsaved				=	$objf->save(); 
 			}
+		
+			$this->finalizeInvoiceStatusAfterUpdate($obj->id, $requestData);
 		
 			if(@$requestData['btn'] == 'savepreview'){
 				return Redirect::to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
@@ -1284,5 +1262,60 @@ class InvoiceController extends Controller
 	// - addscheduleinvoicedetail()
 	// - scheduleinvoicedetail()
 	// - apppreviewschedules()
+
+	/**
+	 * Set invoice status from outstanding balance (same rules as invoicepaymentstore / deletepayment).
+	 */
+	private function syncInvoiceStatus($invoiceId)
+	{
+		$invoicedetail = Invoice::find($invoiceId);
+		if (!$invoicedetail) {
+			return;
+		}
+
+		$invoiceitemdetails = InvoiceDetail::where('invoice_id', $invoiceId)->orderby('id', 'ASC')->get();
+		$coom_amt = 0;
+		$total_fee = 0;
+		$netamount = 0;
+		foreach ($invoiceitemdetails as $invoiceitemdetail) {
+			$coom_amt += $invoiceitemdetail->comm_amt;
+			$total_fee += $invoiceitemdetail->total_fee;
+			$netamount += $invoiceitemdetail->netamount;
+		}
+
+		$paymentdetails = InvoicePayment::where('invoice_id', $invoiceId)->orderby('created_at', 'DESC')->get();
+		$amount_rec = 0;
+		foreach ($paymentdetails as $paymentdetail) {
+			$amount_rec += $paymentdetail->amount_rec;
+		}
+
+		if ($invoicedetail->type == 2) {
+			$totaldue = $coom_amt - $amount_rec;
+		} elseif ($invoicedetail->type == 3) {
+			$totaldue = $netamount - $amount_rec;
+		} else {
+			$feepaid = $total_fee - $coom_amt;
+			$totaldue = $feepaid - $amount_rec;
+		}
+
+		$invoicedetail->status = ($totaldue == 0) ? 1 : 0;
+		$invoicedetail->save();
+	}
+
+	/**
+	 * On invoice update: honor "Mark as paid" checkbox (same as store()), else derive status from balance.
+	 */
+	private function finalizeInvoiceStatusAfterUpdate($invoiceId, array $requestData)
+	{
+		if (isset($requestData['payment_done']) && $requestData['payment_done'] == 'on') {
+			$invoice = Invoice::find($invoiceId);
+			if ($invoice) {
+				$invoice->status = 1;
+				$invoice->save();
+			}
+		} else {
+			$this->syncInvoiceStatus($invoiceId);
+		}
+	}
 	
 }

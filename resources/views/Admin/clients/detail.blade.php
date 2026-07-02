@@ -1759,7 +1759,7 @@ use App\Http\Controllers\Controller;
 												<tr>
 													<th>Invoice No.</th>
 													<th>Issue Date</th>
-													<th>Service</th>
+													<th class="invoice-service-col">Service</th>
 													<th>Invoice Amount</th>
 													<th>Discount Given</th>
 													<th>Income Shared</th>
@@ -1814,7 +1814,7 @@ use App\Http\Controllers\Controller;
 														$rtype = 'General';
 													} ?>
 													<span title="{{$rtype}}" class="badge bg-warning text-dark zippyLabel">{{$rtype}}</span></td>
-													<td>{{@$workflowdaa->name}}<br>{{@$partnerdata->partner_name}}</td>
+													<td class="invoice-service-col">{{@$workflowdaa->name}}<br>{{@$partnerdata->partner_name}}</td>
 													<td>AUD {{$invoicelist->net_fee_rec}}</td>
 													<td>{{$invoicelist->discount}}</td>
 													<td>-</td>

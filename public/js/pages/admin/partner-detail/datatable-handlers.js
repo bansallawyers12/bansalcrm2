@@ -303,6 +303,7 @@ jQuery(document).ready(function($){
             ],
             columnDefs: [
                 { targets: [0, 2, 3, 5, 6], orderable: false },
+                { targets: 2, className: 'invoice-service-col' },
                 { targets: '_all', defaultContent: '' }
             ],
             order: [[1, 'desc']],

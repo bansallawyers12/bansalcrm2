@@ -12,7 +12,22 @@
 /*.main-content .section-body .card .card-body .form-group .form-control{padding:6px 12px;}*/
 .ag-label--circular {font-weight: 600;padding-left: 12px;position: relative;}
 .ag-label--circular:before {background-color: currentcolor;border-radius: 50%;content: "";display: inline-block;height: 7px;left: 0;position: absolute;top: 50%;transform: translateY(-50%);width: 7px;}
-.text_wrap{white-space: nowrap;}  
+.text_wrap{white-space: nowrap;}
+
+/* Client/partner Accounts tab — wrap long service names in invoice list */
+#accounts .invoicetable thead th.invoice-service-col {
+	vertical-align: middle;
+}
+
+#accounts .invoicetable tbody td.invoice-service-col {
+	max-width: 220px;
+	min-width: 100px;
+	white-space: normal !important;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+	vertical-align: top;
+	line-height: 1.35;
+}  
 .card .card-body .profile_upload{border: 1px solid #ebebeb;border-radius: 50%;cursor: pointer;height:160px;width: 160px;margin: 0 auto;overflow: hidden;position: relative;text-align: center;}
 .card .card-body .profile_upload .upload_content{line-height: 160px;display: flex;justify-content: center;align-items: center;flex-direction: column;height: 100%;padding: 0px 10px;}
 .card .card-body .profile_upload .upload_content i{font-size: 35px;color: #ccc;}

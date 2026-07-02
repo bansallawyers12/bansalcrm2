@@ -1502,7 +1502,8 @@ function customValidate(formName, savetype = '')
 													"searching": false,
 													"lengthChange": false,
 												  "columnDefs": [
-													{ "sortable": false, "targets": [0, 2, 3] }
+													{ "sortable": false, "targets": [0, 2, 3] },
+													{ targets: 2, className: 'invoice-service-col' }
 												  ],
 												  order: [[1, "desc"]] //column indexes is zero based
 

@@ -802,7 +802,7 @@ use App\Http\Controllers\Controller;
 												<tr>
 													<th>Invoice No.</th>
 													<th>Issue Date</th>
-													<th>Service</th>
+													<th class="invoice-service-col">Service</th>
 													<th>Invoice Amount</th>
 													<th>Paid Amount</th>
 													<th>Status</th>
