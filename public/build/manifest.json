@@ -34,8 +34,8 @@
     "file": "assets/dataTables.bootstrap5-DsvO-t8U.js",
     "name": "dataTables.bootstrap5"
   },
-  "_document-context-menu-y1K0_CIg.js": {
-    "file": "assets/document-context-menu-y1K0_CIg.js",
+  "_document-context-menu-xLdRgtt5.js": {
+    "file": "assets/document-context-menu-xLdRgtt5.js",
     "name": "document-context-menu"
   },
   "_inactivity-logout-_iQtW8HU.js": {
@@ -226,14 +226,14 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-qIJp_03O.js",
+    "file": "assets/client-detail-entry-Ci4smHk9.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
     "imports": [
       "_config-Sgxc2SGK.js",
       "_ui-components-CYgj0lGP.js",
-      "_document-context-menu-y1K0_CIg.js",
+      "_document-context-menu-xLdRgtt5.js",
       "_popover-DAoJ0ULj.js"
     ]
   },
@@ -261,13 +261,13 @@
     "isEntry": true
   },
   "resources/js/pages/admin/partner-detail-entry.js": {
-    "file": "assets/partner-detail-entry-DvyTV4hB.js",
+    "file": "assets/partner-detail-entry-B-Qxou7Y.js",
     "name": "partner-detail-entry",
     "src": "resources/js/pages/admin/partner-detail-entry.js",
     "isEntry": true,
     "imports": [
       "_config-Sgxc2SGK.js",
-      "_document-context-menu-y1K0_CIg.js"
+      "_document-context-menu-xLdRgtt5.js"
     ],
     "dynamicImports": [
       "resources/js/datatables-buttons-init.js"

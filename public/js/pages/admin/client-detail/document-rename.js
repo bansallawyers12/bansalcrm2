@@ -48,6 +48,49 @@
         return value;
     }
 
+    function storeFilePreviewMeta(parent) {
+        var $ = $jq();
+        parent = $(parent);
+        var row = parent.closest('.drow');
+        var fileUrl = row.attr('data-myfile') || parent.data('preview-file-url') || '';
+        var fileType = row.attr('data-file-type') || parent.data('preview-file-type') || '';
+        parent.data('preview-file-url', fileUrl);
+        parent.data('preview-file-type', fileType);
+    }
+
+    function resolveFilePreviewUrl(parent, row) {
+        parent = $(parent);
+        row = row && row.length ? row : parent.closest('.drow');
+        return parent.data('preview-file-url') || (row.length ? row.attr('data-myfile') : '') || '';
+    }
+
+    function resolveFileType(parent, row, fallback) {
+        parent = $(parent);
+        row = row && row.length ? row : parent.closest('.drow');
+        return parent.data('preview-file-type') || (row.length ? row.attr('data-file-type') : '') || fallback || '';
+    }
+
+    function renderFileRowLink(parent, filename, filetype, fileUrl) {
+        var $ = $jq();
+        parent = $(parent);
+        var displayName = filename + (filetype ? '.' + filetype : '');
+        var link = $('<a href="javascript:void(0);">');
+        link.html(crmIcon('file-image') + ' ');
+        link.append($('<span>').text(displayName));
+        if (fileUrl && typeof window.previewFile === 'function') {
+            link.on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.previewFile(filetype, fileUrl, 'preview-container-alldocumentlist');
+                return false;
+            });
+        }
+        parent.removeClass('document-rename-editing').append(link);
+        if (typeof window.refreshCrmIcons === 'function') {
+            window.refreshCrmIcons(parent[0]);
+        }
+    }
+
     function cancelChecklistRename(parent) {
         var $ = $jq();
         parent = $(parent);
@@ -117,8 +160,12 @@
     function cancelFileRename(parent) {
         var $ = $jq();
         parent = $(parent);
+        parent.removeClass('document-rename-editing');
         if (parent.data('id')) {
             parent.html(parent.data('current-html'));
+            if (typeof window.refreshCrmIcons === 'function') {
+                window.refreshCrmIcons(parent[0]);
+            }
         } else {
             parent.remove();
         }
@@ -127,6 +174,8 @@
     function saveFileRename(parent) {
         var $ = $jq();
         parent = $(parent);
+        var row = parent.closest('.drow');
+        var previewFileUrl = resolveFilePreviewUrl(parent, row);
         parent.find('.opentime').removeClass('is-invalid');
         parent.find('.invalid-feedback').remove();
         var opentime = $.trim(parent.find('.opentime').val());
@@ -148,14 +197,18 @@
             success: function (result) {
                 var obj = typeof result === 'string' ? JSON.parse(result) : result;
                 if (obj.status) {
+                    var savedFilename = obj.filename || opentime;
+                    var savedFiletype = obj.filetype || resolveFileType(parent, row, '');
                     parent.empty()
                         .data('id', obj.Id)
-                        .data('name', opentime)
-                        .attr('data-name', opentime)
-                        .append(
-                            $('<span>').html(crmIcon('file-image') + ' ' + obj.filename + '.' + obj.filetype)
-                        );
-                    $('#grid_' + obj.Id).html(obj.filename + '.' + obj.filetype);
+                        .data('name', savedFilename)
+                        .attr('data-name', savedFilename);
+                    renderFileRowLink(parent, savedFilename, savedFiletype, previewFileUrl);
+                    if (row.length) {
+                        row.attr('data-file-name', savedFilename);
+                        row.attr('data-file-type', savedFiletype);
+                    }
+                    $('#grid_' + obj.Id).html(savedFilename + (savedFiletype ? '.' + savedFiletype : ''));
                     renameToast(obj.data || obj.message || 'Document saved successfully', 'success');
                 } else {
                     parent.find('.opentime').addClass('is-invalid').css({
@@ -240,6 +293,7 @@
             return;
         }
         parent.data('current-html', parent.html());
+        storeFilePreviewMeta(parent);
         var currentName = parent.data('name');
         if (currentName === undefined || currentName === null || currentName === '') {
             currentName = parent.attr('data-name') || '';
