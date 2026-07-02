@@ -390,6 +390,24 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 .cus_prod_fees{} 
 .cus_prod_fees h5{font-size:14px;line-height:18px;display:inline-block;}
 .cus_prod_fees a{float:right;display:inline-block;}
+.cus_prod_fees a.openpaymentfee{
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	min-width:28px;
+	min-height:28px;
+	padding:4px;
+	cursor:pointer;
+	position:relative;
+	z-index:2;
+	text-decoration:none;
+	vertical-align:middle;
+}
+.cus_prod_fees a.openpaymentfee .crm-icon,
+.cus_prod_fees a.openpaymentfee svg.lucide{
+	pointer-events:none;
+	flex-shrink:0;
+}
 .serv_status_added{}
 .serv_status_added p{display:inline-block;margin-right:10px;}
 .serv_status_added p span{display: block;}
