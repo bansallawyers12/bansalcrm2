@@ -123,6 +123,7 @@
 													<th>Product</th>
 													<th>Amount</th>
 													<th>Commission Claimed</th>
+													<th>GST</th>
 													<th>Net Fee Paid to Partner</th>
 													<th>Client Reference</th>
 													<th>Assignee</th>
@@ -185,6 +186,7 @@
 													<td style="white-space: initial;">{{@$productdata->name}}</td>
 													<td>AUD <?php echo $invoicelist->net_fee_rec; ?></td>
 													<td style="white-space: initial;">${{number_format($coom_amt, 2)}}</td>
+													<td style="white-space: initial;">${{number_format($tax_amt, 2)}}</td>
 													<td style="white-space: initial;">${{number_format($feepaid, 2)}}</td>
 													<td style="white-space: initial;">{{@$clientdata->client_id ?? 'N/A'}}</td>
 													<td style="white-space: initial;">{{@$assignedTo ? trim($assignedTo->first_name.' '.$assignedTo->last_name) : 'N/A'}}</td>
@@ -204,7 +206,7 @@
 											@else
 												<tbody>
 													<tr>
-														<td style="text-align:center;" colspan="12">
+														<td style="text-align:center;" colspan="13">
 															No Record found
 														</td>
 													</tr>
