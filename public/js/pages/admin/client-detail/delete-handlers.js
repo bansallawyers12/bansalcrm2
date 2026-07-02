@@ -4,6 +4,14 @@
 'use strict';
 
 (function() {
+    function deleteSuccessToast(message) {
+        if (typeof window.toastMsg === 'function') {
+            window.toastMsg(message, 'success');
+        } else if (message) {
+            alert(message);
+        }
+    }
+
     jQuery(document).ready(function($){
         // ============================================================================
         // DELETE HANDLERS
@@ -72,6 +80,10 @@
 
                         if(typeof getallactivities === 'function') {
                             getallactivities();
+                        }
+
+                        if ((delhref === 'deletealldocs' || delhref === 'deletedocs') && res.data) {
+                            deleteSuccessToast(res.data);
                         }
                     }
                 },

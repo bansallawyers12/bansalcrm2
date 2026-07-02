@@ -13,8 +13,8 @@ import '@legacy/pages/admin/partner-detail/notes-contact-handlers.js';
 
 import '@legacy/common/document-handlers.js';
 import '@legacy/pages/admin/partner-detail/bulk-upload.js';
-import '@legacy/pages/admin/client-detail/document-context-menu.js';
 import '@legacy/pages/admin/client-detail/document-rename.js';
+import '@legacy/pages/admin/client-detail/document-context-menu.js';
 import '@legacy/pages/admin/client-detail/document-actions.js';
 import '@legacy/pages/admin/client-detail/preview-file-scroll.js';
 
