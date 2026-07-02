@@ -30,6 +30,23 @@
 .ag-align-end {
     align-items: flex-end;
 }
+.paid-invoice-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.paid-invoice-toolbar .form-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.paid-invoice-export-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
 
 </style>
 <!-- Main Content -->
@@ -66,6 +83,33 @@
 							</ul> 
 							<div class="tab-content" id="clientContent">								
 								<div class="tab-pane fade show active" id="clients" role="tabpanel" aria-labelledby="clients-tab">
+									<form method="get" action="{{ route('invoice.paid') }}" id="paid-invoice-filter-form" class="paid-invoice-toolbar">
+										<div>
+											<label for="issue_date_from" class="form-label">Issue Date From</label>
+											<input type="text" id="issue_date_from" name="issue_date_from" class="form-control paid-invoice-datepicker" placeholder="DD/MM/YYYY" value="{{ request('issue_date_from') }}" autocomplete="off">
+										</div>
+										<div>
+											<label for="issue_date_to" class="form-label">Issue Date To</label>
+											<input type="text" id="issue_date_to" name="issue_date_to" class="form-control paid-invoice-datepicker" placeholder="DD/MM/YYYY" value="{{ request('issue_date_to') }}" autocomplete="off">
+										</div>
+										<div style="min-width: 220px;">
+											<label for="partner_id" class="form-label">Partner Name</label>
+											<select id="partner_id" name="partner_id" class="form-control tomselect paid-invoice-partner-select">
+												<option value="">All Partners</option>
+												@foreach($partners as $partner)
+													<option value="{{ $partner->id }}" {{ (string) request('partner_id') === (string) $partner->id ? 'selected' : '' }}>{{ $partner->partner_name }}</option>
+												@endforeach
+											</select>
+										</div>
+										<div class="d-flex gap-2">
+											<button type="submit" class="btn btn-primary">Filter</button>
+											<a href="{{ route('invoice.paid') }}" class="btn btn-secondary">Clear</a>
+										</div>
+										<div class="paid-invoice-export-group">
+											<button type="button" class="btn btn-success btn-sm" id="paid-invoice-export-excel">@icon('file-excel') Excel</button>
+											<button type="button" class="btn btn-info btn-sm" id="paid-invoice-export-csv">@icon('file-csv') CSV</button>
+										</div>
+									</form>
 									<div class="table-responsive common_table"> 
 										<table class="table text_wrap">
 											<thead>
@@ -277,5 +321,42 @@
 </div>
 @endsection
 @section('scripts')
+<script>
+jQuery(document).ready(function ($) {
+	if (typeof flatpickr !== 'undefined') {
+		document.querySelectorAll('.paid-invoice-datepicker').forEach(function (el) {
+			flatpickr(el, { dateFormat: 'd/m/Y', allowInput: true });
+		});
+	}
 
+	function buildPaidInvoiceExportUrl(format) {
+		var params = new URLSearchParams();
+		params.set('format', format === 'xlsx' ? 'xlsx' : 'csv');
+
+		var issueDateFrom = $('#issue_date_from').val();
+		var issueDateTo = $('#issue_date_to').val();
+		var partnerId = $('#partner_id').val();
+
+		if (issueDateFrom) {
+			params.set('issue_date_from', issueDateFrom);
+		}
+		if (issueDateTo) {
+			params.set('issue_date_to', issueDateTo);
+		}
+		if (partnerId) {
+			params.set('partner_id', partnerId);
+		}
+
+		return '{{ route('invoice.exportPaid') }}?' + params.toString();
+	}
+
+	$('#paid-invoice-export-excel').on('click', function () {
+		window.location.href = buildPaidInvoiceExportUrl('xlsx');
+	});
+
+	$('#paid-invoice-export-csv').on('click', function () {
+		window.location.href = buildPaidInvoiceExportUrl('csv');
+	});
+});
+</script>
 @endsection

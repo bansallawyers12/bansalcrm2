@@ -395,6 +395,7 @@ Route::get('/delete-invoice', [InvoiceController::class, 'deleteinvoice']);
 Route::post('/invoice/general-edit', [InvoiceController::class, 'updategeninvoices']);
 Route::post('/invoice/com-store', [InvoiceController::class, 'updatecominvoices']);
 Route::get('/invoice/paid', [InvoiceController::class, 'paid'])->name('invoice.paid');
+Route::get('/invoice/paid/export', [InvoiceController::class, 'exportPaidInvoices'])->name('invoice.exportPaid');
 Route::get('/invoice/unpaid', [InvoiceController::class, 'unpaid'])->name('invoice.unpaid');
 // Route::get('/invoice/unpaid', [InvoiceController::class, 'unpaid'])->name('invoice.unpaid');
 Route::get('/invoice/', [InvoiceController::class, 'index'])->name('invoice.index');

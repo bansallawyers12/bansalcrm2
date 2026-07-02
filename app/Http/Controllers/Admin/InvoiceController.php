@@ -9,7 +9,14 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File; 
 
 use App\Models\Admin;
+use App\Models\Application;
 use App\Models\Invoice;
+use App\Models\Partner;
+use App\Models\Product;
+use App\Models\Staff;
+use App\Exports\PaidInvoicesExport;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 // NOTE: Item and AttachFile models/tables have been removed
 // use App\Models\Item;
 use App\Models\InvoiceDetail;
@@ -78,12 +85,261 @@ class InvoiceController extends Controller
 	
 	public function paid(Request $request)
 	{
-		
-		$query 		= Invoice::where('status', '=', 1);
-		$lists		= $query->orderby('id','desc')->paginate(20);
-		return view('Admin.invoice.paid',compact(['lists'])); 
+		$query = $this->buildPaidInvoicesQuery($request);
+		$lists = $query->orderby('id', 'desc')->paginate(20)->withQueryString();
+		$partners = Partner::query()
+			->select('id', 'partner_name')
+			->orderBy('partner_name')
+			->get();
 
-	}   
+		return view('Admin.invoice.paid', compact('lists', 'partners'));
+	}
+
+	/**
+	 * Export paid invoices (CSV or XLSX) using the same filters as the list page.
+	 */
+	public function exportPaidInvoices(Request $request)
+	{
+		$format = strtolower(trim((string) $request->input('format', 'csv')));
+		$isXlsx = in_array($format, ['xlsx', 'excel'], true);
+		$exportHeaders = $this->paidInvoiceExportHeaders();
+		$baseFilename = 'Paid_Invoices_'.date('Y-m-d');
+
+		$invoiceIds = $this->buildPaidInvoicesQuery($request)
+			->orderBy('id', 'desc')
+			->pluck('id');
+
+		if ($isXlsx) {
+			$rows = $invoiceIds->isEmpty()
+				? []
+				: $this->buildPaidInvoiceExportRows($invoiceIds);
+
+			return Excel::download(
+				new PaidInvoicesExport($rows, $exportHeaders),
+				$baseFilename.'.xlsx'
+			);
+		}
+
+		$filename = $baseFilename.'.csv';
+		$headers = [
+			'Content-Type'        => 'text/csv; charset=UTF-8',
+			'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+		];
+
+		$callback = function () use ($invoiceIds, $exportHeaders) {
+			$handle = fopen('php://output', 'w');
+			fputcsv($handle, $exportHeaders);
+
+			if ($invoiceIds->isEmpty()) {
+				fclose($handle);
+				return;
+			}
+
+			foreach ($invoiceIds->chunk(200) as $chunk) {
+				$rows = $this->buildPaidInvoiceExportRows($chunk);
+				foreach ($rows as $row) {
+					fputcsv($handle, $row);
+				}
+			}
+
+			fclose($handle);
+		};
+
+		return response()->stream($callback, 200, $headers);
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Builder
+	 */
+	private function buildPaidInvoicesQuery(Request $request)
+	{
+		$query = Invoice::query()->where('status', 1);
+
+		if ($request->filled('issue_date_from')) {
+			$from = $this->parsePaidInvoiceFilterDate($request->issue_date_from);
+			if ($from) {
+				$query->whereDate('invoice_date', '>=', $from->format('Y-m-d'));
+			}
+		}
+
+		if ($request->filled('issue_date_to')) {
+			$to = $this->parsePaidInvoiceFilterDate($request->issue_date_to);
+			if ($to) {
+				$query->whereDate('invoice_date', '<=', $to->format('Y-m-d'));
+			}
+		}
+
+		if ($request->filled('partner_id')) {
+			$partnerId = (int) $request->partner_id;
+			$applicationIds = Application::query()
+				->where('partner_id', $partnerId)
+				->pluck('id');
+
+			if ($applicationIds->isEmpty()) {
+				$query->whereRaw('1 = 0');
+			} else {
+				$query->whereIn('application_id', $applicationIds);
+			}
+		}
+
+		return $query;
+	}
+
+	private function parsePaidInvoiceFilterDate(?string $value): ?Carbon
+	{
+		if (empty($value)) {
+			return null;
+		}
+
+		try {
+			return Carbon::createFromFormat('d/m/Y', trim($value));
+		} catch (\Exception $e) {
+			try {
+				return Carbon::parse($value);
+			} catch (\Exception $e2) {
+				return null;
+			}
+		}
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private function paidInvoiceExportHeaders(): array
+	{
+		return [
+			'No',
+			'Issue Date',
+			'Client Name',
+			'Created By',
+			'Partner Name',
+			'Product',
+			'Amount',
+			'Commission Claimed',
+			'Net Fee Paid to Partner',
+			'Client Reference',
+			'Assignee',
+		];
+	}
+
+	/**
+	 * @param  \Illuminate\Support\Collection<int, int|string>  $invoiceIds
+	 * @return array<int, array<int, string>>
+	 */
+	private function buildPaidInvoiceExportRows($invoiceIds): array
+	{
+		$rows = [];
+
+		$invoices = Invoice::query()
+			->whereIn('id', $invoiceIds->all())
+			->orderBy('id', 'desc')
+			->get();
+
+		$clientIds = $invoices->pluck('client_id')->filter()->unique()->values();
+		$staffIds = $invoices->pluck('user_id')->filter()->unique()->values();
+		$applicationIds = $invoices->where('type', '!=', 3)->pluck('application_id')->filter()->unique()->values();
+
+		$clients = Admin::query()->whereIn('id', $clientIds)->get()->keyBy('id');
+		$staffMembers = Staff::query()->whereIn('id', $staffIds)->get()->keyBy('id');
+		$applications = Application::query()->whereIn('id', $applicationIds)->get()->keyBy('id');
+		$partnerIds = $applications->pluck('partner_id')->filter()->unique()->values();
+		$productIds = $applications->pluck('product_id')->filter()->unique()->values();
+		$assigneeIds = $applications->pluck('user_id')->filter()->unique()->values();
+
+		$partners = Partner::query()->whereIn('id', $partnerIds)->get()->keyBy('id');
+		$products = Product::query()->whereIn('id', $productIds)->get()->keyBy('id');
+		$assignees = Staff::query()->whereIn('id', $assigneeIds)->get()->keyBy('id');
+
+		$invoiceDetails = InvoiceDetail::query()
+			->whereIn('invoice_id', $invoiceIds->all())
+			->orderBy('id')
+			->get()
+			->groupBy('invoice_id');
+
+		foreach ($invoices as $invoice) {
+			$rows[] = $this->formatPaidInvoiceExportRow(
+				$invoice,
+				$clients,
+				$staffMembers,
+				$applications,
+				$partners,
+				$products,
+				$assignees,
+				$invoiceDetails->get($invoice->id, collect())
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\Admin>  $clients
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\Staff>  $staffMembers
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\Application>  $applications
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\Partner>  $partners
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\Product>  $products
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\Staff>  $assignees
+	 * @param  \Illuminate\Support\Collection<int, \App\Models\InvoiceDetail>  $invoiceitemdetails
+	 * @return array<int, string>
+	 */
+	private function formatPaidInvoiceExportRow(
+		Invoice $invoicelist,
+		$clients,
+		$staffMembers,
+		$applications,
+		$partners,
+		$products,
+		$assignees,
+		$invoiceitemdetails
+	): array {
+		$clientdata = $clients->get($invoicelist->client_id);
+		$admindata = $staffMembers->get($invoicelist->user_id);
+		$partnerdata = null;
+		$productdata = null;
+		$assignedTo = null;
+
+		if ((int) $invoicelist->type !== 3) {
+			$applicationdata = $applications->get($invoicelist->application_id);
+			if ($applicationdata) {
+				$partnerdata = $partners->get($applicationdata->partner_id);
+				$productdata = $products->get($applicationdata->product_id);
+				$assignedTo = $applicationdata->user_id
+					? $assignees->get($applicationdata->user_id)
+					: null;
+			}
+		}
+
+		$coom_amt = 0;
+		$total_fee = 0;
+		$tax_amt = 0;
+		$bonus_amt = 0;
+
+		foreach ($invoiceitemdetails as $invoiceitemdetail) {
+			$coom_amt += $invoiceitemdetail->comm_amt;
+			$total_fee += $invoiceitemdetail->total_fee;
+			$tax_amt += $invoiceitemdetail->tax_amount;
+			$bonus_amt += $invoiceitemdetail->bonus_amount;
+		}
+
+		$feepaid = $total_fee - ($coom_amt + $tax_amt + $bonus_amt);
+		$issueDate = $invoicelist->invoice_date
+			? date('d/m/Y', strtotime($invoicelist->invoice_date))
+			: '';
+
+		return [
+			(string) $invoicelist->id,
+			$issueDate,
+			trim(($clientdata->first_name ?? '').' '.($clientdata->last_name ?? '')),
+			(string) ($admindata->first_name ?? ''),
+			(string) ($partnerdata->partner_name ?? ''),
+			(string) ($productdata->name ?? ''),
+			'AUD '.(string) ($invoicelist->net_fee_rec ?? ''),
+			'$'.number_format($coom_amt, 2),
+			'$'.number_format($feepaid, 2),
+			(string) ($clientdata->client_id ?? 'N/A'),
+			$assignedTo ? trim($assignedTo->first_name.' '.$assignedTo->last_name) : 'N/A',
+		];
+	}
 	
 	
 	
