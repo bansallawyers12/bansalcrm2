@@ -452,11 +452,33 @@ $(function () {
             }
             $.ajax({
                 url: url,
-                type: 'DELETE',
+                type: 'POST',
                 dataType: 'json',
-                data: {method: '_DELETE', submit: true}
-            }).always(function (data) {
-                $('.yajra-datatable').DataTable().draw(false);
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    _method: 'DELETE',
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    submit: true
+                },
+                success: function(response) {
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    if (obj && obj.success) {
+                        showToast(obj.message || 'Activity deleted successfully.', 'success');
+                        $('.yajra-datatable').DataTable().draw(false);
+                        if (typeof getallactivities === 'function') getallactivities();
+                        if (typeof getallnotes === 'function') getallnotes();
+                    } else {
+                        showToast((obj && obj.message) || 'Failed to delete activity.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message
+                        : 'Failed to delete activity.';
+                    showToast(msg, 'error');
+                }
             });
         });
     });
