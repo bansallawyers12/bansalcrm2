@@ -104,10 +104,7 @@
     /** Open server-rendered preview viewer in a new tab (real URL — avoids pop-up blocker). */
     function openPreviewViewerTab(fileUrl, previewFilename, fileType) {
         const viewerUrl = buildPreviewViewerUrl(fileUrl, previewFilename, fileType);
-        const win = window.open(viewerUrl, '_blank', 'noopener,noreferrer');
-        if (!win) {
-            toastMsg('Please allow pop-ups to preview this file.', 'error');
-        }
+        window.open(viewerUrl, '_blank', 'noopener,noreferrer');
     }
 
     function openPreviewInNewTab(row, fileName, fileType, myfile, myfileKey, docType) {
