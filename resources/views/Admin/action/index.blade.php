@@ -174,7 +174,7 @@
 
 
                                             <form class=&quot;form-inline mr-auto&quot;>
-                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Client</label>
+                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Client <span class=&quot;span_req&quot;>*</span></label>
 
                                                 <div class=&quot;search-element&quot; style=&quot;margin-left: 5px;width:70%;&quot;>
                                                     <select id=&quot;assign_client_id&quot;  class=&quot;form-control js-data-example-ajaxccsearch__addmytask&quot; type=&quot;search&quot; placeholder=&quot;Search&quot; aria-label=&quot;Search&quot; data-width=&quot;200&quot; style=&quot;width:200px&quot;></select>
@@ -943,6 +943,26 @@ jQuery(document).ready(function($){
 		}
 	});
 
+    function getAddActionPopoverClientId() {
+        var $popover = $('.popover.show, .popover:visible').last();
+        var $clientSelect = $popover.length ? $popover.find('#assign_client_id') : $('#assign_client_id');
+        if (!$clientSelect.length) {
+            return '';
+        }
+        var el = $clientSelect[0];
+        if (window.RecipientSelect && typeof RecipientSelect.getValue === 'function') {
+            var vals = RecipientSelect.getValue(el);
+            if (Array.isArray(vals) && vals.length) {
+                return vals[0];
+            }
+            return '';
+        }
+        if (typeof getEnhancedSelectValue === 'function') {
+            return getEnhancedSelectValue(el) || '';
+        }
+        return $clientSelect.val() || '';
+    }
+
     //Add Personal Task
     $(document).delegate('#add_my_task','click', function(){
 		$(".popuploader").show();
@@ -961,15 +981,24 @@ jQuery(document).ready(function($){
 			$('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
+        var $clientSelect = $('.popover.show, .popover:visible').last().find('#assign_client_id');
+        if (!$clientSelect.length) {
+            $clientSelect = $('#assign_client_id');
+        }
+        if(!getAddActionPopoverClientId()){
+			$('.popuploader').hide();
+			error="Client is required.";
+			$clientSelect.closest('.search-element').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			flag = false;
+		}
         if(flag){
-			// Debug: Log the client_id value before sending
-			console.log('Client ID value:', $('#assign_client_id').val());
-			
+			var clientId = getAddActionPopoverClientId();
+
 			$.ajax({
 				type:'post',
                 url:"{{URL::to('/')}}/clients/personalaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:(typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel('#rem_cat') : $('#rem_cat :selected').text()),rem_cat:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') : $('#rem_cat option:selected').val()),task_group:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') : $('#task_group').val())},
+                data: {note_type:'action',description:$('#assignnote').val(),client_id:clientId,followup_datetime:$('#popoverdatetime').val(),assignee_name:(typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel('#rem_cat') : $('#rem_cat :selected').text()),rem_cat:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') : $('#rem_cat option:selected').val()),task_group:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') : $('#task_group').val())},
                 success: function(response){
                     //console.log(response);
                     $('.popuploader').hide();

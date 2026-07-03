@@ -283,8 +283,12 @@ class ClientActionController extends Controller
 
         // Validate that client_id was successfully parsed
         if ($client_id === null || $client_id === '') {
+            $rawClientId = isset($requestData['client_id']) ? trim((string) $requestData['client_id']) : '';
+            $message = $rawClientId === ''
+                ? 'Please select a client.'
+                : 'Invalid client ID. Please select a valid client.';
             Log::error('personalaction: Invalid client_id. Request: '.json_encode($requestData));
-            echo json_encode(['success' => false, 'message' => 'Invalid client ID. Please select a valid client.', 'clientID' => $req_clientID]);
+            echo json_encode(['success' => false, 'message' => $message, 'clientID' => $req_clientID]);
             exit;
         }
 
