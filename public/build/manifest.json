@@ -42,8 +42,8 @@
     "file": "assets/inactivity-logout-CK81cIDO.js",
     "name": "inactivity-logout"
   },
-  "_popover-CQR4XC6x.js": {
-    "file": "assets/popover-CQR4XC6x.js",
+  "_popover-DIQfzaKM.js": {
+    "file": "assets/popover-DIQfzaKM.js",
     "name": "popover"
   },
   "_rolldown-runtime-QTnfLwEv.js": {
@@ -226,7 +226,7 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-DjEjlJeS.js",
+    "file": "assets/client-detail-entry-DLzrboLC.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
@@ -234,7 +234,7 @@
       "_config-Sgxc2SGK.js",
       "_ui-components-CYgj0lGP.js",
       "_document-context-menu-C3D81kjb.js",
-      "_popover-CQR4XC6x.js"
+      "_popover-DIQfzaKM.js"
     ]
   },
   "resources/js/pages/admin/client-edit-entry.js": {
@@ -274,12 +274,12 @@
     ]
   },
   "resources/js/pages/admin/popover-entry.js": {
-    "file": "assets/popover-entry-Bta_T7zM.js",
+    "file": "assets/popover-entry-BKI1G-fj.js",
     "name": "popover-entry",
     "src": "resources/js/pages/admin/popover-entry.js",
     "isEntry": true,
     "imports": [
-      "_popover-CQR4XC6x.js"
+      "_popover-DIQfzaKM.js"
     ]
   },
   "resources/js/signature-pad-init.js": {

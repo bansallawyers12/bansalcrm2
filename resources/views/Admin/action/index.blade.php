@@ -22,6 +22,11 @@
 .popover .ts-dropdown { z-index: 100001 !important; }
 .filter-wrapper div.active {color:blue !important;}
 .btn-add-action-trigger { display: inline-block; white-space: nowrap; margin-left: 10px; margin-top: 5px; vertical-align: middle; }
+.action-btn-group { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+.action-btn-group .action-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; flex-shrink: 0; }
+.action-btn-group .action-icon-btn .crm-icon,
+.action-btn-group .action-icon-btn svg.lucide { pointer-events: none; flex-shrink: 0; }
+.yajra-datatable .action-cell { white-space: nowrap; }
 </style>
 <!-- Main Content -->
 <div class="main-content">
@@ -299,6 +304,69 @@
 
 
 <script type="text/javascript">
+window.ActionPagePopovers = window.ActionPagePopovers || {
+    isManualTrigger: function(el) {
+        return $(el).hasClass('update_task') || $(el).hasClass('reassign_task');
+    },
+    disposeElement: function(el) {
+        if (window.bootstrap && window.bootstrap.Popover) {
+            var inst = window.bootstrap.Popover.getInstance(el);
+            if (inst) {
+                try { inst.hide(); } catch (e) {}
+                inst.dispose();
+            }
+        }
+        $(el).removeData('bs.popover');
+    },
+    cleanupOrphanedDom: function() {
+        $('body > .popover').filter(function() {
+            return $(this).find('#add_my_task').length === 0;
+        }).remove();
+    },
+    initElement: function(el) {
+        var $el = $(el);
+        this.disposeElement(el);
+        var manual = this.isManualTrigger(el);
+        $el.popover({
+            html: true,
+            sanitize: false,
+            trigger: manual ? 'manual' : 'click',
+            placement: $el.attr('data-bs-placement') || $el.attr('data-placement') || 'auto',
+            container: $el.attr('data-bs-container') || $el.attr('data-container') || (manual ? 'body' : false)
+        });
+    },
+    initTablePopovers: function() {
+        this.cleanupOrphanedDom();
+        $('.yajra-datatable [data-bs-toggle="popover"]').each(function() {
+            window.ActionPagePopovers.initElement(this);
+        });
+        $('.yajra-datatable .update_task, .yajra-datatable .reassign_task').each(function() {
+            window.ActionPagePopovers.initElement(this);
+        });
+    },
+    hideRowPopovers: function(exceptEl) {
+        $('.yajra-datatable .update_task, .yajra-datatable .reassign_task').each(function() {
+            if (exceptEl && this === exceptEl) {
+                return;
+            }
+            if (window.bootstrap && window.bootstrap.Popover) {
+                var inst = window.bootstrap.Popover.getInstance(this);
+                if (inst) {
+                    inst.hide();
+                }
+            }
+        });
+    },
+    openRowPopover: function(el) {
+        this.hideRowPopovers(el);
+        if (!window.bootstrap || !window.bootstrap.Popover || !window.bootstrap.Popover.getInstance(el)) {
+            this.initElement(el);
+        }
+        $(el).popover('show');
+        return $(el);
+    }
+};
+
 $(function () {
 
     var table = $('.yajra-datatable').DataTable({
@@ -313,7 +381,7 @@ $(function () {
             {sWidth: '100px',data: 'assign_date', name: 'assign_date'},
             {sWidth: '80px',data: 'task_group', name: 'task_group'},
             {data: 'note_description', name: 'note_description'},
-            {sWidth: '120px',data: 'action',name: 'action',orderable: false,searchable: false},
+            {sWidth: '150px',className: "uniqueClassName action-cell", data: 'action',name: 'action',orderable: false,searchable: false},
         ],
        /* "fnDrawCallback": function (oSettings) {
             $('.yajra-datatable tbody tr').each(function () {
@@ -334,28 +402,9 @@ $(function () {
         },*/
 
         "fnDrawCallback": function() {
-            // Only initialize popovers that aren't already initialized
-            $('[data-role="popover"], [data-bs-toggle="popover"]').each(function() {
-                var $el = $(this);
-                // Check if Bootstrap 5 instance exists or jQuery data exists
-                var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
-                var jqData = $el.data('bs.popover');
-                
-                if (!bsInstance && !jqData) {
-                    try {
-                        // Initialize with jQuery bridge (which creates Bootstrap 5 instance)
-                        $el.popover({
-                            html: true,
-                            sanitize: false,
-                            placement: $el.attr('data-placement') || $el.attr('data-bs-placement') || 'auto',
-                            container: $el.attr('data-container') || $el.attr('data-bs-container') || false
-                        });
-                    } catch(e) {
-                        console.warn('Popover initialization error:', e);
-                    }
-                }
-            });
-           // $('[data-bs-toggle="tooltip"]').tooltip();
+            if (window.ActionPagePopovers) {
+                window.ActionPagePopovers.initTablePopovers();
+            }
         },
         "bAutoWidth": false
     });
@@ -432,8 +481,11 @@ jQuery(document).ready(function($){
     $(document).delegate('.reassign_task', 'click', function(e){
         e.preventDefault();
         e.stopPropagation();
-        
-        var $btn = $(this);
+        e.stopImmediatePropagation();
+
+        var $btn = window.ActionPagePopovers
+            ? window.ActionPagePopovers.openRowPopover(this)
+            : $(this);
         var assignedto = $btn.attr('data-assignedto');
         var note_id = $btn.attr('data-noteid');
         var task_id = $btn.attr('data-taskid');
@@ -441,23 +493,6 @@ jQuery(document).ready(function($){
         var followupdate_id = $btn.attr('data-followupdate');
         var folowDateArr = followupdate_id.split(" ");
         var finalDate = folowDateArr[0];
-        
-        // Check if popover is already initialized (Bootstrap 5 or jQuery bridge)
-        var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
-        var jqData = $btn.data('bs.popover');
-        
-        if (!bsInstance && !jqData) {
-            // Initialize popover with jQuery bridge
-            $btn.popover({
-                html: true,
-                sanitize: false,
-                placement: $btn.attr('data-placement') || $btn.attr('data-bs-placement') || 'auto',
-                container: $btn.attr('data-container') || $btn.attr('data-bs-container') || 'body'
-            });
-        }
-        
-        // Show the popover using jQuery bridge method
-        $btn.popover('show');
         
         // Wait for popover to be shown, then set form values
         var popoverShown = false;
@@ -526,8 +561,11 @@ jQuery(document).ready(function($){
     $(document).delegate('.update_task', 'click', function(e){
         e.preventDefault();
         e.stopPropagation();
-        
-        var $btn = $(this);
+        e.stopImmediatePropagation();
+
+        var $btn = window.ActionPagePopovers
+            ? window.ActionPagePopovers.openRowPopover(this)
+            : $(this);
         var assignedto = $btn.attr('data-assignedto');
         var note_id = $btn.attr('data-noteid');
         var task_id = $btn.attr('data-taskid');
@@ -535,23 +573,6 @@ jQuery(document).ready(function($){
         var followupdate_id = $btn.attr('data-followupdate');
         var folowDateArr = followupdate_id.split(" ");
         var finalDate = folowDateArr[0];
-        
-        // Check if popover is already initialized (Bootstrap 5 or jQuery bridge)
-        var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
-        var jqData = $btn.data('bs.popover');
-        
-        if (!bsInstance && !jqData) {
-            // Initialize popover with jQuery bridge
-            $btn.popover({
-                html: true,
-                sanitize: false,
-                placement: $btn.attr('data-placement') || $btn.attr('data-bs-placement') || 'left',
-                container: $btn.attr('data-container') || $btn.attr('data-bs-container') || 'body'
-            });
-        }
-        
-        // Show the popover using jQuery bridge method
-        $btn.popover('show');
         
         // Wait for popover to be shown, then set form values
         // Use Bootstrap 5 event or jQuery event
@@ -867,6 +888,9 @@ jQuery(document).ready(function($){
                         $("[data-role=popover], [data-bs-toggle=popover]").each(function(){
                             $(this).popover('hide');
                         });
+                        if (window.ActionPagePopovers) {
+                            window.ActionPagePopovers.cleanupOrphanedDom();
+                        }
                         //location.reload();
                         $('.yajra-datatable').DataTable().draw(false);
                         if(typeof getallactivities === 'function') getallactivities();

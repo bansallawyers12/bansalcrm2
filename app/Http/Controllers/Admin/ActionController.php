@@ -728,6 +728,7 @@ class ActionController extends Controller
             ->addColumn('action', function($list){
                 $safeDescription = Utf8Helper::sanitizeForHtmlAttribute($list->description ?? '');
                 $safeTaskGroup = Utf8Helper::sanitizeForHtmlAttribute($list->task_group ?? '');
+                $actionBtn = '<div class="action-btn-group">';
 
                 if($list->task_group != 'Personal Task')
                 {
@@ -807,12 +808,10 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-bs-toggle="popover" data-role="popover" title=""  data-bs-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;">' . \App\Helpers\IconHelper::render('edit') . '</button>';
-                } else {
-                    $actionBtn = '';
+                    $actionBtn .= '<button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'" data-followupdate="'.$list->action_assign_date.'" class="btn btn-primary btn-sm action-icon-btn update_task" data-bs-container="body" data-role="popover" title="" data-bs-placement="left" data-html="true" data-content="'.$content1.'">' . \App\Helpers\IconHelper::render('edit') . '</button>';
                 }
 
-                $actionBtn .= ' <button class="btn btn-danger deleteNote" data-remote="'. route('action.destroy', $list->id) .'">' . \App\Helpers\IconHelper::render('trash') . '</button>';
+                $actionBtn .= '<button type="button" class="btn btn-danger btn-sm action-icon-btn deleteNote" data-remote="'. route('action.destroy', $list->id) .'">' . \App\Helpers\IconHelper::render('trash') . '</button>';
 
 
 
@@ -886,8 +885,9 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'" data-bs-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-bs-container="body" data-role="popover" data-bs-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;">' . \App\Helpers\IconHelper::render('tasks') . '</button>';
+                    $actionBtn .= '<button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'" data-followupdate="'.$list->action_assign_date.'" title="" class="btn btn-primary btn-sm action-icon-btn reassign_task" data-bs-container="body" data-role="popover" data-bs-placement="auto" data-html="true" data-content="'.$content2.'">' . \App\Helpers\IconHelper::render('tasks') . '</button>';
                 }
+                $actionBtn .= '</div>';
                 return $actionBtn;
             })
             ->rawColumns(['done_task','client_reference','note_description','action'])

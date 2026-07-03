@@ -577,16 +577,22 @@ console.log(timestring);
 		// Only initialize popovers that aren't already initialized
 		$("[data-role=popover], [data-bs-toggle=popover]").each(function() {
 			var $el = $(this);
+			// Row action buttons on /action are initialized after DataTable draw (manual trigger)
+			if ($el.closest('.yajra-datatable').length && ($el.hasClass('update_task') || $el.hasClass('reassign_task'))) {
+				return;
+			}
 			// Check for Bootstrap 5 instance or jQuery data
 			var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
 			var jqData = $el.data('bs.popover');
-			
+			var isManualRow = $el.hasClass('update_task') || $el.hasClass('reassign_task');
+
 			if (!bsInstance && !jqData) {
 				$el.popover({
 					sanitize: false,
 					html: true,
+					trigger: isManualRow ? 'manual' : 'click',
 					placement: $el.attr('data-placement') || $el.attr('data-bs-placement') || 'auto',
-					container: $el.attr('data-container') || $el.attr('data-bs-container') || false
+					container: $el.attr('data-bs-container') || $el.attr('data-container') || (isManualRow ? 'body' : false)
 				});
 			}
 		});
