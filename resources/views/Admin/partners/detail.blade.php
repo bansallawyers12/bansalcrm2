@@ -33,6 +33,8 @@
 		}
 		$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 	}
+	$partnerFullWidthTabs = ['email-v2', 'documents', 'notuseddocuments'];
+	$hidePartnerLeftSidebar = in_array($activeTab, $partnerFullWidthTabs, true);
 @endphp
 <link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/client-detail.css')) }}">
 <style>
@@ -160,7 +162,7 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
-/* Full width for email tab */
+/* Full width when left partner profile sidebar is hidden (Emails, Documents, etc.) */
 .partner-main-content.email-tab-full-width {
     flex: 0 0 100% !important;
     max-width: 100% !important;
@@ -194,7 +196,7 @@ use App\Http\Controllers\Controller;
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-3 col-md-3 col-lg-3 partner-left-sidebar <?php echo ($activeTab === 'email-v2') ? 'd-none' : ''; ?>">
+				<div class="col-3 col-md-3 col-lg-3 partner-left-sidebar <?php echo $hidePartnerLeftSidebar ? 'd-none' : ''; ?>">
 					<div class="card author-box left_section_upper">
 						<div class="card-body">
 							<div class="author-box-center">
@@ -301,7 +303,7 @@ use App\Http\Controllers\Controller;
 						</div>
 					</div>
 				</div>
-				<div class="col-9 col-md-9 col-lg-9 partner-main-content <?php echo ($activeTab === 'email-v2') ? 'email-tab-full-width' : ''; ?>">
+				<div class="col-9 col-md-9 col-lg-9 partner-main-content <?php echo $hidePartnerLeftSidebar ? 'email-tab-full-width' : ''; ?>">
 					<div class="card">
 						<div class="card-body">
 							@php
@@ -586,25 +588,25 @@ use App\Http\Controllers\Controller;
 																<?php
 																if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
 																	<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-																		<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
-																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist-partner')">
-																				@icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-																			</a>
-																		<?php } else {  //For old file upload
+																		<?php
+																		if (isset($fetch->myfile_key) && $fetch->myfile_key != '') {
+																			$inlinePreviewUrl = asset($fetch->myfile);
+																		} else {
 																			$docType = $fetch->doc_type ? $fetch->doc_type : 'documents';
 																			if (filter_var($fetch->myfile, FILTER_VALIDATE_URL)) {
-																				// String is a valid URL
-																				$previewUrl = $fetch->myfile;
+																				$inlinePreviewUrl = asset($fetch->myfile);
 																			} else {
-																				// Check if it's AWS path or local path
 																				$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-																				$previewUrl = $url.$fetchedData->id.'/'.$docType.'/'.$fetch->myfile;
+																				$inlinePreviewUrl = asset($url.$fetchedData->id.'/'.$docType.'/'.$fetch->myfile);
 																			}
-																			?>
-																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($previewUrl); ?>','preview-container-alldocumentlist-partner')">
+																		}
+																		?>
+																			<a href="javascript:void(0);"
+																				data-preview-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+																				data-preview-url="<?php echo htmlspecialchars($inlinePreviewUrl, ENT_QUOTES, 'UTF-8'); ?>"
+																				data-preview-container="preview-container-alldocumentlist-partner">
 																				@icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
 																			</a>
-																		<?php } ?>
 																	</div>
 																<?php
 																}
@@ -741,18 +743,20 @@ use App\Http\Controllers\Controller;
 															<td style="white-space: initial;">
 																<?php if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
 																	<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-																		<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
-																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-notuseddocumentlist-partner')">
-																				@icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-																			</a>
-																		<?php } else {  //For old file upload
+																		<?php
+																		if (isset($fetch->myfile_key) && $fetch->myfile_key != '') {
+																			$inlinePreviewUrl = asset($fetch->myfile);
+																		} else {
 																			$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-																			$myawsfile = $url.$fetchedData->id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
-																			?>
-																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-notuseddocumentlist-partner')">
+																			$inlinePreviewUrl = asset($url.$fetchedData->id.'/'.$fetch->doc_type.'/'.$fetch->myfile);
+																		}
+																		?>
+																			<a href="javascript:void(0);"
+																				data-preview-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+																				data-preview-url="<?php echo htmlspecialchars($inlinePreviewUrl, ENT_QUOTES, 'UTF-8'); ?>"
+																				data-preview-container="preview-container-notuseddocumentlist-partner">
 																				@icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
 																			</a>
-																		<?php } ?>
 																	</div>
 																<?php
 																}
@@ -1794,6 +1798,7 @@ use App\Http\Controllers\Controller;
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
         previewDocument: '{{ url("/preview-document") }}',
+        documentPreviewView: '{{ url("/document-preview-view") }}',
         partnersUpdateStudentStatus: '{{ url("/partners/update-student-status") }}',
         partnersUpdateStudentApplicationStatus: '{{ url("/partners/update-student-application-overall-status") }}',
         partnersGetEnrolledStudentList: '{{ URL::to("/partners/getEnrolledStudentList") }}',

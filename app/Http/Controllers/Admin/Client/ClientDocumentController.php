@@ -738,9 +738,18 @@ class ClientDocumentController extends Controller
         }
 
         try {
+            $contentType = $this->resolvePreviewContentType($filename);
+            $presignOptions = [
+                'ResponseContentDisposition' => 'inline; filename="' . $filename . '"',
+            ];
+            if ($contentType !== null) {
+                $presignOptions['ResponseContentType'] = $contentType;
+            }
+
             $tempUrl = $this->buildS3TemporaryAccessUrl(
                 (string) $fileUrl,
-                'inline; filename="' . $filename . '"'
+                'inline; filename="' . $filename . '"',
+                $presignOptions
             );
 
             if ($request->query('format') === 'json' || $request->wantsJson()) {
@@ -779,9 +788,45 @@ class ClientDocumentController extends Controller
     }
 
     /**
-     * Build a short-lived presigned S3 URL from a stored file URL.
+     * Render a standalone HTML page that embeds the document (iframe/img) for new-tab preview.
      */
-    private function buildS3TemporaryAccessUrl(string $fileUrl, string $contentDisposition): string
+    public function preview_document_view(Request $request)
+    {
+        $filelink = (string) $request->query('filelink', '');
+        $filename = $this->sanitizeDownloadFilename((string) $request->query('filename', 'preview.pdf'));
+        $filetype = strtolower((string) $request->query('filetype', ''));
+
+        if ($filelink === '' || ! $this->isAllowedPreviewFilelink($filelink)) {
+            return abort(400, 'Invalid or missing file URL');
+        }
+
+        if ($this->isS3FileUrl($filelink)) {
+            $contentSrc = url('/preview-document') . '?' . http_build_query([
+                'filelink' => $filelink,
+                'filename' => $filename,
+            ]);
+        } else {
+            $contentSrc = $filelink;
+            if (! str_starts_with($contentSrc, 'http://') && ! str_starts_with($contentSrc, 'https://')) {
+                $contentSrc = url(ltrim($contentSrc, '/'));
+            }
+        }
+
+        $isImage = in_array($filetype, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'], true);
+
+        return view('Admin.documents.preview-viewer', [
+            'filename' => $filename,
+            'contentSrc' => $contentSrc,
+            'isImage' => $isImage,
+        ]);
+    }
+
+    /**
+     * Build a short-lived presigned S3 URL from a stored file URL.
+     *
+     * @param  array<string, string>|null  $presignOptions  Extra S3 presign params (e.g. ResponseContentType)
+     */
+    private function buildS3TemporaryAccessUrl(string $fileUrl, string $contentDisposition, ?array $presignOptions = null): string
     {
         $parsed = parse_url($fileUrl);
         if (!isset($parsed['path'])) {
@@ -806,13 +851,57 @@ class ClientDocumentController extends Controller
             throw new \RuntimeException('File not found in S3');
         }
 
+        $options = $presignOptions ?? [
+            'ResponseContentDisposition' => $contentDisposition,
+        ];
+        if (! isset($options['ResponseContentDisposition'])) {
+            $options['ResponseContentDisposition'] = $contentDisposition;
+        }
+
         return $disk->temporaryUrl(
             $s3Key,
             now()->addMinutes(5),
-            [
-                'ResponseContentDisposition' => $contentDisposition,
-            ]
+            $options
         );
+    }
+
+    private function resolvePreviewContentType(string $filename): ?string
+    {
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return match ($ext) {
+            'pdf' => 'application/pdf',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'bmp' => 'image/bmp',
+            default => null,
+        };
+    }
+
+    private function isS3FileUrl(string $url): bool
+    {
+        return (bool) preg_match('/amazonaws\.com/i', $url) || (bool) preg_match('/\.s3[\.\-]/i', $url);
+    }
+
+    private function isAllowedPreviewFilelink(string $filelink): bool
+    {
+        $filelink = trim($filelink);
+        if ($filelink === '') {
+            return false;
+        }
+        if (preg_match('/^\s*(javascript|data|vbscript):/i', $filelink)) {
+            return false;
+        }
+        if (str_starts_with($filelink, 'http://') || str_starts_with($filelink, 'https://')) {
+            return (bool) filter_var($filelink, FILTER_VALIDATE_URL);
+        }
+        if (str_starts_with($filelink, '/')) {
+            return ! str_contains($filelink, '..');
+        }
+
+        return ! str_contains($filelink, '..');
     }
     //Back To Document List From Not Used Tab
     public function backtodoc(Request $request){ //dd($request->all());

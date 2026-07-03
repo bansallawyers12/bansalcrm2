@@ -185,13 +185,191 @@ function fetchPresignedPreviewUrl(fileUrl) {
     });
 }
 
+function showPreviewLoader(container) {
+    hidePreviewLoader(container);
+    const loader = document.createElement('div');
+    loader.className = 'preview-loader';
+    loader.setAttribute('role', 'status');
+    loader.setAttribute('aria-live', 'polite');
+    loader.innerHTML = '<span class="spinner-border text-primary" role="status"></span><p>Loading preview...</p>';
+    container.appendChild(loader);
+}
+
+function hidePreviewLoader(container) {
+    if (!container) {
+        return;
+    }
+    const loader = container.querySelector('.preview-loader');
+    if (loader) {
+        loader.remove();
+    }
+}
+
+function attachPreviewLoadHandler(mediaEl, container, onError) {
+    if (!mediaEl) {
+        hidePreviewLoader(container);
+        return;
+    }
+    let settled = false;
+    const finish = function () {
+        if (settled) {
+            return;
+        }
+        settled = true;
+        hidePreviewLoader(container);
+    };
+    const fail = function () {
+        if (settled) {
+            return;
+        }
+        settled = true;
+        hidePreviewLoader(container);
+        if (typeof onError === 'function') {
+            onError();
+        }
+    };
+    mediaEl.addEventListener('load', finish, { once: true });
+    mediaEl.addEventListener('error', fail, { once: true });
+}
+
 function showPreviewError(container, message) {
+    hidePreviewLoader(container);
     container.innerHTML = `
         <div class="preview-placeholder">
             ${crmIcon('exclamation-circle', { class: 'mb-3 text-warning' })}
             <p>${message}</p>
         </div>
     `;
+}
+
+function parsePreviewFileOnclick(onclickAttr) {
+    if (!onclickAttr || onclickAttr.indexOf('previewFile') === -1) {
+        return null;
+    }
+    const match = onclickAttr.match(
+        /previewFile\s*\(\s*'((?:\\'|[^'])*)'\s*,\s*'((?:\\'|[^'])*)'\s*,\s*'((?:\\'|[^'])*)'\s*\)/
+    );
+    if (!match) {
+        return null;
+    }
+    return {
+        fileType: match[1],
+        fileUrl: match[2].replace(/\\'/g, "'"),
+        containerClass: match[3]
+    };
+}
+
+function normalizeDocumentPreviewUrl(rawUrl) {
+    if (!rawUrl) {
+        return '';
+    }
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+        return rawUrl;
+    }
+    if (rawUrl.startsWith('/')) {
+        return window.location.origin + rawUrl;
+    }
+    return window.location.origin + '/' + rawUrl.replace(/^\/+/, '');
+}
+
+function findDocumentPreviewContainerClass(row, anchor) {
+    if (anchor) {
+        const fromData = anchor.getAttribute('data-preview-container');
+        if (fromData) {
+            return fromData;
+        }
+        const parsed = parsePreviewFileOnclick(anchor.getAttribute('onclick') || '');
+        if (parsed && parsed.containerClass) {
+            return parsed.containerClass;
+        }
+    }
+    const scope = row
+        ? (row.closest('.tab-pane, .card-body, .card') || document)
+        : document;
+    const previewEl = scope.querySelector('[class*="preview-container-"]');
+    if (previewEl) {
+        for (let i = 0; i < previewEl.classList.length; i++) {
+            const cls = previewEl.classList[i];
+            if (cls.indexOf('preview-container-') === 0) {
+                return cls;
+            }
+        }
+    }
+    return 'preview-container-alldocumentlist';
+}
+
+function resolveDocumentPreviewMeta(anchor) {
+    const row = anchor.closest('.drow');
+    const docRow = anchor.closest('.doc-row');
+    let fileUrl = anchor.getAttribute('data-preview-url') || '';
+    let fileType = anchor.getAttribute('data-preview-type') || '';
+    let containerClass = anchor.getAttribute('data-preview-container') || '';
+
+    if (typeof jQuery !== 'undefined' && docRow) {
+        const $docRow = jQuery(docRow);
+        if (!fileUrl) {
+            fileUrl = $docRow.data('preview-file-url') || '';
+        }
+        if (!fileType) {
+            fileType = $docRow.data('preview-file-type') || '';
+        }
+        if (!containerClass) {
+            containerClass = $docRow.data('preview-container-class') || '';
+        }
+    }
+
+    const parsed = parsePreviewFileOnclick(anchor.getAttribute('onclick') || '');
+    if (parsed) {
+        fileUrl = fileUrl || parsed.fileUrl;
+        fileType = fileType || parsed.fileType;
+        containerClass = containerClass || parsed.containerClass;
+    }
+
+    if (row) {
+        fileType = fileType || row.getAttribute('data-file-type') || '';
+        if (!fileUrl) {
+            const rowMyfile = row.getAttribute('data-myfile') || '';
+            fileUrl = normalizeDocumentPreviewUrl(rowMyfile);
+        }
+    }
+
+    containerClass = containerClass || findDocumentPreviewContainerClass(row, anchor);
+    fileUrl = normalizeDocumentPreviewUrl(fileUrl);
+
+    return {
+        fileType: fileType,
+        fileUrl: fileUrl,
+        containerClass: containerClass
+    };
+}
+
+function previewDocumentLink(anchor) {
+    if (!anchor) {
+        return;
+    }
+    const meta = resolveDocumentPreviewMeta(anchor);
+    if (!meta.fileUrl) {
+        console.error('Document preview URL missing');
+        return;
+    }
+    const openPreview = typeof window.previewFile === 'function' ? window.previewFile : previewFile;
+    openPreview(meta.fileType, meta.fileUrl, meta.containerClass);
+}
+
+function registerDocumentFilePreviewLinks() {
+    if (registerDocumentFilePreviewLinks.initialized) {
+        return;
+    }
+    registerDocumentFilePreviewLinks.initialized = true;
+    document.addEventListener('click', function (e) {
+        const anchor = e.target.closest('.alldocumnetlist .doc-row a, .notuseddocumnetlist .doc-row a');
+        if (!anchor) {
+            return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        previewDocumentLink(anchor);
+    }, true);
 }
 
 function previewFile(fileType, fileUrl, containerClass) {
@@ -202,8 +380,8 @@ function previewFile(fileType, fileUrl, containerClass) {
         return;
     }
 
-    // Clear existing content
     container.innerHTML = '';
+    showPreviewLoader(container);
 
     const normalizedType = (fileType || '').toLowerCase();
     const isS3Url = isPrivateRemoteStorageUrl(fileUrl);
@@ -215,14 +393,21 @@ function previewFile(fileType, fileUrl, containerClass) {
         case 'png':
         case 'gif': {
             const img = document.createElement('img');
-            img.src = isS3Url ? previewSourceUrl : fileUrl;
             img.className = 'preview-image';
+            attachPreviewLoadHandler(img, container, function () {
+                showPreviewError(container, 'Unable to load preview. Please try downloading the file.');
+            });
+            img.src = isS3Url ? previewSourceUrl : fileUrl;
             container.appendChild(img);
             break;
         }
 
         case 'pdf': {
             const pdfIframe = document.createElement('iframe');
+            pdfIframe.className = 'pdf-viewer';
+            attachPreviewLoadHandler(pdfIframe, container, function () {
+                showPreviewError(container, 'Unable to load preview. Please try downloading the file.');
+            });
             if (isLocalPreviewUrl(fileUrl)) {
                 pdfIframe.src = fileUrl;
             } else if (isS3Url) {
@@ -230,7 +415,6 @@ function previewFile(fileType, fileUrl, containerClass) {
             } else {
                 pdfIframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
             }
-            pdfIframe.className = 'pdf-viewer';
             container.appendChild(pdfIframe);
             break;
         }
@@ -243,6 +427,9 @@ function previewFile(fileType, fileUrl, containerClass) {
         case 'pptx': {
             const officeViewer = document.createElement('iframe');
             officeViewer.className = 'doc-viewer';
+            attachPreviewLoadHandler(officeViewer, container, function () {
+                showPreviewError(container, 'Unable to load preview. Please try downloading the file.');
+            });
             container.appendChild(officeViewer);
 
             if (isLocalPreviewUrl(fileUrl)) {
@@ -271,6 +458,9 @@ if (typeof window !== 'undefined') {
     window.file_explorer = file_explorer;
     window.uploadFormData = uploadFormData;
     window.previewFile = previewFile;
+    window.previewDocumentLink = previewDocumentLink;
+    window.resolveDocumentPreviewMeta = resolveDocumentPreviewMeta;
+    registerDocumentFilePreviewLinks();
 }
 
 // ============================================================================

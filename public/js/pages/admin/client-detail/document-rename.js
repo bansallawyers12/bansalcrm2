@@ -48,14 +48,63 @@
         return value;
     }
 
+    function parsePreviewFileOnclick(onclickAttr) {
+        if (!onclickAttr || onclickAttr.indexOf('previewFile') === -1) {
+            return null;
+        }
+        var match = onclickAttr.match(
+            /previewFile\s*\(\s*'((?:\\'|[^'])*)'\s*,\s*'((?:\\'|[^'])*)'\s*,\s*'((?:\\'|[^'])*)'\s*\)/
+        );
+        if (!match) {
+            return null;
+        }
+        return {
+            fileType: match[1],
+            fileUrl: match[2].replace(/\\'/g, "'"),
+            containerClass: match[3]
+        };
+    }
+
+    function findNearestPreviewContainerClass(parent, row) {
+        var $ = $jq();
+        parent = $(parent);
+        row = row && row.length ? row : parent.closest('.drow');
+        var scope = row.closest('.tab-pane, .card-body, .card, .row');
+        if (!scope.length) {
+            scope = $('body');
+        }
+        var previewEl = scope.find('[class*="preview-container-"]').first();
+        if (previewEl.length) {
+            var classes = (previewEl.attr('class') || '').split(/\s+/);
+            for (var i = 0; i < classes.length; i++) {
+                if (classes[i].indexOf('preview-container-') === 0) {
+                    return classes[i];
+                }
+            }
+        }
+        return 'preview-container-alldocumentlist';
+    }
+
     function storeFilePreviewMeta(parent) {
         var $ = $jq();
         parent = $(parent);
         var row = parent.closest('.drow');
-        var fileUrl = row.attr('data-myfile') || parent.data('preview-file-url') || '';
-        var fileType = row.attr('data-file-type') || parent.data('preview-file-type') || '';
+        var anchor = parent.find('a[onclick*="previewFile"]').first();
+        var parsed = anchor.length ? parsePreviewFileOnclick(anchor.attr('onclick') || '') : null;
+        var fileUrl = (parsed && parsed.fileUrl) ||
+            row.attr('data-myfile') ||
+            parent.data('preview-file-url') ||
+            '';
+        var fileType = (parsed && parsed.fileType) ||
+            row.attr('data-file-type') ||
+            parent.data('preview-file-type') ||
+            '';
+        var containerClass = (parsed && parsed.containerClass) ||
+            parent.data('preview-container-class') ||
+            findNearestPreviewContainerClass(parent, row);
         parent.data('preview-file-url', fileUrl);
         parent.data('preview-file-type', fileType);
+        parent.data('preview-container-class', containerClass);
     }
 
     function resolveFilePreviewUrl(parent, row) {
@@ -70,20 +119,28 @@
         return parent.data('preview-file-type') || (row.length ? row.attr('data-file-type') : '') || fallback || '';
     }
 
-    function renderFileRowLink(parent, filename, filetype, fileUrl) {
+    function resolvePreviewContainer(parent, row) {
+        parent = $(parent);
+        row = row && row.length ? row : parent.closest('.drow');
+        var stored = parent.data('preview-container-class');
+        if (stored) {
+            return stored;
+        }
+        return findNearestPreviewContainerClass(parent, row);
+    }
+
+    function renderFileRowLink(parent, filename, filetype, fileUrl, containerClass) {
         var $ = $jq();
         parent = $(parent);
         var displayName = filename + (filetype ? '.' + filetype : '');
+        var previewContainer = containerClass || resolvePreviewContainer(parent);
         var link = $('<a href="javascript:void(0);">');
         link.html(crmIcon('file-image') + ' ');
         link.append($('<span>').text(displayName));
-        if (fileUrl && typeof window.previewFile === 'function') {
-            link.on('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                window.previewFile(filetype, fileUrl, 'preview-container-alldocumentlist');
-                return false;
-            });
+        if (fileUrl && previewContainer) {
+            link.attr('data-preview-type', filetype || '');
+            link.attr('data-preview-url', fileUrl);
+            link.attr('data-preview-container', previewContainer);
         }
         parent.removeClass('document-rename-editing').append(link);
         if (typeof window.refreshCrmIcons === 'function') {
@@ -176,6 +233,7 @@
         parent = $(parent);
         var row = parent.closest('.drow');
         var previewFileUrl = resolveFilePreviewUrl(parent, row);
+        var previewContainer = resolvePreviewContainer(parent, row);
         parent.find('.opentime').removeClass('is-invalid');
         parent.find('.invalid-feedback').remove();
         var opentime = $.trim(parent.find('.opentime').val());
@@ -203,7 +261,7 @@
                         .data('id', obj.Id)
                         .data('name', savedFilename)
                         .attr('data-name', savedFilename);
-                    renderFileRowLink(parent, savedFilename, savedFiletype, previewFileUrl);
+                    renderFileRowLink(parent, savedFilename, savedFiletype, previewFileUrl, previewContainer);
                     if (row.length) {
                         row.attr('data-file-name', savedFilename);
                         row.attr('data-file-type', savedFiletype);

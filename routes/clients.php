@@ -190,6 +190,10 @@ Route::middleware(['auth:admin'])->group(function() {
     // Preview document inline (presigned S3 URL; ?format=json for Office embed)
     Route::match(['get', 'post'], '/preview-document', [ClientDocumentController::class, 'preview_document'])
         ->name('clients.preview_document');
+
+    // Full-page document preview in a new tab (iframe wrapper; avoids pop-up blocker + forced download)
+    Route::get('/document-preview-view', [ClientDocumentController::class, 'preview_document_view'])
+        ->name('clients.preview_document_view');
     
     // Bulk upload routes for Documents tab
     Route::post('/documents/bulk-upload', [ClientDocumentController::class, 'bulkUploadDocuments'])->name('clients.documents.bulkUpload');

@@ -1326,27 +1326,20 @@ use App\Http\Controllers\Controller;
                                                                 <?php
                                                                 if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
                                                                     <div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-                                                                        <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
-                                                                            <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>" style="white-space: initial;">
-                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
-                                                                            </a>-->
-                                                                      
-                                                                            <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
-                                                                                @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-                                                                            </a>
-                                                                        <?php } else {  //For old file upload
+                                                                        <?php
+                                                                        if (isset($fetch->myfile_key) && $fetch->myfile_key != '') {
+                                                                            $inlinePreviewUrl = asset($fetch->myfile);
+                                                                        } else {
                                                                             $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-                                                                            $myawsfile = $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
-                                                                            
-                                                                            ?>
-                                                                            <!--<a target="_blank" class="dropdown-item" href="<?php //echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>" style="white-space: initial;">
-                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
-                                                                            </a>-->
-                                                                      
-                                                                            <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-alldocumentlist')">
+                                                                            $inlinePreviewUrl = asset($url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile);
+                                                                        }
+                                                                        ?>
+                                                                            <a href="javascript:void(0);"
+                                                                                data-preview-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                                data-preview-url="<?php echo htmlspecialchars($inlinePreviewUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                                data-preview-container="preview-container-alldocumentlist">
                                                                                 @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                                             </a>
-                                                                        <?php } ?>
                                                                     </div>
                                                                 <?php
                                                                 }
@@ -1549,26 +1542,20 @@ use App\Http\Controllers\Controller;
                                                             <td style="white-space: initial;">
                                                                 <?php if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
                                                                     <div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-                                                                        <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
-                                                                            <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">
-                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
-                                                                            </a>-->
-                                                                      
-                                                                            <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-notuseddocumentlist')">
-                                                                                @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-                                                                            </a>
-                                                                        <?php } else {  //For old file upload
+                                                                        <?php
+                                                                        if (isset($fetch->myfile_key) && $fetch->myfile_key != '') {
+                                                                            $inlinePreviewUrl = asset($fetch->myfile);
+                                                                        } else {
                                                                             $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-                                                                            $myawsfile = $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
-                                                                            ?>
-                                                                            <!--<a target="_blank" class="dropdown-item" href="<?php //echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">
-                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
-                                                                            </a>-->
-                                                                      
-                                                                            <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-notuseddocumentlist')">
+                                                                            $inlinePreviewUrl = asset($url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile);
+                                                                        }
+                                                                        ?>
+                                                                            <a href="javascript:void(0);"
+                                                                                data-preview-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                                data-preview-url="<?php echo htmlspecialchars($inlinePreviewUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                                data-preview-container="preview-container-notuseddocumentlist">
                                                                                 @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                                             </a>
-                                                                        <?php } ?>
                                                                     </div>
                                                                 <?php
                                                                 }
@@ -2760,6 +2747,7 @@ use App\Http\Controllers\Controller;
         siteUrl: '{{ url("/") }}',
         downloadDocument: '{{ url("/download-document") }}',
         previewDocument: '{{ url("/preview-document") }}',
+        documentPreviewView: '{{ url("/document-preview-view") }}',
         deleteAction: '{{ url("/delete_action") }}',
         getActivities: '{{ url("/get-activities") }}',
         getNotes: '{{ url("/get-notes") }}',

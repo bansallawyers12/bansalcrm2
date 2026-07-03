@@ -27,6 +27,117 @@
         return storageKeyFallback || 'download';
     }
 
+    function parsePreviewFileOnclick(onclickAttr) {
+        if (!onclickAttr || onclickAttr.indexOf('previewFile') === -1) {
+            return null;
+        }
+        const match = onclickAttr.match(
+            /previewFile\s*\(\s*'((?:\\'|[^'])*)'\s*,\s*'((?:\\'|[^'])*)'\s*,\s*'((?:\\'|[^'])*)'\s*\)/
+        );
+        if (!match) {
+            return null;
+        }
+        return {
+            fileType: match[1],
+            fileUrl: match[2].replace(/\\'/g, "'"),
+            containerClass: match[3]
+        };
+    }
+
+    /** Same preview URL as the inline file link (onclick / rename cache / row data). */
+    function resolvePreviewUrlFromRow(row) {
+        if (!row) {
+            return '';
+        }
+        const anchor = row.querySelector('.doc-row a[onclick*="previewFile"]');
+        if (anchor) {
+            const parsed = parsePreviewFileOnclick(anchor.getAttribute('onclick') || '');
+            if (parsed && parsed.fileUrl) {
+                return parsed.fileUrl;
+            }
+        }
+        if (typeof jQuery !== 'undefined') {
+            const stored = jQuery(row).find('.doc-row').data('preview-file-url');
+            if (stored) {
+                return stored;
+            }
+        }
+        const myfile = row.getAttribute('data-myfile') || '';
+        if (!myfile) {
+            return '';
+        }
+        if (myfile.startsWith('http://') || myfile.startsWith('https://')) {
+            return myfile;
+        }
+        if (myfile.startsWith('/')) {
+            return window.location.origin + myfile;
+        }
+        return window.location.origin + '/' + myfile;
+    }
+
+    function resolveContextMenuPreviewFilename(fileName, fileType, storageKeyFallback) {
+        if (fileName) {
+            return fileName + (fileType ? '.' + fileType : '');
+        }
+        if (storageKeyFallback && storageKeyFallback.indexOf('.') !== -1) {
+            return storageKeyFallback;
+        }
+        return 'preview.pdf';
+    }
+
+    function getPreviewViewerBaseUrl() {
+        return (typeof App !== 'undefined' && App.getUrl && App.getUrl('documentPreviewView'))
+            || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')
+                ? App.getUrl('siteUrl') + '/document-preview-view'
+                : window.location.origin + '/document-preview-view');
+    }
+
+    function buildPreviewViewerUrl(fileUrl, previewFilename, fileType) {
+        const baseUrl = getPreviewViewerBaseUrl();
+        const separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+        return baseUrl + separator +
+            'filelink=' + encodeURIComponent(fileUrl) +
+            '&filename=' + encodeURIComponent(previewFilename) +
+            '&filetype=' + encodeURIComponent(fileType || '');
+    }
+
+    /** Open server-rendered preview viewer in a new tab (real URL — avoids pop-up blocker). */
+    function openPreviewViewerTab(fileUrl, previewFilename, fileType) {
+        const viewerUrl = buildPreviewViewerUrl(fileUrl, previewFilename, fileType);
+        const win = window.open(viewerUrl, '_blank', 'noopener,noreferrer');
+        if (!win) {
+            toastMsg('Please allow pop-ups to preview this file.', 'error');
+        }
+    }
+
+    function openPreviewInNewTab(row, fileName, fileType, myfile, myfileKey, docType) {
+        const previewFilename = resolveContextMenuPreviewFilename(fileName, fileType, myfileKey || myfile);
+        let fileUrl = resolvePreviewUrlFromRow(row);
+
+        if (!fileUrl && myfile && (myfile.startsWith('http://') || myfile.startsWith('https://'))) {
+            fileUrl = myfile;
+        }
+
+        if (!fileUrl) {
+            const awsBucket = window.awsBucket || '';
+            const awsRegion = window.awsRegion || '';
+            const entityId = window.PageConfig?.clientId || window.PageConfig?.partnerId || '';
+
+            if (awsBucket && awsRegion && entityId && myfile) {
+                fileUrl = 'https://' + awsBucket + '.s3.' + awsRegion + '.amazonaws.com/' +
+                    entityId + '/' + docType + '/' + myfile;
+            }
+        }
+
+        if (!fileUrl) {
+            console.error('Missing AWS configuration or file data for preview');
+            toastMsg('Unable to preview file. Missing configuration.', 'error');
+            return;
+        }
+
+        openPreviewViewerTab(fileUrl, previewFilename, fileType);
+    }
+
     function createContextMenu() {
         if (contextMenu) return contextMenu;
 
@@ -101,50 +212,7 @@
 
         // Preview
         menu.appendChild(createMenuItem('Preview', function() {
-            function openPreviewUrl(url) {
-                window.open(url, '_blank');
-            }
-
-            function getPreviewBaseUrl() {
-                return (typeof App !== 'undefined' && App.getUrl && App.getUrl('previewDocument'))
-                    || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/preview-document' : window.location.origin + '/preview-document');
-            }
-
-            function isS3StorageUrl(url) {
-                return url && (/amazonaws\.com/i.test(url) || /\.s3[\.\-]/i.test(url));
-            }
-
-            // Full URL (e.g. public path or S3) - open directly
-            if (myfile && (myfile.startsWith('http://') || myfile.startsWith('https://'))) {
-                if (isS3StorageUrl(myfile)) {
-                    openPreviewUrl(getPreviewBaseUrl() + '?filelink=' + encodeURIComponent(myfile));
-                } else {
-                    openPreviewUrl(myfile);
-                }
-            } else if (myfileKey) {
-                // New file upload - open in new tab
-                let fileUrl = myfile;
-                if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
-                    if (!fileUrl.startsWith('/')) {
-                        fileUrl = '/' + fileUrl;
-                    }
-                    fileUrl = window.location.origin + fileUrl;
-                }
-                window.open(fileUrl, '_blank');
-            } else {
-                // Old file upload - construct AWS S3 URL and open in new tab
-                const awsBucket = window.awsBucket || '';
-                const awsRegion = window.awsRegion || '';
-                const clientId = window.PageConfig?.clientId || window.PageConfig?.partnerId || '';
-
-                if (awsBucket && awsRegion && clientId && myfile) {
-                    const fileUrl = `https://${awsBucket}.s3.${awsRegion}.amazonaws.com/${clientId}/${docType}/${myfile}`;
-                    window.open(fileUrl, '_blank');
-                } else {
-                    console.error('Missing AWS configuration or file data for preview');
-                    toastMsg('Unable to preview file. Missing configuration.', 'error');
-                }
-            }
+            openPreviewInNewTab(currentDocumentRow, fileName, fileType, myfile, myfileKey, docType);
             hideContextMenu();
         }));
 

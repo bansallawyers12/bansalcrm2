@@ -267,7 +267,10 @@
                 const fileUrl = doc.preview_url || (doc.myfile_key ? doc.myfile : this.getAwsUrl(doc));
                 return `
                     <div data-id="${doc.id}" data-name="${this.escapeHtml(doc.file_name)}" class="doc-row">
-                        <a href="javascript:void(0);" onclick="previewFile('${doc.filetype}','${fileUrl}','preview-container-alldocumentlist')">
+                        <a href="javascript:void(0);"
+                           data-preview-type="${this.escapeHtml(doc.filetype)}"
+                           data-preview-url="${this.escapeHtml(fileUrl)}"
+                           data-preview-container="preview-container-alldocumentlist">
                             ${crmIcon('file-image')} <span>${this.escapeHtml(doc.file_name)}.${doc.filetype}</span>
                         </a>
                     </div>
