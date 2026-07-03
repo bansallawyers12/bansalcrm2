@@ -212,6 +212,16 @@
         if (options.dropdownParent === '#checkinmodal' || options.omitDropdownParent === true) {
             return null;
         }
+        // Bootstrap popovers: keep menu on .ts-wrapper so popover z-index CSS applies.
+        if (options.dropdownParent) {
+            var parentEl = resolveElement(options.dropdownParent);
+            if (parentEl && (
+                (parentEl.classList && parentEl.classList.contains('popover')) ||
+                (parentEl.closest && parentEl.closest('.popover'))
+            )) {
+                return null;
+            }
+        }
         // Compose email modal — body avoids hidden-modal reparenting bugs
         return document.body;
     }

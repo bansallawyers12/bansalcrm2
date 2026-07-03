@@ -21,6 +21,7 @@
 .popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
 .popover .ts-dropdown { z-index: 100001 !important; }
 .filter-wrapper div.active {color:blue !important;}
+.btn-add-action-trigger { display: inline-block; white-space: nowrap; margin-left: 10px; margin-top: 5px; vertical-align: middle; }
 </style>
 <!-- Main Content -->
 <div class="main-content">
@@ -129,7 +130,7 @@
 
 
 
-                                            <button type="button" class="btn btn-primary btn-block add_my_task" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content11&quot;>
+                                            <button type="button" class="btn btn-primary add_my_task btn-add-action-trigger" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content11&quot;>
                                                 <h4 class=&quot;text-center&quot;>Add Action</h4>
                                                 <div class=&quot;clearfix&quot;></div>
                                             <div class=&quot;box-header with-border&quot;>
@@ -190,7 +191,7 @@
                                                 <button  class=&quot;btn btn-info&quot; id=&quot;add_my_task&quot;>Add Action</button>
                                                 </div>
                                             </div>
-                                    </div>" data-original-title="" title="" style="width: 105px;display: inline;margin-left: 10px;margin-top:5px;">Add Action</button>
+                                    </div>" data-original-title="" title="">Add Action</button>
 
 
                                         </div>
@@ -977,6 +978,7 @@ jQuery(document).ready(function($){
                         $("[data-role=popover]").each(function(){
                             (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
                         });
+                        showToast(obj.message || 'Action added successfully.', 'success');
                         //location.reload();
                         $('.yajra-datatable').DataTable().draw(false);
                         getallactivities();

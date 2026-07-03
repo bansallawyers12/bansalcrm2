@@ -375,6 +375,10 @@
     width: 100% !important;
 }
 
+.popover .ts-dropdown {
+    z-index: 100003 !important;
+}
+
 /* Raise only the open select so its menu stacks above fields below (Assignee vs Group) */
 .popover .ts-wrapper.focus,
 .popover .ts-wrapper.dropdown-active {

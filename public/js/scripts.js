@@ -37,17 +37,29 @@ window.initExpectDatepickers = initExpectDatepickers;
  * @param {string} containerSelector - e.g. '#actionPopoverModal'
  * @param {object} [options] - Flatpickr options merged over defaults
  */
-function initModalFlatpickrDates(containerSelector, options) {
+function initPopoverFlatpickrDates(container, options) {
   if (typeof flatpickr === 'undefined') {
     return;
   }
+  var root = container;
+  if (typeof container === 'string') {
+    root = document.querySelector(container);
+  }
+  if (!root) {
+    return;
+  }
   var opts = Object.assign({ dateFormat: 'Y-m-d', allowInput: true }, options || {});
-  document.querySelectorAll(containerSelector + ' .flatpickr-date').forEach(function (el) {
+  root.querySelectorAll('.flatpickr-date, input#popoverdatetime').forEach(function (el) {
     if (el._flatpickr) {
       el._flatpickr.destroy();
     }
     flatpickr(el, opts);
   });
+}
+window.initPopoverFlatpickrDates = initPopoverFlatpickrDates;
+
+function initModalFlatpickrDates(containerSelector, options) {
+  initPopoverFlatpickrDates(containerSelector, options);
 }
 window.initModalFlatpickrDates = initModalFlatpickrDates;
 
@@ -722,17 +734,15 @@ $(function () {
       });
     }
 
-    // Popover date (#popoverdatetime) – init when shown (e.g. action/partner popovers)
-    $(document).on('shown.bs.popover', function() {
-      var el = document.getElementById('popoverdatetime');
-      if (el && !el._flatpickr && typeof flatpickr !== 'undefined') {
-        flatpickr(el, {
-          dateFormat: 'Y-m-d',
-          allowInput: true
-        });
-      }
-    });
   }
+
+  // Popover date — fallback for pages without popover.js (e.g. client detail)
+  $(document).on('shown.bs.popover', function () {
+    var popover = document.querySelector('.popover.show');
+    if (popover && typeof window.initPopoverFlatpickrDates === 'function') {
+      window.initPopoverFlatpickrDates(popover);
+    }
+  });
 
   $("#mini_sidebar_setting").on("change", function () {
     var _val = $(this).is(":checked") ? "checked" : "unchecked";
