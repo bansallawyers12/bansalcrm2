@@ -184,7 +184,7 @@
     "isEntry": true
   },
   "resources/js/legacy-init.js": {
-    "file": "assets/legacy-init-qr4Tz1no.js",
+    "file": "assets/legacy-init-BctIonMe.js",
     "name": "legacy-init",
     "src": "resources/js/legacy-init.js",
     "isEntry": true
@@ -226,7 +226,7 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-DLzrboLC.js",
+    "file": "assets/client-detail-entry-Bxrg77HV.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
