@@ -526,10 +526,6 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade <?php echo ($activeTab === 'documents') ? 'show active' : ''; ?>" id="documents" role="tabpanel" aria-labelledby="documents-tab">
 									@if($activeTab === 'documents')
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<div class="document_layout_type">
-											<a href="javascript:;" class="list active">@icon('list')</a>
-											<a href="javascript:;" class="grid">@icon('columns')</a>
-										</div>
 										<a href="javascript:;" class="btn btn-primary add_alldocument_doc">@icon('plus') Add Checklist</a>
 										<button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2">@icon('upload') Bulk Upload</button>
 									</div>

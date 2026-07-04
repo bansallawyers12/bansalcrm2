@@ -19,7 +19,6 @@
         currentClientId: null,
         currentCategoryId: null,
         categories: [],
-        viewMode: 'list',
         initialized: false,
         _eventsBound: false,
         
@@ -35,7 +34,6 @@
             }
 
             if (!this.initialized) {
-                this.viewMode = 'list';
                 this.applyViewMode();
             }
 
@@ -45,7 +43,7 @@
         },
 
         /**
-         * Apply list or grid view within the Documents tab only
+         * Keep list view visible within the Documents tab (grid toggle removed from UI)
          */
         applyViewMode: function() {
             const $root = $('#alldocuments');
@@ -53,29 +51,8 @@
                 return;
             }
 
-            const $list = $root.find('.list_data').first();
-            const $grid = $root.find('.allgriddata').first();
-            const $icons = $root.find('.document_layout_type a');
-
-            if (this.viewMode === 'grid') {
-                $list.hide();
-                $grid.show();
-                $icons.removeClass('active');
-                $root.find('.document_layout_type a.grid').addClass('active');
-            } else {
-                $grid.hide();
-                $list.css('display', 'inline-block');
-                $icons.removeClass('active');
-                $root.find('.document_layout_type a.list').addClass('active');
-            }
-        },
-
-        setViewMode: function(mode) {
-            if (mode !== 'list' && mode !== 'grid') {
-                return;
-            }
-            this.viewMode = mode;
-            this.applyViewMode();
+            $root.find('.allgriddata').first().hide();
+            $root.find('.list_data').first().css('display', 'inline-block');
         },
         
         /**
@@ -724,16 +701,6 @@
         bindEvents: function() {
             const self = this;
 
-            // List / grid view toggle (Documents tab only)
-            $(document).on('click', '#alldocuments .document_layout_type a.list', function(e) {
-                e.preventDefault();
-                self.setViewMode('list');
-            });
-            $(document).on('click', '#alldocuments .document_layout_type a.grid', function(e) {
-                e.preventDefault();
-                self.setViewMode('grid');
-            });
-            
             // Category tab click
             $(document).on('click', '.doc-category-tab', function(e) {
                 if ($(e.target).closest('.doc-category-actions').length) return;
