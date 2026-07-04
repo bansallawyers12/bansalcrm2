@@ -179,7 +179,7 @@
 
 
                                             <form class=&quot;form-inline mr-auto&quot;>
-                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Client <span class=&quot;span_req&quot;>*</span></label>
+                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Client</label>
 
                                                 <div class=&quot;search-element&quot; style=&quot;margin-left: 5px;width:70%;&quot;>
                                                     <select id=&quot;assign_client_id&quot;  class=&quot;form-control js-data-example-ajaxccsearch__addmytask&quot; type=&quot;search&quot; placeholder=&quot;Search&quot; aria-label=&quot;Search&quot; data-width=&quot;200&quot; style=&quot;width:200px&quot;></select>
@@ -1025,16 +1025,6 @@ jQuery(document).ready(function($){
 			$('.popuploader').hide();
 			error="Note field is required.";
 			$('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
-			flag = false;
-		}
-        var $clientSelect = $('.popover.show, .popover:visible').last().find('#assign_client_id');
-        if (!$clientSelect.length) {
-            $clientSelect = $('#assign_client_id');
-        }
-        if(!getAddActionPopoverClientId()){
-			$('.popuploader').hide();
-			error="Client is required.";
-			$clientSelect.closest('.search-element').after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
         if(flag){

@@ -281,14 +281,11 @@ class ClientActionController extends Controller
 
         Log::info('personalaction parsed client_id: '.$client_id);
 
-        // Validate that client_id was successfully parsed
-        if ($client_id === null || $client_id === '') {
-            $rawClientId = isset($requestData['client_id']) ? trim((string) $requestData['client_id']) : '';
-            $message = $rawClientId === ''
-                ? 'Please select a client.'
-                : 'Invalid client ID. Please select a valid client.';
+        // Reject only when a client was selected but could not be parsed
+        $rawClientId = isset($requestData['client_id']) ? trim((string) $requestData['client_id']) : '';
+        if ($rawClientId !== '' && ($client_id === null || $client_id === '')) {
             Log::error('personalaction: Invalid client_id. Request: '.json_encode($requestData));
-            echo json_encode(['success' => false, 'message' => $message, 'clientID' => $req_clientID]);
+            echo json_encode(['success' => false, 'message' => 'Invalid client ID. Please select a valid client.', 'clientID' => $rawClientId]);
             exit;
         }
 
@@ -328,9 +325,11 @@ class ClientActionController extends Controller
                 $o = new \App\Models\Notification;
                 $o->sender_id = Auth::user()->id;
                 $o->receiver_id = $requestData['rem_cat'];
-                $o->module_id = $client_id; // Use the parsed client_id (integer)
-                $o->url = route('clients.detail', base64_encode(convert_uuencode($client_id)));
-                $o->notification_type = 'client';
+                $o->module_id = $client_id ?? $action->id;
+                $o->url = $client_id
+                    ? route('clients.detail', base64_encode(convert_uuencode($client_id)))
+                    : route('action.index');
+                $o->notification_type = $client_id ? 'client' : 'action';
                 // Safely format date
                 $followupDateText = '';
                 if (isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != '') {
