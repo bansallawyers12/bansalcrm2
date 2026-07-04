@@ -112,9 +112,11 @@
 .client_info_tags .client_info .cl_name span{display:block;}
 .client_info_tags .client_info .cl_name span.email{font-size: 12px;}
 .document_layout_type{display: inline-block;float: left;margin-top: 6px;}
-.document_layout_type a{background:rgb(192, 199, 202);color:#fff;display: inline-block;padding: 6px 10px;font-size: 16px;line-height: 21px;border-radius: 4px;}
+.document_layout_type a{background:rgb(192, 199, 202);color:#fff;display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding: 6px 10px;font-size: 16px;line-height: 21px;border-radius: 4px;cursor:pointer;position:relative;z-index:2;text-decoration:none;vertical-align:middle;}
 .document_layout_type a.active{background:#6777ef;} 
-.document_layout_type a i{color:#fff;margin:0px!important;}
+.document_layout_type a .crm-icon,
+.document_layout_type a svg.lucide,
+.document_layout_type a i{color:#fff;margin:0px!important;pointer-events:none;flex-shrink:0;}
 .upload_document, .migration_upload_document,.allupload_document{position:relative;}
 .upload_document input, .migration_upload_document input,.allupload_document input{position:absolute;top:0px;left:0px;width:100%;height:100%;z-index:1;opacity:0;}
 

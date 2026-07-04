@@ -58,7 +58,7 @@ class DocumentCategoryController extends Controller
                     'name' => $category->name,
                     'is_default' => $category->is_default,
                     'document_count' => $docCount,
-                    'can_delete' => $category->canBeDeleted(),
+                    'can_delete' => $category->canBeDeleted($clientId),
                     'can_rename' => $isCustom,
                     'can_delete_category' => $isCustom && $docCount === 0,
                 ];
@@ -189,7 +189,7 @@ class DocumentCategoryController extends Controller
      * Delete a category
      * Note: Cannot delete default categories or categories with documents
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
             $category = DocumentCategory::findOrFail($id);
@@ -202,8 +202,10 @@ class DocumentCategoryController extends Controller
                 ], 403);
             }
 
-            // Check if category has documents (uses getDocumentCount for Education/Migration legacy docs)
-            if ($category->getDocumentCount() > 0) {
+            $clientId = $request->input('client_id') ?? $category->client_id;
+
+            // Check if category has documents for this client (uses getDocumentCount for Education/Migration legacy docs)
+            if ($category->getDocumentCount($clientId) > 0) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Cannot delete category with documents. Please move or delete documents first.'

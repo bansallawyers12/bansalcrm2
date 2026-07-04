@@ -125,7 +125,7 @@ class DocumentCategory extends BaseModel
     /**
      * Check if this category can be deleted
      */
-    public function canBeDeleted(): bool
+    public function canBeDeleted(int|string|null $clientId = null): bool
     {
         // Default categories cannot be deleted
         if ($this->is_default) {
@@ -133,7 +133,7 @@ class DocumentCategory extends BaseModel
         }
 
         // Categories with documents cannot be deleted
-        if ($this->getDocumentCount() > 0) {
+        if ($this->getDocumentCount($clientId) > 0) {
             return false;
         }
 

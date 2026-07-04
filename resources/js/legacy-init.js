@@ -687,18 +687,41 @@
                 }
             });
             
-            $('.card .card-body .grid_data').hide();
-            $('.card .card-body .document_layout_type a.list').on('click', function(){
-                $('.card .card-body .document_layout_type a').removeClass('active');
-                $(this).addClass('active');
-                $('.card .card-body .grid_data').hide();
-                $('.card .card-body .list_data').show();
+            // Document list/grid toggle — skip #alldocuments (client detail; handled by DocumentCategoryManager)
+            var $legacyDocLayouts = $('.card .card-body .document_layout_type').filter(function() {
+                return $(this).closest('#alldocuments').length === 0;
             });
-            $('.card .card-body .document_layout_type a.grid').on('click', function(){
-                $('.card .card-body .document_layout_type a').removeClass('active');
+
+            $('.card .card-body .grid_data').filter(function() {
+                return $(this).closest('#alldocuments').length === 0;
+            }).hide();
+
+            // Client detail Documents tab grid is managed by DocumentCategoryManager; hide until init
+            $('#alldocuments .allgriddata, #alldocuments .grid_data').hide();
+
+            $legacyDocLayouts.find('a.list').on('click', function(e) {
+                e.preventDefault();
+                var $layout = $(this).closest('.document_layout_type');
+                $layout.find('a').removeClass('active');
                 $(this).addClass('active');
-                $('.card .card-body .list_data').hide();
-                $('.card .card-body .grid_data').show();
+                var $scope = $layout.closest('.tab-pane');
+                if (!$scope.length) {
+                    $scope = $layout.closest('.card-body');
+                }
+                $scope.find('.grid_data').hide();
+                $scope.find('.list_data').css('display', 'inline-block');
+            });
+            $legacyDocLayouts.find('a.grid').on('click', function(e) {
+                e.preventDefault();
+                var $layout = $(this).closest('.document_layout_type');
+                $layout.find('a').removeClass('active');
+                $(this).addClass('active');
+                var $scope = $layout.closest('.tab-pane');
+                if (!$scope.length) {
+                    $scope = $layout.closest('.card-body');
+                }
+                $scope.find('.list_data').hide();
+                $scope.find('.grid_data').show();
             });
             
             // Check-in contact search — Tom Select via RecipientSelect (init on modal shown)

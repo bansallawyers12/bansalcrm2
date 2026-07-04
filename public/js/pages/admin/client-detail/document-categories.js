@@ -19,14 +19,63 @@
         currentClientId: null,
         currentCategoryId: null,
         categories: [],
+        viewMode: 'list',
+        initialized: false,
+        _eventsBound: false,
         
         /**
          * Initialize the category system
          */
         init: function(clientId) {
             this.currentClientId = clientId;
-            this.loadCategories();
-            this.bindEvents();
+
+            if (!this._eventsBound) {
+                this.bindEvents();
+                this._eventsBound = true;
+            }
+
+            if (!this.initialized) {
+                this.viewMode = 'list';
+                this.applyViewMode();
+            }
+
+            const preserveCategory = this.initialized && !!this.currentCategoryId;
+            this.loadCategories(preserveCategory);
+            this.initialized = true;
+        },
+
+        /**
+         * Apply list or grid view within the Documents tab only
+         */
+        applyViewMode: function() {
+            const $root = $('#alldocuments');
+            if (!$root.length) {
+                return;
+            }
+
+            const $list = $root.find('.list_data').first();
+            const $grid = $root.find('.allgriddata').first();
+            const $icons = $root.find('.document_layout_type a');
+
+            if (this.viewMode === 'grid') {
+                $list.hide();
+                $grid.show();
+                $icons.removeClass('active');
+                $root.find('.document_layout_type a.grid').addClass('active');
+            } else {
+                $grid.hide();
+                $list.css('display', 'inline-block');
+                $icons.removeClass('active');
+                $root.find('.document_layout_type a.list').addClass('active');
+            }
+        },
+
+        setViewMode: function(mode) {
+            if (mode !== 'list' && mode !== 'grid') {
+                return;
+            }
+            this.viewMode = mode;
+            this.applyViewMode();
         },
         
         /**
@@ -185,6 +234,8 @@
                         </td>
                     </tr>
                 `);
+                this.renderGridDocuments(documents);
+                this.applyViewMode();
                 return;
             }
             
@@ -251,11 +302,95 @@
             
             tbody.html(html);
             console.log('document-categories.js: .alldocumnetlist HTML updated successfully');
+            this.renderGridDocuments(documents);
+            this.applyViewMode();
             
             // Add a marker to check if this runs after old handler
             setTimeout(function() {
                 console.log('document-categories.js: 500ms later - .alldocumnetlist row count:', $('.alldocumnetlist tr').length);
             }, 500);
+        },
+
+        /**
+         * Render documents in the grid view (kept in sync with list view per category)
+         */
+        renderGridDocuments: function(documents) {
+            const gridContainer = $('#alldocuments .allgriddata');
+            if (!gridContainer.length) {
+                return;
+            }
+
+            if (!documents.length) {
+                gridContainer.html('<p style="text-align:center;padding:20px;color:#666;">No documents in this category</p><div class="clearfix"></div>');
+                return;
+            }
+
+            const userRole = $('#document-category-tabs').data('user-role') || 0;
+            const downloadBase = (typeof App !== 'undefined' && App.getUrl && App.getUrl('downloadDocument'))
+                || (window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.downloadDocument)
+                || '/download-document';
+            let html = '';
+
+            documents.forEach(doc => {
+                const hasFile = doc.myfile && String(doc.myfile).trim() !== '';
+                html += `
+                    <div class="grid_list" id="gid_${doc.id}">
+                        <div class="grid_col">
+                            <div class="grid_icon">
+                                ${crmIcon('file-image')}
+                            </div>
+                `;
+
+                if (hasFile) {
+                    const fileUrl = doc.preview_url || (doc.myfile_key ? doc.myfile : this.getAwsUrl(doc));
+                    const displayName = doc.file_name || doc.checklist || 'Document';
+                    const suggestedDl = this.buildDownloadFilename(displayName, doc.filetype || '');
+                    const downloadUrl = downloadBase + '?filelink=' + encodeURIComponent(fileUrl) + '&filename=' + encodeURIComponent(suggestedDl);
+
+                    html += `
+                            <div class="grid_content">
+                                <span id="grid_${doc.id}" class="gridfilename">${this.escapeHtml(displayName)}</span>
+                                <div class="dropdown d-inline dropdown_ellipsis_icon">
+                                    <a class="dropdown-toggle" href="javascript:;" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${crmIcon('ellipsis-v')}</a>
+                                    <div class="dropdown-menu">
+                                        <a target="_blank" class="dropdown-item" href="${this.escapeHtml(fileUrl)}">Preview</a>
+                                        <a href="${this.escapeHtml(downloadUrl)}" class="dropdown-item download-file" data-filelink="${this.escapeHtml(fileUrl)}" data-filename="${this.escapeHtml(suggestedDl)}" data-dl-base="${this.escapeHtml(doc.file_name || '')}" data-dl-ext="${this.escapeHtml(doc.filetype || '')}" target="_blank" rel="noopener">Download</a>
+                    `;
+
+                    if (parseInt(userRole, 10) === 1) {
+                        html += `<a data-id="${doc.id}" class="dropdown-item deletenote" data-href="deletealldocs" href="javascript:;">Delete</a>`;
+                    }
+
+                    html += `
+                                        <a data-id="${doc.id}" class="dropdown-item verifydoc" data-doctype="documents" data-href="verifydoc" href="javascript:;">Verify</a>
+                                        <a data-id="${doc.id}" class="dropdown-item notuseddoc" data-doctype="documents" data-href="notuseddoc" href="javascript:;">Not Used</a>
+                                    </div>
+                                </div>
+                            </div>
+                    `;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '<div class="clearfix"></div>';
+            gridContainer.html(html);
+
+            if (typeof window.refreshCrmIcons === 'function') {
+                window.refreshCrmIcons(gridContainer[0]);
+            }
+        },
+
+        buildDownloadFilename: function(fileName, fileType) {
+            const base = (fileName || 'document').trim() || 'document';
+            const ext = (fileType || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            if (ext && !base.toLowerCase().endsWith('.' + ext)) {
+                return base + '.' + ext;
+            }
+            return base;
         },
         
         /**
@@ -317,8 +452,29 @@
             }
 
             const $menu = $('<ul id="' + menuId + '" class="list-unstyled document-context-menu show bg-white border shadow-sm rounded py-2" style="position:fixed;min-width:140px;z-index:9999;">' + items.join('') + '</ul>');
-            $menu.css({ left: event.pageX + 'px', top: event.pageY + 'px' });
+            $menu.css({ left: '-9999px', top: '-9999px' });
             $('body').append($menu);
+
+            // Viewport-relative coords for position:fixed (pageX/pageY include scroll and misplace the menu)
+            const menuWidth = $menu.outerWidth();
+            const menuHeight = $menu.outerHeight();
+            const vpWidth = window.innerWidth;
+            const vpHeight = window.innerHeight;
+            let left = event.clientX;
+            let top = event.clientY;
+            if (left + menuWidth > vpWidth) {
+                left = vpWidth - menuWidth - 8;
+            }
+            if (top + menuHeight > vpHeight) {
+                top = vpHeight - menuHeight - 8;
+            }
+            if (left < 8) {
+                left = 8;
+            }
+            if (top < 8) {
+                top = 8;
+            }
+            $menu.css({ left: left + 'px', top: top + 'px' });
 
             const hideMenu = function() {
                 $menu.remove();
@@ -458,7 +614,10 @@
                 url: '/document-categories/' + categoryId,
                 method: 'DELETE',
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), 'X-Requested-With': 'XMLHttpRequest' },
-                data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    client_id: this.currentClientId
+                },
                 dataType: 'json'
             }).done(function(res) {
                 if (res.status) {
@@ -563,6 +722,16 @@
          */
         bindEvents: function() {
             const self = this;
+
+            // List / grid view toggle (Documents tab only)
+            $(document).on('click', '#alldocuments .document_layout_type a.list', function(e) {
+                e.preventDefault();
+                self.setViewMode('list');
+            });
+            $(document).on('click', '#alldocuments .document_layout_type a.grid', function(e) {
+                e.preventDefault();
+                self.setViewMode('grid');
+            });
             
             // Category tab click
             $(document).on('click', '.doc-category-tab', function(e) {
