@@ -203,6 +203,7 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::get('/document-categories/get', [DocumentCategoryController::class, 'getCategories'])->name('clients.documentcategories.get');
     Route::post('/document-categories/store', [DocumentCategoryController::class, 'store'])->name('clients.documentcategories.store');
     Route::post('/document-categories/update/{id}', [DocumentCategoryController::class, 'update'])->name('clients.documentcategories.update');
+    Route::post('/document-categories/delete/{id}', [DocumentCategoryController::class, 'destroy'])->name('clients.documentcategories.delete');
     Route::delete('/document-categories/{id}', [DocumentCategoryController::class, 'destroy'])->name('clients.documentcategories.destroy');
     Route::get('/document-categories/documents', [DocumentCategoryController::class, 'getDocuments'])->name('clients.documentcategories.documents');
     Route::post('/document-categories/move-document', [DocumentCategoryController::class, 'moveDocument'])->name('clients.documentcategories.moveDocument');

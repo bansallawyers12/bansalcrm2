@@ -611,8 +611,8 @@
         deleteCategory: function(categoryId) {
             const self = this;
             $.ajax({
-                url: '/document-categories/' + categoryId,
-                method: 'DELETE',
+                url: '/document-categories/delete/' + categoryId,
+                method: 'POST',
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), 'X-Requested-With': 'XMLHttpRequest' },
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
@@ -629,7 +629,8 @@
                     else toastMsg(res.message, 'error');
                 }
             }).fail(function(xhr) {
-                const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to delete category';
+                const msg = (xhr.responseJSON && xhr.responseJSON.message)
+                    || (xhr.status ? 'Failed to delete category (HTTP ' + xhr.status + ')' : 'Failed to delete category');
                 if (typeof Swal !== 'undefined') Swal.fire('Error!', msg, 'error');
                 else toastMsg(msg, 'error');
             });
