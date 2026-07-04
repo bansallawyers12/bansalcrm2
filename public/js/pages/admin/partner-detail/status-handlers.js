@@ -41,107 +41,201 @@
 // STUDENT STATUS CHANGE HANDLERS
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Use delegated handlers because DataTables redraws action buttons dynamically.
-    document.addEventListener('click', function(event) {
-        const button = event.target.closest('.change-status-btn');
+    function showChangeStatusMessage(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const html = '<span class="alert ' + alertClass + '">' + message + '</span>';
+        $('#changeStatusFormMessage').html(html);
+        $('.custom-error-msg').html(html);
+    }
+
+    function populateChangeStatusModal(button) {
         if (!button) {
             return;
         }
 
         const studentId = button.getAttribute('data-id');
         const currentStatus = button.getAttribute('data-current-status');
-        document.getElementById('studentId').value = studentId || '';
-        document.getElementById('newStatus').value = currentStatus || '0';
-    });
+        const studentIdEl = document.getElementById('studentId');
+        const newStatusEl = document.getElementById('newStatus');
 
-    // Change status form submission
-    document.getElementById('changeStatusForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        
-        fetch(App.getUrl('partnersUpdateStudentStatus'), {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': App.getCsrf()
+        if (studentIdEl) {
+            studentIdEl.value = studentId || '';
+        }
+
+        if (newStatusEl) {
+            const statusVal = (currentStatus !== null && currentStatus !== '') ? String(currentStatus) : '0';
+            newStatusEl.value = statusVal;
+            if (newStatusEl.value !== statusVal) {
+                newStatusEl.value = '0';
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status) {
-                $('#changeStatusModal').modal('hide');
-                
-                // Update the status in the visible DataTable without reloading
-                const studentId = data.studentId;
-                const newStatus = data.newStatus;
-                const newStatus_id = data.newStatus_id;
+        }
 
-                function updateStatusInTable(tableSelector) {
-                    if (!$(tableSelector).length || !$.fn.DataTable.isDataTable(tableSelector)) {
-                        return false;
-                    }
-                    const table = $(tableSelector).DataTable();
-                    const rowIndex = table.rows().eq(0).filter((rowIdx) => {
-                        return table.cell(rowIdx, 23).data() == studentId;
-                    });
-                    if (rowIndex.length > 0) {
-                        table.cell(rowIndex[0], 21).data(newStatus).draw(false);
-                        $(tableSelector).find('.change-status-btn[data-id="' + studentId + '"]').attr('data-current-status', newStatus_id);
-                        return true;
-                    }
-                    return false;
-                }
+        $('#changeStatusFormMessage').empty();
+    }
 
-                if (!updateStatusInTable('.table-3')) {
-                    updateStatusInTable('.table-31');
-                }
+    function updateStatusInTable(tableSelector, studentId, newStatus, newStatusId) {
+        if (!$(tableSelector).length || !$.fn.DataTable.isDataTable(tableSelector)) {
+            return false;
+        }
 
-                $('.custom-error-msg').html('<span class="alert alert-success">'+data.message+'</span>');
-            } else {
-                $('.custom-error-msg').html('<span class="alert alert-danger">'+data.message+'</span>');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-    
-    // ============================================================================
-    // APPLICATION OVERALL STATUS CHANGE HANDLERS
-    // ============================================================================
-    
-    document.addEventListener('click', function(event) {
-        const button = event.target.closest('.change-application-overall-status-btn');
-        if (!button) {
+        const table = $(tableSelector).DataTable();
+        const rowIndex = table.rows().eq(0).filter(function (rowIdx) {
+            return table.cell(rowIdx, 23).data() == studentId;
+        });
+
+        if (rowIndex.length > 0) {
+            table.cell(rowIndex[0], 21).data(newStatus).draw(false);
+            $(tableSelector).find('.change-status-btn[data-id="' + studentId + '"]').attr('data-current-status', newStatusId);
+            return true;
+        }
+
+        return false;
+    }
+
+    function reloadStudentTableIfPresent(tableSelector) {
+        if (!$(tableSelector).length || !$.fn.DataTable.isDataTable(tableSelector)) {
+            return;
+        }
+        $(tableSelector).DataTable().ajax.reload(null, false);
+    }
+
+    function refreshStudentStatusInTables(studentId, newStatus, newStatusId) {
+        if (updateStatusInTable('.table-3', studentId, newStatus, newStatusId)) {
+            return;
+        }
+        if (updateStatusInTable('.table-31', studentId, newStatus, newStatusId)) {
+            return;
+        }
+        reloadStudentTableIfPresent('.table-3');
+        reloadStudentTableIfPresent('.table-31');
+    }
+
+    jQuery(function () {
+        const changeStatusForm = document.getElementById('changeStatusForm');
+        if (!changeStatusForm) {
             return;
         }
 
-        const applicationStudentId = button.getAttribute('data-id');
-        const applicationOverallStatus = button.getAttribute('data-application-overall-status');
-        document.getElementById('applicationStudentId').value = applicationStudentId || '';
-        document.getElementById('applicationOverallStatus').value = applicationOverallStatus || '';
-    });
-
-    // Change application overall status form submission
-    document.getElementById('changeApplicationOverallStatusForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        
-        fetch(App.getUrl('partnersUpdateStudentApplicationStatus'), {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': App.getCsrf()
+        // Use delegated handlers because DataTables redraws action buttons dynamically.
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.change-status-btn');
+            if (button) {
+                populateChangeStatusModal(button);
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload(); // Reload to reflect changes
-        })
-        .catch(error => console.error('Error:', error));
+        });
+
+        const changeStatusModal = document.getElementById('changeStatusModal');
+        if (changeStatusModal) {
+            changeStatusModal.addEventListener('show.bs.modal', function (event) {
+                const trigger = event.relatedTarget;
+                if (trigger && trigger.classList.contains('change-status-btn')) {
+                    populateChangeStatusModal(trigger);
+                }
+            });
+        }
+
+        changeStatusForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const studentIdEl = document.getElementById('studentId');
+            if (!studentIdEl || !studentIdEl.value) {
+                showChangeStatusMessage('Unable to identify the student record. Please close the modal and try again.', 'error');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const submitUrl = App.getUrl('partnersUpdateStudentStatus');
+            if (!submitUrl) {
+                showChangeStatusMessage('Configuration error. Please refresh the page and try again.', 'error');
+                return;
+            }
+
+            fetch(submitUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': App.getCsrf()
+                }
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    return { ok: response.ok, data: data };
+                }).catch(function () {
+                    return { ok: false, data: null };
+                });
+            })
+            .then(function (result) {
+                if (!result.ok || !result.data) {
+                    showChangeStatusMessage('Unable to save student status. Please refresh the page and try again.', 'error');
+                    return;
+                }
+
+                const data = result.data;
+                if (data.status) {
+                    $('#changeStatusModal').modal('hide');
+
+                    refreshStudentStatusInTables(data.studentId, data.newStatus, data.newStatus_id);
+                    showChangeStatusMessage(data.message, 'success');
+                } else {
+                    showChangeStatusMessage(data.message || 'Failed to update student status.', 'error');
+                }
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+                showChangeStatusMessage('Unable to save student status. Please try again.', 'error');
+            });
+        });
+
+        // ============================================================================
+        // APPLICATION OVERALL STATUS CHANGE HANDLERS
+        // ============================================================================
+
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.change-application-overall-status-btn');
+            if (!button) {
+                return;
+            }
+
+            const applicationStudentId = button.getAttribute('data-id');
+            const applicationOverallStatus = button.getAttribute('data-application-overall-status');
+            document.getElementById('applicationStudentId').value = applicationStudentId || '';
+            document.getElementById('applicationOverallStatus').value = applicationOverallStatus || '';
+        });
+
+        const changeApplicationOverallStatusForm = document.getElementById('changeApplicationOverallStatusForm');
+        if (changeApplicationOverallStatusForm) {
+            changeApplicationOverallStatusForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                fetch(App.getUrl('partnersUpdateStudentApplicationStatus'), {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': App.getCsrf()
+                    }
+                })
+                .then(function (response) {
+                    return response.json().then(function (data) {
+                        return { ok: response.ok, data: data };
+                    }).catch(function () {
+                        return { ok: false, data: null };
+                    });
+                })
+                .then(function (result) {
+                    if (!result.ok || !result.data) {
+                        alert('Unable to update application status. Please refresh the page and try again.');
+                        return;
+                    }
+                    alert(result.data.message);
+                    location.reload();
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    alert('Unable to update application status. Please try again.');
+                });
+            });
+        }
     });
-    
-});
 
 })(); // End async wrapper

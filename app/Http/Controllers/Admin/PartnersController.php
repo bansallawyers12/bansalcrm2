@@ -3830,50 +3830,85 @@ class PartnersController extends Controller
     //Update student status
     public function updateStudentStatus(Request $request)
 	{
-        //dd($request->all());
-        $updatedRows = DB::table('applications')->where('id', $request->student_id)->update(['status' => $request->new_status]);
-        // Check if the update was successful
-        if ($updatedRows > 0) {
-            // Bust student tab cache so the next tab load reflects the new status.
-            $app = DB::table('applications')->select('partner_id')->where('id', $request->student_id)->first();
-            if ($app && $app->partner_id) {
-                $this->clearStudentTabCache((int) $app->partner_id);
-            }
+        $statusMap = $this->partnerStudentStatusMap();
+        $studentId = $request->input('student_id');
+        $newStatusRaw = $request->input('new_status');
 
-            $response['status'] 	= 	true;
-            $response['message']	=	'Student status updated successfully.';
-            $response['studentId']	=   $request->student_id;
+        $emptyResponse = [
+            'status'       => false,
+            'message'      => '',
+            'studentId'    => '',
+            'newStatus'    => '',
+            'newStatus_id' => '',
+        ];
 
-			$student_status = (string) $request->new_status;
-            if($request->new_status == 0){
-                $student_status = "In Progress";
-            } else if($request->new_status == 1){
-                $student_status = "Completed";
-            } else if($request->new_status == 2){
-                $student_status = "Discontinued";
-            } else if($request->new_status == 3){
-                $student_status = "Cancelled";
-            } else if($request->new_status == 4){
-                $student_status = "Withdrawn";
-            } else if($request->new_status == 5){
-                $student_status = "Deferred";
-            } else if($request->new_status == 6){
-                $student_status = "Future";
-            } else if($request->new_status == 7){
-                $student_status = "VOE";
-            } else if($request->new_status == 8){
-                $student_status = "Refund";
-            }
-            $response['newStatus']	= $student_status;
-            $response['newStatus_id']	= $request->new_status;
-        } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'No changes made or student not found.Please try again';
-            $response['studentId']	=  "";
-            $response['newStatus']	= "";
-            $response['newStatus_id']	= "";
+        if ($studentId === null || $studentId === '') {
+            $emptyResponse['message'] = 'Student application ID is required.';
+            echo json_encode($emptyResponse);
+
+            return;
         }
-        echo json_encode($response);
+
+        if (!is_numeric($newStatusRaw)) {
+            $emptyResponse['message'] = 'Invalid status selected.';
+            echo json_encode($emptyResponse);
+
+            return;
+        }
+
+        $newStatus = (int) $newStatusRaw;
+        if (!array_key_exists($newStatus, $statusMap)) {
+            $emptyResponse['message'] = 'Invalid status selected.';
+            echo json_encode($emptyResponse);
+
+            return;
+        }
+
+        $application = DB::table('applications')
+            ->select('id', 'status', 'partner_id')
+            ->where('id', $studentId)
+            ->first();
+
+        if (!$application) {
+            $emptyResponse['message'] = 'Student application not found. Please try again.';
+            echo json_encode($emptyResponse);
+
+            return;
+        }
+
+        $statusLabel = $statusMap[$newStatus];
+        $response = [
+            'status'       => true,
+            'message'      => '',
+            'studentId'    => $studentId,
+            'newStatus'    => $statusLabel,
+            'newStatus_id' => $newStatus,
+        ];
+
+        if ((int) $application->status === $newStatus) {
+            $response['message'] = 'Status is already set to '.$statusLabel.'.';
+            echo json_encode($response);
+
+            return;
+        }
+
+        $updatedRows = DB::table('applications')
+            ->where('id', $studentId)
+            ->update(['status' => $newStatus]);
+
+        if ($updatedRows > 0) {
+            if ($application->partner_id) {
+                $this->clearStudentTabCache((int) $application->partner_id);
+            }
+
+            $response['message'] = 'Student status updated successfully.';
+            echo json_encode($response);
+
+            return;
+        }
+
+        $emptyResponse['message'] = 'Unable to update student status. Please try again.';
+        echo json_encode($emptyResponse);
     }
 
 

@@ -1700,6 +1700,7 @@ use App\Http\Controllers\Controller;
 				</button>
             </div>
             <div class="modal-body">
+                <div id="changeStatusFormMessage" class="mb-2"></div>
                 <form id="changeStatusForm">
                     <input type="hidden" name="student_id" id="studentId">
                     <div class="mb-3">
