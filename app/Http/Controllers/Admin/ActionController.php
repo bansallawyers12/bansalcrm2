@@ -653,6 +653,13 @@ class ActionController extends Controller
                 return Utf8Helper::sanitize($full_name);
             })
             ->addColumn('client_reference', function($data) {
+                $taskGroup = strtolower(trim((string) ($data->task_group ?? '')));
+                $isPersonalTask = in_array($taskGroup, ['personal task', 'personal action'], true);
+
+                if ($data->type === 'client' && $isPersonalTask && empty($data->client_id)) {
+                    return '<span class="badge badge-info bg-info">Personal Action</span>';
+                }
+
                 $user_name = 'N/P';
 
                 if($data->type == 'client'){
