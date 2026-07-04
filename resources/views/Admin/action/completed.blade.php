@@ -153,36 +153,34 @@
                                                 }
                                             ?>
                                             <tr>
-                                                <?php
+                                            <?php
                                                 // Handle both client and partner types
-                                                if($list->type == 'partner'){
+                                                if ($list->isPersonalTaskWithoutClient()) {
+                                                    $client_reference_html = '<span class="badge badge-info bg-info">Personal Task</span>';
+                                                } elseif($list->type == 'partner'){
                                                     $partnerInfo = \App\Models\Partner::select('partner_name')->where('id',$list->client_id)->first();
                                                     if($partnerInfo){
                                                         $user_name = $partnerInfo->partner_name;
                                                         $reference_link = '<a href="'.route('partners.detail', base64_encode(convert_uuencode(@$list->client_id))).'" target="_blank" >'.$partnerInfo->partner_name.'</a>';
+                                                        $client_reference_html = $user_name.'<br>'.$reference_link;
                                                     } else {
-                                                        $user_name = 'N/P';
-                                                        $reference_link = 'N/P';
+                                                        $client_reference_html = 'N/P';
                                                     }
                                                 } else {
                                                     // Client type
                                                     if($list->noteClient){
                                                         $user_name = $list->noteClient->first_name.' '.$list->noteClient->last_name;
                                                         $reference_link = '<a href="'.URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id))).'" target="_blank" >'.$list->noteClient->client_id.'</a>';
+                                                        $client_reference_html = $user_name.'<br>'.$reference_link;
                                                     } else {
-                                                        $user_name = 'N/P';
-                                                        $reference_link = 'N/P';
+                                                        $client_reference_html = 'N/P';
                                                     }
                                                 }
-                                                ?>
+                                            ?>
                                                 <td style="text-align: center;">{{ ++$i }}</td>
                                                 <td style="text-align: center;"><input type="radio" class="not_complete_task" data-bs-toggle="tooltip" title="Mark Incomplete!" data-id="{{ $list->id }}"></td>
                                                 <td>{{ $full_name??'N/P' }}</td>
-                                                <td>
-                                                    {{ $user_name }}
-                                                    <br>
-                                                    {!! $reference_link !!}
-                                                </td>
+                                                <td>{!! $client_reference_html !!}</td>
                                                 <td>{{ date('d/m/Y',strtotime($list->action_assign_date)) ?? 'N/P'}} </td>
                                                 <td>{{ $list->task_group??'N/P' }}</td>
                                                 <td>

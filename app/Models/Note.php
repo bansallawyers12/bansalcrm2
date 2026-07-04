@@ -46,5 +46,15 @@ class Note extends BaseModel
         return $this->belongsTo('App\Models\Staff', 'assigned_to', 'id');
     }
 
+    /**
+     * Personal tasks created via "Add Action" may have no linked client.
+     */
+    public function isPersonalTaskWithoutClient(): bool
+    {
+        $taskGroup = strtolower(trim((string) ($this->task_group ?? '')));
+
+        return in_array($taskGroup, ['personal task', 'personal action'], true) && empty($this->client_id);
+    }
+
 	
 }

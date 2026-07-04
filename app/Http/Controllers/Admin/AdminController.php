@@ -2281,9 +2281,9 @@ class AdminController extends Controller
             }
 
             // Get client_id from request or note
-            $clientId = $request->input('client_id', $note->client_id);
-            
-            if (!$clientId) {
+            $clientId = $request->input('client_id') ?: $note->client_id;
+
+            if (!$clientId && !$note->isPersonalTaskWithoutClient()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Client ID is required'
@@ -2294,15 +2294,17 @@ class AdminController extends Controller
             $note->status = 1;
             $note->save();
 
-            // Create activity log entry
-            $activity = new ActivitiesLog();
-            $activity->client_id = $clientId;
-            $activity->created_by = Auth::user()->id;
-            $activity->subject = 'Completed action';
-            $activity->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($request->completion_message) . '</p>';
-            $activity->task_status = 0; // Activity, not task
-            $activity->pin = 0;
-            $activity->save();
+            // Create activity log entry when a client is linked
+            if ($clientId) {
+                $activity = new ActivitiesLog();
+                $activity->client_id = $clientId;
+                $activity->created_by = Auth::user()->id;
+                $activity->subject = 'Completed action';
+                $activity->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($request->completion_message) . '</p>';
+                $activity->task_status = 0; // Activity, not task
+                $activity->pin = 0;
+                $activity->save();
+            }
             
             // If this action is related to an application, also log to ApplicationActivitiesLog
             if (!empty($note->application_id)) {

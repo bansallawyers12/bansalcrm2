@@ -62,9 +62,9 @@ class ActionController extends Controller
             }
             
             // Get client_id from request or note
-            $clientId = $request->input('client_id', $note->client_id);
-            
-            if (!$clientId) {
+            $clientId = $request->input('client_id') ?: $note->client_id;
+
+            if (!$clientId && !$note->isPersonalTaskWithoutClient()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Client ID is required'
@@ -103,31 +103,33 @@ class ActionController extends Controller
                 $assignee_name = 'N/A';
             }
             
-            $objs = new ActivitiesLog;
-            $objs->client_id = $clientId;
-            $objs->created_by = Auth::user()->id;
-            
-            // For stage-type actions, include the stage name in the subject
-            if ($note->task_group == 'stage' && !empty($stageName)) {
-                $objs->subject = 'Completed ' . $stageName . ' stage action';
-            } else {
-                $objs->subject = 'Completed action';
-            }
-            
-            $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($completionMessage) . '</p>';
-            
-            if(Auth::user()->id != @$note->assigned_to){
-                $objs->use_for = @$note->assigned_to;
-            } else {
-                $objs->use_for = null;
-            }
+            if ($clientId) {
+                $objs = new ActivitiesLog;
+                $objs->client_id = $clientId;
+                $objs->created_by = Auth::user()->id;
 
-            $objs->followup_date = @$note->updated_at;
-            // Set task_group to 'partner' if note type is partner, otherwise use note's task_group
-            $objs->task_group = ($note->type == 'partner') ? 'partner' : @$note->task_group;
-            $objs->task_status = 0; // Activity, not task
-            $objs->pin = 0;
-            $objs->save();
+                // For stage-type actions, include the stage name in the subject
+                if ($note->task_group == 'stage' && !empty($stageName)) {
+                    $objs->subject = 'Completed ' . $stageName . ' stage action';
+                } else {
+                    $objs->subject = 'Completed action';
+                }
+
+                $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($completionMessage) . '</p>';
+
+                if (Auth::user()->id != @$note->assigned_to) {
+                    $objs->use_for = @$note->assigned_to;
+                } else {
+                    $objs->use_for = null;
+                }
+
+                $objs->followup_date = @$note->updated_at;
+                // Set task_group to 'partner' if note type is partner, otherwise use note's task_group
+                $objs->task_group = ($note->type == 'partner') ? 'partner' : @$note->task_group;
+                $objs->task_status = 0; // Activity, not task
+                $objs->pin = 0;
+                $objs->save();
+            }
             
             // If this action is related to an application, also log to ApplicationActivitiesLog
             if (!empty($note->application_id) && $application) {
@@ -185,7 +187,9 @@ class ActionController extends Controller
             }
             
             $clientName = 'N/A';
-            if ($note->type == 'client' && $note->noteClient) {
+            if ($note->isPersonalTaskWithoutClient()) {
+                $clientName = 'Personal Action';
+            } elseif ($note->type == 'client' && $note->noteClient) {
                 $clientName = trim(($note->noteClient->first_name ?? '') . ' ' . ($note->noteClient->last_name ?? ''));
             } elseif ($note->type == 'partner') {
                 $partner = \App\Models\Partner::find($note->client_id);
@@ -250,24 +254,26 @@ class ActionController extends Controller
                     $assignee_name = 'N/A';
                 }
                 
-                $objs = new ActivitiesLog;
-                $objs->client_id = $clientId;
-                $objs->created_by = Auth::user()->id;
-                $objs->subject = 'Marked action as incomplete';
-                $objs->description = '<span class="text-semi-bold">Action marked as incomplete</span><p>This action was marked as incomplete and moved back to active tasks.</p>';
-                
-                if(Auth::user()->id != $assignedTo){
-                    $objs->use_for = $assignedTo;
-                } else {
-                    $objs->use_for = null;
-                }
+                if ($clientId) {
+                    $objs = new ActivitiesLog;
+                    $objs->client_id = $clientId;
+                    $objs->created_by = Auth::user()->id;
+                    $objs->subject = 'Marked action as incomplete';
+                    $objs->description = '<span class="text-semi-bold">Action marked as incomplete</span><p>This action was marked as incomplete and moved back to active tasks.</p>';
 
-                $objs->followup_date = now();
-                // Set task_group to 'partner' if note type is partner, otherwise use note's task_group
-                $objs->task_group = ($noteType == 'partner') ? 'partner' : $taskGroup;
-                $objs->task_status = 0; // Activity, not task
-                $objs->pin = 0;
-                $objs->save();
+                    if (Auth::user()->id != $assignedTo) {
+                        $objs->use_for = $assignedTo;
+                    } else {
+                        $objs->use_for = null;
+                    }
+
+                    $objs->followup_date = now();
+                    // Set task_group to 'partner' if note type is partner, otherwise use note's task_group
+                    $objs->task_group = ($noteType == 'partner') ? 'partner' : $taskGroup;
+                    $objs->task_status = 0; // Activity, not task
+                    $objs->pin = 0;
+                    $objs->save();
+                }
                 
                 $response['status'] = true;
                 $response['message'] = 'Task updated successfully';
