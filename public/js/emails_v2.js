@@ -782,21 +782,35 @@
     }
 
     let documentCategoriesCacheV2 = null;
+    let documentCategoriesCacheClientIdV2 = null;
 
     async function loadDocumentCategoriesForAttachmentModal() {
-        if (documentCategoriesCacheV2) {
+        const clientId = getEntityId();
+        if (!clientId) {
+            return [];
+        }
+        if (documentCategoriesCacheV2 && documentCategoriesCacheClientIdV2 === clientId) {
             return documentCategoriesCacheV2;
         }
         try {
-            const response = await fetch('/document-categories/get', {
-                credentials: 'same-origin',
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            });
+            const response = await fetch(
+                '/document-categories/get?client_id=' + encodeURIComponent(clientId),
+                {
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                }
+            );
             const data = await response.json();
-            documentCategoriesCacheV2 = (data && data.categories) ? data.categories : (Array.isArray(data) ? data : []);
+            if (response.ok && data && data.status && data.categories) {
+                documentCategoriesCacheV2 = data.categories;
+            } else {
+                documentCategoriesCacheV2 = [];
+            }
+            documentCategoriesCacheClientIdV2 = clientId;
         } catch (e) {
             console.warn('Could not load document categories', e);
             documentCategoriesCacheV2 = [];
+            documentCategoriesCacheClientIdV2 = clientId;
         }
         return documentCategoriesCacheV2;
     }
