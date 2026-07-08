@@ -233,6 +233,7 @@
                 <option value="">Select category…</option>
             </select>
         </div>
+        <div class="attachment-storage-per-email" id="attachmentStoragePerEmailV2" hidden></div>
         <div class="attachment-storage-table-wrap">
             <table class="attachment-storage-table">
                 <thead>

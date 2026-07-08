@@ -816,18 +816,114 @@
     }
 
     /**
+     * Preview attachments for each email file before upload (metadata only).
+     * Returns map of email filename -> attachment metadata array.
+     */
+    async function previewBatchEmailAttachments(files) {
+        const byEmail = {};
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            try {
+                const attachments = await previewEmailAttachments(file);
+                byEmail[file.name] = (attachments || []).map(function(att) {
+                    return Object.assign({}, att, { email_filename: file.name });
+                });
+            } catch (previewErr) {
+                console.warn('Attachment preview skipped for ' + file.name + ':', previewErr);
+                byEmail[file.name] = [];
+            }
+        }
+        return byEmail;
+    }
+
+    /**
+     * Flatten batch preview map into one list for the attachment modal.
+     */
+    function flattenBatchAttachments(byEmail) {
+        const flat = [];
+        Object.keys(byEmail).forEach(function(emailName) {
+            (byEmail[emailName] || []).forEach(function(att) {
+                flat.push(att);
+            });
+        });
+        return flat;
+    }
+
+    /**
+     * Group modal attachment_storage rows back per email file for upload.
+     */
+    function groupAttachmentStorageByEmail(storageList) {
+        const map = {};
+        (storageList || []).forEach(function(item) {
+            const emailName = item.email_filename;
+            if (!emailName) {
+                return;
+            }
+            if (!map[emailName]) {
+                map[emailName] = [];
+            }
+            map[emailName].push({
+                original_filename: item.original_filename,
+                filename: item.filename,
+                file_name: item.file_name,
+                storage_type: item.storage_type,
+                category_id: item.category_id
+            });
+        });
+        return map;
+    }
+
+    /**
+     * Unique email filenames that have attachments in the batch modal.
+     */
+    function getAttachmentEmailGroups(attachments) {
+        const groups = [];
+        const seen = {};
+        (attachments || []).forEach(function(att) {
+            const emailName = att.email_filename;
+            if (!emailName || seen[emailName]) {
+                return;
+            }
+            seen[emailName] = true;
+            groups.push({ key: 'email-' + groups.length, name: emailName });
+        });
+        return groups;
+    }
+
+    /**
+     * Build <option> HTML for category selects.
+     */
+    function buildDocumentCategoryOptionsHtml(categories) {
+        let html = '<option value="">Select category…</option>';
+        (categories || []).forEach(function(cat) {
+            html += '<option value="' + escapeHtml(String(cat.id)) + '">' +
+                escapeHtml(cat.name || cat.category_name || ('Category ' + cat.id)) +
+                '</option>';
+        });
+        return html;
+    }
+
+    /**
      * Show attachment rename / document-folder modal (client only; partners skip).
      * Returns attachment_storage array, empty array, or null if cancelled.
+     * @param {Array} attachments
+     * @param {{ emailCount?: number }} [options]
      */
-    function showAttachmentStorageModal(attachments) {
+    function showAttachmentStorageModal(attachments, options) {
+        options = options || {};
         return new Promise(function(resolve) {
             const modal = document.getElementById('attachmentStorageModalV2');
             const body = document.getElementById('attachmentStorageModalBodyV2');
             const countEl = document.getElementById('attachmentStorageCountV2');
+            const globalDestination = document.getElementById('attachmentStorageDestinationV2');
+            const perEmailDestination = document.getElementById('attachmentStoragePerEmailV2');
             const saveToDocsCheckbox = document.getElementById('attachmentSaveToDocumentsV2');
             const categorySelect = document.getElementById('attachmentDocumentCategoryV2');
             const confirmBtn = document.getElementById('attachmentStorageConfirmV2');
             const cancelBtn = document.getElementById('attachmentStorageCancelV2');
+            const emailGroups = getAttachmentEmailGroups(attachments);
+            const usePerEmailCategories = emailGroups.length > 1;
+            const perEmailToggleHandlers = [];
 
             if (!modal || !body || !confirmBtn || !cancelBtn) {
                 resolve([]);
@@ -835,33 +931,122 @@
             }
 
             if (countEl) {
-                countEl.textContent = attachments.length + (attachments.length === 1 ? ' file' : ' files');
+                if ((options.emailCount || 0) > 1) {
+                    countEl.textContent = attachments.length + (attachments.length === 1 ? ' file' : ' files') +
+                        ' across ' + options.emailCount + ' emails';
+                } else {
+                    countEl.textContent = attachments.length + (attachments.length === 1 ? ' file' : ' files');
+                }
             }
 
-            body.innerHTML = attachments.map(function(att) {
+            function renderAttachmentRow(att, showEmailLabel) {
                 const stem = (att.display_name || att.filename || 'attachment').replace(/\.[^.]+$/, '');
-                return '<tr data-original-filename="' + escapeHtml(att.filename) + '">' +
-                    '<td>' + escapeHtml(att.filename) + '</td>' +
+                const emailKey = att._email_key || '';
+                const emailFilenameAttr = att.email_filename
+                    ? ' data-email-filename="' + escapeHtml(att.email_filename) + '"'
+                    : '';
+                const emailKeyAttr = emailKey ? ' data-email-key="' + escapeHtml(emailKey) + '"' : '';
+                const emailLabel = showEmailLabel && att.email_filename
+                    ? '<div class="attachment-storage-email-label">' + escapeHtml(att.email_filename) + '</div>'
+                    : '';
+                return '<tr data-original-filename="' + escapeHtml(att.filename) + '"' +
+                    emailFilenameAttr + emailKeyAttr + '>' +
+                    '<td>' + emailLabel + escapeHtml(att.filename) + '</td>' +
                     '<td>' + formatFileSize(att.file_size || 0) + '</td>' +
                     '<td><input type="text" class="attachment-rename-input" value="' + escapeHtml(stem) + '" aria-label="Save as"></td>' +
                     '</tr>';
-            }).join('');
-
-            if (saveToDocsCheckbox) {
-                saveToDocsCheckbox.checked = false;
             }
-            if (categorySelect) {
+
+            function populateGlobalCategorySelect(categories) {
+                if (!categorySelect) {
+                    return;
+                }
                 categorySelect.disabled = true;
-                categorySelect.innerHTML = '<option value="">Select category…</option>';
-                loadDocumentCategoriesForAttachmentModal().then(function(categories) {
-                    categories.forEach(function(cat) {
-                        const opt = document.createElement('option');
-                        opt.value = cat.id;
-                        opt.textContent = cat.name || cat.category_name || ('Category ' + cat.id);
-                        categorySelect.appendChild(opt);
-                    });
+                categorySelect.innerHTML = buildDocumentCategoryOptionsHtml(categories);
+            }
+
+            function renderPerEmailDestination(categories) {
+                if (!perEmailDestination) {
+                    return;
+                }
+                const categoryOptionsHtml = buildDocumentCategoryOptionsHtml(categories);
+                perEmailDestination.innerHTML = emailGroups.map(function(group) {
+                    return '<div class="attachment-storage-email-group" data-email-key="' + escapeHtml(group.key) + '">' +
+                        '<div class="attachment-storage-email-group__title">' + escapeHtml(group.name) + '</div>' +
+                        '<div class="attachment-storage-email-group__controls">' +
+                        '<label class="attachment-storage-checkbox">' +
+                        '<input type="checkbox" class="attachment-email-save-docs" data-email-key="' + escapeHtml(group.key) + '">' +
+                        'Also save copies to Documents tab' +
+                        '</label>' +
+                        '<select class="attachment-storage-select attachment-email-category" data-email-key="' + escapeHtml(group.key) + '" aria-label="Document category for ' + escapeHtml(group.name) + '" disabled>' +
+                        categoryOptionsHtml +
+                        '</select>' +
+                        '</div>' +
+                        '</div>';
+                }).join('');
+
+                perEmailDestination.querySelectorAll('.attachment-email-save-docs').forEach(function(checkbox) {
+                    function onToggle() {
+                        const key = checkbox.getAttribute('data-email-key');
+                        const select = perEmailDestination.querySelector('.attachment-email-category[data-email-key="' + key + '"]');
+                        if (select) {
+                            select.disabled = !checkbox.checked;
+                        }
+                    }
+                    checkbox.addEventListener('change', onToggle);
+                    perEmailToggleHandlers.push({ el: checkbox, fn: onToggle });
                 });
             }
+
+            if (usePerEmailCategories) {
+                if (globalDestination) {
+                    globalDestination.hidden = true;
+                }
+                if (perEmailDestination) {
+                    perEmailDestination.hidden = false;
+                    renderPerEmailDestination([]);
+                }
+                const keyByEmail = {};
+                emailGroups.forEach(function(group) {
+                    keyByEmail[group.name] = group.key;
+                });
+                const rowsHtml = [];
+                emailGroups.forEach(function(group, groupIndex) {
+                    if (groupIndex > 0) {
+                        rowsHtml.push('<tr class="attachment-storage-group-spacer"><td colspan="3"></td></tr>');
+                    }
+                    (attachments || []).forEach(function(att) {
+                        if (att.email_filename !== group.name) {
+                            return;
+                        }
+                        const rowAtt = Object.assign({}, att, { _email_key: group.key });
+                        rowsHtml.push(renderAttachmentRow(rowAtt, false));
+                    });
+                });
+                body.innerHTML = rowsHtml.join('');
+            } else {
+                if (globalDestination) {
+                    globalDestination.hidden = false;
+                }
+                if (perEmailDestination) {
+                    perEmailDestination.hidden = true;
+                    perEmailDestination.innerHTML = '';
+                }
+                if (saveToDocsCheckbox) {
+                    saveToDocsCheckbox.checked = false;
+                }
+                body.innerHTML = (attachments || []).map(function(att) {
+                    return renderAttachmentRow(att, !!att.email_filename);
+                }).join('');
+            }
+
+            loadDocumentCategoriesForAttachmentModal().then(function(categories) {
+                if (usePerEmailCategories) {
+                    renderPerEmailDestination(categories);
+                } else {
+                    populateGlobalCategorySelect(categories);
+                }
+            });
 
             function closeModal() {
                 modal.classList.remove('active');
@@ -871,6 +1056,16 @@
                 if (saveToDocsCheckbox) {
                     saveToDocsCheckbox.removeEventListener('change', onSaveToDocsToggle);
                 }
+                perEmailToggleHandlers.forEach(function(handler) {
+                    handler.el.removeEventListener('change', handler.fn);
+                });
+                if (globalDestination) {
+                    globalDestination.hidden = false;
+                }
+                if (perEmailDestination) {
+                    perEmailDestination.hidden = true;
+                    perEmailDestination.innerHTML = '';
+                }
             }
 
             function onSaveToDocsToggle() {
@@ -879,34 +1074,70 @@
                 }
             }
 
+            function getPerEmailStoragePrefs() {
+                const prefs = {};
+                if (!perEmailDestination) {
+                    return prefs;
+                }
+                emailGroups.forEach(function(group) {
+                    const checkbox = perEmailDestination.querySelector('.attachment-email-save-docs[data-email-key="' + group.key + '"]');
+                    const select = perEmailDestination.querySelector('.attachment-email-category[data-email-key="' + group.key + '"]');
+                    const saveToDocs = checkbox && checkbox.checked;
+                    const categoryId = select ? parseInt(select.value, 10) : 0;
+                    prefs[group.key] = {
+                        saveToDocs: saveToDocs,
+                        categoryId: categoryId,
+                        storageType: (saveToDocs && categoryId > 0) ? 'documents' : 'email'
+                    };
+                });
+                return prefs;
+            }
+
             function onCancel() {
                 closeModal();
                 resolve(null);
             }
 
             function onConfirm() {
-                const saveToDocs = saveToDocsCheckbox && saveToDocsCheckbox.checked;
-                const categoryId = categorySelect ? parseInt(categorySelect.value, 10) : 0;
-                const storageType = (saveToDocs && categoryId > 0) ? 'documents' : 'email';
+                let globalStorageType = 'email';
+                let globalCategoryId = 0;
+                if (!usePerEmailCategories) {
+                    const saveToDocs = saveToDocsCheckbox && saveToDocsCheckbox.checked;
+                    globalCategoryId = categorySelect ? parseInt(categorySelect.value, 10) : 0;
+                    globalStorageType = (saveToDocs && globalCategoryId > 0) ? 'documents' : 'email';
+                }
+                const perEmailPrefs = usePerEmailCategories ? getPerEmailStoragePrefs() : {};
                 const rows = body.querySelectorAll('tr[data-original-filename]');
                 const storageList = [];
                 rows.forEach(function(row) {
                     const originalFilename = row.getAttribute('data-original-filename');
+                    const emailFilename = row.getAttribute('data-email-filename');
+                    const emailKey = row.getAttribute('data-email-key');
                     const input = row.querySelector('.attachment-rename-input');
                     const fileName = input ? input.value.trim() : '';
-                    storageList.push({
+                    let storageType = globalStorageType;
+                    let categoryId = globalStorageType === 'documents' ? globalCategoryId : null;
+                    if (usePerEmailCategories && emailKey && perEmailPrefs[emailKey]) {
+                        storageType = perEmailPrefs[emailKey].storageType;
+                        categoryId = storageType === 'documents' ? perEmailPrefs[emailKey].categoryId : null;
+                    }
+                    const entry = {
                         original_filename: originalFilename,
                         filename: originalFilename,
                         file_name: fileName || originalFilename,
                         storage_type: storageType,
-                        category_id: storageType === 'documents' ? categoryId : null
-                    });
+                        category_id: categoryId
+                    };
+                    if (emailFilename) {
+                        entry.email_filename = emailFilename;
+                    }
+                    storageList.push(entry);
                 });
                 closeModal();
                 resolve(storageList);
             }
 
-            if (saveToDocsCheckbox) {
+            if (!usePerEmailCategories && saveToDocsCheckbox) {
                 saveToDocsCheckbox.addEventListener('change', onSaveToDocsToggle);
             }
             confirmBtn.addEventListener('click', onConfirm);
@@ -966,40 +1197,12 @@
     }
 
     /**
-     * Process one email file with loading overlay updates (attachment + duplicate modals pause overlay).
+     * Process one email file with loading overlay updates (duplicate modals pause overlay).
+     * attachmentStorage is prepared before the upload loop (batch modal for multi-upload).
      */
-    async function processSingleEmailUpload(file, fileIndex, totalFiles) {
+    async function processSingleEmailUpload(file, fileIndex, totalFiles, attachmentStorage) {
         const baseProgress = totalFiles > 0 ? Math.round((fileIndex / totalFiles) * 100) : 0;
-
-        updateEmailUploadLoading(
-            'Uploading email',
-            'Analyzing email attachments…',
-            file.name,
-            baseProgress
-        );
-
-        let attachmentStorage = [];
-        if (getEntityType() !== 'partner') {
-            try {
-                const previewAttachments = await previewEmailAttachments(file);
-                if (previewAttachments.length > 0) {
-                    hideEmailUploadLoading();
-                    const modalResult = await showAttachmentStorageModal(previewAttachments);
-                    if (modalResult === null) {
-                        return { rejected: 1, uploaded: 0, failed: 0, duplicateError: null, errors: [] };
-                    }
-                    attachmentStorage = modalResult;
-                    showEmailUploadLoading(
-                        'Uploading email',
-                        'Saving attachments and uploading email…',
-                        file.name,
-                        baseProgress
-                    );
-                }
-            } catch (previewErr) {
-                console.warn('Attachment preview skipped:', previewErr);
-            }
-        }
+        attachmentStorage = attachmentStorage || [];
 
         updateEmailUploadLoading(
             'Uploading email',
@@ -1095,8 +1298,49 @@
         let failedTotal = 0;
         let rejectedTotal = 0;
         const allErrors = [];
+        let attachmentStorageByEmail = {};
 
         try {
+            if (getEntityType() !== 'partner') {
+                updateEmailUploadLoading(
+                    'Uploading email',
+                    files.length > 1
+                        ? 'Analyzing attachments for ' + files.length + ' emails…'
+                        : 'Analyzing email attachments…',
+                    '',
+                    0
+                );
+
+                const previewsByEmail = await previewBatchEmailAttachments(files);
+                const flatAttachments = flattenBatchAttachments(previewsByEmail);
+
+                if (flatAttachments.length > 0) {
+                    hideEmailUploadLoading();
+                    const modalResult = await showAttachmentStorageModal(flatAttachments, {
+                        emailCount: files.length
+                    });
+                    if (modalResult === null) {
+                        rejectedTotal = files.length;
+                        if (uploadProgress) {
+                            uploadProgress.className = 'upload-progress error';
+                        }
+                        if (fileStatus) {
+                            fileStatus.textContent = 'Upload skipped';
+                        }
+                        hideEmailUploadLoading();
+                        overlayHideDelay = 0;
+                        return;
+                    }
+                    attachmentStorageByEmail = groupAttachmentStorageByEmail(modalResult);
+                    showEmailUploadLoading(
+                        'Uploading email',
+                        'Preparing to upload ' + files.length + ' email' + (files.length > 1 ? 's' : '') + '…',
+                        '',
+                        0
+                    );
+                }
+            }
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const progressPct = Math.round((i / files.length) * 100);
@@ -1112,7 +1356,12 @@
                     fileStatus.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + ': ' + file.name;
                 }
 
-                const fileResult = await processSingleEmailUpload(file, i, files.length);
+                const fileResult = await processSingleEmailUpload(
+                    file,
+                    i,
+                    files.length,
+                    attachmentStorageByEmail[file.name] || []
+                );
 
                 uploadedTotal += fileResult.uploaded || 0;
                 failedTotal += fileResult.failed || 0;
