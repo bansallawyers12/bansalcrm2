@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class MailReportAttachment extends Model
+/**
+ * @method static static|null find($id, $columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder select(array|string|null $columns = null)
+ */
+class MailReportAttachment extends BaseModel
 {
     use HasFactory;
 
@@ -222,7 +227,7 @@ class MailReportAttachment extends Model
     /**
      * Scope to filter by content type.
      */
-    public function scopeOfType($query, $contentType)
+    public function scopeOfType(Builder $query, string $contentType): Builder
     {
         return $query->where('content_type', $contentType);
     }
@@ -230,7 +235,7 @@ class MailReportAttachment extends Model
     /**
      * Scope to filter inline attachments.
      */
-    public function scopeInline($query)
+    public function scopeInline(Builder $query): Builder
     {
         return $query->where('is_inline', true);
     }
@@ -238,7 +243,7 @@ class MailReportAttachment extends Model
     /**
      * Scope to filter regular attachments.
      */
-    public function scopeRegular($query)
+    public function scopeRegular(Builder $query): Builder
     {
         return $query->where('is_inline', false);
     }

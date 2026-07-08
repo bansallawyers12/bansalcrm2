@@ -97,4 +97,28 @@ return [
     ),
 
     'education_elite_inbound_attachments_disk' => env('EDUCATION_ELITE_INBOUND_ATTACHMENTS_DISK', 's3'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client / partner Emails tab (email-v2) — upload settings
+    |--------------------------------------------------------------------------
+    |
+    | Phase 0 prep: defaults preserve current behaviour (.msg only).
+    | Phase 1 will wire controllers/JS to these keys and add .eml via env.
+    |
+    | EMAIL_UPLOAD_ALLOWED_EXTENSIONS=msg,eml
+    | EMAIL_UPLOAD_MAX_KB=30720
+    |
+    */
+    'email_upload_allowed_extensions' => array_values(array_unique(array_filter(array_map(
+        static function (string $ext): string {
+            return strtolower(ltrim(trim($ext), '.'));
+        },
+        explode(',', (string) env('EMAIL_UPLOAD_ALLOWED_EXTENSIONS', 'msg,eml'))
+    )))),
+
+    'email_upload_max_kb' => max(1, (int) env('EMAIL_UPLOAD_MAX_KB', 30720)),
+
+    /** Absolute path to BansalLaw_CRM for port reference / prep scripts only. */
+    'bansallaw_crm_root' => env('BANSALLAW_CRM_ROOT', 'C:\\xampp\\htdocs\\BansalLaw_CRM'),
 ];

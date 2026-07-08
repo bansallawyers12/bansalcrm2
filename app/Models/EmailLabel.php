@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class EmailLabel extends Model
+/**
+ * @method static static|null find($id, $columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder whereIn($column, $values, $boolean = 'and', $not = false)
+ */
+class EmailLabel extends BaseModel
 {
     use HasFactory;
 
@@ -113,7 +118,7 @@ class EmailLabel extends Model
     /**
      * Scope to filter active labels.
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
@@ -121,7 +126,7 @@ class EmailLabel extends Model
     /**
      * Scope to filter system labels.
      */
-    public function scopeSystem($query)
+    public function scopeSystem(Builder $query): Builder
     {
         return $query->where('type', 'system');
     }
@@ -129,7 +134,7 @@ class EmailLabel extends Model
     /**
      * Scope to filter custom labels.
      */
-    public function scopeCustom($query)
+    public function scopeCustom(Builder $query): Builder
     {
         return $query->where('type', 'custom');
     }
@@ -137,9 +142,9 @@ class EmailLabel extends Model
     /**
      * Scope to filter by user.
      */
-    public function scopeForUser($query, $userId)
+    public function scopeForUser(Builder $query, int|string|null $userId): Builder
     {
-        return $query->where(function($q) use ($userId) {
+        return $query->where(function ($q) use ($userId) {
             $q->where('user_id', $userId)
               ->orWhereNull('user_id'); // Include system labels
         });

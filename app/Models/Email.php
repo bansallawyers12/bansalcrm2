@@ -2,12 +2,17 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Email extends Model
+/**
+ * @method static static|null find($id, $columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder select(array|string|null $columns = null)
+ */
+class Email extends BaseModel
 {
     use Sortable;
 
@@ -32,6 +37,7 @@ class Email extends Model
         'mail_body_type',
         'fetch_mail_sent_time',
         'uploaded_doc_id',
+        'pdf_doc_id',
         'mail_is_read',
         // Python analysis fields (v2 additions)
         'python_analysis',
@@ -121,7 +127,7 @@ class Email extends Model
     /**
      * Scope to filter by label.
      */
-    public function scopeWithLabel($query, $labelId)
+    public function scopeWithLabel(Builder $query, int|string $labelId): Builder
     {
         return $query->whereHas('labels', function ($q) use ($labelId) {
             $q->where('email_labels.id', $labelId);

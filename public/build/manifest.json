@@ -249,7 +249,7 @@
     ]
   },
   "resources/js/pages/admin/emails-v2-entry.js": {
-    "file": "assets/emails-v2-entry-BSNP11DF.js",
+    "file": "assets/emails-v2-entry-BFNL3hrY.js",
     "name": "emails-v2-entry",
     "src": "resources/js/pages/admin/emails-v2-entry.js",
     "isEntry": true
@@ -261,7 +261,7 @@
     "isEntry": true
   },
   "resources/js/pages/admin/partner-detail-entry.js": {
-    "file": "assets/partner-detail-entry-CAWLRP4P.js",
+    "file": "assets/partner-detail-entry-SpGCCLol.js",
     "name": "partner-detail-entry",
     "src": "resources/js/pages/admin/partner-detail-entry.js",
     "isEntry": true,

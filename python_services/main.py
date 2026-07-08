@@ -20,7 +20,9 @@ import uuid
 from pathlib import Path
 from typing import Dict, Any
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+import base64
+
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Query
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -35,6 +37,7 @@ from services.email_renderer_service import EmailRendererService
 from services.docx_converter_service import DocxConverterService
 from utils.logger import setup_logger
 from utils.validators import validate_file_type, validate_file_size
+from utils.datetime_format import DEFAULT_TIMEZONE, format_laravel_datetime
 
 # Setup logging
 logger = setup_logger(__name__)
@@ -413,11 +416,23 @@ async def convert_docx_to_pdf_json(file: UploadFile = File(...)):
 # Email Service Endpoints
 # ============================================================================
 
-def _temp_msg_path() -> Path:
-    """Return a unique temp .msg path in system temp dir. Avoids WinError 5 on project temp/."""
+# Allowed email upload extensions for parse/process endpoints
+ALLOWED_EMAIL_EXTENSIONS = ['.msg', '.eml']
+
+
+def _temp_email_path(extension: str = '.msg') -> Path:
+    """Return a unique temp email path preserving the original extension."""
+    ext = extension if extension.startswith('.') else f'.{ext}'
+    if ext.lower() not in ALLOWED_EMAIL_EXTENSIONS:
+        ext = '.msg'
     base = Path(tempfile.gettempdir()) / "python_services_email"
     base.mkdir(parents=True, exist_ok=True)
-    return base / f"{uuid.uuid4().hex}.msg"
+    return base / f"{uuid.uuid4().hex}{ext.lower()}"
+
+
+def _temp_msg_path() -> Path:
+    """Backward-compatible alias for .msg temp paths."""
+    return _temp_email_path('.msg')
 
 
 def _safe_unlink_temp(path: Path) -> None:
@@ -432,21 +447,23 @@ def _safe_unlink_temp(path: Path) -> None:
 
 @app.post("/email/parse")
 async def parse_email(file: UploadFile = File(...)):
-    """Parse .msg file and extract email data."""
+    """Parse .msg or .eml file and extract email data."""
     temp_path = None
     try:
         logger.info(f"Parsing email file: {file.filename}")
         
-        # Validate file
-        if not validate_file_type(file.filename, ['.msg']):
-            raise HTTPException(status_code=400, detail="Invalid file type. Only .msg files are allowed.")
+        if not validate_file_type(file.filename, ALLOWED_EMAIL_EXTENSIONS):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type. Only .msg and .eml files are allowed."
+            )
         
-        # Use system temp dir + unique name to avoid WinError 5 (Access denied) on project temp/
-        temp_path = _temp_msg_path()
+        extension = Path(file.filename or '').suffix.lower() or '.msg'
+        temp_path = _temp_email_path(extension)
         content = await file.read()
         temp_path.write_bytes(content)
         
-        result = email_parser.parse_msg_file(str(temp_path))
+        result = email_parser.parse_email_file(str(temp_path))
         
         return JSONResponse(content=result)
         
@@ -493,11 +510,92 @@ async def render_email(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def _resolve_display_timezone(form_tz: str = '', query_tz: str = '') -> str:
+    tz = (form_tz or query_tz or DEFAULT_TIMEZONE).strip()
+    return tz or DEFAULT_TIMEZONE
+
+
+@app.post("/email/parse-render-pdf")
+async def parse_render_pdf_email(
+    file: UploadFile = File(...),
+    timezone: str = Form(default=''),
+    timezone_query: str = Query(default='', alias='timezone'),
+):
+    """
+    Parse .msg/.eml, render HTML, and generate PDF for CRM viewing.
+    Returns parsed email data plus optional pdf_base64 (soft-fail if PDF fails).
+    """
+    temp_path = None
+    try:
+        logger.info(f"Parsing and rendering PDF for email file: {file.filename}")
+
+        if not validate_file_type(file.filename, ALLOWED_EMAIL_EXTENSIONS):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type. Only .msg and .eml files are allowed.",
+            )
+
+        extension = Path(file.filename or '').suffix.lower() or '.msg'
+        temp_path = _temp_email_path(extension)
+        content = await file.read()
+        temp_path.write_bytes(content)
+
+        parsed_data = email_parser.parse_email_file(str(temp_path))
+
+        if parsed_data.get('success') is False or parsed_data.get('error'):
+            return JSONResponse(content=parsed_data, status_code=500)
+
+        display_tz = _resolve_display_timezone(timezone, timezone_query)
+        rendering = email_renderer.render_email(parsed_data, display_timezone=display_tz)
+
+        pdf_bytes, text_preview, pdf_error, pdf_renderer = email_renderer.render_to_pdf(
+            parsed_data,
+            display_timezone=display_tz,
+        )
+
+        result = dict(parsed_data)
+        result['rendering'] = rendering
+        if rendering.get('rendered_html'):
+            result['rendered_html'] = rendering['rendered_html']
+        if text_preview:
+            result['text_preview'] = text_preview
+
+        if parsed_data.get('sent_date'):
+            result['sent_date_display'] = format_laravel_datetime(
+                parsed_data['sent_date'],
+                display_tz,
+            )
+
+        if pdf_bytes:
+            result['pdf_base64'] = base64.b64encode(pdf_bytes).decode('ascii')
+            result['pdf_size'] = len(pdf_bytes)
+            result['pdf_generated'] = True
+            result['pdf_renderer'] = pdf_renderer or 'unknown'
+        else:
+            result['pdf_base64'] = None
+            result['pdf_size'] = 0
+            result['pdf_generated'] = False
+            result['pdf_error'] = pdf_error or 'PDF generation failed'
+            logger.warning(
+                f"PDF generation skipped for {file.filename}: {result['pdf_error']}"
+            )
+
+        return JSONResponse(content=result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in parse-render-pdf pipeline: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        _safe_unlink_temp(temp_path)
+
+
 @app.post("/email/parse-analyze-render")
 async def parse_analyze_render_email(file: UploadFile = File(...)):
     """
     Complete email processing pipeline:
-    1. Parse .msg file
+    1. Parse .msg or .eml file
     2. Analyze content
     3. Render enhanced HTML
     """
@@ -505,17 +603,19 @@ async def parse_analyze_render_email(file: UploadFile = File(...)):
     try:
         logger.info(f"Processing email file: {file.filename}")
         
-        # Validate file
-        if not validate_file_type(file.filename, ['.msg']):
-            raise HTTPException(status_code=400, detail="Invalid file type. Only .msg files are allowed.")
+        if not validate_file_type(file.filename, ALLOWED_EMAIL_EXTENSIONS):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type. Only .msg and .eml files are allowed."
+            )
         
-        # Use system temp dir + unique name (same as /email/parse) to avoid WinError 5
-        temp_path = _temp_msg_path()
+        extension = Path(file.filename or '').suffix.lower() or '.msg'
+        temp_path = _temp_email_path(extension)
         content = await file.read()
         temp_path.write_bytes(content)
         
         # Step 1: Parse email
-        parsed_data = email_parser.parse_msg_file(str(temp_path))
+        parsed_data = email_parser.parse_email_file(str(temp_path))
         
         if 'error' in parsed_data:
             return JSONResponse(content=parsed_data, status_code=500)

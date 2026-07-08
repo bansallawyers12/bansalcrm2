@@ -221,7 +221,10 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::prefix('email-v2')->name('email-v2.')->group(function() {
         Route::post('/upload-inbox', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'uploadInboxEmails'])->name('upload.inbox');
         Route::post('/upload-sent', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'uploadSentEmails'])->name('upload.sent');
+        Route::post('/preview-attachments', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'previewEmailAttachments'])->name('preview.attachments');
         Route::get('/check-service', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'checkPythonService'])->name('check.service');
+        Route::get('/{id}/preview-html', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'getParsedEmailHtml'])->whereNumber('id')->name('preview.html');
+        Route::post('/{id}/delete', [\App\Http\Controllers\CRM\EmailQueryV2Controller::class, 'deleteEmail'])->whereNumber('id')->name('delete');
         Route::post('/filter-emails', [\App\Http\Controllers\CRM\EmailQueryV2Controller::class, 'filterEmails'])->name('filter.emails');
         Route::post('/filter-sentemails', [\App\Http\Controllers\CRM\EmailQueryV2Controller::class, 'filterSentEmails'])->name('filter.sentemails');
         

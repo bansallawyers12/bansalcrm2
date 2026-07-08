@@ -1,6 +1,6 @@
 /**
  * Emails Module for CRM Client Email Tab
- * Handles upload, search, and display of .msg email files
+ * Handles upload, search, and display of .msg and .eml email files
  * Adapted from email-viewer app to work with migration manager backend
  */
 
@@ -23,6 +23,8 @@
     let lastPage = 1;
     let isLoading = false;
     let isUploading = false;
+    let selectedEmailId = null;
+    let currentReadingEmail = null;
     let currentMailType = 'inbox'; // 'inbox' or 'sent' - determines endpoint
     let currentEmailCategory = 'client'; // 'client' or 'college' - client detail only
     let currentLabelId = ''; // EmailLabel.id for filtering
@@ -49,7 +51,7 @@
     };
 
     function updateFolderTabButtons(folder) {
-        document.querySelectorAll('.folder-tab-btn').forEach(btn => {
+        document.querySelectorAll('.folder-tab-btn, .folder-item').forEach(btn => {
             const isActive = (btn.dataset.folder || btn.getAttribute('data-folder')) === folder;
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
@@ -107,6 +109,104 @@
             return 'client'; // default
         }
         return container.dataset.entityType || 'client';
+    }
+
+    /**
+     * Allowed upload extensions from blade data attribute (e.g. .msg,.eml)
+     */
+    function getAllowedEmailExtensions() {
+        const container = document.querySelector('.email-v2-interface-container');
+        const accept = container && container.dataset.emailUploadAccept
+            ? container.dataset.emailUploadAccept
+            : '.msg,.eml';
+        return accept.split(',').map(function(ext) {
+            return ext.trim().toLowerCase().replace(/^\./, '');
+        }).filter(Boolean);
+    }
+
+    function getAllowedExtensionsLabel() {
+        return getAllowedEmailExtensions().map(function(ext) {
+            return '.' + ext;
+        }).join(', ');
+    }
+
+    function isAllowedEmailUploadFile(file) {
+        if (!file || !file.name) return false;
+        const ext = file.name.toLowerCase().split('.').pop();
+        return getAllowedEmailExtensions().indexOf(ext) !== -1;
+    }
+
+    function filterAllowedEmailUploadFiles(files) {
+        return Array.from(files || []).filter(isAllowedEmailUploadFile);
+    }
+
+    const DUPLICATE_EXISTS_MESSAGE = 'This email already exists.';
+
+    function showDuplicateEmailPrompt(fileName) {
+        return new Promise(function(resolve) {
+            const modal = document.getElementById('duplicateEmailModalV2');
+            if (!modal) {
+                resolve(window.confirm(DUPLICATE_EXISTS_MESSAGE + ' Upload anyway?'));
+                return;
+            }
+
+            const fileNameEl = document.getElementById('duplicateEmailFileNameV2');
+            const acceptBtn = document.getElementById('duplicateEmailAcceptV2');
+            const rejectBtn = document.getElementById('duplicateEmailRejectV2');
+
+            if (fileNameEl) {
+                fileNameEl.textContent = fileName ? ('File: ' + fileName) : '';
+            }
+
+            function cleanup() {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+                if (acceptBtn) acceptBtn.removeEventListener('click', onAccept);
+                if (rejectBtn) rejectBtn.removeEventListener('click', onReject);
+                modal.removeEventListener('click', onOverlayClick);
+                document.removeEventListener('keydown', onKeyDown);
+            }
+
+            function onAccept() {
+                cleanup();
+                resolve(true);
+            }
+
+            function onReject() {
+                cleanup();
+                resolve(false);
+            }
+
+            function onOverlayClick(event) {
+                if (event.target === modal) {
+                    onReject();
+                }
+            }
+
+            function onKeyDown(event) {
+                if (event.key === 'Escape') {
+                    onReject();
+                }
+            }
+
+            if (acceptBtn) acceptBtn.addEventListener('click', onAccept);
+            if (rejectBtn) rejectBtn.addEventListener('click', onReject);
+            modal.addEventListener('click', onOverlayClick);
+            document.addEventListener('keydown', onKeyDown);
+
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            if (acceptBtn) acceptBtn.focus();
+        });
+    }
+
+    function getDuplicateUploadError(data) {
+        if (!data || !Array.isArray(data.errors)) {
+            return null;
+        }
+        return data.errors.find(function(err) {
+            return err && err.duplicate;
+        }) || null;
     }
 
     /**
@@ -544,14 +644,13 @@
 
             console.log('Files selected:', files.length);
 
-            // Filter to only .msg files
-            const msgFiles = Array.from(files).filter(file => 
-                file.name.toLowerCase().endsWith('.msg')
-            );
+            // Filter to allowed email extensions (.msg, .eml)
+            const allowedLabel = getAllowedExtensionsLabel();
+            const emailFiles = filterAllowedEmailUploadFiles(files);
 
-            if (msgFiles.length === 0) {
-                showNotification('Please select .msg files only', 'error');
-                fileStatus.textContent = 'Only .msg files allowed';
+            if (emailFiles.length === 0) {
+                showNotification('Please upload Outlook email files only (' + allowedLabel + ')', 'error');
+                fileStatus.textContent = 'Allowed: ' + allowedLabel;
                 fileStatus.parentElement.className = 'upload-progress error';
                 setTimeout(() => {
                     fileStatus.textContent = 'Ready to upload';
@@ -560,19 +659,19 @@
                 return;
             }
 
-            if (msgFiles.length !== files.length) {
-                showNotification(`Only ${msgFiles.length} of ${files.length} files are .msg files`, 'info');
+            if (emailFiles.length !== files.length) {
+                showNotification('Only ' + emailFiles.length + ' of ' + files.length + ' files are valid (' + allowedLabel + ')', 'info');
             }
 
             // Update file count badge
-            updateFileCount(msgFiles.length);
+            updateFileCount(emailFiles.length);
 
             // Update status
-            fileStatus.textContent = `${msgFiles.length} file(s) ready to upload`;
+            fileStatus.textContent = `${emailFiles.length} file(s) ready to upload`;
             fileStatus.parentElement.className = 'upload-progress';
 
             // Auto-upload immediately
-            uploadFiles(msgFiles);
+            uploadFiles(emailFiles);
         }
 
         function updateFileCount(count) {
@@ -590,300 +689,504 @@
     };
 
     /**
-     * Upload files to server
+     * POST a single email file to the upload endpoint.
+     */
+    async function uploadSingleEmailFile(file, forceUpload, attachmentStorage) {
+        const clientId = getEntityId();
+        const csrfToken = getCsrfToken();
+        if (!clientId) {
+            throw new Error('Client ID not found');
+        }
+        if (!csrfToken) {
+            throw new Error('Security token not found. Please refresh the page and try again.');
+        }
+
+        const formData = new FormData();
+        formData.append('email_files[]', file);
+        formData.append('client_id', clientId);
+        formData.append('type', getEntityType());
+        if (showEmailCategoryTabs()) {
+            formData.append('email_category', currentEmailCategory);
+        }
+        const selectedLabels = getSelectedLabelIds();
+        selectedLabels.forEach(function(labelId) {
+            formData.append('label_ids[]', labelId);
+        });
+        formData.append('_token', csrfToken);
+        if (forceUpload) {
+            formData.append('force_upload', '1');
+        }
+        if (attachmentStorage && attachmentStorage.length) {
+            formData.append('attachment_storage', JSON.stringify(attachmentStorage));
+        }
+
+        const uploadUrl = currentMailType === 'sent' ? '/email-v2/upload-sent' : '/email-v2/upload-inbox';
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: formData,
+            credentials: 'same-origin'
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        let data = null;
+        if (contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const errorText = await response.text();
+            throw new Error('Server returned invalid response: ' + errorText.substring(0, 200));
+        }
+
+        if (response.status === 422) {
+            const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'Validation failed');
+            throw new Error('Upload validation failed: ' + errorMsg);
+        }
+
+        return data;
+    }
+
+    /**
+     * Preview attachment metadata before upload (metadata only, no save).
+     */
+    async function previewEmailAttachments(file) {
+        const clientId = getEntityId();
+        const csrfToken = getCsrfToken();
+        const formData = new FormData();
+        formData.append('email_files[]', file);
+        formData.append('client_id', clientId);
+        formData.append('type', getEntityType());
+        if (showEmailCategoryTabs()) {
+            formData.append('email_category', currentEmailCategory);
+        }
+        formData.append('_token', csrfToken);
+
+        const response = await fetch('/email-v2/preview-attachments', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData,
+            credentials: 'same-origin'
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.status) {
+            throw new Error(result.message || 'Failed to preview attachments');
+        }
+        return result.attachments || [];
+    }
+
+    let documentCategoriesCacheV2 = null;
+
+    async function loadDocumentCategoriesForAttachmentModal() {
+        if (documentCategoriesCacheV2) {
+            return documentCategoriesCacheV2;
+        }
+        try {
+            const response = await fetch('/document-categories/get', {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            documentCategoriesCacheV2 = (data && data.categories) ? data.categories : (Array.isArray(data) ? data : []);
+        } catch (e) {
+            console.warn('Could not load document categories', e);
+            documentCategoriesCacheV2 = [];
+        }
+        return documentCategoriesCacheV2;
+    }
+
+    /**
+     * Show attachment rename / document-folder modal (client only; partners skip).
+     * Returns attachment_storage array, empty array, or null if cancelled.
+     */
+    function showAttachmentStorageModal(attachments) {
+        return new Promise(function(resolve) {
+            const modal = document.getElementById('attachmentStorageModalV2');
+            const body = document.getElementById('attachmentStorageModalBodyV2');
+            const countEl = document.getElementById('attachmentStorageCountV2');
+            const saveToDocsCheckbox = document.getElementById('attachmentSaveToDocumentsV2');
+            const categorySelect = document.getElementById('attachmentDocumentCategoryV2');
+            const confirmBtn = document.getElementById('attachmentStorageConfirmV2');
+            const cancelBtn = document.getElementById('attachmentStorageCancelV2');
+
+            if (!modal || !body || !confirmBtn || !cancelBtn) {
+                resolve([]);
+                return;
+            }
+
+            if (countEl) {
+                countEl.textContent = attachments.length + (attachments.length === 1 ? ' file' : ' files');
+            }
+
+            body.innerHTML = attachments.map(function(att) {
+                const stem = (att.display_name || att.filename || 'attachment').replace(/\.[^.]+$/, '');
+                return '<tr data-original-filename="' + escapeHtml(att.filename) + '">' +
+                    '<td>' + escapeHtml(att.filename) + '</td>' +
+                    '<td>' + formatFileSize(att.file_size || 0) + '</td>' +
+                    '<td><input type="text" class="attachment-rename-input" value="' + escapeHtml(stem) + '" aria-label="Save as"></td>' +
+                    '</tr>';
+            }).join('');
+
+            if (saveToDocsCheckbox) {
+                saveToDocsCheckbox.checked = false;
+            }
+            if (categorySelect) {
+                categorySelect.disabled = true;
+                categorySelect.innerHTML = '<option value="">Select category…</option>';
+                loadDocumentCategoriesForAttachmentModal().then(function(categories) {
+                    categories.forEach(function(cat) {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.textContent = cat.name || cat.category_name || ('Category ' + cat.id);
+                        categorySelect.appendChild(opt);
+                    });
+                });
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+                confirmBtn.removeEventListener('click', onConfirm);
+                cancelBtn.removeEventListener('click', onCancel);
+                if (saveToDocsCheckbox) {
+                    saveToDocsCheckbox.removeEventListener('change', onSaveToDocsToggle);
+                }
+            }
+
+            function onSaveToDocsToggle() {
+                if (categorySelect) {
+                    categorySelect.disabled = !saveToDocsCheckbox.checked;
+                }
+            }
+
+            function onCancel() {
+                closeModal();
+                resolve(null);
+            }
+
+            function onConfirm() {
+                const saveToDocs = saveToDocsCheckbox && saveToDocsCheckbox.checked;
+                const categoryId = categorySelect ? parseInt(categorySelect.value, 10) : 0;
+                const storageType = (saveToDocs && categoryId > 0) ? 'documents' : 'email';
+                const rows = body.querySelectorAll('tr[data-original-filename]');
+                const storageList = [];
+                rows.forEach(function(row) {
+                    const originalFilename = row.getAttribute('data-original-filename');
+                    const input = row.querySelector('.attachment-rename-input');
+                    const fileName = input ? input.value.trim() : '';
+                    storageList.push({
+                        original_filename: originalFilename,
+                        filename: originalFilename,
+                        file_name: fileName || originalFilename,
+                        storage_type: storageType,
+                        category_id: storageType === 'documents' ? categoryId : null
+                    });
+                });
+                closeModal();
+                resolve(storageList);
+            }
+
+            if (saveToDocsCheckbox) {
+                saveToDocsCheckbox.addEventListener('change', onSaveToDocsToggle);
+            }
+            confirmBtn.addEventListener('click', onConfirm);
+            cancelBtn.addEventListener('click', onCancel);
+
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+    }
+
+    function updateEmailUploadLoading(title, message, filename, progressPercent) {
+        const titleEl = document.getElementById('emailUploadLoadingTitleV2');
+        const messageEl = document.getElementById('emailUploadLoadingMessageV2');
+        const filenameEl = document.getElementById('emailUploadLoadingFilenameV2');
+        const progressBar = document.getElementById('emailUploadLoadingProgressBarV2');
+
+        if (titleEl && title) {
+            titleEl.textContent = title;
+        }
+        if (messageEl && message) {
+            messageEl.textContent = message;
+        }
+        if (filenameEl) {
+            filenameEl.textContent = filename || '';
+        }
+        if (progressBar) {
+            const pct = Math.max(0, Math.min(100, Number(progressPercent) || 0));
+            progressBar.style.width = pct + '%';
+        }
+    }
+
+    function showEmailUploadLoading(title, message, filename, progressPercent) {
+        const overlay = document.getElementById('emailUploadLoadingOverlayV2');
+        if (!overlay) {
+            return;
+        }
+        updateEmailUploadLoading(title, message, filename, progressPercent);
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        overlay.setAttribute('aria-busy', 'true');
+        document.body.classList.add('email-upload-in-progress');
+    }
+
+    function hideEmailUploadLoading() {
+        const overlay = document.getElementById('emailUploadLoadingOverlayV2');
+        const progressBar = document.getElementById('emailUploadLoadingProgressBarV2');
+        if (!overlay) {
+            return;
+        }
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.setAttribute('aria-busy', 'false');
+        document.body.classList.remove('email-upload-in-progress');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+        }
+    }
+
+    /**
+     * Process one email file with loading overlay updates (attachment + duplicate modals pause overlay).
+     */
+    async function processSingleEmailUpload(file, fileIndex, totalFiles) {
+        const baseProgress = totalFiles > 0 ? Math.round((fileIndex / totalFiles) * 100) : 0;
+
+        updateEmailUploadLoading(
+            'Uploading email',
+            'Analyzing email attachments…',
+            file.name,
+            baseProgress
+        );
+
+        let attachmentStorage = [];
+        if (getEntityType() !== 'partner') {
+            try {
+                const previewAttachments = await previewEmailAttachments(file);
+                if (previewAttachments.length > 0) {
+                    hideEmailUploadLoading();
+                    const modalResult = await showAttachmentStorageModal(previewAttachments);
+                    if (modalResult === null) {
+                        return { rejected: 1, uploaded: 0, failed: 0, duplicateError: null, errors: [] };
+                    }
+                    attachmentStorage = modalResult;
+                    showEmailUploadLoading(
+                        'Uploading email',
+                        'Saving attachments and uploading email…',
+                        file.name,
+                        baseProgress
+                    );
+                }
+            } catch (previewErr) {
+                console.warn('Attachment preview skipped:', previewErr);
+            }
+        }
+
+        updateEmailUploadLoading(
+            'Uploading email',
+            'Uploading and processing email…',
+            file.name,
+            baseProgress + (totalFiles > 0 ? Math.round(50 / totalFiles) : 0)
+        );
+
+        let result = await uploadSingleEmailFile(file, false, attachmentStorage);
+        let duplicateError = getDuplicateUploadError(result);
+
+        if (duplicateError) {
+            hideEmailUploadLoading();
+            const acceptUpload = await showDuplicateEmailPrompt(file.name);
+            if (acceptUpload) {
+                showEmailUploadLoading(
+                    'Uploading email',
+                    'Uploading duplicate email…',
+                    file.name,
+                    baseProgress
+                );
+                result = await uploadSingleEmailFile(file, true, attachmentStorage);
+                duplicateError = getDuplicateUploadError(result);
+            } else {
+                return {
+                    rejected: 1,
+                    uploaded: 0,
+                    failed: 0,
+                    duplicateError: duplicateError,
+                    errors: [{
+                        filename: file.name,
+                        error: DUPLICATE_EXISTS_MESSAGE,
+                        duplicate: true
+                    }]
+                };
+            }
+        }
+
+        const uploadedCount = result.uploaded || 0;
+        const failedCount = result.failed || 0;
+        const errors = Array.isArray(result.errors) ? result.errors.slice() : [];
+        let extraFailed = 0;
+
+        if (!result.status && uploadedCount === 0 && failedCount === 0 && !duplicateError) {
+            extraFailed = 1;
+            errors.push({
+                filename: file.name,
+                error: result.message || 'Upload failed'
+            });
+        }
+
+        return {
+            rejected: 0,
+            uploaded: uploadedCount,
+            failed: failedCount + extraFailed,
+            duplicateError: duplicateError,
+            errors: errors
+        };
+    }
+
+    /**
+     * Upload files to server (one at a time — supports duplicate prompt per file).
      */
     async function uploadFiles(files) {
         const clientId = getEntityId();
-        
+
         if (!clientId) {
             showNotification('Client ID not found', 'error');
             return;
         }
 
         isUploading = true;
-        
+
         const fileStatus = document.getElementById('fileStatusV2');
         const uploadProgress = document.getElementById('upload-progress-v2');
         const fileCountBadge = document.getElementById('file-count-v2');
-        
-        // Update UI - uploading state
+        const fileInput = document.getElementById('emailV2FileInput');
+        const allowedLabel = getAllowedExtensionsLabel();
+        let overlayHideDelay = 900;
+
         if (uploadProgress) {
             uploadProgress.className = 'upload-progress uploading';
         }
-        fileStatus.textContent = `Uploading ${files.length} file(s)...`;
+
+        showEmailUploadLoading(
+            'Uploading email',
+            'Preparing to upload ' + files.length + ' email' + (files.length > 1 ? 's' : '') + '…',
+            '',
+            0
+        );
+
+        let uploadedTotal = 0;
+        let failedTotal = 0;
+        let rejectedTotal = 0;
+        const allErrors = [];
 
         try {
-            const formData = new FormData();
-            
-            // Add files
-            files.forEach(file => {
-                formData.append('email_files[]', file);
-            });
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const progressPct = Math.round((i / files.length) * 100);
 
-            // Add required fields based on current mail type (inbox or sent)
-            formData.append('client_id', clientId);
-            formData.append('type', getEntityType());
-            if (showEmailCategoryTabs()) {
-                formData.append('email_category', currentEmailCategory);
-            }
+                showEmailUploadLoading(
+                    'Uploading email',
+                    'Processing email ' + (i + 1) + ' of ' + files.length,
+                    file.name,
+                    progressPct
+                );
 
-            // NEW: Add selected labels
-            const selectedLabels = getSelectedLabelIds();
-            if (selectedLabels.length > 0) {
-                selectedLabels.forEach(labelId => {
-                    formData.append('label_ids[]', labelId);
-                });
-                console.log('Uploading with labels:', selectedLabels);
-            }
-
-            // Validate and add CSRF token (both in header and form data for compatibility)
-            const csrfToken = getCsrfToken();
-            if (!csrfToken) {
-                throw new Error('Security token not found. Please refresh the page and try again.');
-            }
-            formData.append('_token', csrfToken);
-
-            console.log('Uploading to:', currentMailType === 'sent' ? '/email-v2/upload-sent' : '/email-v2/upload-inbox');
-
-            // Note: Don't set Content-Type header when using FormData - browser sets it automatically with boundary
-            const response = await fetch(
-                currentMailType === 'sent' ? '/email-v2/upload-sent' : '/email-v2/upload-inbox',
-                {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                        // Don't set Content-Type - browser will set it with multipart/form-data boundary
-                    },
-                    body: formData,
-                    credentials: 'same-origin' // Include cookies for session/CSRF
+                if (fileStatus) {
+                    fileStatus.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + ': ' + file.name;
                 }
-            );
 
-            // Validate response before parsing JSON
-            if (!response.ok) {
-                const errorText = await response.text();
-                
-                // Handle specific error codes with user-friendly messages
-                if (response.status === 403) {
-                    if (errorText.includes('CSRF') || errorText.includes('Forbidden')) {
-                        console.error('CSRF token error - page may need to be refreshed');
-                        throw new Error('Session expired or security token invalid. Please refresh the page and try again.');
-                    }
-                    throw new Error('Access denied. You may not have permission to upload emails, or your session has expired. Please refresh the page and try again.');
-                } else if (response.status === 419) {
-                    // Laravel's CSRF token mismatch status code
-                    console.error('CSRF token mismatch - page needs refresh');
-                    throw new Error('Security token expired. Please refresh the page and try again.');
-                } else if (response.status === 413) {
-                    throw new Error('File too large. Maximum file size is 30MB per file.');
-                } else if (response.status === 422) {
-                    // Validation error - try to parse as JSON for better error message
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        const errorMsg = errorData.message || errorData.errors ? 
-                            Object.values(errorData.errors || {}).flat().join(', ') : 
-                            'Validation failed';
-                        throw new Error(`Upload validation failed: ${errorMsg}`);
-                    } catch (e) {
-                        if (e instanceof Error && e.message.startsWith('Upload validation failed:')) throw e;
-                        throw new Error('Upload validation failed. Please check your file format and try again.');
-                    }
-                } else if (response.status === 400) {
-                    // Processing failure (e.g. all files failed) - parse JSON to show message + per-file errors
-                    let errMsg = `Upload failed: ${response.status} ${response.statusText}. ${errorText.substring(0, 200)}`;
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        if (errorData && (errorData.message || (errorData.errors && errorData.errors.length))) {
-                            errMsg = errorData.message || 'Upload failed.';
-                            if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
-                                const details = errorData.errors.map((e, i) =>
-                                    `${i + 1}. ${e.filename || 'Unknown file'}: ${e.error || 'Unknown error'}`
-                                ).join('\n');
-                                errMsg += '\n\n' + details;
-                            }
-                        }
-                    } catch (_) { /* keep default errMsg */ }
-                    throw new Error(errMsg);
+                const fileResult = await processSingleEmailUpload(file, i, files.length);
+
+                uploadedTotal += fileResult.uploaded || 0;
+                failedTotal += fileResult.failed || 0;
+                rejectedTotal += fileResult.rejected || 0;
+
+                if (Array.isArray(fileResult.errors)) {
+                    fileResult.errors.forEach(function(err) {
+                        allErrors.push(err);
+                    });
                 }
-                
-                throw new Error(`Upload failed: ${response.status} ${response.statusText}. ${errorText.substring(0, 200)}`);
+
+                updateEmailUploadLoading(
+                    'Uploading email',
+                    'Completed ' + (i + 1) + ' of ' + files.length,
+                    file.name,
+                    Math.round(((i + 1) / files.length) * 100)
+                );
             }
 
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const errorText = await response.text();
-                console.error('Server returned non-JSON response:', errorText.substring(0, 500));
-                
-                // Check for common HTML error pages
-                if (errorText.includes('403 Forbidden') || errorText.includes('Forbidden')) {
-                    throw new Error('Access denied. Your session may have expired. Please refresh the page and try again.');
-                } else if (errorText.includes('419') || errorText.includes('CSRF')) {
-                    throw new Error('Security token expired. Please refresh the page and try again.');
-                }
-                
-                throw new Error('Server returned invalid response format. Please try again or contact support if the issue persists.');
-            }
-
-            const data = await response.json();
-            console.log('Upload response:', data);
-
-            if (data.status || data.success) {
-                // Check if there were any failures
-                const failedCount = data.failed || 0;
-                const uploadedCount = data.uploaded || 0;
-                
-                if (failedCount > 0) {
-                    // Partial or complete failure
-                    if (uploadProgress) {
-                        uploadProgress.className = 'upload-progress error';
-                    }
-                    fileStatus.textContent = 'Upload completed with errors';
-                    
-                    // Build detailed error message
-                    let errorMessage = data.message || `Upload failed: ${failedCount} file(s) failed`;
-                    
-                    // Add specific error details if available
-                    if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
-                        const errorDetails = data.errors.map((err, index) => {
-                            const filename = err.filename || 'Unknown file';
-                            const error = err.error || 'Unknown error';
-                            const fileSize = err.file_size ? ` (${formatFileSize(err.file_size)})` : '';
-                            return `${index + 1}. ${filename}${fileSize}\n   ${error}`;
-                        }).join('\n\n');
-                        errorMessage += '\n\nError Details:\n' + errorDetails;
-                        
-                        // Add helpful tip if all files failed
-                        if (uploadedCount === 0 && failedCount > 0) {
-                            errorMessage += '\n\n💡 Tip: Ensure the Python service is running and the .msg files are valid Outlook email files.';
-                        }
-                    }
-                    
-                    showNotification(errorMessage, 'error');
-                    
-                    // Log errors to console for debugging
-                    if (data.errors) {
-                        console.error('Upload errors:', data.errors);
-                    }
-                    
-                    // Reset after delay
-                    setTimeout(() => {
-                        fileStatus.textContent = 'Ready to upload';
-                        if (uploadProgress) {
-                            uploadProgress.className = 'upload-progress';
-                        }
-                        if (fileCountBadge && uploadedCount === 0) {
-                            fileCountBadge.classList.remove('show');
-                        }
-                    }, 5000); // Longer delay for error messages
-                    
-                    // Only reload if some files were successfully uploaded
-                    if (uploadedCount > 0) {
-                        loadEmailsFromServer();
-                    }
-                } else {
-                    // Complete success
-                    if (uploadProgress) {
-                        uploadProgress.className = 'upload-progress success';
-                    }
-                    fileStatus.textContent = 'Upload successful!';
-                    showNotification(data.message || 'Files uploaded successfully!', 'success');
-                    
-                    // Clear selected labels after successful upload
-                    clearAllSelectedLabels();
-                    
-                    // Reset form after delay
-                    setTimeout(() => {
-                        document.getElementById('emailV2FileInput').value = '';
-                        fileStatus.textContent = 'Ready to upload';
-                        if (uploadProgress) {
-                            uploadProgress.className = 'upload-progress';
-                        }
-                        if (fileCountBadge) {
-                            fileCountBadge.classList.remove('show');
-                        }
-                    }, 2000);
-                    
-                    // Reload email list
-                    loadEmailsFromServer();
-                }
+            if (uploadedTotal > 0 && failedTotal === 0 && rejectedTotal === 0) {
+                if (uploadProgress) uploadProgress.className = 'upload-progress success';
+                if (fileStatus) fileStatus.textContent = 'Upload successful!';
+                updateEmailUploadLoading('Upload complete', 'Your email was uploaded successfully.', '', 100);
+                overlayHideDelay = 600;
+                showNotification(
+                    uploadedTotal === 1 ? 'Successfully uploaded 1 email' : 'Successfully uploaded ' + uploadedTotal + ' emails',
+                    'success'
+                );
+                clearAllSelectedLabels();
+                setTimeout(function() {
+                    if (fileInput) fileInput.value = '';
+                    if (fileStatus) fileStatus.textContent = 'Ready to upload';
+                    if (uploadProgress) uploadProgress.className = 'upload-progress';
+                    if (fileCountBadge) fileCountBadge.classList.remove('show');
+                }, 2000);
+                loadEmailsFromServer();
+            } else if (uploadedTotal > 0) {
+                if (uploadProgress) uploadProgress.className = 'upload-progress error';
+                if (fileStatus) fileStatus.textContent = 'Upload completed with errors';
+                updateEmailUploadLoading('Upload finished', 'Some emails were uploaded with issues.', '', 100);
+                showNotification(
+                    'Partially successful: ' + uploadedTotal + ' uploaded, ' + (failedTotal + rejectedTotal) + ' skipped/failed',
+                    'error'
+                );
+                loadEmailsFromServer();
+            } else if (rejectedTotal > 0 && failedTotal === 0) {
+                if (uploadProgress) uploadProgress.className = 'upload-progress error';
+                if (fileStatus) fileStatus.textContent = 'Upload skipped';
+                hideEmailUploadLoading();
+                overlayHideDelay = 0;
             } else {
-                // Complete error state
-                if (uploadProgress) {
-                    uploadProgress.className = 'upload-progress error';
+                if (uploadProgress) uploadProgress.className = 'upload-progress error';
+                if (fileStatus) fileStatus.textContent = 'Upload failed';
+                updateEmailUploadLoading('Upload failed', 'The email could not be uploaded.', '', 100);
+                let errorMessage = 'Upload failed';
+                if (allErrors.length > 0) {
+                    errorMessage += '\n\n' + allErrors.map(function(err, index) {
+                        return (index + 1) + '. ' + (err.filename || 'Unknown') + ': ' + (err.error || 'Unknown error');
+                    }).join('\n');
                 }
-                fileStatus.textContent = 'Upload failed';
-                
-                // Build error message with details
-                let errorMessage = data.message || 'Upload failed';
-                
-                // Add validation errors if available
-                if (data.errors) {
-                    if (typeof data.errors === 'object' && !Array.isArray(data.errors)) {
-                        const errorDetails = [];
-                        for (const [key, value] of Object.entries(data.errors)) {
-                            if (Array.isArray(value)) {
-                                const fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                errorDetails.push(`• ${fieldName}: ${value.join(', ')}`);
-                            } else {
-                                const fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                errorDetails.push(`• ${fieldName}: ${value}`);
-                            }
-                        }
-                        if (errorDetails.length > 0) {
-                            errorMessage += '\n\nValidation Errors:\n' + errorDetails.join('\n');
-                        }
-                    } else if (Array.isArray(data.errors) && data.errors.length > 0) {
-                        // Handle array of errors
-                        const errorDetails = data.errors.map((err, index) => {
-                            if (typeof err === 'string') {
-                                return `${index + 1}. ${err}`;
-                            } else if (err.filename && err.error) {
-                                return `${index + 1}. ${err.filename}: ${err.error}`;
-                            }
-                            return `${index + 1}. ${JSON.stringify(err)}`;
-                        }).join('\n');
-                        errorMessage += '\n\nErrors:\n' + errorDetails;
-                    }
-                    console.error('Upload errors:', data.errors);
+                if (failedTotal > 0 && uploadedTotal === 0) {
+                    errorMessage += '\n\n💡 Tip: Ensure the Python service is running and files are valid Outlook emails (' + allowedLabel + ').';
                 }
-                
-                // Add technical error for debugging (if available)
-                if (data.technical_error && data.technical_error !== errorMessage) {
-                    console.error('Technical error:', data.technical_error);
-                }
-                
                 showNotification(errorMessage, 'error');
-                
-                // Reset after delay
-                setTimeout(() => {
-                    fileStatus.textContent = 'Ready to upload';
-                    if (uploadProgress) {
-                        uploadProgress.className = 'upload-progress';
-                    }
+                setTimeout(function() {
+                    if (fileStatus) fileStatus.textContent = 'Ready to upload';
+                    if (uploadProgress) uploadProgress.className = 'upload-progress';
+                    if (fileCountBadge && uploadedTotal === 0) fileCountBadge.classList.remove('show');
                 }, 5000);
             }
-
         } catch (error) {
             console.error('Upload error:', error);
-            if (uploadProgress) {
-                uploadProgress.className = 'upload-progress error';
-            }
-            fileStatus.textContent = 'Upload failed';
+            if (uploadProgress) uploadProgress.className = 'upload-progress error';
+            if (fileStatus) fileStatus.textContent = 'Upload failed';
             const msg = error && error.message ? String(error.message) : 'Unknown error';
-            const lower = msg.toLowerCase();
-            const displayMsg = (lower.startsWith('upload failed') || lower.startsWith('upload validation failed')) ? msg : 'Upload failed: ' + msg;
-            showNotification(displayMsg, 'error');
-            
-            // Reset after delay
-            setTimeout(() => {
-                fileStatus.textContent = 'Ready to upload';
-                if (uploadProgress) {
-                    uploadProgress.className = 'upload-progress';
-                }
+            updateEmailUploadLoading('Upload failed', msg.indexOf('Upload') === 0 ? msg : 'Upload failed: ' + msg, '', 100);
+            showNotification(msg.indexOf('Upload') === 0 ? msg : 'Upload failed: ' + msg, 'error');
+            setTimeout(function() {
+                if (fileStatus) fileStatus.textContent = 'Ready to upload';
+                if (uploadProgress) uploadProgress.className = 'upload-progress';
             }, 3000);
         } finally {
             isUploading = false;
+            if (overlayHideDelay > 0) {
+                setTimeout(function() {
+                    hideEmailUploadLoading();
+                }, overlayHideDelay);
+            }
         }
     }
 
@@ -1105,80 +1408,228 @@
         });
     }
 
+    function updateEmailCounts(total) {
+        const resultsCount = document.getElementById('resultsCountV2');
+        const pageInfo = document.getElementById('pageInfoV2');
+        if (resultsCount) {
+            resultsCount.textContent = total + ' result' + (total !== 1 ? 's' : '');
+        }
+        if (pageInfo) {
+            if (total === 0) {
+                pageInfo.textContent = 'Showing 0';
+            } else {
+                pageInfo.textContent = 'Showing 1-' + total + ' of ' + total;
+            }
+        }
+    }
+
+    function normalizePreviewText(text, maxLen) {
+        if (!text) {
+            return '';
+        }
+        let cleaned = String(text).replace(/\s+/g, ' ').trim();
+        if (maxLen && cleaned.length > maxLen) {
+            cleaned = cleaned.substring(0, maxLen).trim() + '…';
+        }
+        return cleaned;
+    }
+
+    function getEmailPreviewText(email, maxLen) {
+        let text = email.text_preview || '';
+        if (!text && email.message) {
+            text = String(email.message).replace(/<[^>]+>/g, ' ');
+        }
+        return normalizePreviewText(text, maxLen || 80);
+    }
+
+    function formatRecipientLine(label, value) {
+        const cleaned = cleanRecipients(value);
+        if (!cleaned) {
+            return '';
+        }
+        return label + ': ' + cleaned;
+    }
+
+    function renderEmailAttachmentListSummary(email) {
+        const items = collectEmailAttachmentItems(email);
+        if (!items.length) {
+            return '';
+        }
+
+        const lines = items.slice(0, 3).map(function(item) {
+            return '<span class="email-item-attachment-line">' +
+                crmIcon('file', 'solid', { class: 'email-item-attachment-icon' }) +
+                ' ' + escapeHtml(item.name) + '</span>';
+        }).join('');
+
+        const extra = items.length > 3
+            ? '<span class="email-item-attachment-more">+' + (items.length - 3) + ' more</span>'
+            : '';
+
+        return '<div class="email-item-attachments">' + lines + extra + '</div>';
+    }
+
+    function renderReadingPaneAttachments(email) {
+        const items = collectEmailAttachmentItems(email);
+        if (!items.length) {
+            return '';
+        }
+
+        const subject = email.subject || '(No subject)';
+        const regularAttachments = items.filter(function(item) { return !item.isSourceFile; });
+        const rows = items.map(function(item, attIndex) {
+            const sizeLabel = item.size ? formatFileSize(item.size) : '';
+            let actionsHtml = '';
+
+            if (item.isSourceFile) {
+                const link = item.downloadUrl || '#';
+                actionsHtml = '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener noreferrer" ' +
+                    'class="email-attachment-btn email-attachment-btn--download">' +
+                    crmIcon('download') + ' Download</a>';
+                if (item.previewUrl) {
+                    actionsHtml += '<a href="' + escapeHtml(item.previewUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+                        'class="email-attachment-btn email-attachment-btn--preview">' +
+                        crmIcon('eye') + ' Preview</a>';
+                }
+            } else {
+                const att = item.attachment;
+                const downloadName = resolveAttachmentDownloadFilename(att);
+                const hasNumericId = att.id !== null && att.id !== undefined && /^\d+$/.test(String(att.id));
+                if (hasNumericId) {
+                    actionsHtml = '<button type="button" class="email-attachment-btn email-attachment-btn--download download-attachment-btn" ' +
+                        'data-attachment-id="' + att.id + '" data-mail-report-id="' + email.id + '" ' +
+                        'data-filename="' + escapeHtml(downloadName) + '">' +
+                        crmIcon('download') + ' Download</button>';
+                    if (attachmentSupportsBrowserPreview(att)) {
+                        actionsHtml += '<button type="button" class="email-attachment-btn email-attachment-btn--preview preview-attachment-btn" ' +
+                            'data-attachment-id="' + att.id + '" data-filename="' + escapeHtml(downloadName) + '">' +
+                            crmIcon('eye') + ' Preview</button>';
+                    }
+                } else if (item.downloadUrl) {
+                    actionsHtml = '<a href="' + escapeHtml(item.downloadUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+                        'class="email-attachment-btn email-attachment-btn--download">' +
+                        crmIcon('download') + ' Download</a>';
+                } else {
+                    actionsHtml = '<button type="button" class="email-attachment-btn email-attachment-btn--download download-attachment-btn" ' +
+                        'data-mail-report-id="' + email.id + '" data-legacy-index="' + attIndex + '" ' +
+                        'data-filename="' + escapeHtml(downloadName) + '">' +
+                        crmIcon('download') + ' Download</button>';
+                }
+            }
+
+            const iconName = item.isSourceFile ? 'file' : getAttachmentIcon(item.attachment ? item.attachment.content_type : '');
+
+            return '<div class="email-attachment-row">' +
+                '<div class="email-attachment-row__icon">' + crmIcon(iconName, 'solid') + '</div>' +
+                '<div class="email-attachment-row__info">' +
+                '<div class="email-attachment-row__name" title="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + '</div>' +
+                (sizeLabel ? '<div class="email-attachment-row__meta">' + escapeHtml(sizeLabel) + '</div>' : '') +
+                '</div>' +
+                '<div class="email-attachment-row__actions">' + actionsHtml + '</div>' +
+                '</div>';
+        }).join('');
+
+        let headerExtra = '';
+        if (regularAttachments.length > 1) {
+            headerExtra = '<button type="button" class="email-attachment-btn email-attachment-btn--download download-all-btn" ' +
+                'data-mail-report-id="' + email.id + '" data-email-subject="' + escapeHtml(subject) + '">' +
+                crmIcon('download') + ' Download All</button>';
+        }
+
+        return '<div class="email-attachments-panel">' +
+            '<div class="email-attachments-panel__header">' +
+            crmIcon('paperclip') + ' <span>Attachments (' + items.length + ')</span>' +
+            headerExtra +
+            '</div>' +
+            '<div class="email-attachments-panel__list">' + rows + '</div>' +
+            '</div>';
+    }
+
+    function updateReadingPaneActions(email) {
+        const deleteBtn = document.getElementById('btnDeleteEmailV2');
+        if (deleteBtn) {
+            deleteBtn.style.display = isEmailAdminUser() ? 'inline-flex' : 'none';
+        }
+        currentReadingEmail = email;
+        currentContextEmail = email;
+    }
+
+    function resetReadingPane() {
+        const placeholder = document.getElementById('emailContentPlaceholderV2');
+        const readingPane = document.getElementById('emailContentViewV2');
+        if (readingPane) {
+            readingPane.classList.remove('is-visible');
+        }
+        if (placeholder) {
+            placeholder.hidden = false;
+            placeholder.style.display = '';
+        }
+        selectedEmailId = null;
+        currentReadingEmail = null;
+    }
+
     /**
-     * Create email list item element
+     * Create email list item element (Outlook-style)
      */
     function createEmailItem(email) {
         const div = document.createElement('div');
-        div.className = 'email-item';
+        const isRead = email.mail_is_read == 1;
+        div.className = 'email-item' + (isRead ? '' : ' unread');
+        if (selectedEmailId === email.id) {
+            div.classList.add('active');
+        }
         div.dataset.emailId = email.id;
 
-        const subject = email.subject || '(No subject)';
-        const from = email.from_mail || 'Unknown sender';
-        const to = cleanRecipients(email.to_mail) || 'Unknown recipient';
-        const date = formatDate(getEmailDate(email));
-        const isRead = email.mail_is_read == 1;
+        const sender = email.from_mail || 'Unknown';
+        const subject = email.subject || '(No Subject)';
+        const preview = getEmailPreviewText(email, 80);
+        const hasAttachment = (email.attachments && email.attachments.length > 0) ||
+            email.msg_file_url || email.pdf_file_url || email.preview_url;
+        const attachmentIcon = hasAttachment
+            ? crmIcon('paperclip', 'solid', { class: 'email-list-clip', attrs: { title: 'Has attachments' } })
+            : '';
+        const attachmentSummary = renderEmailAttachmentListSummary(email);
+        const dateStr = formatDate(getEmailDate(email));
 
-        // NEW: Attachment indicator
-        const hasAttachments = email.attachments && Array.isArray(email.attachments) && email.attachments.length > 0;
-        const attachmentIcon = hasAttachments 
-            ? crmIcon('paperclip', 'solid', { class: 'attachment-indicator', attrs: { title: email.attachments.length + ' attachment(s)' } })
+        const labelBadges = (email.labels && Array.isArray(email.labels))
+            ? email.labels.map(function(label) {
+                return '<span class="label-badge" style="background-color: ' + label.color + '20; border-color: ' + label.color + '; color: ' + label.color + '">' +
+                    labelIconHtml(label.icon) + ' ' + escapeHtml(label.name) + '</span>';
+            }).join('')
             : '';
 
-        // NEW: Label badges
-        const labelBadges = (email.labels && Array.isArray(email.labels)) 
-            ? email.labels.map(label => 
-                `<span class="label-badge" style="background-color: ${label.color}20; border-color: ${label.color}; color: ${label.color}">
-                    ${labelIconHtml(label.icon)} ${label.name}
-                </span>`
-            ).join('')
-            : '';
+        div.innerHTML =
+            '<div class="email-item-header">' +
+            '<div class="email-sender">' + escapeHtml(sender) + attachmentIcon + '</div>' +
+            '</div>' +
+            '<div class="email-subject">' + escapeHtml(subject) + '</div>' +
+            (preview ? '<div class="email-preview">' + escapeHtml(preview) + '</div>' : '') +
+            (labelBadges ? '<div class="email-item-labels">' + labelBadges + '</div>' : '') +
+            '<div class="email-item-footer">' +
+            attachmentSummary +
+            '<div class="email-date">' + dateStr + '</div>' +
+            '</div>';
 
-        div.innerHTML = `
-            <div class="email-item-header">
-                <div class="email-subject" style="${!isRead ? 'font-weight: 700;' : ''}">
-                    ${escapeHtml(subject)}
-                    ${attachmentIcon}
-                </div>
-                <div class="email-date">${date}</div>
-            </div>
-            <div class="email-sender">From: ${escapeHtml(from)}</div>
-            <div class="email-sender" style="font-size: 12px; color: #999;">To: ${escapeHtml(to)}</div>
-            <div class="email-badges">
-                ${labelBadges}
-            </div>
-        `;
-
-        // Add click handler to view email
         div.addEventListener('click', function(e) {
-            // Don't trigger if context menu is open (close it first on click)
             const contextMenu = document.getElementById('emailContextMenuV2');
             if (contextMenu && contextMenu.style.display === 'block') {
                 hideContextMenu();
                 return;
             }
-            
-            // Remove selection from other items
-            document.querySelectorAll('.email-item').forEach(item => {
-                item.classList.remove('selected');
+
+            document.querySelectorAll('.email-item').forEach(function(item) {
+                item.classList.remove('selected', 'active');
             });
-            
-            // Add selection to this item
-            this.classList.add('selected');
-            
-            // Load email details
+
+            this.classList.add('active', 'selected');
+            selectedEmailId = email.id;
             loadEmailDetail(email);
         });
 
-        // Add right-click handler for context menu
         div.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
-            // Store current email for context menu actions
             this.dataset.emailData = JSON.stringify(email);
-            
-            // Show context menu at cursor position
             showContextMenu(e.clientX, e.clientY, email);
         });
 
@@ -1199,7 +1650,7 @@
                 </div>
                 <div class="empty-state-text">
                     <h3>${message || 'No emails found'}</h3>
-                    <p>${message ? 'Please try again.' : 'Upload .msg files to get started with email management.'}</p>
+                    <p>${message ? 'Please try again.' : 'Upload ' + getAllowedExtensionsLabel() + ' files to get started with email management.'}</p>
                 </div>
             </div>
         `;
@@ -1228,148 +1679,180 @@
     }
 
     /**
-     * Update email counts
+     * Collect all attachment-like items including original .msg/.eml and parsed PDF.
      */
-    function updateEmailCounts(total) {
-        const resultsCount = document.getElementById('resultsCountV2');
-        if (resultsCount) {
-            resultsCount.textContent = `${total} result${total !== 1 ? 's' : ''}`;
+    function collectEmailAttachmentItems(email) {
+        const items = [];
+
+        const msgUrl = email.msg_file_url || email.preview_url;
+        if (msgUrl) {
+            items.push({
+                key: 'original-msg',
+                name: 'Original email file',
+                size: null,
+                downloadUrl: msgUrl,
+                previewUrl: null,
+                isSourceFile: true
+            });
         }
+
+        if (email.pdf_file_url || email.pdf_preview_url) {
+            items.push({
+                key: 'parsed-pdf',
+                name: 'Parsed email (PDF)',
+                size: null,
+                downloadUrl: email.pdf_file_url || email.pdf_preview_url,
+                previewUrl: email.pdf_preview_url || email.pdf_file_url,
+                isSourceFile: true
+            });
+        }
+
+        (email.attachments || []).forEach(function(att) {
+            if (att.is_inline) {
+                return;
+            }
+            const hasNumericId = att.id !== null && att.id !== undefined && /^\d+$/.test(String(att.id));
+            items.push({
+                id: att.id,
+                key: 'att-' + (att.id || att.filename),
+                name: att.display_name || att.filename || 'Attachment',
+                size: att.file_size,
+                downloadUrl: hasNumericId ? '/email-v2/attachments/' + att.id + '/download' : null,
+                previewUrl: hasNumericId && attachmentSupportsBrowserPreview(att)
+                    ? '/email-v2/attachments/' + att.id + '/preview'
+                    : null,
+                attachment: att,
+                isSourceFile: false
+            });
+        });
+
+        return items;
+    }
+
+    function renderHtmlIframe(iframe, html) {
+        if (!iframe) {
+            return;
+        }
+        iframe.style.height = '100%';
+        iframe.style.minHeight = '320px';
+        iframe.removeAttribute('src');
+        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+        if (!doc) {
+            return;
+        }
+        const bodyHtml = html || '';
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><base target="_blank"><style>' +
+            'html,body{height:100%;margin:0;padding:0;box-sizing:border-box;}' +
+            'body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.6;color:#242424;word-wrap:break-word;overflow-wrap:break-word;padding:16px 20px;overflow-y:auto;}' +
+            'img{max-width:100%;height:auto;}' +
+            'table{max-width:100%;}' +
+            'a{color:#0078d4;}' +
+            'blockquote{margin:0;padding-left:12px;border-left:3px solid #edebe9;color:#605e5c;}' +
+            'p{margin:0 0 0.75em;}' +
+            '</style></head><body>' + bodyHtml + '</body></html>');
+        doc.close();
+    }
+
+    function renderEmailBodyInIframe(email, messageHtml, allAttachments) {
+        const iframe = document.getElementById('emailReadBodyV2');
+        if (!iframe) {
+            return;
+        }
+
+        let contentStr = (messageHtml || '').trim();
+        let pdfToPreview = null;
+
+        if (!contentStr || contentStr === '(No content)') {
+            if (email.pdf_preview_url || email.pdf_file_url) {
+                pdfToPreview = email.pdf_preview_url || email.pdf_file_url;
+            }
+        }
+
+        if (pdfToPreview) {
+            iframe.onload = null;
+            iframe.removeAttribute('srcdoc');
+            iframe.style.minHeight = '480px';
+            iframe.src = pdfToPreview;
+            return;
+        }
+
+        iframe.removeAttribute('src');
+        let bodyHtml = replaceCidReferences(contentStr, allAttachments);
+        if (bodyHtml && bodyHtml.indexOf('<') === -1) {
+            bodyHtml = escapeHtml(bodyHtml).replace(/\n/g, '<br>');
+        }
+        renderHtmlIframe(iframe, bodyHtml || '<p>No content available.</p>');
     }
 
     /**
      * Load and display email details with attachments
      */
     function loadEmailDetail(email) {
-        const emailContentView = document.getElementById('emailContentViewV2');
-        const emailContentPlaceholder = document.getElementById('emailContentPlaceholderV2');
+        const readingPane = document.getElementById('emailContentViewV2');
+        const placeholder = document.getElementById('emailContentPlaceholderV2');
 
-        if (!emailContentView || !emailContentPlaceholder) {
+        if (!readingPane || !placeholder) {
             console.error('Email detail elements not found');
             return;
         }
 
-        // Hide placeholder, show content
-        emailContentPlaceholder.style.display = 'none';
-        emailContentView.style.display = 'block';
+        selectedEmailId = email.id;
+        updateReadingPaneActions(email);
 
-        const subject = email.subject || '(No subject)';
-        const from = email.from_mail || 'Unknown';
-        const to = cleanRecipients(email.to_mail) || 'Unknown';
-        const date = formatDate(getEmailDate(email));
-        let message = email.message || '(No content)';
+        placeholder.hidden = true;
+        placeholder.style.display = 'none';
+        readingPane.classList.add('is-visible');
 
-        // Get all attachments (including inline) - show all so users can download important files like payment receipts
-        // Even if they're displayed inline in the email body, they should also be available as downloadable attachments
+        const subjectEl = document.getElementById('readSubjectV2');
+        const senderEl = document.getElementById('readSenderV2');
+        const toEl = document.getElementById('readToV2');
+        const ccEl = document.getElementById('readCcV2');
+        const dateEl = document.getElementById('readDateV2');
+        const avatarEl = document.getElementById('readAvatarV2');
+        const attachmentsContainer = document.getElementById('attachmentsContainerV2');
+
+        if (subjectEl) {
+            subjectEl.textContent = email.subject || '(No Subject)';
+        }
+        if (senderEl) {
+            senderEl.textContent = email.from_mail || 'Unknown Sender';
+        }
+        if (toEl) {
+            const toLine = formatRecipientLine('To', email.to_mail);
+            toEl.textContent = toLine || 'To: Unknown';
+        }
+        if (ccEl) {
+            const ccLine = formatRecipientLine('Cc', email.cc);
+            if (ccLine) {
+                ccEl.textContent = ccLine;
+                ccEl.hidden = false;
+            } else {
+                ccEl.textContent = '';
+                ccEl.hidden = true;
+            }
+        }
+        if (dateEl) {
+            dateEl.textContent = formatDate(getEmailDate(email));
+        }
+        if (avatarEl) {
+            avatarEl.textContent = (email.from_mail || '?').charAt(0).toUpperCase();
+        }
+
+        const attachmentHtml = renderReadingPaneAttachments(email);
+        if (attachmentsContainer) {
+            if (attachmentHtml) {
+                attachmentsContainer.hidden = false;
+                attachmentsContainer.innerHTML = attachmentHtml;
+            } else {
+                attachmentsContainer.hidden = true;
+                attachmentsContainer.innerHTML = '';
+            }
+        }
+
         const allAttachments = email.attachments && Array.isArray(email.attachments) ? email.attachments : [];
-        const regularAttachments = allAttachments; // Show all attachments, not just non-inline
-        const hasAttachments = regularAttachments.length > 0;
-        
-        // Replace cid: references in email message with actual preview URLs for inline images
-        message = replaceCidReferences(message, allAttachments);
-        
-        // Debug logging
-        console.log('Loading email detail:', {
-            id: email.id,
-            subject: email.subject,
-            attachments: email.attachments,
-            allAttachments: allAttachments,
-            regularAttachments: regularAttachments,
-            hasAttachments: hasAttachments
-        });
-
-        // Build attachment list HTML
-        let attachmentHtml = '';
-        if (hasAttachments) {
-            const attachmentItems = regularAttachments.map((att, attIndex) => {
-                const downloadName = resolveAttachmentDownloadFilename(att);
-                const hasNumericId = att.id !== null && att.id !== undefined && /^\d+$/.test(String(att.id));
-                const displayLabel = escapeHtml(att.filename || att.display_name || 'Unknown');
-                const openPreviewInNewTab = hasNumericId && attachmentSupportsBrowserPreview(att);
-                const nameRowHtml = openPreviewInNewTab
-                    ? `<a class="attachment-name attachment-name-link" href="/email-v2/attachments/${att.id}/preview" target="_blank" rel="noopener noreferrer" title="Open preview in new tab">${displayLabel}</a>`
-                    : `<div class="attachment-name">${displayLabel}</div>`;
-                return `
-                <div class="attachment-item" data-attachment-id="${hasNumericId ? att.id : ''}">
-                    <div class="attachment-info">
-                        ${crmIcon(getAttachmentIcon(att.content_type), 'solid', { class: 'attachment-icon ' + getAttachmentIconColor(att.content_type) })}
-                        <div class="attachment-details">
-                            ${nameRowHtml}
-                            <div class="attachment-size">${formatFileSize(att.file_size || 0)}</div>
-                        </div>
-                    </div>
-                    <div class="attachment-actions">
-                        <button type="button" class="download-btn download-attachment-btn" 
-                                data-attachment-id="${hasNumericId ? att.id : ''}" 
-                                data-mail-report-id="${email.id}"
-                                data-legacy-index="${hasNumericId ? '' : attIndex}"
-                                data-filename="${escapeHtml(downloadName)}"
-                                title="Download ${escapeHtml(att.filename || 'file')}">
-                            ${crmIcon('download')} Download
-                        </button>
-                        ${hasNumericId && attachmentSupportsBrowserPreview(att) ? `
-                        <button type="button" class="preview-btn preview-attachment-btn" 
-                                data-attachment-id="${att.id}" 
-                                data-filename="${escapeHtml(downloadName)}"
-                                title="Open preview in new tab">
-                            ${crmIcon('eye')} Preview
-                        </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            }).join('');
-
-            attachmentHtml = `
-                <div class="attachment-list">
-                    <div class="attachment-list-header">
-                        <span class="attachment-list-title">
-                            ${crmIcon('paperclip')} 
-                            ${regularAttachments.length} Attachment${regularAttachments.length !== 1 ? 's' : ''}
-                        </span>
-                        ${regularAttachments.length > 1 ? `
-                        <button class="download-all-btn" 
-                                data-mail-report-id="${email.id}"
-                                data-email-subject="${escapeHtml(subject)}"
-                                title="Download all attachments as ZIP">
-                            ${crmIcon('download')} Download All
-                        </button>
-                        ` : ''}
-                    </div>
-                    ${attachmentItems}
-                </div>
-            `;
-        }
-
-        // Original .msg file download section
-        let previewSection = '';
-        if (email.preview_url) {
-            previewSection = `
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-                    <h4 style="margin-bottom: 10px; font-weight: 600;">Original Email File</h4>
-                    <a href="${email.preview_url}" target="_blank" class="btn btn-sm btn-primary">
-                        ${crmIcon('download')} Download .msg File
-                    </a>
-                </div>
-            `;
-        }
-
-        // Render complete email detail
-        emailContentView.innerHTML = `
-            <div class="email-content-header">
-                <div class="email-content-subject">${escapeHtml(subject)}</div>
-                <div class="email-content-meta">
-                    <div><strong>From:</strong> ${escapeHtml(from)}</div>
-                    <div><strong>To:</strong> ${escapeHtml(to)}</div>
-                    <div><strong>Date:</strong> ${date}</div>
-                </div>
-            </div>
-            <div class="email-content-body">
-                ${message}
-            </div>
-            ${attachmentHtml}
-            ${previewSection}
-        `;
+        const message = email.message || email.rendered_html || '';
+        renderEmailBodyInIframe(email, message, allAttachments);
     }
 
     // 1x1 transparent GIF - used as fallback when cid: cannot be resolved (avoids ERR_UNKNOWN_URL_SCHEME)
@@ -1697,6 +2180,60 @@
     }
 
     /**
+     * Parse comma-separated recipient string into unique email addresses.
+     */
+    function parseRecipientEmails(value) {
+        const cleaned = cleanRecipients(value);
+        if (!cleaned) {
+            return [];
+        }
+        return cleaned.split(',').map(function(part) {
+            return extractEmailAddress(part.trim());
+        }).filter(Boolean);
+    }
+
+    /**
+     * Handle Reply All action
+     */
+    function handleReplyAll(email) {
+        if (!email) {
+            showNotification('No email selected for reply', 'error');
+            return;
+        }
+
+        const seen = {};
+        const recipients = [];
+
+        function addRecipient(value) {
+            if (!value) {
+                return;
+            }
+            const key = value.toLowerCase();
+            if (!seen[key]) {
+                seen[key] = true;
+                recipients.push(value);
+            }
+        }
+
+        parseRecipientEmails(email.from_mail).forEach(addRecipient);
+        parseRecipientEmails(email.to_mail).forEach(addRecipient);
+        parseRecipientEmails(email.cc).forEach(addRecipient);
+
+        if (recipients.length === 0) {
+            showNotification('Could not extract recipient email addresses', 'error');
+            return;
+        }
+
+        openComposeModal({
+            to: recipients,
+            subject: formatReplySubject(email.subject),
+            message: formatQuotedMessage(email, false)
+        });
+
+        showNotification('Reply all email opened', 'info');
+    }
+
+    /**
      * Handle Forward action
      */
     function handleForward(email) {
@@ -1735,23 +2272,30 @@
             return;
         }
 
-        const confirmMessage = 'Are you sure you want to delete this email?';
+        const entityId = getEntityId();
+        if (!entityId) {
+            showNotification('Client or partner ID not found', 'error');
+            return;
+        }
+
+        const confirmMessage = 'Are you sure you want to delete this email? This cannot be undone.';
         let confirmed = false;
         if (typeof window.crmConfirm === 'function') {
             confirmed = await window.crmConfirm(confirmMessage);
         } else {
             confirmed = window.confirm(confirmMessage);
         }
-        if (!confirmed) return;
+        if (!confirmed) {
+            return;
+        }
 
-        const deleteUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('deleteAction'))
-            ? App.getUrl('deleteAction')
-            : '/delete_action';
+        const deleteUrl = '/email-v2/' + encodeURIComponent(String(email.id)) + '/delete';
 
         try {
             const body = new URLSearchParams({
-                id: String(email.id),
-                table: 'emails'
+                client_id: String(entityId),
+                type: getEntityType(),
+                _token: getCsrfToken()
             });
 
             const response = await fetch(deleteUrl, {
@@ -1759,27 +2303,31 @@
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: body.toString()
+                body: body.toString(),
+                credentials: 'same-origin'
             });
 
-            const result = await response.json();
-            if (result.status === 1) {
+            let result = null;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                result = await response.json();
+            }
+
+            if (response.ok && result && (result.status === 1 || result.success === true)) {
                 showNotification(result.message || 'Email deleted successfully', 'success');
-                const emailContentView = document.getElementById('emailContentViewV2');
-                const emailContentPlaceholder = document.getElementById('emailContentPlaceholderV2');
-                if (emailContentView && emailContentPlaceholder) {
-                    emailContentView.style.display = 'none';
-                    emailContentView.innerHTML = '';
-                    emailContentPlaceholder.style.display = '';
-                }
+                resetReadingPane();
                 document.querySelectorAll('.email-item').forEach(item => {
-                    item.classList.remove('selected');
+                    item.classList.remove('selected', 'active');
                 });
                 loadEmailsFromServer();
             } else {
-                showNotification(result.message || 'Failed to delete email', 'error');
+                const message = (result && result.message)
+                    ? result.message
+                    : (response.status === 403 ? 'You do not have permission to delete this email.' : 'Failed to delete email');
+                showNotification(message, 'error');
             }
         } catch (error) {
             console.error('Delete email error:', error);
@@ -2618,6 +3166,42 @@
         initializeNewFeatures();
     }
 
+    function initReadingPaneActions() {
+        const btnReply = document.getElementById('btnReplyV2');
+        const btnReplyAll = document.getElementById('btnReplyAllV2');
+        const btnForward = document.getElementById('btnForwardV2');
+        const btnDelete = document.getElementById('btnDeleteEmailV2');
+
+        if (btnReply) {
+            btnReply.addEventListener('click', function() {
+                if (currentReadingEmail) {
+                    handleReply(currentReadingEmail);
+                }
+            });
+        }
+        if (btnReplyAll) {
+            btnReplyAll.addEventListener('click', function() {
+                if (currentReadingEmail) {
+                    handleReplyAll(currentReadingEmail);
+                }
+            });
+        }
+        if (btnForward) {
+            btnForward.addEventListener('click', function() {
+                if (currentReadingEmail) {
+                    handleForward(currentReadingEmail);
+                }
+            });
+        }
+        if (btnDelete) {
+            btnDelete.addEventListener('click', function() {
+                if (currentReadingEmail) {
+                    handleDeleteEmail(currentReadingEmail);
+                }
+            });
+        }
+    }
+
     /**
      * Initialize collapsible upload section to save space
      * Remembers collapsed state in localStorage
@@ -2667,11 +3251,50 @@
     }
 
     /**
+     * Soft-check Python microservice — browsing works when down; uploads show errors.
+     */
+    async function checkEmailPythonServiceStatus() {
+        const banner = document.getElementById('pythonServiceWarningV2');
+        if (!banner) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/email-v2/check-service', {
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            let data = null;
+            if (response.ok) {
+                data = await response.json();
+            }
+
+            if (data && data.status === true) {
+                banner.style.display = 'none';
+                banner.textContent = '';
+                return;
+            }
+
+            banner.style.display = 'block';
+            banner.textContent = 'Email parsing service is unavailable. You can still browse emails; uploads will fail until the service is restarted.';
+        } catch (e) {
+            banner.style.display = 'block';
+            banner.textContent = 'Could not reach the email parsing service. Browsing still works; uploads may fail.';
+        }
+    }
+
+    /**
      * Initialize new filter and modal features
      */
     function initializeNewFeatures() {
         // Initialize upload section collapsible toggle
         initUploadSectionCollapse();
+
+        checkEmailPythonServiceStatus();
 
         // Initialize upload functionality (drag & drop)
         if (typeof window.initializeUpload === 'function') {
@@ -2683,6 +3306,9 @@
 
         // Initialize context menu
         initializeContextMenu();
+
+        // Reading pane action toolbar (Reply, Forward, Delete)
+        initReadingPaneActions();
         
         // Initialize search functionality
         if (typeof window.initializeSearch === 'function') {

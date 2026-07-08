@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
  * @method static static|null first($columns = null)
  * @method static \Illuminate\Database\Eloquent\Collection get($columns = null)
  * @method static static create(array $attributes = [])
- * @method static \Illuminate\Database\Eloquent\Builder select($columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder select(array|string|null $columns = null)
  * @method static \Illuminate\Database\Eloquent\Builder orderBy($column, $direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder orderby($column, $direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder withCount($relations)

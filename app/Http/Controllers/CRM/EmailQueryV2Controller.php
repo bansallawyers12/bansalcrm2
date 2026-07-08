@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Email;
 use App\Models\MailReportAttachment;
 use App\Models\Document;
 use App\Models\Admin;
 use App\Models\Partner;
 use App\Models\Agent;
+use App\Models\ActivitiesLog;
+use App\Traits\LogsClientActivity;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Email Query V2 Controller
@@ -20,6 +25,8 @@ use App\Models\Agent;
  */
 class EmailQueryV2Controller extends Controller
 {
+    use LogsClientActivity;
+
     public function __construct()
     {
         $this->middleware('auth:admin');
@@ -38,7 +45,7 @@ class EmailQueryV2Controller extends Controller
             $label_id = $request->input('label_id');
 
             // Build base query
-            $query = Email::where('client_id', $entityId)
+            $query = Email::query()->where('client_id', $entityId)
                 ->where('mail_type', 1);
             $this->applyEmailEntityTypeScope($query, $entityType);
 
@@ -109,7 +116,7 @@ class EmailQueryV2Controller extends Controller
                 $previewUrl = '';
 
                 if (!empty($email->uploaded_doc_id)) {
-                    $DocInfo = Document::select('id','doc_type','myfile','myfile_key','mail_type')
+                    $DocInfo = Document::select(['id', 'doc_type', 'myfile', 'myfile_key', 'mail_type'])
                         ->where('id', $email->uploaded_doc_id)
                         ->first();
 
@@ -137,7 +144,7 @@ class EmailQueryV2Controller extends Controller
                 // Fetch attachments
                 $attachments = $email->attachments;
                 if (!$attachments || (method_exists($attachments, 'count') && $attachments->count() === 0)) {
-                    $attachments = MailReportAttachment::where('mail_report_id', $email->id)->get();
+                    $attachments = MailReportAttachment::query()->where('mail_report_id', $email->id)->get();
                 }
 
                 $legacyAttachmentItems = $this->parseEmailLegacyAttachmentItems($email);
@@ -185,6 +192,7 @@ class EmailQueryV2Controller extends Controller
                 }
                 
                 $emailArray['preview_url'] = $previewUrl;
+                $emailArray = $this->appendEmailPreviewFields($emailArray, $email, $previewUrl);
                 $emailArray['to_mail'] = $this->resolveToMailDisplay($email->to_mail ?? '', $email->type ?? $entityType);
                 
                 return $emailArray;
@@ -214,7 +222,7 @@ class EmailQueryV2Controller extends Controller
             $label_id = $request->input('label_id');
 
             // Build base query
-            $query = Email::where('client_id', $entityId)
+            $query = Email::query()->where('client_id', $entityId)
                 ->where('mail_type', 1);
             $this->applyEmailEntityTypeScope($query, $entityType);
 
@@ -295,7 +303,7 @@ class EmailQueryV2Controller extends Controller
                 $previewUrl = '';
 
                 if (!empty($email->uploaded_doc_id)) {
-                    $docInfo = Document::select('id', 'doc_type', 'myfile', 'myfile_key', 'mail_type')
+                    $docInfo = Document::select(['id', 'doc_type', 'myfile', 'myfile_key', 'mail_type'])
                         ->where('id', $email->uploaded_doc_id)
                         ->first();
                     if ($docInfo) {
@@ -323,7 +331,7 @@ class EmailQueryV2Controller extends Controller
                 // Fetch attachments
                 $attachments = $email->attachments;
                 if (!$attachments || (method_exists($attachments, 'count') && $attachments->count() === 0)) {
-                    $attachments = MailReportAttachment::where('mail_report_id', $email->id)->get();
+                    $attachments = MailReportAttachment::query()->where('mail_report_id', $email->id)->get();
                 }
 
                 $legacyAttachmentItems = $this->parseEmailLegacyAttachmentItems($email);
@@ -371,6 +379,7 @@ class EmailQueryV2Controller extends Controller
                 }
                 
                 $emailArray['preview_url'] = $previewUrl;
+                $emailArray = $this->appendEmailPreviewFields($emailArray, $email, $previewUrl);
                 $emailArray['from_mail'] = $emailArray['from_mail'] ?? '';
                 $emailArray['to_mail'] = $this->resolveToMailDisplay($email->to_mail ?? '', $email->type ?? $entityType);
                 $emailArray['subject'] = $emailArray['subject'] ?? '';
@@ -684,7 +693,7 @@ class EmailQueryV2Controller extends Controller
                     }
                 }
                 if (!$email) {
-                    $agent = Agent::find($part);
+                    $agent = Agent::query()->find($part);
                     if ($agent && !empty($agent->email)) {
                         $email = $agent->email;
                     }
@@ -698,9 +707,254 @@ class EmailQueryV2Controller extends Controller
     }
 
     /**
+     * Add msg/PDF preview URLs for the email reading pane and attachment panel.
+     */
+    protected function appendEmailPreviewFields(array $emailArray, Email $email, string $previewUrl): array
+    {
+        $emailArray['msg_file_url'] = $this->resolveEmailMsgDownloadUrl($email, $previewUrl);
+
+        $pdfDoc = null;
+        if (!empty($email->pdf_doc_id)) {
+            $pdfDoc = Document::select(['id', 'file_name', 'filetype', 'myfile', 'myfile_key'])
+                ->where('id', $email->pdf_doc_id)
+                ->first();
+        }
+
+        $pdfPreviewUrl = $pdfDoc ? $this->resolveEmailDocumentPreviewUrl($pdfDoc) : '';
+        $emailArray['pdf_preview_url'] = $pdfPreviewUrl;
+        $emailArray['pdf_file_url'] = $pdfPreviewUrl;
+
+        return $emailArray;
+    }
+
+    protected function resolveEmailMsgDownloadUrl(Email $email, string $fallbackPreviewUrl = ''): string
+    {
+        if (empty($email->uploaded_doc_id)) {
+            return $fallbackPreviewUrl;
+        }
+
+        $doc = Document::select(['id', 'file_name', 'filetype', 'myfile'])
+            ->where('id', $email->uploaded_doc_id)
+            ->first();
+
+        if (!$doc || empty($doc->myfile)) {
+            return $fallbackPreviewUrl;
+        }
+
+        return $this->resolveEmailDocumentPreviewUrl($doc);
+    }
+
+    protected function resolveEmailDocumentPreviewUrl(?Document $doc): string
+    {
+        if (!$doc || empty($doc->myfile)) {
+            return '';
+        }
+
+        $ext = strtolower((string) ($doc->filetype ?? 'pdf'));
+        $filename = ($doc->file_name ?? 'preview') . ($ext !== '' ? '.' . $ext : '');
+
+        return url('/preview-document') . '?' . http_build_query([
+            'filelink' => $doc->myfile,
+            'filename' => $filename,
+        ]);
+    }
+
+    /**
+     * Delete an email and its label/attachment rows (CRM Emails tab v2).
+     * POST /email-v2/{id}/delete — super-admin only (matches isEmailAdminUser UI gate).
+     */
+    public function deleteEmail(Request $request, int|string $id)
+    {
+        if (! $this->canDeleteEmailV2()) {
+            return response()->json([
+                'success' => false,
+                'status' => 0,
+                'message' => 'Unauthorized: You do not have permission to delete emails.',
+            ], 403);
+        }
+
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            array_merge($request->all(), ['id' => $id]),
+            [
+                'id' => 'required|integer|min:1',
+                'client_id' => 'required|integer|min:1',
+                'type' => 'required|in:client,lead,partner',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'status' => 0,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $email = Email::query()->find($id);
+            if (! $email) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 0,
+                    'message' => 'Email not found.',
+                ], 404);
+            }
+
+            $entityId = (int) $request->input('client_id');
+            $entityType = (string) $request->input('type');
+
+            if ((int) $email->client_id !== $entityId) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 0,
+                    'message' => 'This email does not belong to the selected client or partner.',
+                ], 403);
+            }
+
+            if (! $this->emailMatchesEntityType($email, $entityType)) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 0,
+                    'message' => 'This email does not belong to the selected record type.',
+                ], 403);
+            }
+
+            $attachmentCount = MailReportAttachment::query()->where('mail_report_id', $id)->count();
+            $snapshot = [
+                'subject' => trim((string) ($email->subject ?? '')),
+                'from_mail' => (string) ($email->from_mail ?? ''),
+                'to_mail' => (string) ($email->to_mail ?? ''),
+                'mail_body_type' => (string) ($email->mail_body_type ?? ''),
+                'record_type' => (string) ($email->type ?? ''),
+            ];
+
+            $staffId = Auth::user()->id ?? Auth::id();
+
+            DB::transaction(function () use ($id, $email, $entityType, $entityId, $staffId, $attachmentCount, $snapshot) {
+                DB::table('email_label_mail_report')->where('mail_report_id', $id)->delete();
+                MailReportAttachment::query()->where('mail_report_id', $id)->delete();
+
+                $deletedRows = Email::query()->where('id', $id)->delete();
+                if ($deletedRows !== 1) {
+                    throw new \RuntimeException('Email could not be deleted.');
+                }
+
+                $this->logEmailDeletionActivity($entityId, $entityType, (int) $id, $snapshot, $attachmentCount, $staffId);
+            });
+
+            return response()->json([
+                'success' => true,
+                'status' => 1,
+                'message' => 'Email deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting email V2', [
+                'email_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'status' => 0,
+                'message' => 'Failed to delete email: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Super-admin gate — matches emails_v2.js isEmailAdminUser() (data-user-role === '1').
+     */
+    protected function canDeleteEmailV2(): bool
+    {
+        $user = Auth::guard('admin')->user();
+        if (! $user) {
+            return false;
+        }
+
+        return (int) ($user->role ?? 0) === 1;
+    }
+
+    protected function emailMatchesEntityType(Email $email, string $entityType): bool
+    {
+        $recordType = strtolower(trim((string) ($email->type ?? '')));
+
+        if ($entityType === 'partner') {
+            return $recordType === 'partner';
+        }
+
+        return in_array($recordType, ['client', 'lead'], true);
+    }
+
+    protected function logEmailDeletionActivity(
+        int $entityId,
+        string $entityType,
+        int $emailId,
+        array $snapshot,
+        int $attachmentCount,
+        int|string|null $staffId
+    ): void {
+        if (! $staffId) {
+            return;
+        }
+
+        $subjectLine = ($snapshot['subject'] ?? '') !== '' ? $snapshot['subject'] : '(no subject)';
+        $direction = $snapshot['mail_body_type'] ?? '';
+        $recordLabel = $entityType === 'partner' ? 'Partner' : ucfirst($entityType);
+
+        $lines = [
+            '<p>Removed an email from the CRM Emails tab.</p>',
+            '<p><strong>Email ID:</strong> ' . htmlspecialchars((string) $emailId, ENT_QUOTES, 'UTF-8') . '</p>',
+            '<p><strong>Record:</strong> ' . htmlspecialchars($recordLabel, ENT_QUOTES, 'UTF-8') . '</p>',
+        ];
+
+        if ($direction !== '') {
+            $lines[] = '<p><strong>Folder:</strong> ' . htmlspecialchars(ucfirst($direction), ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+
+        if ($attachmentCount > 0) {
+            $lines[] = '<p><strong>Attachments removed:</strong> ' . htmlspecialchars((string) $attachmentCount, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+
+        $lines[] = '<p><strong>Subject:</strong> ' . htmlspecialchars($subjectLine, ENT_QUOTES, 'UTF-8') . '</p>';
+
+        if (($snapshot['from_mail'] ?? '') !== '') {
+            $lines[] = '<p><strong>From:</strong> ' . htmlspecialchars($snapshot['from_mail'], ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+
+        $description = implode('', $lines);
+        $activitySubject = 'Deleted email message';
+
+        if ($entityType === 'partner') {
+            try {
+                ActivitiesLog::create([
+                    'client_id' => $entityId,
+                    'created_by' => $staffId,
+                    'subject' => $activitySubject,
+                    'description' => $description,
+                    'use_for' => null,
+                    'task_status' => 0,
+                    'pin' => 0,
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('Failed to log partner email deletion activity', ['error' => $e->getMessage()]);
+            }
+
+            return;
+        }
+
+        try {
+            $this->logClientActivity($entityId, $activitySubject, $description, 'email');
+        } catch (\Exception $e) {
+            Log::warning('Failed to log client email deletion activity', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * Restrict emails.type: partners only; client/lead views include both to tolerate mis-tagged rows.
      */
-    protected function applyEmailEntityTypeScope($query, string $entityType): void
+    protected function applyEmailEntityTypeScope(Builder $query, string $entityType): void
     {
         if ($entityType === 'partner') {
             $query->where('type', 'partner');

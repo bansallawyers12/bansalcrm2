@@ -5,6 +5,10 @@ namespace App\Models;
 use Kyslik\ColumnSortable\Sortable;
 use App\Traits\SanitizesEmail;
 
+/**
+ * @method static static|null find($id, $columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ */
 class Partner extends BaseModel
 {
 	use Sortable, SanitizesEmail;

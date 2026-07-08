@@ -14,7 +14,7 @@ import re
 import json
 import base64
 import mimetypes
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from urllib.parse import urlparse, urljoin
 from pathlib import Path
@@ -51,7 +51,7 @@ class EmailRendererService:
         
         logger.info("Email Renderer Service initialized")
     
-    def render_email(self, email_data: Dict[str, Any]) -> Dict[str, Any]:
+    def render_email(self, email_data: Dict[str, Any], display_timezone: Optional[str] = None) -> Dict[str, Any]:
         """
         Render email content with enhanced HTML and styling.
         
@@ -486,3 +486,428 @@ class EmailRendererService:
             'rendering_timestamp': datetime.now().isoformat(),
             'error': 'Rendering failed'
         }
+
+    def render_to_pdf(
+        self,
+        email_data: Dict[str, Any],
+        display_timezone: Optional[str] = None,
+    ) -> Tuple[Optional[bytes], Optional[str], Optional[str], Optional[str]]:
+        """
+        Render parsed email data to a PDF byte stream.
+
+        Returns:
+            (pdf_bytes, text_preview, error_message, renderer_name)
+        """
+        rendering = self.render_email(email_data, display_timezone=display_timezone)
+        text_preview = rendering.get('text_preview') or email_data.get('text_content', '')
+
+        rendered_html = rendering.get('rendered_html', '')
+        if not rendered_html:
+            return None, text_preview, 'No rendered HTML available for PDF conversion', None
+
+        attachments = email_data.get('attachments') or []
+        pdf_html = self._replace_cid_with_data_uris(rendered_html, attachments)
+        weasy_html = self._prepare_html_for_pdf(pdf_html)
+
+        weasy_error = None
+        try:
+            from weasyprint import HTML
+
+            pdf_bytes = HTML(string=weasy_html).write_pdf(
+                stylesheets=[self._get_pdf_layout_stylesheet()]
+            )
+            if pdf_bytes:
+                logger.info(
+                    f"PDF generated via WeasyPrint for email: {email_data.get('subject', 'No subject')} "
+                    f"({len(pdf_bytes)} bytes)"
+                )
+                return pdf_bytes, text_preview, None, 'weasyprint'
+            weasy_error = 'WeasyPrint returned empty PDF'
+        except ImportError:
+            weasy_error = 'WeasyPrint is not installed'
+        except Exception as e:
+            weasy_error = str(e)
+            logger.warning(f"WeasyPrint PDF failed, trying PyMuPDF HTML fallback: {weasy_error}")
+
+        pdf_bytes, pymupdf_error = self._render_to_pdf_with_pymupdf(pdf_html)
+        if pdf_bytes:
+            logger.info(
+                f"PDF generated via PyMuPDF for email: {email_data.get('subject', 'No subject')} "
+                f"({len(pdf_bytes)} bytes)"
+            )
+            return pdf_bytes, text_preview, None, 'pymupdf'
+
+        if pymupdf_error:
+            logger.warning('PyMuPDF HTML PDF unavailable: %s', pymupdf_error)
+
+        logger.warning(
+            f"PyMuPDF HTML PDF unavailable, using xhtml2pdf HTML fallback: {weasy_error}"
+        )
+        pdf_bytes = self._render_to_pdf_with_xhtml2pdf(pdf_html)
+        if pdf_bytes:
+            logger.info(
+                f"PDF generated via xhtml2pdf fallback for email: {email_data.get('subject', 'No subject')} "
+                f"({len(pdf_bytes)} bytes)"
+            )
+            return pdf_bytes, text_preview, None, 'xhtml2pdf'
+
+        logger.error(f"Error generating email PDF: {weasy_error or 'PDF generation failed'}")
+        return None, text_preview, weasy_error or 'PDF generation failed', None
+
+    def _render_to_pdf_with_xhtml2pdf(self, html_content: str) -> Optional[bytes]:
+        """Fallback PDF renderer using xhtml2pdf to preserve HTML formatting."""
+        try:
+            from xhtml2pdf import pisa
+            import io
+
+            buffer = io.BytesIO()
+            pisa_status = pisa.CreatePDF(html_content, dest=buffer)
+
+            if pisa_status.err:
+                logger.error(f"xhtml2pdf error: {pisa_status.err}")
+                return None
+
+            pdf_bytes = buffer.getvalue()
+            return pdf_bytes if pdf_bytes else None
+        except ImportError:
+            logger.warning('xhtml2pdf is not installed')
+            return None
+        except Exception as e:
+            logger.warning(f"xhtml2pdf failed: {str(e)}")
+            return None
+
+    def _render_to_pdf_with_pymupdf(self, html_content: str) -> Tuple[Optional[bytes], Optional[str]]:
+        """Render full HTML email layout to PDF when WeasyPrint is unavailable."""
+        if not html_content:
+            return None, 'empty html'
+
+        try:
+            import fitz
+            from io import BytesIO
+        except ImportError:
+            logger.warning('PyMuPDF is not installed; cannot render HTML email PDF')
+            return None, 'PyMuPDF is not installed'
+
+        candidates = [
+            html_content,
+            self._simplify_html_for_story(html_content),
+        ]
+        last_error: Optional[str] = None
+
+        for index, candidate in enumerate(candidates):
+            if not candidate:
+                continue
+            try:
+                pdf_bytes = self._pymupdf_story_to_pdf(candidate, fitz, BytesIO)
+                if pdf_bytes:
+                    if index > 0:
+                        logger.info('PyMuPDF succeeded with simplified HTML layout')
+                    return pdf_bytes, None
+            except Exception as e:
+                last_error = str(e)
+                logger.warning('PyMuPDF HTML PDF attempt %s failed: %s', index + 1, e)
+
+        return None, last_error or 'PyMuPDF could not render HTML'
+
+    def _pymupdf_story_to_pdf(self, html_content: str, fitz_module, buffer_class) -> Optional[bytes]:
+        buffer = buffer_class()
+        writer = fitz_module.DocumentWriter(buffer)
+        story = fitz_module.Story(html=html_content)
+        mediabox = fitz_module.paper_rect('a4')
+        content_rect = mediabox + (36, 36, -36, -36)
+        more = True
+        page_count = 0
+        max_pages = 100
+
+        while more:
+            device = writer.begin_page(mediabox)
+            more, _ = story.place(content_rect)
+            story.draw(device)
+            writer.end_page()
+            page_count += 1
+            if page_count >= max_pages:
+                logger.warning('PyMuPDF email PDF truncated at %s pages', max_pages)
+                break
+
+        writer.close()
+        pdf_bytes = buffer.getvalue()
+        return pdf_bytes if pdf_bytes else None
+
+    def _simplify_html_for_story(self, html_content: str) -> str:
+        """Build a minimal HTML document when PyMuPDF cannot parse the full Outlook template."""
+        inner = html_content
+        if BeautifulSoup:
+            soup = BeautifulSoup(html_content, 'html.parser')
+            content_root = soup.select_one('.email-content') or soup.body or soup
+            inner = content_root.decode_contents() if hasattr(content_root, 'decode_contents') else str(content_root)
+
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {{
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #242424;
+            margin: 0;
+            padding: 0;
+        }}
+        img {{ max-width: 100%; height: auto; }}
+        table {{ border-collapse: collapse; max-width: 100%; }}
+        td, th {{ vertical-align: top; padding: 4px 6px; }}
+        a {{ color: #0f6cbd; }}
+        blockquote {{
+            margin: 8px 0 8px 12px;
+            padding-left: 12px;
+            border-left: 3px solid #c8c6c4;
+        }}
+        pre, .text-preview {{ white-space: pre-wrap; }}
+    </style>
+</head>
+<body>{inner}</body>
+</html>"""
+
+    _PDF_LAYOUT_TAGS = frozenset({
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
+        'colgroup', 'col', 'div', 'span', 'p', 'center', 'font',
+    })
+    _PDF_STYLE_PROPS_TO_REMOVE = frozenset({
+        'width', 'min-width', 'max-width',
+        'overflow', 'overflow-x', 'overflow-y',
+        'table-layout',
+    })
+
+    def _parse_pixel_width(self, value: str) -> Optional[int]:
+        if not value:
+            return None
+        value = str(value).strip().lower()
+        match = re.match(r'^(\d+(?:\.\d+)?)\s*px?$', value)
+        if match:
+            return int(float(match.group(1)))
+        if value.isdigit():
+            return int(value)
+        return None
+
+    def _clean_inline_style_for_pdf(self, style: str) -> str:
+        if not style:
+            return ''
+
+        cleaned: List[str] = []
+        for part in style.split(';'):
+            part = part.strip()
+            if not part or ':' not in part:
+                continue
+
+            prop, _, raw_value = part.partition(':')
+            prop = prop.strip().lower()
+            value = raw_value.strip()
+
+            if prop in self._PDF_STYLE_PROPS_TO_REMOVE:
+                continue
+            if prop == 'white-space' and value.lower() in ('nowrap', 'pre'):
+                cleaned.append('white-space: normal')
+                continue
+
+            cleaned.append(f'{prop}: {value}')
+
+        return '; '.join(cleaned)
+
+    def _should_remove_width_attr_for_pdf(self, tag_name: str, width_val: str) -> bool:
+        if tag_name == 'img':
+            px = self._parse_pixel_width(width_val)
+            return px is None or px > 480
+
+        return tag_name in self._PDF_LAYOUT_TAGS
+
+    def _normalize_layout_tag_for_pdf(self, tag) -> None:
+        tag_name = (tag.name or '').lower()
+        if tag_name not in self._PDF_LAYOUT_TAGS and tag_name != 'img':
+            return
+
+        width_val = tag.attrs.get('width')
+        if width_val is not None and self._should_remove_width_attr_for_pdf(tag_name, str(width_val)):
+            del tag.attrs['width']
+
+        if tag_name == 'img':
+            height_val = tag.attrs.get('height')
+            if height_val is not None:
+                px = self._parse_pixel_width(str(height_val))
+                if px is None or px > 480:
+                    del tag.attrs['height']
+            return
+
+        style = tag.attrs.get('style')
+        if style:
+            cleaned_style = self._clean_inline_style_for_pdf(str(style))
+            if cleaned_style:
+                tag.attrs['style'] = cleaned_style
+            else:
+                del tag.attrs['style']
+
+    def _prepare_html_for_pdf_with_soup(self, html_content: str) -> str:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        content_root = soup.select_one('.email-content') or soup.body or soup
+
+        for tag in content_root.find_all(True):
+            self._normalize_layout_tag_for_pdf(tag)
+
+        return str(soup)
+
+    def _prepare_html_for_pdf_with_regex(self, html_content: str) -> str:
+        cleaned = html_content
+
+        cleaned = re.sub(
+            r'(<(?:table|td|th|colgroup|col|div|span|p|center)\b[^>]*?)\s+width\s*=\s*["\'][^"\']*["\']',
+            r'\1',
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r'(<img\b[^>]*?)\s+width\s*=\s*["\'](?:[5-9]\d{2}|\d{4,})[^"\']*["\']',
+            r'\1',
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r'style\s*=\s*["\']([^"\']*)["\']',
+            lambda match: (
+                f'style="{self._clean_inline_style_for_pdf(match.group(1))}"'
+                if self._clean_inline_style_for_pdf(match.group(1))
+                else ''
+            ),
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        return cleaned
+
+    def _prepare_html_for_pdf(self, html_content: str) -> str:
+        if not html_content:
+            return html_content
+
+        try:
+            if BeautifulSoup:
+                return self._prepare_html_for_pdf_with_soup(html_content)
+            return self._prepare_html_for_pdf_with_regex(html_content)
+        except Exception as e:
+            logger.warning(f"Error preparing HTML for PDF: {str(e)}")
+            return html_content
+
+    def _get_pdf_layout_stylesheet(self):
+        from weasyprint import CSS
+
+        return CSS(string='''
+            @page {
+                size: A4;
+                margin: 1.2cm;
+            }
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            html, body {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background-color: #fff;
+            }
+            .email-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .email-header,
+            .email-content,
+            .email-footer {
+                padding: 12px !important;
+            }
+            .email-content {
+                overflow: visible !important;
+                overflow-wrap: anywhere;
+                word-wrap: break-word;
+                word-break: break-word;
+                max-width: 100% !important;
+            }
+            .email-content p,
+            .email-content div,
+            .email-content span,
+            .email-content li,
+            .email-content td,
+            .email-content th,
+            .email-content blockquote,
+            .email-content a,
+            .email-content font,
+            .email-content center {
+                overflow: visible !important;
+                overflow-wrap: anywhere;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal !important;
+                max-width: 100% !important;
+            }
+            .email-content table {
+                width: 100% !important;
+                max-width: 100% !important;
+                table-layout: auto !important;
+                border-collapse: collapse;
+            }
+            .email-content col,
+            .email-content colgroup {
+                width: auto !important;
+                max-width: 100% !important;
+            }
+            .email-content blockquote {
+                margin-left: 0;
+                padding-left: 10px;
+                border-left: 3px solid #ccc;
+            }
+            .email-content pre,
+            .email-content code {
+                white-space: pre-wrap !important;
+                overflow-wrap: anywhere;
+                word-wrap: break-word;
+            }
+            .email-content img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+        ''')
+
+    def _replace_cid_with_data_uris(self, html_content: str, attachments: List[Dict[str, Any]]) -> str:
+        """Replace cid: image references with inline data URIs for PDF rendering."""
+        if not html_content or not attachments:
+            return html_content
+
+        cid_map: Dict[str, str] = {}
+        for attachment in attachments:
+            if not isinstance(attachment, dict):
+                continue
+
+            content_id = str(attachment.get('content_id') or '').strip().strip('<>')
+            data_b64 = attachment.get('data')
+            if not content_id or not data_b64:
+                continue
+
+            content_type = attachment.get('content_type') or 'application/octet-stream'
+            if not str(content_type).lower().startswith('image/'):
+                continue
+
+            cid_map[content_id.lower()] = f"data:{content_type};base64,{data_b64}"
+
+            filename = str(attachment.get('filename') or '').strip()
+            if filename:
+                cid_map[filename.lower()] = cid_map[content_id.lower()]
+
+        if not cid_map:
+            return html_content
+
+        def replace_cid(match: re.Match) -> str:
+            cid_value = match.group(1).strip().strip('<>').lower()
+            if cid_value in cid_map:
+                return f'src="{cid_map[cid_value]}"'
+            return match.group(0)
+
+        return re.sub(r'src=["\']cid:([^"\']+)["\']', replace_cid, html_content, flags=re.IGNORECASE)
