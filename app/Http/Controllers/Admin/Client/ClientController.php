@@ -99,12 +99,8 @@ class ClientController extends Controller
 	 */
 	public function exportList(Request $request)
 	{
-		if (! $this->hasModuleAccess('20')) {
-			return redirect()->route('clients.index')
-				->with('error', config('constants.unauthorized'));
-		}
-
-		if ((int) (Auth::user()->role ?? 0) !== 1) {
+		$user = Auth::guard('admin')->user();
+		if (! $user instanceof Staff || ! $user->isSuperAdmin()) {
 			return redirect()->route('clients.index')
 				->with('error', config('constants.unauthorized'));
 		}

@@ -73,7 +73,8 @@ class LeadController extends Controller
 	 */
 	public function exportList(Request $request)
 	{
-		if ((int) (Auth::user()->role ?? 0) !== 1) {
+		$user = Auth::guard('admin')->user();
+		if (! $user instanceof Staff || ! $user->isSuperAdmin()) {
 			return redirect()->route('leads.index')
 				->with('error', config('constants.unauthorized'));
 		}

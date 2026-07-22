@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 @section('title', 'Clients')
 
+@php
+	$canExportClientList = ($exportUser = auth('admin')->user()) instanceof \App\Models\Staff && $exportUser->isSuperAdmin();
+@endphp
+
 @section('content')
 <style>
 .ag-space-between {
@@ -94,7 +98,7 @@
 										
 									</div>
 								</div>
-								@if(Auth::user() && (int) Auth::user()->role === 1)
+								@if($canExportClientList)
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm" onclick="exportClientList({{ $filteredTotal }})" title="Export client list as CSV">
 									@icon('download') Export CSV
 								</a>
@@ -381,6 +385,7 @@
 @endsection
 @section('scripts')
 <script>
+@if($canExportClientList)
 function exportClientList(filteredTotal) {
     var exportLimit = {{ \App\Services\ClientLeadListExportService::EXPORT_LIMIT }};
     var total = parseInt(filteredTotal, 10) || 0;
@@ -408,6 +413,7 @@ function exportClientList(filteredTotal) {
     var baseUrl = '{{ route('clients.export-list') }}';
     window.location.href = baseUrl + (params.toString() ? '?' + params.toString() : '');
 }
+@endif
 
 jQuery(document).ready(function($){
 	$('.filter_btn').on('click', function(){

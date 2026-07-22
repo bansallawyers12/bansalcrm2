@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 @section('title', 'Leads')
 
+@php
+	$canExportLeadList = ($exportUser = auth('admin')->user()) instanceof \App\Models\Staff && $exportUser->isSuperAdmin();
+@endphp
+
 @section('content')
 <style>
 .mytooltip{display: inline;position: relative;z-index: 999;}
@@ -62,7 +66,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 								@icon('upload') Import Lead
 							</a>
 							<a href="{{route('leads.create')}}" class="btn btn-primary">Add Lead</a>
-							@if(Auth::user() && (int) Auth::user()->role === 1)
+							@if($canExportLeadList)
 							<a href="javascript:;" class="btn btn-theme btn-theme-sm" onclick="exportLeadList({{ $filteredTotal }})" title="Export lead list as CSV">
 								@icon('download') Export CSV
 							</a>
@@ -291,6 +295,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 @endsection
 @section('scripts')
 <script>
+@if($canExportLeadList)
 function exportLeadList(filteredTotal) {
     var exportLimit = {{ \App\Services\ClientLeadListExportService::EXPORT_LIMIT }};
     var total = parseInt(filteredTotal, 10) || 0;
@@ -318,6 +323,7 @@ function exportLeadList(filteredTotal) {
     var baseUrl = '{{ route('leads.export-list') }}';
     window.location.href = baseUrl + (params.toString() ? '?' + params.toString() : '');
 }
+@endif
 
     jQuery(document).ready(function($){
         $('.filter_btn').on('click', function(){

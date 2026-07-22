@@ -86,6 +86,14 @@ class Staff extends Authenticatable
     }
 
     /**
+     * Super admin staff role (staff_roles.id = 1).
+     */
+    public function isSuperAdmin(): bool
+    {
+        return (int) ($this->role ?? 0) === 1;
+    }
+
+    /**
      * @see \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue()
      */
     public static function firstFromAdminsAssigneeField(mixed $value): ?self
