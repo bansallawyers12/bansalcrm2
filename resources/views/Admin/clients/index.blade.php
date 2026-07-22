@@ -35,6 +35,24 @@
 .ag-list__item{font-size: 12px;margin: 0;padding: 0.8rem 2.6rem;}
 .filter_panel {background: #f7f7f7;margin-bottom: 10px;border: 1pxsolid #eee;display: none;}
 .card .card-body .filter_panel { padding: 20px;}
+.card-header .card-header-title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+.card-header .list-record-total {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: #6777ef;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.2;
+	white-space: nowrap;
+}
 </style>
 <!-- Main Content -->
 <div class="main-content">
@@ -50,7 +68,15 @@
 				<div class="col-12 col-md-12 col-lg-12">
 					<div class="card">
 						<div class="card-header">
-							<h4>All Clients</h4>
+							<div class="card-header-title">
+								<h4>All Clients</h4>
+								@php
+									$filteredTotal = (int) ($lists->total() ?? 0);
+								@endphp
+								<span class="list-record-total" title="Total records matching current filters">
+									Total: {{ number_format($filteredTotal) }}
+								</span>
+							</div>
 							<div class="card-header-action">
 								<div class="drop_table_data" style="display: inline-block;margin-right: 10px;"> 
 									<button type="button" class="btn btn-primary dropdown-toggle">@icon('columns')</button>
@@ -68,6 +94,11 @@
 										
 									</div>
 								</div>
+								@if(Auth::user() && (int) Auth::user()->role === 1)
+								<a href="javascript:;" class="btn btn-theme btn-theme-sm" onclick="exportClientList({{ $filteredTotal }})" title="Export client list as CSV">
+									@icon('download') Export CSV
+								</a>
+								@endif
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 							</div>
 						</div>
@@ -167,7 +198,7 @@
 											</thead>
 											
 											<tbody class="tdata">	
-												@if(@$totalData !== 0)
+												@if($filteredTotal > 0)
 													<?php $i=0; ?>
 												@foreach (@$lists as $list)
 												<tr id="id_{{@$list->id}}"> 
@@ -350,6 +381,34 @@
 @endsection
 @section('scripts')
 <script>
+function exportClientList(filteredTotal) {
+    var exportLimit = {{ \App\Services\ClientLeadListExportService::EXPORT_LIMIT }};
+    var total = parseInt(filteredTotal, 10) || 0;
+
+    if (total === 0) {
+        alert('No clients match the current filters.');
+        return;
+    }
+
+    var exportCount = total;
+    var batchCount = Math.ceil(total / exportLimit);
+    var message = 'Export ' + exportCount + ' client(s) as CSV?\n\nThe file will include an Export Summary footer showing total matching and exported counts.';
+
+    if (batchCount > 1) {
+        message = 'Export ' + exportCount + ' client(s) automatically in ' + batchCount + ' CSV files inside one ZIP download.\n\nFiles will be named batch 1 of ' + batchCount + ', batch 2 of ' + batchCount + ', and so on.';
+    }
+
+    if (!confirm(message)) {
+        return;
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    params.delete('page');
+    params.delete('per_page');
+    var baseUrl = '{{ route('clients.export-list') }}';
+    window.location.href = baseUrl + (params.toString() ? '?' + params.toString() : '');
+}
+
 jQuery(document).ready(function($){
 	$('.filter_btn').on('click', function(){
 		$('.filter_panel').slideToggle();

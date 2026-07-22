@@ -17,6 +17,24 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 .mytooltip .tooltip-text {font-size: 14px;line-height: 24px;display: block;padding: 1.31em 1.21em 1.21em 0;color: #fff;}
 .filter_panel {background: #f7f7f7;margin-bottom: 10px;border: 1pxsolid #eee;display: none;}
 .card .card-body .filter_panel { padding: 20px;}
+.card-header .card-header-title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+.card-header .list-record-total {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: #6777ef;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.2;
+	white-space: nowrap;
+}
 </style>
 <div class="main-content">
 	<section class="section">
@@ -30,12 +48,25 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 				<div class="col-12 col-md-12 col-lg-12">
 					<div class="card">
 					<div class="card-header">
-						<h4>Leads</h4>
+						<div class="card-header-title">
+							<h4>Leads</h4>
+							@php
+								$filteredTotal = (int) ($lists->total() ?? 0);
+							@endphp
+							<span class="list-record-total" title="Total records matching current filters">
+								Total: {{ number_format($filteredTotal) }}
+							</span>
+						</div>
 						<div class="card-header-action">
 							<a href="javascript:;" class="btn btn-theme btn-theme-sm" data-bs-toggle="modal" data-bs-target="#importLeadModal" title="Import Lead">
 								@icon('upload') Import Lead
 							</a>
 							<a href="{{route('leads.create')}}" class="btn btn-primary">Add Lead</a>
+							@if(Auth::user() && (int) Auth::user()->role === 1)
+							<a href="javascript:;" class="btn btn-theme btn-theme-sm" onclick="exportLeadList({{ $filteredTotal }})" title="Export lead list as CSV">
+								@icon('download') Export CSV
+							</a>
+							@endif
 							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn">@icon('filter') Filter</a>
 						</div>
 					</div>
@@ -109,7 +140,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										</tr> 
 									</thead>
 									<tbody class="tdata">	
-										@if(@$totalData !== 0)
+										@if($filteredTotal > 0)
 										@foreach (@$lists as $list)	
 										<?php 
 										$leadIdForLinks = $list->lead_id ?? $list->id;
@@ -260,6 +291,34 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 @endsection
 @section('scripts')
 <script>
+function exportLeadList(filteredTotal) {
+    var exportLimit = {{ \App\Services\ClientLeadListExportService::EXPORT_LIMIT }};
+    var total = parseInt(filteredTotal, 10) || 0;
+
+    if (total === 0) {
+        alert('No leads match the current filters.');
+        return;
+    }
+
+    var exportCount = total;
+    var batchCount = Math.ceil(total / exportLimit);
+    var message = 'Export ' + exportCount + ' lead(s) as CSV?\n\nThe file will include an Export Summary footer showing total matching and exported counts.';
+
+    if (batchCount > 1) {
+        message = 'Export ' + exportCount + ' lead(s) automatically in ' + batchCount + ' CSV files inside one ZIP download.\n\nFiles will be named batch 1 of ' + batchCount + ', batch 2 of ' + batchCount + ', and so on.';
+    }
+
+    if (!confirm(message)) {
+        return;
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    params.delete('page');
+    params.delete('per_page');
+    var baseUrl = '{{ route('leads.export-list') }}';
+    window.location.href = baseUrl + (params.toString() ? '?' + params.toString() : '');
+}
+
     jQuery(document).ready(function($){
         $('.filter_btn').on('click', function(){
             $('.filter_panel').slideToggle();
@@ -275,6 +334,25 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
             var fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').html(fileName || 'Choose file...');
         });
+
+        function initAssignLeadTomSelect() {
+            if (typeof initTomSelectPreserveValue !== 'function') {
+                return;
+            }
+            initTomSelectPreserveValue('#assignlead_modal select[name="assignto"]', {
+                width: '100%',
+                placeholder: 'Select',
+                allowClear: true,
+                dropdownParent: document.querySelector('#assignlead_modal .modal-content') || '#assignlead_modal',
+                maxOptions: null
+            });
+        }
+
+        if (typeof whenTomSelectReady === 'function') {
+            whenTomSelectReady(initAssignLeadTomSelect);
+        } else if (typeof waitForTomSelect === 'function') {
+            waitForTomSelect().then(initAssignLeadTomSelect);
+        }
     });
 
     // Show error toast when import fails
@@ -304,15 +382,5 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
         }
     });
     @endif
-
-    whenTomSelectReady(function () {
-        initTomSelectPreserveValue('#assignlead_modal select[name="assignto"]', {
-            width: '100%',
-            placeholder: 'Select',
-            allowClear: true,
-            dropdownParent: document.querySelector('#assignlead_modal .modal-content') || '#assignlead_modal',
-            maxOptions: null
-        });
-    });
 </script>
 @endsection

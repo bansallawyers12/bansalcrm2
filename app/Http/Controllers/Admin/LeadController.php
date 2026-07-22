@@ -12,8 +12,10 @@ use App\Models\Admin;
 use App\Models\Staff;
 use App\Support\StaffClientVisibility;
 use App\Services\ClientImportService;
+use App\Services\ClientLeadListExportService;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use App\Helpers\PhoneHelper;
 
@@ -52,74 +54,99 @@ class LeadController extends Controller
 		if ($user instanceof Staff) {
 			StaffClientVisibility::restrictAdminsQueryForStaff($baseQuery, $user);
 		}
+
+		$totalData = (clone $baseQuery)->count();
+		$query = $this->buildLeadListQuery($request, $baseQuery);
+
+		if ($request->has('id') || $request->has('email') || $request->has('name') || $request->has('phone') || $request->has('status') || $request->has('from') || $request->has('to'))
+		{
+			$totalData = $query->count();
+		}
+		$lists = $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
+		$cur_url = $request->fullUrl();
+		return view('Admin.leads.index', compact(['lists', 'totalData', 'cur_url']));
+
+	}
+
+	/**
+	 * Export filtered lead list as CSV.
+	 */
+	public function exportList(Request $request)
+	{
+		if ((int) (Auth::user()->role ?? 0) !== 1) {
+			return redirect()->route('leads.index')
+				->with('error', config('constants.unauthorized'));
+		}
+
+		$baseQuery = Admin::where('type', 'lead')->where('converted', 0)
+			->where(function ($q) {
+				$q->whereNull('is_deleted')->orWhere('is_deleted', 0);
+			});
+		$user = Auth::guard('admin')->user();
+		if ($user instanceof Staff) {
+			StaffClientVisibility::restrictAdminsQueryForStaff($baseQuery, $user);
+		}
+
+		$query = $this->buildLeadListQuery($request, $baseQuery);
+
+		return app(ClientLeadListExportService::class)
+			->export($query, 'lead', 'leads_export');
+	}
+
+	/**
+	 * Build the lead list query with the same filters as the index page.
+	 */
+	protected function buildLeadListQuery(Request $request, Builder $baseQuery): Builder
+	{
 		$query = clone $baseQuery;
 
-		$totalData = $query->count();
-		if ($request->has('id')) 
-		{
-			$lead_id 		= 	$request->input('id'); 
-			if(trim($lead_id) != '')
-			{
+		if ($request->has('id')) {
+			$lead_id = $request->input('id');
+			if (trim($lead_id) != '') {
 				$query->where(function ($q) use ($lead_id) {
 					$q->where('lead_id', '=', $lead_id)->orWhere('id', '=', $lead_id);
 				});
 			}
 		}
-		if ($request->has('email')) 
-		{
-			$email 		= 	$request->input('email'); 
-			if(trim($email) != '')
-			{
-				$query->where('email', '=', @$email);
-			}
-		}if ($request->has('name')) 
-		{
-			$name 		= 	$request->input('name'); 
-			if(trim($name) != '')
-			{
-			$query	->where(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', "%".$name."%");
-			}
-		}if ($request->has('phone')) 
-		{
-			$phone 		= 	$request->input('phone'); 
-			if(trim($phone) != '')
-			{
-				$query->where('phone', '=', @$phone);
-			}
-		}if ($request->has('status')) 
-		{
-			$status 		= 	$request->input('status'); 
-			if(trim($status) != '')
-			{
-				$query->where('status', '=', @$status);
+		if ($request->has('email')) {
+			$email = $request->input('email');
+			if (trim($email) != '') {
+				$query->where('email', '=', $email);
 			}
 		}
-		if ($request->has('from')) 
-		{
-			$from 		= 	$request->input('from'); 
-			if(trim($from) != '')
-			{
-				$query->whereDate('created_at', '>=', @$from);
+		if ($request->has('name')) {
+			$name = $request->input('name');
+			if (trim($name) != '') {
+				$query->where(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', '%' . $name . '%');
 			}
-
-		}		if ($request->has('to')) 
-		{
-			$to 		= 	$request->input('to'); 
-			if(trim($to) != '')
-			{
-				$query->whereDate('created_at', '<=', @$to);
+		}
+		if ($request->has('phone')) {
+			$phone = $request->input('phone');
+			if (trim($phone) != '') {
+				$query->where('phone', '=', $phone);
 			}
-
 		}
-	if ($request->has('id') || $request->has('email') || $request->has('name') || $request->has('phone') || $request->has('status'))
-		{
-			$totalData 	= $query->count();//after search
+		if ($request->has('status')) {
+			$status = $request->input('status');
+			if (trim($status) != '') {
+				$query->where('status', '=', $status);
+			}
 		}
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit')); 
-		$cur_url = $request->fullUrl();
-		return view('Admin.leads.index', compact(['lists', 'totalData', 'cur_url'])); 
+		if ($request->has('from')) {
+			$from = $request->input('from');
+			if (trim($from) != '') {
+				$query->whereDate('created_at', '>=', $from);
+			}
+		}
+		if ($request->has('to')) {
+			$to = $request->input('to');
+			if (trim($to) != '') {
+				$query->whereDate('created_at', '<=', $to);
+			}
+		}
 
-	}   
+		return $query;
+	}
 	
 	public function create(Request $request) 
 	{

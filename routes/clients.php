@@ -46,7 +46,8 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::get('/clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
     Route::post('/clients/edit', [ClientController::class, 'edit'])->name('clients.update');
     
-    // Export route
+    // Export routes
+    Route::get('/clients/export-list', [ClientController::class, 'exportList'])->name('clients.export-list');
     Route::get('/clients/export/{id}', [ClientController::class, 'export'])->name('clients.export');
     
     // Fallback route: redirect GET requests to edit without ID back to clients list

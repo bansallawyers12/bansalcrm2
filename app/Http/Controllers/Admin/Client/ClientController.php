@@ -14,6 +14,7 @@ use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
 use App\Services\SearchService;
 use App\Services\ClientExportService;
+use App\Services\ClientLeadListExportService;
 use App\Models\Staff;
 use App\Support\StaffClientVisibility;
 use App\Models\CheckinLog;
@@ -91,6 +92,27 @@ class ClientController extends Controller
 		
 		// Return appropriate view based on context
 		return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
+	}
+
+	/**
+	 * Export filtered client list as CSV.
+	 */
+	public function exportList(Request $request)
+	{
+		if (! $this->hasModuleAccess('20')) {
+			return redirect()->route('clients.index')
+				->with('error', config('constants.unauthorized'));
+		}
+
+		if ((int) (Auth::user()->role ?? 0) !== 1) {
+			return redirect()->route('clients.index')
+				->with('error', config('constants.unauthorized'));
+		}
+
+		$query = $this->applyClientFilters($this->getBaseClientQuery(), $request);
+
+		return app(ClientLeadListExportService::class)
+			->export($query, 'client', 'clients_export');
 	}
 
 	public function archived(Request $request)
