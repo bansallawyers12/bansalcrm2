@@ -70,5 +70,9 @@ class ClientDetailTabTest extends TestCase
         $this->assertStringContainsString("@if(\$activeTab === 'noteterm')", $blade);
         $this->assertStringContainsString("@if(\$activeTab === 'accounts')", $blade);
         $this->assertStringContainsString('activities-load-more', $blade);
+        $this->assertStringContainsString('aria-label="More activities"', $blade);
+        $this->assertStringContainsString('activities-filters-active', $blade);
+        $this->assertStringContainsString('>...</button>', $blade);
+        $this->assertStringNotContainsString('>Load more</button>', $blade);
     }
 }

@@ -22,12 +22,16 @@ function applyActivitiesResponse(response, options) {
     var html = '';
     var append = !!(options && options.append);
 
-    if (ress && ress.html) {
+    if (ress && Object.prototype.hasOwnProperty.call(ress, 'html') && ress.html != null) {
         html = ress.html;
     } else if (ress && ress.data && ress.data.length > 0) {
         $.each(ress.data, function(k, v) {
             html += buildLegacyActivityItemHtml(v);
         });
+    }
+
+    if (!append && !String(html).trim()) {
+        html = '<h4>No Record Found</h4>';
     }
 
     if ($('.activities').length) {
@@ -47,16 +51,102 @@ function applyActivitiesResponse(response, options) {
     syncActivitiesLoadMore(ress);
 }
 
-function syncActivitiesLoadMore(ress) {
-    var $btn = $('.activities-load-more');
-    if (!$btn.length) {
+var activitiesLoadMoreInFlight = false;
+var activitiesLoadMoreObserver = null;
+var activitiesRequestSeq = 0;
+var activitiesUserHasScrolled = false;
+
+function activitiesLoadMoreEl() {
+    return document.querySelector('.activities-load-more');
+}
+
+function activitiesScrollRoot() {
+    var el = activitiesLoadMoreEl();
+    if (!el) {
+        return null;
+    }
+    var node = el.parentElement;
+    while (node && node !== document.body && node !== document.documentElement) {
+        var style = window.getComputedStyle(node);
+        var overflowY = style.overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight + 1) {
+            return node;
+        }
+        node = node.parentElement;
+    }
+    return null;
+}
+
+function isActivitiesLoadMoreVisible() {
+    var el = activitiesLoadMoreEl();
+    if (!el || el.style.display === 'none' || el.offsetParent === null) {
+        return false;
+    }
+    var root = activitiesScrollRoot();
+    var elRect = el.getBoundingClientRect();
+    if (root) {
+        var rootRect = root.getBoundingClientRect();
+        return elRect.top < rootRect.bottom && elRect.bottom > rootRect.top;
+    }
+    return elRect.top < (window.innerHeight || document.documentElement.clientHeight) && elRect.bottom > 0;
+}
+
+function requestActivitiesNextPage() {
+    var $el = $('.activities-load-more');
+    if (!$el.length || activitiesLoadMoreInFlight || $el.is(':hidden')) {
         return;
     }
-    $btn.prop('disabled', false).text('Load more');
+    var nextPage = parseInt($el.attr('data-next-page'), 10);
+    if (!nextPage) {
+        return;
+    }
+    activitiesLoadMoreInFlight = true;
+    $el.addClass('is-loading').prop('disabled', true);
+    getallactivities(null, { page: nextPage, append: true });
+}
+
+function maybeLoadMoreIfVisible() {
+    if (!activitiesUserHasScrolled || !isActivitiesLoadMoreVisible()) {
+        return;
+    }
+    requestActivitiesNextPage();
+}
+
+function observeActivitiesLoadMore() {
+    var el = activitiesLoadMoreEl();
+    if (activitiesLoadMoreObserver) {
+        activitiesLoadMoreObserver.disconnect();
+        activitiesLoadMoreObserver = null;
+    }
+    if (!el || typeof IntersectionObserver === 'undefined') {
+        return;
+    }
+    activitiesLoadMoreObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting && activitiesUserHasScrolled) {
+                requestActivitiesNextPage();
+            }
+        });
+    }, { root: activitiesScrollRoot(), rootMargin: '0px 0px 80px 0px', threshold: 0 });
+    activitiesLoadMoreObserver.observe(el);
+}
+
+function syncActivitiesLoadMore(ress) {
+    var $el = $('.activities-load-more');
+    if (!$el.length) {
+        return;
+    }
+    activitiesLoadMoreInFlight = false;
+    $el.prop('disabled', false).removeClass('is-loading').text('...');
     if (ress && ress.hasMore) {
-        $btn.attr('data-next-page', ress.nextPage).show();
+        $el.attr('data-next-page', ress.nextPage).show();
+        observeActivitiesLoadMore();
     } else {
-        $btn.removeAttr('data-next-page').hide();
+        $el.removeAttr('data-next-page').hide();
+        if (activitiesLoadMoreObserver) {
+            activitiesLoadMoreObserver.disconnect();
+            activitiesLoadMoreObserver = null;
+        }
     }
 }
 
@@ -71,6 +161,64 @@ function activityFilterRequestData() {
     data.date_from = $form.find('[name="date_from"]').val() || '';
     data.date_to = $form.find('[name="date_to"]').val() || '';
     return data;
+}
+
+function activitiesFiltersAreActive(data) {
+    data = data || activityFilterRequestData();
+    var type = data.activity_type || 'all';
+    return !!(String(data.keyword || '').trim() || (type && type !== 'all') || data.date_from || data.date_to);
+}
+
+function syncActivitiesFilterBadge() {
+    var $badge = $('#activities-filters-active');
+    if (!$badge.length) {
+        return;
+    }
+    if (activitiesFiltersAreActive()) {
+        $badge.show();
+    } else {
+        $badge.hide();
+    }
+}
+
+function syncActivitiesFilterUrl() {
+    var $form = $('#activitiesFilterForm');
+    if (!$form.length || !window.history || typeof window.history.replaceState !== 'function') {
+        return;
+    }
+    var url;
+    try {
+        url = new URL(window.location.href);
+    } catch (e) {
+        return;
+    }
+    ['keyword', 'activity_type', 'date_from', 'date_to'].forEach(function (key) {
+        url.searchParams.delete(key);
+    });
+    var data = activityFilterRequestData();
+    if (String(data.keyword || '').trim()) {
+        url.searchParams.set('keyword', data.keyword);
+    }
+    if (data.activity_type && data.activity_type !== 'all') {
+        url.searchParams.set('activity_type', data.activity_type);
+    }
+    if (data.date_from) {
+        url.searchParams.set('date_from', data.date_from);
+    }
+    if (data.date_to) {
+        url.searchParams.set('date_to', data.date_to);
+    }
+    window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+}
+
+function applyActivitiesFilters() {
+    var $form = $('#activitiesFilterForm');
+    if (!$form.length) {
+        return;
+    }
+    syncActivitiesFilterUrl();
+    syncActivitiesFilterBadge();
+    getallactivities();
 }
 
 /**
@@ -146,10 +294,14 @@ function getallactivities(onSuccess, options) {
     options = options || {};
     var page = parseInt(options.page, 10) || 1;
     var append = !!options.append;
+    if (!append) {
+        activitiesUserHasScrolled = false;
+    }
     var data = activityFilterRequestData();
     data.id = activityId;
     data.paginated = 1;
     data.page = page;
+    var requestSeq = ++activitiesRequestSeq;
     
     $.ajax({
         url: url,
@@ -157,12 +309,20 @@ function getallactivities(onSuccess, options) {
         dataType: 'json',
         data: data,
         success: function(responses) {
+            if (requestSeq !== activitiesRequestSeq) {
+                return;
+            }
             applyActivitiesResponse(responses, { append: append });
             if (typeof onSuccess === 'function') onSuccess();
+            maybeLoadMoreIfVisible();
         },
         error: function(xhr, status, err) {
+            if (requestSeq !== activitiesRequestSeq) {
+                return;
+            }
             console.warn('Failed to refresh activities:', status, err);
-            $('.activities-load-more').prop('disabled', false).text('Load more');
+            activitiesLoadMoreInFlight = false;
+            $('.activities-load-more').prop('disabled', false).removeClass('is-loading');
             if (typeof onSuccess === 'function') onSuccess();
         }
     });
@@ -239,6 +399,7 @@ if (typeof window !== 'undefined') {
     window.getallnotes = getallnotes;
     window.deleteactivitylog = deleteactivitylog;
     window.applyActivitiesResponse = applyActivitiesResponse;
+    window.applyActivitiesFilters = applyActivitiesFilters;
 }
 
 function bindActivitiesLoadMore() {
@@ -246,14 +407,16 @@ function bindActivitiesLoadMore() {
         return;
     }
     jQuery(document).off('click.activitiesLoadMore', '.activities-load-more').on('click.activitiesLoadMore', '.activities-load-more', function () {
-        var $btn = jQuery(this);
-        var nextPage = parseInt($btn.attr('data-next-page'), 10);
-        if (!nextPage || $btn.prop('disabled')) {
-            return;
-        }
-        $btn.prop('disabled', true).text('Loading...');
-        getallactivities(null, { page: nextPage, append: true });
+        requestActivitiesNextPage();
     });
+    if (!window._activitiesLoadMoreScrollBound) {
+        window._activitiesLoadMoreScrollBound = true;
+        document.addEventListener('scroll', function () {
+            activitiesUserHasScrolled = true;
+            maybeLoadMoreIfVisible();
+        }, { passive: true, capture: true });
+    }
+    observeActivitiesLoadMore();
 }
 
 if (typeof jQuery !== 'undefined') {

@@ -56,9 +56,10 @@ final class ClientDetailActivities
     {
         $keyword = trim((string) ($filters['keyword'] ?? ''));
         if ($keyword !== '') {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('activities_logs.description', 'like', '%'.$keyword.'%')
-                    ->orWhere('activities_logs.subject', 'like', '%'.$keyword.'%');
+            $like = '%'.$keyword.'%';
+            $query->where(function ($q) use ($like) {
+                $q->whereLike('activities_logs.description', $like)
+                    ->orWhereLike('activities_logs.subject', $like);
             });
         }
 
@@ -67,15 +68,41 @@ final class ClientDetailActivities
             self::applyActivityTypeFilter($query, $activityType);
         }
 
-        $dateFrom = (string) ($filters['date_from'] ?? '');
-        if ($dateFrom !== '') {
-            $query->whereDate('activities_logs.created_at', '>=', date('Y-m-d', strtotime($dateFrom)));
+        $dateFrom = self::parseFilterDate((string) ($filters['date_from'] ?? ''));
+        if ($dateFrom !== null) {
+            $query->whereDate('activities_logs.created_at', '>=', $dateFrom);
         }
 
-        $dateTo = (string) ($filters['date_to'] ?? '');
-        if ($dateTo !== '') {
-            $query->whereDate('activities_logs.created_at', '<=', date('Y-m-d', strtotime($dateTo)));
+        $dateTo = self::parseFilterDate((string) ($filters['date_to'] ?? ''));
+        if ($dateTo !== null) {
+            $query->whereDate('activities_logs.created_at', '<=', $dateTo);
         }
+    }
+
+    /**
+     * Accepts d/m/Y (CRM dates) and Y-m-d (flatpickr). Invalid values are ignored.
+     */
+    public static function parseFilterDate(string $value): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        foreach (['d/m/Y', 'Y-m-d', 'd-m-Y'] as $format) {
+            $parsed = \DateTimeImmutable::createFromFormat('!'.$format, $value);
+            if (! $parsed instanceof \DateTimeImmutable) {
+                continue;
+            }
+            $errors = \DateTimeImmutable::getLastErrors();
+            if (is_array($errors) && (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0)) {
+                continue;
+            }
+
+            return $parsed->format('Y-m-d');
+        }
+
+        return null;
     }
 
     private static function applyActivityTypeFilter(Builder $query, string $activityType): void
@@ -83,95 +110,95 @@ final class ClientDetailActivities
         switch ($activityType) {
             case 'notes':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%added a note%')
-                        ->orWhere('activities_logs.subject', 'like', '%updated a note%')
-                        ->orWhere('activities_logs.subject', 'like', '%deleted a note%');
+                    $q->whereLike('activities_logs.subject', '%added a note%')
+                        ->orWhereLike('activities_logs.subject', '%updated a note%')
+                        ->orWhereLike('activities_logs.subject', '%deleted a note%');
                 });
                 break;
             case 'messages':
-                $query->where('activities_logs.subject', 'like', '%sent a message%');
+                $query->whereLike('activities_logs.subject', '%sent a message%');
                 break;
             case 'calls':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.description', 'like', '%Call not picked%')
-                        ->orWhere('activities_logs.subject', 'like', '%call%');
+                    $q->whereLike('activities_logs.description', '%Call not picked%')
+                        ->orWhereLike('activities_logs.subject', '%call%');
                 });
                 break;
             case 'reviews':
-                $query->where('activities_logs.subject', 'like', '%review%');
+                $query->whereLike('activities_logs.subject', '%review%');
                 break;
             case 'reminders':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%Email reminder sent%')
-                        ->orWhere('activities_logs.subject', 'like', '%SMS reminder sent%')
-                        ->orWhere('activities_logs.subject', 'like', '%Phone reminder recorded%')
-                        ->orWhere('activities_logs.subject', 'like', '%Checklist Email sent%')
-                        ->orWhere('activities_logs.subject', 'like', '%Checklist Email resent%')
-                        ->orWhere('activities_logs.subject', 'like', '%Document Checklist sent%');
+                    $q->whereLike('activities_logs.subject', '%Email reminder sent%')
+                        ->orWhereLike('activities_logs.subject', '%SMS reminder sent%')
+                        ->orWhereLike('activities_logs.subject', '%Phone reminder recorded%')
+                        ->orWhereLike('activities_logs.subject', '%Checklist Email sent%')
+                        ->orWhereLike('activities_logs.subject', '%Checklist Email resent%')
+                        ->orWhereLike('activities_logs.subject', '%Document Checklist sent%');
                 });
                 break;
             case 'documents':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%document%')
-                        ->orWhere('activities_logs.subject', 'like', '%uploaded%')
-                        ->orWhere('activities_logs.subject', 'like', '%verified%');
+                    $q->whereLike('activities_logs.subject', '%document%')
+                        ->orWhereLike('activities_logs.subject', '%uploaded%')
+                        ->orWhereLike('activities_logs.subject', '%verified%');
                 });
                 break;
             case 'action':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%action%')
-                        ->orWhere('activities_logs.subject', 'like', '%task%')
-                        ->orWhere('activities_logs.subject', 'like', '%Completed action%')
+                    $q->whereLike('activities_logs.subject', '%action%')
+                        ->orWhereLike('activities_logs.subject', '%task%')
+                        ->orWhereLike('activities_logs.subject', '%Completed action%')
                         ->orWhere('activities_logs.task_status', '=', 1);
                 });
                 break;
             case 'accounting':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%receipt%')
-                        ->orWhere('activities_logs.subject', 'like', '%invoice%')
-                        ->orWhere('activities_logs.subject', 'like', '%payment%');
+                    $q->whereLike('activities_logs.subject', '%receipt%')
+                        ->orWhereLike('activities_logs.subject', '%invoice%')
+                        ->orWhereLike('activities_logs.subject', '%payment%');
                 });
                 break;
             case 'applications':
-                $query->where('activities_logs.subject', 'like', '%started an application%');
+                $query->whereLike('activities_logs.subject', '%started an application%');
                 break;
             case 'services':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%an interested service%');
+                    $q->whereLike('activities_logs.subject', '%an interested service%');
                 });
                 break;
             case 'status':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%status%')
-                        ->orWhere('activities_logs.subject', 'like', '%rated%')
-                        ->orWhere('activities_logs.subject', 'like', '%rating%');
+                    $q->whereLike('activities_logs.subject', '%status%')
+                        ->orWhereLike('activities_logs.subject', '%rated%')
+                        ->orWhereLike('activities_logs.subject', '%rating%');
                 });
                 break;
             case 'checkins':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'like', '%check-in%')
-                        ->orWhere('activities_logs.subject', 'like', '%session%')
-                        ->orWhere('activities_logs.subject', 'like', '%commented%');
+                    $q->whereLike('activities_logs.subject', '%check-in%')
+                        ->orWhereLike('activities_logs.subject', '%session%')
+                        ->orWhereLike('activities_logs.subject', '%commented%');
                 });
                 break;
             case 'other':
                 $query->where(function ($q) {
-                    $q->where('activities_logs.subject', 'not like', '%note%')
-                        ->where('activities_logs.subject', 'not like', '%document%')
-                        ->where('activities_logs.subject', 'not like', '%action%')
-                        ->where('activities_logs.subject', 'not like', '%task%')
-                        ->where('activities_logs.subject', 'not like', '%receipt%')
-                        ->where('activities_logs.subject', 'not like', '%application%')
-                        ->where('activities_logs.subject', 'not like', '%message%')
-                        ->where('activities_logs.subject', 'not like', '%call%')
-                        ->where('activities_logs.subject', 'not like', '%service%')
-                        ->where('activities_logs.subject', 'not like', '%status%')
-                        ->where('activities_logs.subject', 'not like', '%check-in%')
-                        ->where('activities_logs.subject', 'not like', '%session%')
-                        ->where('activities_logs.subject', 'not like', '%review%')
-                        ->where('activities_logs.subject', 'not like', '%reminder%')
-                        ->where('activities_logs.subject', 'not like', '%Checklist Email sent%')
-                        ->where('activities_logs.subject', 'not like', '%Checklist Email resent%');
+                    $q->whereNotLike('activities_logs.subject', '%note%')
+                        ->whereNotLike('activities_logs.subject', '%document%')
+                        ->whereNotLike('activities_logs.subject', '%action%')
+                        ->whereNotLike('activities_logs.subject', '%task%')
+                        ->whereNotLike('activities_logs.subject', '%receipt%')
+                        ->whereNotLike('activities_logs.subject', '%application%')
+                        ->whereNotLike('activities_logs.subject', '%message%')
+                        ->whereNotLike('activities_logs.subject', '%call%')
+                        ->whereNotLike('activities_logs.subject', '%service%')
+                        ->whereNotLike('activities_logs.subject', '%status%')
+                        ->whereNotLike('activities_logs.subject', '%check-in%')
+                        ->whereNotLike('activities_logs.subject', '%session%')
+                        ->whereNotLike('activities_logs.subject', '%review%')
+                        ->whereNotLike('activities_logs.subject', '%reminder%')
+                        ->whereNotLike('activities_logs.subject', '%Checklist Email sent%')
+                        ->whereNotLike('activities_logs.subject', '%Checklist Email resent%');
                 });
                 break;
         }

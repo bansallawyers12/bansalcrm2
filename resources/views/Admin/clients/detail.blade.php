@@ -836,11 +836,16 @@ use App\Http\Controllers\Controller;
 												<a href="{{ $detailBaseUrl }}" class="btn btn-secondary btn-sm">
 													@icon('redo') Reset
 												</a>
-												<?php if(Request::get('keyword') || Request::get('activity_type') != 'all' || Request::get('date_from') || Request::get('date_to')): ?>
-													<span class="badge bg-info ms-2" style="vertical-align: middle; padding: 6px 10px;">
+												<?php
+													$activityTypeFilter = (string) Request::get('activity_type', 'all');
+													$activitiesFiltersActive = Request::get('keyword')
+														|| ($activityTypeFilter !== '' && $activityTypeFilter !== 'all')
+														|| Request::get('date_from')
+														|| Request::get('date_to');
+												?>
+													<span id="activities-filters-active" class="badge bg-info ms-2" style="vertical-align: middle; padding: 6px 10px; {{ $activitiesFiltersActive ? '' : 'display:none;' }}">
 														Filters Active
 													</span>
-												<?php endif; ?>
 											</div>
 										</div>
 									</form>
@@ -863,7 +868,7 @@ use App\Http\Controllers\Controller;
 										])
 									@endif
 									</div>
-									<button type="button" class="btn btn-outline-primary btn-sm mt-2 activities-load-more" data-next-page="{{ ($activeTab === 'activities' && isset($activityPage) && $activityPage->hasMorePages()) ? 2 : '' }}" style="{{ ($activeTab === 'activities' && isset($activityPage) && $activityPage->hasMorePages()) ? '' : 'display:none;' }}">Load more</button>
+									<button type="button" class="btn btn-sm mt-2 activities-load-more" data-next-page="{{ ($activeTab === 'activities' && isset($activityPage) && $activityPage->hasMorePages()) ? 2 : '' }}" style="{{ ($activeTab === 'activities' && isset($activityPage) && $activityPage->hasMorePages()) ? '' : 'display:none;' }}" aria-label="More activities">...</button>
 								</div>
 								<div class="tab-pane fade {{ $activeTab === 'application' ? 'show active' : '' }}" id="application" role="tabpanel" aria-labelledby="application-tab">
 									<div class="card-header-action text-end if_applicationdetail" style="padding-bottom:15px;">

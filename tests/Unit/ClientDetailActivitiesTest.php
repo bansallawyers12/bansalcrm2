@@ -60,4 +60,27 @@ class ClientDetailActivitiesTest extends TestCase
         $this->assertStringNotContainsString('like', $sql);
         $this->assertStringContainsString('order by', strtolower($sql));
     }
+
+    public function test_slash_dates_use_day_month_order(): void
+    {
+        $this->assertSame('2026-08-01', ClientDetailActivities::parseFilterDate('01/08/2026'));
+        $this->assertSame('2026-08-17', ClientDetailActivities::parseFilterDate('17/08/2026'));
+        $this->assertSame('2026-08-01', ClientDetailActivities::parseFilterDate('2026-08-01'));
+        $this->assertNull(ClientDetailActivities::parseFilterDate(''));
+        $this->assertNull(ClientDetailActivities::parseFilterDate('not-a-date'));
+    }
+
+    public function test_day_month_filter_dates_are_bound_as_iso(): void
+    {
+        $bindings = ClientDetailActivities::queryForClient(9, [
+            'keyword' => '',
+            'activity_type' => 'all',
+            'date_from' => '01/08/2026',
+            'date_to' => '17/08/2026',
+        ])->getBindings();
+
+        $this->assertContains('2026-08-01', $bindings);
+        $this->assertContains('2026-08-17', $bindings);
+        $this->assertNotContains('2026-01-08', $bindings);
+    }
 }

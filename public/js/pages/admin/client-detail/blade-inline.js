@@ -222,6 +222,9 @@ jQuery(document).ready(function($) {
         
         // Update hidden input
         $('#activity_type_input').val(type);
+        if (typeof applyActivitiesFilters === 'function') {
+            applyActivitiesFilters();
+        }
     });
 
     // Activity Type Dropdown Item Click Handler
@@ -243,6 +246,9 @@ jQuery(document).ready(function($) {
         
         // Update hidden input
         $('#activity_type_input').val(type);
+        if (typeof applyActivitiesFilters === 'function') {
+            applyActivitiesFilters();
+        }
     });
 
     // Initialize Date Pickers with Flatpickr
@@ -250,17 +256,31 @@ jQuery(document).ready(function($) {
         flatpickr('.date-filter', {
             dateFormat: 'Y-m-d',
             allowInput: true,
-            altInput: false
+            altInput: false,
+            onChange: function() {
+                if (typeof applyActivitiesFilters === 'function') {
+                    applyActivitiesFilters();
+                }
+            }
         });
     } else {
         console.warn('Flatpickr is not available. Please ensure vendor-libs.js is loaded.');
     }
 
+    $('#activitiesFilterForm').on('submit', function(e) {
+        e.preventDefault();
+        if (typeof applyActivitiesFilters === 'function') {
+            applyActivitiesFilters();
+            return;
+        }
+        this.submit();
+    });
+
     // Auto-submit form on Enter key in search box
     $('#activity_search').on('keypress', function(e) {
         if (e.which === 13) {
             e.preventDefault();
-            $('#activitiesFilterForm').submit();
+            $('#activitiesFilterForm').trigger('submit');
         }
     });
 });
