@@ -1040,13 +1040,14 @@ class EmailUploadV2Controller extends Controller
                 // Use ActivitiesLog directly for partners (if it supports partner_id)
                 try {
                     ActivitiesLog::create([
-                        'client_id' => $clientId, // Partners may use client_id field
+                        'client_id' => $clientId, // Partners store partners.id in client_id
                         'created_by' => Auth::user()->id ?? Auth::id(),
                         'subject' => $subject,
                         'description' => $description,
                         'use_for' => null, // Integer field for user/category assignment
                         'task_status' => 0,
                         'pin' => 0,
+                        'task_group' => ActivitiesLog::TASK_GROUP_PARTNER,
                     ]);
                 } catch (\Exception $e) {
                     Log::warning('Failed to log partner email activity', ['error' => $e->getMessage()]);

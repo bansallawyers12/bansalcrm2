@@ -412,6 +412,7 @@ class DashboardService
             $query = ActivitiesLog::with(['client' => function($q) {
                 $q->select('id', 'first_name', 'last_name', 'email', 'phone');
             }])
+            ->forStudentRecords()
             ->where('task_status', 0) // Only activities, not tasks
             ->whereNotNull('client_id')
             ->where('created_at', '>=', $recentDate)
@@ -473,6 +474,7 @@ class DashboardService
             }, 'createdBy' => function($q) {
                 $q->select('id', 'first_name', 'last_name');
             }])
+            ->forStudentRecords()
             ->where('task_status', 0) // Only activities, not tasks
             ->orderBy('created_at', 'DESC')
             ->limit($limit);

@@ -252,6 +252,7 @@ class StaffWorkloadService
         $activityStudentIds = $this->filterStudentAdminIds(
             $this->applyExcludeNoteAuditSubjects(
                 ActivitiesLog::query()
+                    ->forStudentRecords()
                     ->where('created_by', $staffId)
                     ->whereBetween('created_at', [$start, $end])
                     ->whereNotNull('client_id')
@@ -652,6 +653,7 @@ class StaffWorkloadService
 
         $activityRows = $this->applyExcludeNoteAuditSubjects(
             ActivitiesLog::query()
+                ->forStudentRecords()
                 ->select('client_id', DB::raw('MAX(created_at) as last_at'))
                 ->where('created_by', $staffId)
                 ->whereIn('client_id', $ids)

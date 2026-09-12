@@ -32,7 +32,9 @@ final class ClientDetailActivities
      */
     public static function queryForClient(int $clientId, array $filters = []): Builder
     {
-        $query = ActivitiesLog::query()->where('activities_logs.client_id', $clientId);
+        $query = ActivitiesLog::query()
+            ->forStudentRecords()
+            ->where('activities_logs.client_id', $clientId);
         self::applyFilters($query, $filters);
 
         return $query->orderBy('activities_logs.created_at', 'DESC');

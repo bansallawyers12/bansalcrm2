@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\Models\ActivitiesLog;
 use App\Services\StaffWorkloadService;
 use Carbon\Carbon;
 use ReflectionMethod;
@@ -67,5 +68,14 @@ class StaffWorkloadServiceTest extends TestCase
     public function test_contact_titles_are_call_and_in_person_only(): void
     {
         $this->assertSame(['Call', 'In-Person'], StaffWorkloadService::CONTACT_TITLES);
+    }
+
+    public function test_student_activity_scope_keeps_null_and_non_partner_task_groups(): void
+    {
+        $query = ActivitiesLog::query()->forStudentRecords();
+        $sql = strtolower($query->toSql());
+
+        $this->assertStringContainsString('task_group', $sql);
+        $this->assertContains(ActivitiesLog::TASK_GROUP_PARTNER, $query->getBindings());
     }
 }

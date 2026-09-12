@@ -936,6 +936,7 @@ class EmailQueryV2Controller extends Controller
                     'use_for' => null,
                     'task_status' => 0,
                     'pin' => 0,
+                    'task_group' => ActivitiesLog::TASK_GROUP_PARTNER,
                 ]);
             } catch (\Exception $e) {
                 Log::warning('Failed to log partner email deletion activity', ['error' => $e->getMessage()]);

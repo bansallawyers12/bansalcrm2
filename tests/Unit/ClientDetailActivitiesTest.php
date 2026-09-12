@@ -61,6 +61,23 @@ class ClientDetailActivitiesTest extends TestCase
         $this->assertStringContainsString('order by', strtolower($sql));
     }
 
+    public function test_partner_task_group_rows_are_excluded_from_client_activity(): void
+    {
+        $query = ClientDetailActivities::queryForClient(5910, [
+            'keyword' => '',
+            'activity_type' => 'all',
+            'date_from' => '',
+            'date_to' => '',
+        ]);
+
+        $sql = strtolower($query->toSql());
+        $bindings = $query->getBindings();
+
+        $this->assertStringContainsString('task_group', $sql);
+        $this->assertContains(5910, $bindings);
+        $this->assertContains('partner', $bindings);
+    }
+
     public function test_slash_dates_use_day_month_order(): void
     {
         $this->assertSame('2026-08-01', ClientDetailActivities::parseFilterDate('01/08/2026'));
