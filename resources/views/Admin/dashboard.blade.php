@@ -668,15 +668,16 @@
 			</div>
 		</div>
 
+        @auth('admin')
+            @include('Admin.partials.my-day-diary')
+        @endauth
+
         @if(!empty($myDaySummary))
             @include('Admin.partials.my-day-panel', [
                 'summary' => $myDaySummary,
                 'embeddedOnDashboard' => true,
             ])
         @endif
-        @auth('admin')
-            @include('Admin.partials.my-day-diary')
-        @endauth
 
         <div class="row">
 
