@@ -22,11 +22,17 @@
                 <div class="card-body">
                     @if(!empty($daySummary['stored']))
                         <p class="text-muted mb-2">
+                            @if(!empty($daySummary['day_label']))
+                                For {{ $daySummary['day_label'] }}
+                                &middot;
+                            @endif
                             Saved
                             @if(!empty($daySummary['saved_at']))
                                 {{ \Carbon\Carbon::parse($daySummary['saved_at'])->timezone(config('app.timezone'))->format('d/m/Y g:i a') }}
                             @endif
-                            @if(!empty($daySummary['source']))
+                            @if(!empty($daySummary['source_label']))
+                                ({{ $daySummary['source_label'] }})
+                            @elseif(!empty($daySummary['source']))
                                 ({{ $daySummary['source'] }})
                             @endif
                         </p>

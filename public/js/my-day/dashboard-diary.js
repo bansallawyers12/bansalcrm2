@@ -23,8 +23,12 @@
             'X-CSRF-TOKEN': csrf
         }, options.headers || {});
         return fetch(url, options).then(function (res) {
-            return res.json().catch(function () { return {}; });
-        }).catch(function () { return {}; });
+            return res.json().catch(function () { return {}; }).then(function (data) {
+                data = data || {};
+                data._ok = res.ok;
+                return data;
+            });
+        }).catch(function () { return { _ok: false }; });
     }
 
     function escapeHtml(str) {
@@ -104,9 +108,22 @@
             return;
         }
         if (stored && stored.stored) {
-            el.textContent = 'Saved for admin' + (stored.saved_at ? ' · ' + stored.saved_at : '');
+            var when = stored.saved_at ? formatSavedAt(stored.saved_at) : '';
+            el.textContent = 'Saved for admin' + (when ? ' · ' + when : '');
         } else {
             el.textContent = 'Not saved for admin yet';
+        }
+    }
+
+    function formatSavedAt(iso) {
+        try {
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) {
+                return iso;
+            }
+            return d.toLocaleString();
+        } catch (e) {
+            return iso;
         }
     }
 
@@ -129,8 +146,17 @@
         }
         return fetchJson(saveUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
             .then(function (data) {
-                if (data && data.summary) {
+                if (data && data._ok && data.saved && data.summary) {
                     setSavedStatus(data.summary);
+                    var pre = root.querySelector('[data-copy-text]');
+                    if (pre && data.summary.text) {
+                        pre.textContent = data.summary.text;
+                    }
+                } else {
+                    var el = root.querySelector('[data-saved-status]');
+                    if (el) {
+                        el.textContent = 'Could not save for admin. Try again.';
+                    }
                 }
                 return data;
             });

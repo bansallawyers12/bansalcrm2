@@ -20,7 +20,16 @@ class StaffDaySummaryServiceTest extends TestCase
 {
     private StaffDaySummaryService $service;
 
-    private StaffFileTimeService $fileTime;
+    private function makeService(?StaffFileTimeService $fileTime = null): StaffDaySummaryService
+    {
+        return new StaffDaySummaryService(
+            new StaffWorkloadService,
+            $fileTime ?? $this->createStub(StaffFileTimeService::class),
+            $this->createStub(StaffDayCrmEventsService::class),
+            $this->createStub(StaffDayHoursService::class),
+            $this->createStub(StaffFileSessionService::class),
+        );
+    }
 
     protected function setUp(): void
     {
@@ -28,15 +37,13 @@ class StaffDaySummaryServiceTest extends TestCase
 
         config(['app.timezone' => 'Australia/Melbourne']);
         $this->createSchema();
+        $this->service = $this->makeService();
+    }
 
-        $this->fileTime = $this->createMock(StaffFileTimeService::class);
-        $this->service = new StaffDaySummaryService(
-            new StaffWorkloadService,
-            $this->fileTime,
-            $this->createMock(StaffDayCrmEventsService::class),
-            $this->createMock(StaffDayHoursService::class),
-            $this->createMock(StaffFileSessionService::class),
-        );
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     #[Test]
@@ -67,6 +74,29 @@ class StaffDaySummaryServiceTest extends TestCase
     }
 
     #[Test]
+    public function admin_review_falls_back_to_previous_day_after_midnight(): void
+    {
+        $this->service->upsert(
+            1,
+            ['text' => 'Monday wrap'],
+            StaffDaySummary::SOURCE_SCHEDULE,
+            Carbon::parse('2026-09-14 23:55:00', 'Australia/Melbourne'),
+        );
+
+        Carbon::setTestNow(Carbon::parse('2026-09-15 09:10:00', 'Australia/Melbourne'));
+
+        $found = $this->service->findForAdminReview(1);
+        $payload = $this->service->payload($found);
+
+        $this->assertNotNull($found);
+        $this->assertSame('Monday wrap', $found->body);
+        $this->assertSame('2026-09-14', $payload['summary_date']);
+        $this->assertSame('nightly snapshot', $payload['source_label']);
+        $this->assertTrue($this->service->savedStaffIdsForAdminIndex([1])->has(1));
+        $this->assertFalse($this->service->savedStaffIdsForDay([1])->has(1));
+    }
+
+    #[Test]
     public function snapshot_active_staff_skips_inactive(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-09-15 23:55:00', 'Australia/Melbourne'));
@@ -75,11 +105,13 @@ class StaffDaySummaryServiceTest extends TestCase
             ['id' => 2, 'first_name' => 'Off', 'last_name' => 'Duty', 'status' => 0, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        $this->fileTime->expects($this->once())
+        $fileTime = $this->createMock(StaffFileTimeService::class);
+        $fileTime->expects($this->once())
             ->method('copySummary')
             ->willReturn(['text' => 'On Duty day']);
 
-        $count = $this->service->snapshotActiveStaff(StaffDaySummary::SOURCE_SCHEDULE);
+        $service = $this->makeService($fileTime);
+        $count = $service->snapshotActiveStaff(StaffDaySummary::SOURCE_SCHEDULE);
 
         $this->assertSame(1, $count);
         $this->assertSame('On Duty day', StaffDaySummary::query()->where('staff_id', 1)->value('body'));

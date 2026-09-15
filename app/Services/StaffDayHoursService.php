@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\StaffLoginLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class StaffDayHoursService
 {
@@ -19,11 +21,15 @@ class StaffDayHoursService
      */
     public function forStaff(int $staffId, ?Carbon $day = null): array
     {
-        [$start] = $this->workloadService->dayBounds($day ?? now());
+        [$start, $end] = $this->workloadService->dayBounds($day ?? now());
         $dateKey = $start->toDateString();
 
         $viewerId = Auth::guard('admin')->id();
-        if ($viewerId !== null && (int) $viewerId === $staffId) {
+        $isLiveToday = $viewerId !== null
+            && (int) $viewerId === $staffId
+            && $dateKey === now()->timezone((string) config('app.timezone'))->toDateString();
+
+        if ($isLiveToday) {
             $stats = $this->dashboardService->getLoginStatistics();
             $seconds = max(0, (int) abs((float) ($stats['current_session_duration'] ?? 0)));
 
@@ -36,11 +42,51 @@ class StaffDayHoursService
             ];
         }
 
-        return [
+        return $this->fromLoginLogs($staffId, $start, $end, $dateKey);
+    }
+
+    /**
+     * @return array{label: string, minutes: int, seconds: int, source: string, date: string}
+     */
+    protected function fromLoginLogs(int $staffId, Carbon $start, Carbon $end, string $dateKey): array
+    {
+        $empty = [
             'label' => '—',
             'minutes' => 0,
             'seconds' => 0,
             'source' => 'none',
+            'date' => $dateKey,
+        ];
+
+        if (! Schema::hasTable('staff_login_logs')) {
+            return $empty;
+        }
+
+        $login = StaffLoginLog::query()
+            ->where('user_id', $staffId)
+            ->where('message', 'Logged in successfully')
+            ->where('created_at', '<=', $end)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if ($login === null) {
+            return $empty;
+        }
+
+        $loginAt = Carbon::parse($login->created_at);
+        $until = now()->lt($end) ? now() : $end->copy();
+        $from = $loginAt->greaterThan($start) ? $loginAt : $start->copy();
+        if ($until->lessThan($from)) {
+            return $empty;
+        }
+
+        $seconds = max(0, (int) abs($until->diffInSeconds($from)));
+
+        return [
+            'label' => $this->formatHoursAndMinutes($seconds),
+            'minutes' => (int) floor($seconds / 60),
+            'seconds' => $seconds,
+            'source' => 'login_log',
             'date' => $dateKey,
         ];
     }

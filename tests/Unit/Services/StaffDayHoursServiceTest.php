@@ -6,7 +6,11 @@ use App\Models\Staff;
 use App\Services\DashboardService;
 use App\Services\StaffDayHoursService;
 use App\Services\StaffWorkloadService;
+use Carbon\Carbon;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -55,5 +59,41 @@ class StaffDayHoursServiceTest extends TestCase
         $this->assertSame('5m', $method->invoke($service, 320));
         $this->assertSame('1h', $method->invoke($service, 3600));
         $this->assertSame('2h 5m', $method->invoke($service, 7500));
+    }
+
+    #[Test]
+    public function for_other_staff_uses_login_logs_clamped_to_the_melbourne_day(): void
+    {
+        config(['app.timezone' => 'Australia/Melbourne']);
+        Carbon::setTestNow(Carbon::parse('2026-09-15 18:00:00', 'Australia/Melbourne'));
+
+        Schema::dropIfExists('staff_login_logs');
+        Schema::create('staff_login_logs', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->string('message')->nullable();
+            $table->timestamps();
+        });
+
+        Auth::guard('admin')->forgetUser();
+
+        DB::table('staff_login_logs')->insert([
+            'user_id' => 9,
+            'message' => 'Logged in successfully',
+            'created_at' => '2026-09-15 16:00:00',
+            'updated_at' => '2026-09-15 16:00:00',
+        ]);
+
+        $service = new StaffDayHoursService(
+            new StaffWorkloadService,
+            $this->createStub(DashboardService::class),
+        );
+        $payload = $service->forStaff(9);
+
+        $this->assertSame('2h', $payload['label']);
+        $this->assertSame('login_log', $payload['source']);
+
+        Carbon::setTestNow();
+        Schema::dropIfExists('staff_login_logs');
     }
 }

@@ -74,7 +74,7 @@ class StaffWorkloadController extends Controller
         }
 
         $daySummary = $this->staffDaySummaryService->payload(
-            $this->staffDaySummaryService->find((int) $staff->id)
+            $this->staffDaySummaryService->findForAdminReview((int) $staff->id)
         );
 
         return view('AdminConsole.staff_workload.show', [
@@ -95,7 +95,7 @@ class StaffWorkloadController extends Controller
             fn ($row) => (int) ($row['staff_id'] ?? 0),
             $rows
         )));
-        $saved = $this->staffDaySummaryService->savedStaffIdsForDay($ids);
+        $saved = $this->staffDaySummaryService->savedStaffIdsForAdminIndex($ids);
 
         foreach ($rows as $index => $row) {
             $rows[$index]['summary_saved'] = $saved->has((int) ($row['staff_id'] ?? 0));

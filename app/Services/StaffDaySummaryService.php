@@ -35,6 +35,28 @@ class StaffDaySummaryService
     }
 
     /**
+     * Today first, else the most recent stored day (so Super Admin can still
+     * read last night's snapshot the following morning).
+     */
+    public function findForAdminReview(int $staffId): ?StaffDaySummary
+    {
+        $today = $this->find($staffId);
+        if ($today !== null) {
+            return $today;
+        }
+
+        if (! Schema::hasTable('staff_day_summaries')) {
+            return null;
+        }
+
+        return StaffDaySummary::query()
+            ->where('staff_id', $staffId)
+            ->orderByDesc('summary_date')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
      * @param  list<int>  $staffIds
      * @return Collection<int, true>
      */
@@ -48,6 +70,35 @@ class StaffDaySummaryService
 
         return StaffDaySummary::query()
             ->whereDate('summary_date', $start->toDateString())
+            ->whereIn('staff_id', $staffIds)
+            ->pluck('staff_id')
+            ->mapWithKeys(fn ($id) => [(int) $id => true]);
+    }
+
+    /**
+     * Index flag: saved today or yesterday (Melbourne), so overnight snapshots
+     * still show Yes the next morning.
+     *
+     * @param  list<int>  $staffIds
+     * @return Collection<int, true>
+     */
+    public function savedStaffIdsForAdminIndex(array $staffIds): Collection
+    {
+        if ($staffIds === [] || ! Schema::hasTable('staff_day_summaries')) {
+            return collect();
+        }
+
+        [$start] = $this->workloadService->dayBounds(now());
+        $dates = [
+            $start->toDateString(),
+            $start->copy()->subDay()->toDateString(),
+        ];
+
+        return StaffDaySummary::query()
+            ->where(function ($query) use ($dates): void {
+                $query->whereDate('summary_date', $dates[0])
+                    ->orWhereDate('summary_date', $dates[1]);
+            })
             ->whereIn('staff_id', $staffIds)
             ->pluck('staff_id')
             ->mapWithKeys(fn ($id) => [(int) $id => true]);
@@ -92,7 +143,15 @@ class StaffDaySummaryService
     }
 
     /**
-     * @return array{text: string, stored: bool, source: string|null, saved_at: string|null}
+     * @return array{
+     *     text: string,
+     *     stored: bool,
+     *     source: string|null,
+     *     source_label: string|null,
+     *     saved_at: string|null,
+     *     summary_date: string|null,
+     *     day_label: string|null
+     * }
      */
     public function payload(?StaffDaySummary $row): array
     {
@@ -101,17 +160,26 @@ class StaffDaySummaryService
                 'text' => '',
                 'stored' => false,
                 'source' => null,
+                'source_label' => null,
                 'saved_at' => null,
+                'summary_date' => null,
+                'day_label' => null,
             ];
         }
 
         $tz = (string) config('app.timezone');
+        $date = $row->summary_date;
 
         return [
             'text' => (string) $row->body,
             'stored' => true,
             'source' => (string) $row->source,
+            'source_label' => $row->source === StaffDaySummary::SOURCE_SCHEDULE
+                ? 'nightly snapshot'
+                : 'staff save',
             'saved_at' => $row->saved_at?->timezone($tz)->toIso8601String(),
+            'summary_date' => $date?->toDateString(),
+            'day_label' => $date?->format('l, j F Y'),
         ];
     }
 
