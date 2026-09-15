@@ -12,6 +12,7 @@ class DashboardMyDayDiaryTest extends TestCase
         $this->assertTrue(Route::has('dashboard.my-day.diary'));
         $this->assertTrue(Route::has('dashboard.my-day.file-time.log'));
         $this->assertTrue(Route::has('dashboard.my-day.copy-summary'));
+        $this->assertTrue(Route::has('dashboard.my-day.copy-summary.save'));
         $this->assertTrue(Route::has('dashboard.my-day.record-search'));
     }
 
@@ -19,6 +20,7 @@ class DashboardMyDayDiaryTest extends TestCase
     {
         $this->getJson(route('dashboard.my-day.diary'))->assertUnauthorized();
         $this->getJson(route('dashboard.my-day.copy-summary'))->assertUnauthorized();
+        $this->postJson(route('dashboard.my-day.copy-summary.save'))->assertUnauthorized();
     }
 
     public function test_admin_console_staff_workload_show_does_not_include_diary_partial(): void
@@ -27,7 +29,19 @@ class DashboardMyDayDiaryTest extends TestCase
         $this->assertFileExists($path);
         $contents = file_get_contents($path);
         $this->assertStringNotContainsString('my-day-diary', $contents);
+        $this->assertStringNotContainsString('dashboard-diary.js', $contents);
         $this->assertStringContainsString('my-day-panel', $contents);
+        $this->assertStringContainsString('End-of-day summary', $contents);
+    }
+
+    public function test_admin_console_index_has_summary_saved_column_not_auto_minutes(): void
+    {
+        $path = resource_path('views/AdminConsole/staff_workload/index.blade.php');
+        $this->assertFileExists($path);
+        $contents = file_get_contents($path);
+        $this->assertStringContainsString('Summary saved?', $contents);
+        $this->assertStringNotContainsString('auto minutes', strtolower($contents));
+        $this->assertStringNotContainsString('my-day-diary', $contents);
     }
 
     public function test_personal_dashboard_includes_diary_partial(): void

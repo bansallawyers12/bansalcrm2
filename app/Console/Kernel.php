@@ -6,6 +6,7 @@ use App\Console\Commands\CloseStaleFileSessions;
 use App\Console\Commands\ExpireCrmAccessGrants;
 use App\Console\Commands\SesInboundSyncCommand;
 use App\Console\Commands\SesTestCommand;
+use App\Console\Commands\SnapshotStaffDaySummaries;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -26,6 +27,7 @@ class Kernel extends ConsoleKernel
         SesInboundSyncCommand::class,
         SesTestCommand::class,
         CloseStaleFileSessions::class,
+        SnapshotStaffDaySummaries::class,
     ];
 
     /**
@@ -55,6 +57,11 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('my-day:close-stale-sessions')
             ->everyFiveMinutes()
+            ->withoutOverlapping();
+
+        $schedule->command('my-day:snapshot-summaries')
+            ->dailyAt('23:55')
+            ->timezone('Australia/Melbourne')
             ->withoutOverlapping();
     }
 

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Http\Controllers\AdminConsole;
 
 use App\Http\Controllers\AdminConsole\StaffWorkloadController;
+use App\Services\StaffDaySummaryService;
 use App\Services\StaffWorkloadService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -83,7 +84,10 @@ class StaffWorkloadControllerTest extends TestCase
      */
     private function paginateTeamOverview(array $teamOverview): array
     {
-        $controller = new StaffWorkloadController(new StaffWorkloadService);
+        $controller = new StaffWorkloadController(
+            new StaffWorkloadService,
+            $this->createStub(StaffDaySummaryService::class),
+        );
         $method = new ReflectionMethod(StaffWorkloadController::class, 'paginateTeamOverview');
         $method->setAccessible(true);
 

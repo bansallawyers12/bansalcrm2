@@ -162,6 +162,7 @@ Route::middleware(['auth:admin'])->prefix('dashboard/my-day')->name('dashboard.m
     Route::get('/diary', [DashboardMyDayDiaryController::class, 'diary'])->name('diary');
     Route::post('/file-time/log', [DashboardMyDayDiaryController::class, 'logCompleted'])->name('file-time.log');
     Route::get('/copy-summary', [DashboardMyDayDiaryController::class, 'copySummary'])->name('copy-summary');
+    Route::post('/copy-summary', [DashboardMyDayDiaryController::class, 'saveCopySummary'])->name('copy-summary.save');
     Route::get('/record-search', [DashboardMyDayDiaryController::class, 'recordSearch'])->name('record-search');
 });
 Route::redirect('/appointments', '/followups', 301);

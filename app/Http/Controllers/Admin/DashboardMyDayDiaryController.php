@@ -7,10 +7,12 @@ use App\Models\Admin;
 use App\Models\Application;
 use App\Models\Partner;
 use App\Models\Staff;
+use App\Models\StaffDaySummary;
 use App\Models\StaffFileSession;
 use App\Models\StaffFileTimeEntry;
 use App\Services\StaffDayCrmEventsService;
 use App\Services\StaffDayHoursService;
+use App\Services\StaffDaySummaryService;
 use App\Services\StaffFileSessionService;
 use App\Services\StaffFileTimeService;
 use App\Support\StaffClientVisibility;
@@ -26,6 +28,7 @@ class DashboardMyDayDiaryController extends Controller
         protected StaffFileSessionService $fileSessions,
         protected StaffFileTimeService $fileTime,
         protected StaffDayHoursService $hours,
+        protected StaffDaySummaryService $daySummaries,
     ) {
         $this->middleware('auth:admin');
     }
@@ -110,6 +113,22 @@ class DashboardMyDayDiaryController extends Controller
         return response()->json([
             'success' => true,
             'summary' => $summary,
+            'stored' => $this->daySummaries->payload($this->daySummaries->find((int) $staff->id)),
+        ]);
+    }
+
+    public function saveCopySummary(): JsonResponse
+    {
+        $staff = $this->staffOrAbort();
+        $row = $this->daySummaries->snapshotStaff(
+            (int) $staff->id,
+            StaffDaySummary::SOURCE_COPY,
+        );
+
+        return response()->json([
+            'success' => true,
+            'saved' => true,
+            'summary' => $this->daySummaries->payload($row),
         ]);
     }
 

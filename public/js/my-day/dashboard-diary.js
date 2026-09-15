@@ -10,6 +10,7 @@
     var diaryUrl = root.getAttribute('data-diary-url');
     var logUrl = root.getAttribute('data-log-url');
     var copyUrl = root.getAttribute('data-copy-url');
+    var saveUrl = root.getAttribute('data-save-url');
     var searchUrl = root.getAttribute('data-search-url');
     var sessionUpdateBase = root.getAttribute('data-session-update-base');
 
@@ -97,15 +98,42 @@
         });
     }
 
+    function setSavedStatus(stored) {
+        var el = root.querySelector('[data-saved-status]');
+        if (!el) {
+            return;
+        }
+        if (stored && stored.stored) {
+            el.textContent = 'Saved for admin' + (stored.saved_at ? ' · ' + stored.saved_at : '');
+        } else {
+            el.textContent = 'Not saved for admin yet';
+        }
+    }
+
     function loadCopySummary() {
         return fetchJson(copyUrl).then(function (data) {
             var pre = root.querySelector('[data-copy-text]');
             if (pre && data && data.summary && data.summary.text) {
                 pre.textContent = data.summary.text;
-                return data.summary.text;
             }
-            return '';
+            if (data && data.stored) {
+                setSavedStatus(data.stored);
+            }
+            return (data && data.summary && data.summary.text) ? data.summary.text : '';
         });
+    }
+
+    function saveSummary() {
+        if (!saveUrl) {
+            return Promise.resolve();
+        }
+        return fetchJson(saveUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+            .then(function (data) {
+                if (data && data.summary) {
+                    setSavedStatus(data.summary);
+                }
+                return data;
+            });
     }
 
     root.addEventListener('change', function (ev) {
@@ -229,10 +257,19 @@
     if (copyBtn) {
         copyBtn.addEventListener('click', function () {
             loadCopySummary().then(function (text) {
-                if (!text || !navigator.clipboard) {
-                    return;
+                if (text && navigator.clipboard) {
+                    navigator.clipboard.writeText(text);
                 }
-                navigator.clipboard.writeText(text);
+                return saveSummary();
+            });
+        });
+    }
+
+    var saveBtn = document.getElementById('myDayDiarySaveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            loadCopySummary().then(function () {
+                return saveSummary();
             });
         });
     }

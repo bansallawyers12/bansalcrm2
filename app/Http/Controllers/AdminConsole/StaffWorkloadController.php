@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AdminConsole;
 
 use App\Http\Controllers\Controller;
 use App\Models\Staff;
+use App\Services\StaffDaySummaryService;
 use App\Services\StaffWorkloadService;
 use App\Support\ArrayPaginator;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class StaffWorkloadController extends Controller
 
     public function __construct(
         private StaffWorkloadService $staffWorkloadService,
+        private StaffDaySummaryService $staffDaySummaryService,
     ) {
         $this->middleware('auth:admin');
     }
@@ -36,7 +38,9 @@ class StaffWorkloadController extends Controller
         $this->ensureSuperAdminAccess();
 
         try {
-            $teamOverview = $this->paginateTeamOverview($this->staffWorkloadService->getTeamOverview());
+            $teamOverview = $this->paginateTeamOverview($this->attachSummarySavedFlags(
+                $this->staffWorkloadService->getTeamOverview()
+            ));
         } catch (\Throwable $e) {
             Log::error('Staff workload team overview failed: '.$e->getMessage());
 
@@ -69,10 +73,37 @@ class StaffWorkloadController extends Controller
                 ->with('error', 'Could not load workload for this staff member.');
         }
 
+        $daySummary = $this->staffDaySummaryService->payload(
+            $this->staffDaySummaryService->find((int) $staff->id)
+        );
+
         return view('AdminConsole.staff_workload.show', [
             'staff' => $staff,
             'summary' => $summary,
+            'daySummary' => $daySummary,
         ]);
+    }
+
+    /**
+     * @param  array{day_label?: string, rows?: list<array<string, mixed>>}  $teamOverview
+     * @return array{day_label?: string, rows: list<array<string, mixed>>}
+     */
+    private function attachSummarySavedFlags(array $teamOverview): array
+    {
+        $rows = $teamOverview['rows'] ?? [];
+        $ids = array_values(array_filter(array_map(
+            fn ($row) => (int) ($row['staff_id'] ?? 0),
+            $rows
+        )));
+        $saved = $this->staffDaySummaryService->savedStaffIdsForDay($ids);
+
+        foreach ($rows as $index => $row) {
+            $rows[$index]['summary_saved'] = $saved->has((int) ($row['staff_id'] ?? 0));
+        }
+
+        $teamOverview['rows'] = $rows;
+
+        return $teamOverview;
     }
 
     /**

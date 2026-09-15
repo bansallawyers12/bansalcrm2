@@ -4,6 +4,7 @@
      data-diary-url="{{ route('dashboard.my-day.diary') }}"
      data-log-url="{{ route('dashboard.my-day.file-time.log') }}"
      data-copy-url="{{ route('dashboard.my-day.copy-summary') }}"
+     data-save-url="{{ route('dashboard.my-day.copy-summary.save') }}"
      data-search-url="{{ route('dashboard.my-day.record-search') }}"
      data-session-update-base="{{ url('/dashboard/my-day/sessions') }}"
      data-csrf="{{ csrf_token() }}">
@@ -40,7 +41,11 @@
         <summary>End of day — manual logs &amp; copy summary</summary>
         <ul class="my-day-diary-list mt-2" data-manual-list></ul>
         <pre class="my-day-diary-summary" data-copy-text></pre>
-        <button type="button" class="btn btn-sm btn-primary" id="myDayDiaryCopyBtn">Copy summary</button>
+        <p class="my-day-diary-saved-status text-muted mb-2" data-saved-status></p>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-primary" id="myDayDiaryCopyBtn">Copy summary</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="myDayDiarySaveBtn">Save for admin</button>
+        </div>
     </details>
 </div>
 

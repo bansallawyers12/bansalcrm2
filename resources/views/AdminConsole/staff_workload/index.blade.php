@@ -31,6 +31,7 @@
                                             <th>Converted</th>
                                             <th>Quiet</th>
                                             <th>Inactive</th>
+                                            <th>Summary saved?</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -53,13 +54,14 @@
                                                 <td>{{ $row['converted_today'] ?? 0 }}</td>
                                                 <td>{{ $row['quiet_students_count'] ?? 0 }}</td>
                                                 <td>{{ $row['inactive_students_count'] ?? 0 }}</td>
+                                                <td>{{ !empty($row['summary_saved']) ? 'Yes' : 'No' }}</td>
                                                 <td>
                                                     <a href="{{ route('adminconsole.staff-workload.show', $row['staff_id']) }}" class="btn btn-sm btn-primary">View</a>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="12" class="text-center text-muted p-4">No active staff found.</td>
+                                                <td colspan="13" class="text-center text-muted p-4">No active staff found.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
