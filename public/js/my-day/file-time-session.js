@@ -128,6 +128,12 @@
             idleGraceTimer = null;
         }
         hideIdleModal();
+        // After an idle-cut, resume accrual on the next real user input while still focused.
+        if (isFocused() && !localTick) {
+            localTick = true;
+            lastTickAt = Date.now();
+            startHeartbeatLoop();
+        }
         scheduleIdleCheck();
     }
 

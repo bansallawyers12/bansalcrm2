@@ -81,26 +81,37 @@ class StaffFileSessionService
 
     public function promoteIfWritten(StaffFileSession $session): StaffFileSession
     {
-        if ($session->status !== StaffFileSession::STATUS_ACCESSED) {
-            return $session;
+        $events = $this->eventsForSession($session);
+
+        if ($session->status === StaffFileSession::STATUS_ACCESSED) {
+            if ($events->isNotEmpty()) {
+                $session->status = StaffFileSession::STATUS_RECORDED;
+                $session->is_reviewed_only = false;
+                $session->save();
+
+                return $session->fresh();
+            }
+
+            if ((int) $session->focused_seconds >= self::REVIEWED_ONLY_SECONDS) {
+                $session->status = StaffFileSession::STATUS_RECORDED;
+                $session->is_reviewed_only = true;
+                $session->save();
+            }
+
+            return $session->fresh();
         }
 
-        $events = $this->eventsForSession($session);
-        if ($events->isNotEmpty()) {
-            $session->status = StaffFileSession::STATUS_RECORDED;
+        // A later CRM write should clear reviewed-only even if already recorded.
+        if ($session->status === StaffFileSession::STATUS_RECORDED
+            && $session->is_reviewed_only
+            && $events->isNotEmpty()) {
             $session->is_reviewed_only = false;
             $session->save();
 
             return $session->fresh();
         }
 
-        if ((int) $session->focused_seconds >= self::REVIEWED_ONLY_SECONDS) {
-            $session->status = StaffFileSession::STATUS_RECORDED;
-            $session->is_reviewed_only = true;
-            $session->save();
-        }
-
-        return $session->fresh();
+        return $session;
     }
 
     public function closeStale(Carbon $now): int
@@ -256,11 +267,8 @@ class StaffFileSessionService
             'task_status' => 0,
             'pin' => 0,
             'use_for' => null,
+            'task_group' => $session->isPartner() ? ActivitiesLog::TASK_GROUP_PARTNER : null,
         ];
-
-        if ($session->isPartner()) {
-            $payload['task_group'] = ActivitiesLog::TASK_GROUP_PARTNER;
-        }
 
         if ($session->activities_log_id) {
             $existing = ActivitiesLog::query()->find($session->activities_log_id);
@@ -388,7 +396,7 @@ class StaffFileSessionService
     protected function assertOwned(int $staffId, StaffFileSession $session): void
     {
         if ((int) $session->staff_id !== $staffId) {
-            throw ValidationException::withMessages(['session' => 'Not found.']);
+            abort(404);
         }
     }
 

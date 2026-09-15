@@ -673,8 +673,10 @@
                 'summary' => $myDaySummary,
                 'embeddedOnDashboard' => true,
             ])
-            @include('Admin.partials.my-day-diary')
         @endif
+        @auth('admin')
+            @include('Admin.partials.my-day-diary')
+        @endauth
 
         <div class="row">
 

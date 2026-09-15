@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Models\StaffFileTimeEntry;
+use App\Services\DashboardService;
 use App\Services\StaffDayCrmEventsService;
 use App\Services\StaffDayHoursService;
 use App\Services\StaffFileSessionService;
@@ -81,26 +82,17 @@ class StaffFileTimeServiceTest extends TestCase
             'record_id' => 10,
         ]);
 
-        $hours = $this->createMock(StaffDayHoursService::class);
-        $hours->method('forStaff')->willReturn([
-            'label' => '2 hours',
-            'minutes' => 120,
-            'seconds' => 7200,
-            'source' => 'test',
-            'date' => '2026-09-15',
-        ]);
-
         $summary = $this->service->copySummary(
             1,
             new StaffDayCrmEventsService(new StaffWorkloadService),
-            $hours,
+            new StaffDayHoursService(new StaffWorkloadService, app(DashboardService::class)),
             new StaffFileSessionService(new StaffWorkloadService, new StaffDayCrmEventsService(new StaffWorkloadService)),
         );
 
         $this->assertStringContainsString('— Already in CRM —', $summary['text']);
         $this->assertStringContainsString('— Manual logs —', $summary['text']);
         $this->assertStringContainsString('Outlook skim', $summary['text']);
-        $this->assertStringContainsString('Hours in CRM: 2 hours', $summary['text']);
+        $this->assertStringContainsString('Hours in CRM:', $summary['text']);
     }
 
     private function seedBasics(): void

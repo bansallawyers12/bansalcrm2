@@ -290,6 +290,37 @@ class StaffFileSessionServiceTest extends TestCase
         $this->assertSame($before['worked_students_count'], $after['worked_students_count']);
     }
 
+    #[Test]
+    public function later_write_clears_reviewed_only_flag(): void
+    {
+        $start = Carbon::parse('2026-09-15 12:40:00', 'Australia/Melbourne');
+        Carbon::setTestNow($start);
+        $this->insertStaff(1);
+        $this->insertStudent(10);
+
+        $session = $this->service->heartbeat(1, 'student', 10, null, 130);
+        $session = $this->service->promoteIfWritten($session);
+        $this->assertTrue((bool) $session->is_reviewed_only);
+
+        DB::table('notes')->insert([
+            'id' => 9,
+            'user_id' => 1,
+            'client_id' => 10,
+            'type' => 'client',
+            'is_action' => 0,
+            'assigned_to' => null,
+            'title' => 'Call',
+            'created_at' => $start->copy()->addMinute(),
+            'updated_at' => $start->copy()->addMinute(),
+        ]);
+
+        Carbon::setTestNow($start->copy()->addMinutes(2));
+        $updated = $this->service->heartbeat(1, 'student', 10, null, 200);
+
+        $this->assertSame(StaffFileSession::STATUS_RECORDED, $updated->status);
+        $this->assertFalse((bool) $updated->is_reviewed_only);
+    }
+
     private function createSchema(): void
     {
         foreach ([

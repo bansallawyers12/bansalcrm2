@@ -37,5 +37,9 @@ class DashboardMyDayDiaryTest extends TestCase
         $contents = file_get_contents($path);
         $this->assertStringContainsString('my-day-diary', $contents);
         $this->assertStringContainsString('my-day-panel', $contents);
+        $this->assertMatchesRegularExpression(
+            '/@if\(!empty\(\$myDaySummary\)\).*my-day-panel.*@endif.*@auth\([\'"]admin[\'"]\).*my-day-diary/s',
+            $contents
+        );
     }
 }

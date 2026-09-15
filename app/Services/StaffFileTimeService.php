@@ -374,11 +374,10 @@ class StaffFileTimeService
             'use_for' => null,
             'task_status' => 0,
             'pin' => 0,
+            'task_group' => $entry->record_type === StaffFileSession::RECORD_TYPE_PARTNER
+                ? ActivitiesLog::TASK_GROUP_PARTNER
+                : null,
         ];
-
-        if ($entry->record_type === StaffFileSession::RECORD_TYPE_PARTNER) {
-            $payload['task_group'] = ActivitiesLog::TASK_GROUP_PARTNER;
-        }
 
         if ($entry->activities_log_id) {
             $existing = ActivitiesLog::query()->find($entry->activities_log_id);
