@@ -2,17 +2,19 @@
 
 namespace App\Services;
 
-use App\Models\Note;
-// use App\Models\Task; // Task system removed - December 2025
-use App\Models\CheckinLog;
-use App\Models\Partner;
-use App\Models\Admin;
-use App\Models\StaffLoginLog;
 use App\Models\ActivitiesLog;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+// use App\Models\Task; // Task system removed - December 2025
+use App\Models\Admin;
+use App\Models\CheckinLog;
+use App\Models\Note;
+use App\Models\Partner;
+use App\Models\StaffLoginLog;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class DashboardService
 {
@@ -27,7 +29,7 @@ class DashboardService
             // Use whereBetween instead of whereDate for better index usage
             $startOfDay = Carbon::today()->startOfDay();
             $endOfDay = Carbon::today()->endOfDay();
-            
+
             if (Auth::user()->role == 1) {
                 return Note::whereBetween('action_assign_date', [$startOfDay, $endOfDay])->count();
             } else {
@@ -36,26 +38,28 @@ class DashboardService
                     ->count();
             }
         } catch (\Exception $e) {
-            \Log::error('Error getting today action count: ' . $e->getMessage());
+            \Log::error('Error getting today action count: '.$e->getMessage());
+
             return 0;
         }
     }
 
     /**
      * Get actions (Notes) assigned to the user
-     * 
+     *
      * For super admin (role == 1), shows all actions.
      * For other users, shows only actions assigned to them.
-     * 
-     * @param string $dateFilter Optional date filter (today, week, month)
-     * @return \Illuminate\Database\Eloquent\Collection
+     *
+     * @param  string  $dateFilter  Optional date filter (today, week, month)
+     * @return Collection
      */
     public function getTodayTasks($dateFilter = 'today')
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 \Log::error('No authenticated user found in getTodayTasks');
+
                 return collect([]);
             }
 
@@ -69,9 +73,9 @@ class DashboardService
             // Super admin sees all actions (including unassigned)
             // Regular users see only actions assigned to them (assigned_to must match their ID)
             if ($user->role != 1) {
-                $query->where(function($q) use ($user) {
+                $query->where(function ($q) use ($user) {
                     $q->where('assigned_to', $user->id)
-                      ->whereNotNull('assigned_to'); // Ensure assigned_to is not null
+                        ->whereNotNull('assigned_to'); // Ensure assigned_to is not null
                 });
             }
             // For super admin (role == 1), no additional filter - shows all actions
@@ -104,7 +108,7 @@ class DashboardService
 
             // Get partner IDs for partner-type actions
             $partnerIds = $actions->where('type', 'partner')->pluck('client_id')->unique()->filter();
-            
+
             // Load partners in bulk to avoid N+1 queries
             $partners = [];
             if ($partnerIds->count() > 0) {
@@ -113,30 +117,31 @@ class DashboardService
             }
 
             // Format dates and add partner/client name for display
-            $actions->transform(function($action) use ($partners) {
-                $action->formatted_due_date = $action->action_assign_date 
-                    ? Carbon::parse($action->action_assign_date)->format('d/m/Y h:i A') 
+            $actions->transform(function ($action) use ($partners) {
+                $action->formatted_due_date = $action->action_assign_date
+                    ? Carbon::parse($action->action_assign_date)->format('d/m/Y h:i A')
                     : 'N/A';
-                
+
                 // Add user relationship alias for backward compatibility with view
                 $action->user = $action->assigned_user;
-                
+
                 // Add client/partner name for easy access in view
                 if ($action->type == 'client' && $action->noteClient) {
-                    $action->client_name = trim(($action->noteClient->first_name ?? '') . ' ' . ($action->noteClient->last_name ?? ''));
+                    $action->client_name = trim(($action->noteClient->first_name ?? '').' '.($action->noteClient->last_name ?? ''));
                 } elseif ($action->type == 'partner' && isset($partners[$action->client_id])) {
                     $action->client_name = $partners[$action->client_id]['partner_name'] ?? 'N/A';
                 } else {
                     $action->client_name = 'N/A';
                 }
-                
+
                 return $action;
             });
 
             return $actions;
         } catch (\Exception $e) {
-            \Log::error('Error getting actions: ' . $e->getMessage());
-            \Log::error('Error trace: ' . $e->getTraceAsString());
+            \Log::error('Error getting actions: '.$e->getMessage());
+            \Log::error('Error trace: '.$e->getTraceAsString());
+
             return collect([]);
         }
     }
@@ -152,7 +157,7 @@ class DashboardService
             // Remove unnecessary condition and eager load client relationship
             $checkins = CheckinLog::where('status', 0)
                 ->select('id', 'client_id', 'created_at')
-                ->with(['client' => function($q) {
+                ->with(['client' => function ($q) {
                     $q->select('id', 'first_name', 'last_name');
                 }])
                 ->orderBy('created_at', 'ASC')
@@ -160,8 +165,9 @@ class DashboardService
                 ->get();
 
             // Pre-format dates to avoid date() calls in view
-            $checkins->transform(function($checkin) {
+            $checkins->transform(function ($checkin) {
                 $checkin->formatted_waiting_time = Carbon::parse($checkin->created_at)->format('h:i A');
+
                 return $checkin;
             });
 
@@ -169,13 +175,14 @@ class DashboardService
 
             return [
                 'total' => $totalData,
-                'items' => $checkins
+                'items' => $checkins,
             ];
         } catch (\Exception $e) {
-            \Log::error('Error getting check-in queue: ' . $e->getMessage());
+            \Log::error('Error getting check-in queue: '.$e->getMessage());
+
             return [
                 'total' => 0,
-                'items' => collect([])
+                'items' => collect([]),
             ];
         }
     }
@@ -183,7 +190,7 @@ class DashboardService
     /**
      * Get notes with deadlines
      *
-     * @param int $perPage
+     * @param  int  $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getNotesWithDeadlines($perPage = null)
@@ -214,16 +221,18 @@ class DashboardService
                 ->paginate($perPage);
 
             // Pre-format dates to avoid date() calls in view
-            $notes->getCollection()->transform(function($note) {
+            $notes->getCollection()->transform(function ($note) {
                 $note->formatted_deadline = $note->note_deadline ? Carbon::parse($note->note_deadline)->format('d/m/Y') : 'N/A';
                 $note->formatted_created_at = $note->created_at ? Carbon::parse($note->created_at)->format('d/m/Y') : 'N/A';
+
                 return $note;
             });
 
             return $notes;
         } catch (\Exception $e) {
-            \Log::error('Error getting notes with deadlines: ' . $e->getMessage());
-            return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage);
+            \Log::error('Error getting notes with deadlines: '.$e->getMessage());
+
+            return new LengthAwarePaginator([], 0, $perPage);
         }
     }
 
@@ -236,7 +245,7 @@ class DashboardService
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return $this->getEmptyLoginStats();
             }
 
@@ -268,19 +277,22 @@ class DashboardService
             $timeSinceLastLogin = null;
             $timeSinceLastLoginFormatted = 'Never';
             if ($lastLoginTime) {
-                $timeSinceLastLogin = Carbon::now()->diffInSeconds($lastLoginTime);
+                $timeSinceLastLogin = (int) abs(Carbon::now()->diffInSeconds($lastLoginTime));
                 $timeSinceLastLoginFormatted = $this->formatTimeDifference($lastLoginTime);
             }
 
             // Calculate current session duration (time since current login)
-            $currentSessionDuration = $currentLoginTime ? Carbon::now()->diffInSeconds($currentLoginTime) : 0;
+            // Carbon 3 returns a signed float by default — use absolute whole seconds.
+            $currentSessionDuration = $currentLoginTime
+                ? (int) abs(Carbon::now()->diffInSeconds($currentLoginTime))
+                : 0;
             $currentSessionDurationFormatted = $this->formatDuration($currentSessionDuration);
 
             // Calculate inactivity period (if last activity was more than 5 minutes ago)
             $inactivityPeriod = null;
             $inactivityFormatted = 'Active';
-            $inactivitySeconds = Carbon::now()->diffInSeconds($currentActivityTime);
-            
+            $inactivitySeconds = (int) abs(Carbon::now()->diffInSeconds($currentActivityTime));
+
             if ($inactivitySeconds > 300) { // More than 5 minutes
                 $inactivityPeriod = $inactivitySeconds;
                 $inactivityFormatted = $this->formatTimeDifference($currentActivityTime);
@@ -304,7 +316,8 @@ class DashboardService
                 'current_login_ip' => $currentLoginLog ? $currentLoginLog->ip_address : null,
             ];
         } catch (\Exception $e) {
-            \Log::error('Error getting login statistics: ' . $e->getMessage());
+            \Log::error('Error getting login statistics: '.$e->getMessage());
+
             return $this->getEmptyLoginStats();
         }
     }
@@ -312,23 +325,23 @@ class DashboardService
     /**
      * Format time difference in human readable format
      *
-     * @param Carbon $time
+     * @param  Carbon  $time
      * @return string
      */
     private function formatTimeDifference($time)
     {
-        if (!$time) {
+        if (! $time) {
             return 'Never';
         }
 
         $diff = Carbon::now()->diff($time);
-        
+
         if ($diff->days > 0) {
-            return $diff->days . ' day' . ($diff->days > 1 ? 's' : '') . ' ago';
+            return $diff->days.' day'.($diff->days > 1 ? 's' : '').' ago';
         } elseif ($diff->h > 0) {
-            return $diff->h . ' hour' . ($diff->h > 1 ? 's' : '') . ' ago';
+            return $diff->h.' hour'.($diff->h > 1 ? 's' : '').' ago';
         } elseif ($diff->i > 0) {
-            return $diff->i . ' minute' . ($diff->i > 1 ? 's' : '') . ' ago';
+            return $diff->i.' minute'.($diff->i > 1 ? 's' : '').' ago';
         } else {
             return 'Just now';
         }
@@ -337,33 +350,42 @@ class DashboardService
     /**
      * Format duration in seconds to human readable format
      *
-     * @param int $seconds
+     * @param  int|float  $seconds
      * @return string
      */
     private function formatDuration($seconds)
     {
+        $seconds = (int) max(0, $seconds);
+
         if ($seconds < 60) {
-            return $seconds . ' second' . ($seconds != 1 ? 's' : '');
-        } elseif ($seconds < 3600) {
-            $minutes = floor($seconds / 60);
-            return $minutes . ' minute' . ($minutes != 1 ? 's' : '');
-        } elseif ($seconds < 86400) {
-            $hours = floor($seconds / 3600);
-            $minutes = floor(($seconds % 3600) / 60);
-            $result = $hours . ' hour' . ($hours != 1 ? 's' : '');
+            return $seconds.' second'.($seconds != 1 ? 's' : '');
+        }
+
+        if ($seconds < 3600) {
+            $minutes = (int) floor($seconds / 60);
+
+            return $minutes.' minute'.($minutes != 1 ? 's' : '');
+        }
+
+        if ($seconds < 86400) {
+            $hours = (int) floor($seconds / 3600);
+            $minutes = (int) floor(($seconds % 3600) / 60);
+            $result = $hours.' hour'.($hours != 1 ? 's' : '');
             if ($minutes > 0) {
-                $result .= ' ' . $minutes . ' minute' . ($minutes != 1 ? 's' : '');
+                $result .= ' '.$minutes.' minute'.($minutes != 1 ? 's' : '');
             }
-            return $result;
-        } else {
-            $days = floor($seconds / 86400);
-            $hours = floor(($seconds % 86400) / 3600);
-            $result = $days . ' day' . ($days != 1 ? 's' : '');
-            if ($hours > 0) {
-                $result .= ' ' . $hours . ' hour' . ($hours != 1 ? 's' : '');
-            }
+
             return $result;
         }
+
+        $days = (int) floor($seconds / 86400);
+        $hours = (int) floor(($seconds % 86400) / 3600);
+        $result = $days.' day'.($days != 1 ? 's' : '');
+        if ($hours > 0) {
+            $result .= ' '.$hours.' hour'.($hours != 1 ? 's' : '');
+        }
+
+        return $result;
     }
 
     /**
@@ -395,28 +417,28 @@ class DashboardService
     /**
      * Get clients with recent activities
      *
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $limit
+     * @return Collection
      */
     public function getClientsWithRecentActivities($limit = 10)
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return collect([]);
             }
 
             // Get recent activities (last 30 days to show more clients)
             $recentDate = Carbon::now()->subDays(30);
-            
-            $query = ActivitiesLog::with(['client' => function($q) {
+
+            $query = ActivitiesLog::with(['client' => function ($q) {
                 $q->select('id', 'first_name', 'last_name', 'email', 'phone');
             }])
-            ->forStudentRecords()
-            ->where('task_status', 0) // Only activities, not tasks
-            ->whereNotNull('client_id')
-            ->where('created_at', '>=', $recentDate)
-            ->orderBy('created_at', 'DESC');
+                ->forStudentRecords()
+                ->where('task_status', 0) // Only activities, not tasks
+                ->whereNotNull('client_id')
+                ->where('created_at', '>=', $recentDate)
+                ->orderBy('created_at', 'DESC');
 
             // Filter by user role - super admin sees all, others see their own activities
             if ($user->role != 1) {
@@ -426,17 +448,17 @@ class DashboardService
             $activities = $query->get();
 
             // Get unique clients with their most recent activity
-            $clientsWithActivities = $activities->groupBy('client_id')->map(function($clientActivities) {
+            $clientsWithActivities = $activities->groupBy('client_id')->map(function ($clientActivities) {
                 $mostRecent = $clientActivities->first();
                 $client = $mostRecent->client;
-                
-                if (!$client) {
+
+                if (! $client) {
                     return null;
                 }
-                
-                return (object)[
+
+                return (object) [
                     'client_id' => $client->id,
-                    'client_name' => trim(($client->first_name ?? '') . ' ' . ($client->last_name ?? '')),
+                    'client_name' => trim(($client->first_name ?? '').' '.($client->last_name ?? '')),
                     'client_email' => $client->email ?? '',
                     'client_phone' => $client->phone ?? '',
                     'last_activity' => $mostRecent->created_at,
@@ -444,13 +466,14 @@ class DashboardService
                     'last_activity_time' => $this->formatActivityTime($mostRecent->created_at),
                     'activity_count' => $clientActivities->count(),
                     'last_activity_subject' => $mostRecent->subject ?? 'Activity',
-                    'activity_type' => $this->extractActivityType($mostRecent->subject, $mostRecent->description)
+                    'activity_type' => $this->extractActivityType($mostRecent->subject, $mostRecent->description),
                 ];
             })->filter()->take($limit)->values();
 
             return $clientsWithActivities;
         } catch (\Exception $e) {
-            \Log::error('Error getting clients with recent activities: ' . $e->getMessage());
+            \Log::error('Error getting clients with recent activities: '.$e->getMessage());
+
             return collect([]);
         }
     }
@@ -458,26 +481,26 @@ class DashboardService
     /**
      * Get recent activities for the dashboard
      *
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $limit
+     * @return Collection
      */
     public function getRecentActivities($limit = 10)
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return collect([]);
             }
 
-            $query = ActivitiesLog::with(['client' => function($q) {
+            $query = ActivitiesLog::with(['client' => function ($q) {
                 $q->select('id', 'first_name', 'last_name');
-            }, 'createdBy' => function($q) {
+            }, 'createdBy' => function ($q) {
                 $q->select('id', 'first_name', 'last_name');
             }])
-            ->forStudentRecords()
-            ->where('task_status', 0) // Only activities, not tasks
-            ->orderBy('created_at', 'DESC')
-            ->limit($limit);
+                ->forStudentRecords()
+                ->where('task_status', 0) // Only activities, not tasks
+                ->orderBy('created_at', 'DESC')
+                ->limit($limit);
 
             // Filter by user role - super admin sees all, others see their own activities
             if ($user->role != 1) {
@@ -487,20 +510,21 @@ class DashboardService
             $activities = $query->get();
 
             // Format activities for display
-            $activities->transform(function($activity) {
+            $activities->transform(function ($activity) {
                 $activity->formatted_time = $this->formatActivityTime($activity->created_at);
                 $activity->formatted_date = Carbon::parse($activity->created_at)->format('d/m/Y h:i A');
-                
+
                 // Extract activity type and details from subject/description
                 $activity->activity_type = $this->extractActivityType($activity->subject, $activity->description);
                 $activity->activity_details = $this->extractActivityDetails($activity->subject, $activity->description);
-                
+
                 return $activity;
             });
 
             return $activities;
         } catch (\Exception $e) {
-            \Log::error('Error getting recent activities: ' . $e->getMessage());
+            \Log::error('Error getting recent activities: '.$e->getMessage());
+
             return collect([]);
         }
     }
@@ -508,22 +532,22 @@ class DashboardService
     /**
      * Format activity time for display
      *
-     * @param string $datetime
+     * @param  string  $datetime
      * @return string
      */
     private function formatActivityTime($datetime)
     {
-        if (!$datetime) {
+        if (! $datetime) {
             return 'N/A';
         }
 
         $activityTime = Carbon::parse($datetime);
         $now = Carbon::now();
-        
+
         if ($activityTime->isToday()) {
             return $activityTime->format('h:i A');
         } elseif ($activityTime->isYesterday()) {
-            return 'Yesterday, ' . $activityTime->format('h:i A');
+            return 'Yesterday, '.$activityTime->format('h:i A');
         } elseif ($activityTime->diffInDays($now) <= 7) {
             return $activityTime->format('D, h:i A');
         } else {
@@ -534,15 +558,15 @@ class DashboardService
     /**
      * Extract activity type from subject/description
      *
-     * @param string $subject
-     * @param string $description
+     * @param  string  $subject
+     * @param  string  $description
      * @return string
      */
     private function extractActivityType($subject, $description)
     {
         $subjectLower = strtolower($subject ?? '');
         $descLower = strtolower($description ?? '');
-        
+
         if (strpos($subjectLower, 'email') !== false || strpos($descLower, 'email sent') !== false) {
             return 'email';
         } elseif (strpos($subjectLower, 'file') !== false || strpos($descLower, 'uploaded') !== false || strpos($descLower, '.pdf') !== false || strpos($descLower, '.doc') !== false) {
@@ -557,32 +581,30 @@ class DashboardService
     /**
      * Extract activity details for display
      *
-     * @param string $subject
-     * @param string $description
+     * @param  string  $subject
+     * @param  string  $description
      * @return string
      */
     private function extractActivityDetails($subject, $description)
     {
         // Try to extract meaningful information from description
-        if (!empty($description)) {
+        if (! empty($description)) {
             // Remove HTML tags and get first meaningful sentence
             $cleanDesc = strip_tags($description);
             $cleanDesc = preg_replace('/\s+/', ' ', $cleanDesc);
             $cleanDesc = trim($cleanDesc);
-            
+
             // Limit to reasonable length
             if (strlen($cleanDesc) > 100) {
-                $cleanDesc = substr($cleanDesc, 0, 100) . '...';
+                $cleanDesc = substr($cleanDesc, 0, 100).'...';
             }
-            
-            if (!empty($cleanDesc)) {
+
+            if (! empty($cleanDesc)) {
                 return $cleanDesc;
             }
         }
-        
+
         // Fallback to subject
         return $subject ?? 'Activity';
     }
-
 }
-

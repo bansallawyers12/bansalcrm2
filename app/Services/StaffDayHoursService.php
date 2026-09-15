@@ -25,11 +25,10 @@ class StaffDayHoursService
         $viewerId = Auth::guard('admin')->id();
         if ($viewerId !== null && (int) $viewerId === $staffId) {
             $stats = $this->dashboardService->getLoginStatistics();
-            $seconds = (int) ($stats['current_session_duration'] ?? 0);
-            $label = (string) ($stats['current_session_duration_formatted'] ?? '—');
+            $seconds = max(0, (int) abs((float) ($stats['current_session_duration'] ?? 0)));
 
             return [
-                'label' => $label !== '' ? $label : '—',
+                'label' => $this->formatHoursAndMinutes($seconds),
                 'minutes' => (int) floor($seconds / 60),
                 'seconds' => $seconds,
                 'source' => 'login_session',
@@ -44,5 +43,25 @@ class StaffDayHoursService
             'source' => 'none',
             'date' => $dateKey,
         ];
+    }
+
+    /**
+     * Diary-facing label: prefer hours + minutes (never raw seconds).
+     */
+    protected function formatHoursAndMinutes(int $seconds): string
+    {
+        $seconds = max(0, $seconds);
+        $hours = (int) floor($seconds / 3600);
+        $minutes = (int) floor(($seconds % 3600) / 60);
+
+        if ($hours > 0 && $minutes > 0) {
+            return $hours.'h '.$minutes.'m';
+        }
+
+        if ($hours > 0) {
+            return $hours.'h';
+        }
+
+        return $minutes.'m';
     }
 }
