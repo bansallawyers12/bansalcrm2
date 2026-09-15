@@ -35,8 +35,8 @@ class StaffFileTimeServiceTest extends TestCase
         $this->seedBasics();
 
         $entry = $this->service->logCompleted(1, [
-            'kind' => StaffFileTimeEntry::KIND_PRISMS,
-            'title' => 'COE check',
+            'kind' => StaffFileTimeEntry::KIND_CALL,
+            'title' => 'Follow-up call',
             'confirmed_minutes' => 15,
             'record_type' => 'student',
             'record_id' => 10,
@@ -75,7 +75,7 @@ class StaffFileTimeServiceTest extends TestCase
         $this->seedBasics();
 
         $this->service->logCompleted(1, [
-            'kind' => StaffFileTimeEntry::KIND_MAILBOX,
+            'kind' => StaffFileTimeEntry::KIND_EMAIL,
             'title' => 'Outlook skim',
             'confirmed_minutes' => 10,
             'record_type' => 'student',

@@ -55,12 +55,16 @@
         <label class="d-block mb-2">
             Kind
             <select name="kind" class="form-control" required>
-                <option value="prisms">PRISMS</option>
+                <option value="call">Call</option>
+                <option value="email">Email</option>
+                <option value="in_person">In-Person</option>
+                <option value="others">Others</option>
+                <option value="attention">Attention</option>
+                <option value="sms">SMS</option>
                 <option value="provider_portal">Provider portal</option>
-                <option value="mailbox">Mailbox</option>
                 <option value="draft">Drafting</option>
                 <option value="internal">Internal</option>
-                <option value="other">Other</option>
+                <option value="staff_meeting">Staff meeting</option>
             </select>
         </label>
         <label class="d-block mb-2">

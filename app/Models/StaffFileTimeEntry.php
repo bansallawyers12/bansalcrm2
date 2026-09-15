@@ -7,17 +7,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StaffFileTimeEntry extends Model
 {
-    public const KIND_PRISMS = 'prisms';
+    /** Note-style kinds (match client/partner note title select). */
+    public const KIND_CALL = 'call';
+
+    public const KIND_EMAIL = 'email';
+
+    public const KIND_IN_PERSON = 'in_person';
+
+    public const KIND_OTHERS = 'others';
+
+    public const KIND_ATTENTION = 'attention';
+
+    /** Off-CRM extras beyond note titles. */
+    public const KIND_SMS = 'sms';
 
     public const KIND_PROVIDER_PORTAL = 'provider_portal';
-
-    public const KIND_MAILBOX = 'mailbox';
 
     public const KIND_DRAFT = 'draft';
 
     public const KIND_INTERNAL = 'internal';
 
-    public const KIND_OTHER = 'other';
+    public const KIND_STAFF_MEETING = 'staff_meeting';
 
     public const STATUS_DONE = 'done';
 
@@ -29,12 +39,16 @@ class StaffFileTimeEntry extends Model
     public static function kinds(): array
     {
         return [
-            self::KIND_PRISMS,
+            self::KIND_CALL,
+            self::KIND_EMAIL,
+            self::KIND_IN_PERSON,
+            self::KIND_OTHERS,
+            self::KIND_ATTENTION,
+            self::KIND_SMS,
             self::KIND_PROVIDER_PORTAL,
-            self::KIND_MAILBOX,
             self::KIND_DRAFT,
             self::KIND_INTERNAL,
-            self::KIND_OTHER,
+            self::KIND_STAFF_MEETING,
         ];
     }
 
@@ -105,12 +119,20 @@ class StaffFileTimeEntry extends Model
     public function kindLabel(): string
     {
         return match ($this->kind) {
-            self::KIND_PRISMS => 'PRISMS',
-            self::KIND_PROVIDER_PORTAL => 'provider portal',
-            self::KIND_MAILBOX => 'mailbox',
-            self::KIND_DRAFT => 'drafting',
-            self::KIND_INTERNAL => 'internal',
-            self::KIND_OTHER => 'other',
+            self::KIND_CALL => 'Call',
+            self::KIND_EMAIL => 'Email',
+            self::KIND_IN_PERSON => 'In-Person',
+            self::KIND_OTHERS => 'Others',
+            self::KIND_ATTENTION => 'Attention',
+            self::KIND_SMS => 'SMS',
+            self::KIND_PROVIDER_PORTAL => 'Provider portal',
+            self::KIND_DRAFT => 'Drafting',
+            self::KIND_INTERNAL => 'Internal',
+            self::KIND_STAFF_MEETING => 'Staff meeting',
+            // Legacy v1 presets (still render if present in older rows)
+            'prisms' => 'PRISMS',
+            'mailbox' => 'Mailbox',
+            'other' => 'Other',
             default => (string) $this->kind,
         };
     }
