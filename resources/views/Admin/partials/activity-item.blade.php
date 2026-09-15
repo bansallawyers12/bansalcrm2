@@ -43,7 +43,9 @@
 				$actType = $activit->activity_type ?? '';
 
 				$inferredType = 'other';
-				if (in_array($actType, ['receipt_created','receipt_validated','receipt_edited','receipt_reassigned','receipt_refunded','receipt_voided']) || strpos($description, 'action: receipt_') === 0) {
+				if ($actType === 'file_time' || preg_match('/\blogged\s+\d+m\b/i', $subject)) {
+					$inferredType = 'file_time';
+				} elseif (in_array($actType, ['receipt_created','receipt_validated','receipt_edited','receipt_reassigned','receipt_refunded','receipt_voided']) || strpos($description, 'action: receipt_') === 0) {
 					$inferredType = 'receipt';
 				} elseif ($actType === 'document' || preg_match('/\b(document|uploaded|verified|attached|detached)\b/i', $subject)) {
 					$inferredType = 'document';

@@ -183,9 +183,19 @@ final class ClientDetailActivities
                         ->orWhereLike('activities_logs.subject', '%commented%');
                 });
                 break;
+            case 'file_time':
+                $query->where(function ($q) {
+                    $q->where('activities_logs.activity_type', 'file_time')
+                        ->orWhereLike('activities_logs.subject', 'logged %m on%');
+                });
+                break;
             case 'other':
                 $query->where(function ($q) {
-                    $q->whereNotLike('activities_logs.subject', '%note%')
+                    $q->where(function ($inner) {
+                        $inner->whereNull('activities_logs.activity_type')
+                            ->orWhere('activities_logs.activity_type', '!=', 'file_time');
+                    })
+                        ->whereNotLike('activities_logs.subject', '%note%')
                         ->whereNotLike('activities_logs.subject', '%document%')
                         ->whereNotLike('activities_logs.subject', '%action%')
                         ->whereNotLike('activities_logs.subject', '%task%')
@@ -200,7 +210,8 @@ final class ClientDetailActivities
                         ->whereNotLike('activities_logs.subject', '%review%')
                         ->whereNotLike('activities_logs.subject', '%reminder%')
                         ->whereNotLike('activities_logs.subject', '%Checklist Email sent%')
-                        ->whereNotLike('activities_logs.subject', '%Checklist Email resent%');
+                        ->whereNotLike('activities_logs.subject', '%Checklist Email resent%')
+                        ->whereNotLike('activities_logs.subject', 'logged %m on%');
                 });
                 break;
         }

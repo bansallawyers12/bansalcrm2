@@ -6,7 +6,11 @@
 **Product plan (upstream):** `migrationmanager2/docs/PLAN_MY_DAY.md`  
 **Related in this repo:** `docs/STAFF_WORKLOAD_EFFICIENCY.md` (existing My Day **workload** tiles — keep separate)
 
+**How to execute:** follow **§19 Implementation plan** (phased PRs). Architecture and rules are §§1–18; §19 is the apply checklist for this CRM.
+
 This document is the **bansalcrm2** adaptation: domain names, tables, existing code to reuse, and open decisions are filled in for this CRM. Follow the architecture and non-negotiable rules; do not copy migration-law matter names into schema.
+
+**Implementation plan:** see **§19** (phased PRs, files, acceptance criteria). Do not start coding until the locked decisions in §19.0 are confirmed.
 
 ---
 
@@ -117,8 +121,8 @@ Prefer **`staff_file_sessions`** naming in bansalcrm2 (we have applications, not
 5. **Promotion, not button.** Session starts `accessed`. Becomes `recorded` when any CRM write by this staff on this record lands in `[started_at, last_heartbeat_at]`, **or** after ≥ 2 minutes focused with no write (“reviewed file”).
 6. **Under 2 min + no write stays `accessed`.** Shows under “Files opened”, no feed post.
 7. **Feed only for `recorded` (then closed).** One timeline row per session; never for pure `accessed`.
-8. **Personal view only.** No “view as colleague” on the dashboard. Manager reports (if any) use a stored end-of-day snapshot, not live peeking. Same rule as existing My Day workload.
-9. **Workload cards CRM-only.** `file_time` feed rows use `task_status = 0` and must be excluded from `StaffWorkloadService` / completed-action queries.
+8. **Personal diary only.** Auto/manual time UI and live session APIs are for the logged-in staff on the main dashboard. Super Admin may already view **another staff’s workload KPIs** in Admin Console (`staff-workload`) — that exception does **not** extend to live auto sessions, minute edits, or copy-summary of open timers. Manager file-time (if any) = stored end-of-day snapshot only (Phase E).
+9. **Workload cards CRM-only.** `file_time` feed rows use `task_status = 0` and must be excluded from `StaffWorkloadService` / completed-action queries (protects personal tiles **and** Admin Console team overview).
 
 ---
 
@@ -211,10 +215,13 @@ Feed subject shapes:
 
 `activity_type = file_time`, `created_by = staff_id`, `task_status = 0`, `pin = 0`.
 
-- Student/lead sessions: `client_id = admins.id`, `task_group` null / non-partner; set `use_for` if the column is used for application linkage.
+- Student/lead sessions: `client_id = admins.id`, `task_group` null / non-partner.
 - Partner sessions: `client_id = partners.id`, `task_group = partner`.
+- **Do not set `use_for` for application linkage.** In bansalcrm2, `activities_logs.use_for` is an integer staff/category field (see `LogsClientActivity`), not a matter string. Upstream sets `use_for = 'matter'` — that pattern **must not** be copied. Keep application identity on `staff_file_sessions.application_id` only; leave `use_for` null on `file_time` rows.
 
 Editing minutes after post **updates** the same feed row.
+
+**KPI guard (ship with first feed post):** `StaffWorkloadService::getThroughput()` (and quiet/inactive last-work queries) credit `activities_logs.created_by`. A `file_time` row would inflate “worked on” / last-touch unless excluded — add `where('activity_type', '!=', 'file_time')` (and/or subject guard) in the **same PR** that first calls `postToFeed`, even before diary UI.
 
 ### 5.6 Minutes split across CRM events (display only)
 
@@ -408,6 +415,31 @@ CSS: dedicated stylesheet tokens aligned with `.my-day-*` already in the panel. 
 
 JS: one script owning state from `data-initial-*` attributes; PATCH minutes on blur of inline inputs; **never** re-render workload KPI tiles on heartbeat.
 
+**Structural rule:** implement the diary as a **separate** Blade partial (`my-day-diary`), never fold it into `Admin.partials.my-day-panel`. Admin Console reuses that panel for another staff; keeping diary separate prevents accidental manager live-peek.
+
+---
+
+## 10a. Admin Console boundary (shipped today)
+
+What already exists under `/adminconsole` (auth:admin + **Super Admin `role == 1`**):
+
+| Surface | Route / files | What it shows |
+|---------|---------------|---------------|
+| Team table | `adminconsole.staff-workload.index` → `StaffWorkloadController@index`, `staff_workload/index.blade.php` | Today’s KPI columns per active staff via `StaffWorkloadService::getTeamOverview()` |
+| Staff drill-down | `adminconsole.staff-workload.show` → `show.blade.php` | Reuses `Admin.partials.my-day-panel` with **that staff’s** `getDaySummary($staff->id)` |
+| Nav | `Elements/AdminConsole/setting.blade.php` | “Staff Workload Today” link gated `@if(role == 1)` (matches controller) |
+
+**Implications for auto file-time:**
+
+1. **Do not** include diary/auto/manual UI on Console index or show in v1.
+2. **Do not** add “auto minutes” / “files opened” columns to the team table in v1 (would invite ranking by focus time).
+3. Phase A `file_time` exclusion in `StaffWorkloadService` automatically protects Console team + show KPI maths.
+4. Console show uses `embeddedOnDashboard = true`, so the panel’s hours strip is already hidden; `getDaySummary` also does **not** attach login stats — Console is workload-only today. Keep it that way when adding diary elsewhere.
+5. Diary mutation routes (`PATCH`/`DELETE` sessions, manual log) must authorize **session owner == Auth staff** only. Super Admin must not edit another staff’s live sessions via Console.
+6. Phase E (optional): read-only `staff_day_summaries` on Console show (paste text), still no live timer peek and no PATCH from Console.
+
+Controllers/tests to leave alone unless Phase E: `StaffWorkloadController`, `StaffWorkloadControllerTest` (pagination only today).
+
 ---
 
 ## 11. Copy-summary text contract
@@ -454,17 +486,19 @@ Without the closer, sessions stay open forever and never post. Verify cron hits 
 
 ## 13. Suggested build order (green at each step)
 
-1. **Schema + models + factories** for `staff_file_sessions` (and overlay if shipping both).
-2. **CRM events service** (`forStaff` + `forStaffOnRecord`) + unit tests — align with workload attribution.
-3. **Session service** (heartbeat, blur, idleCut, promote, closeStale, board, feed) + unit tests — no UI yet.
-4. **Closer command + schedule** in `app/Console/Kernel.php`.
-5. **Routes + Form Requests + controller** + feature auth tests.
-6. **Detail script + Blade config** on student/lead + partner detail — sessions start accruing silently.
-7. **Dashboard diary Blade/CSS/JS** below existing workload panel — staff see auto + opened + copy.
-8. **Manual overlay** — log-minutes modal + board + feed on Done.
-9. **Activity-feed icon** for `file_time`; confirm `StaffWorkloadService` and action queries exclude it.
+See **§19** for the full bansalcrm2 apply plan (PR boundaries, files, acceptance). Condensed:
 
-Ship 1–4 without UI if you want a safe merge: sessions simply do not get created until step 6.
+1. **Schema + models** for `staff_file_sessions` (manual overlay later).
+2. **CRM events service** (`forStaff` + `forStaffOnRecord`) + unit tests — align with workload attribution.
+3. **Session service** (heartbeat, blur, idleCut, promote, closeStale, feed) + unit tests — no UI yet. **Do not** set `use_for` on feed rows.
+4. **Exclude `file_time` from `StaffWorkloadService`** in the same PR as feed posts.
+5. **Closer command** registered in `Kernel::$commands` + schedule.
+6. **Routes + controller validation + auth gates** + feature tests.
+7. **Detail script + Blade** on student/lead + partner — re-bind on application context change.
+8. **Dashboard diary** on personal dashboard only (not Admin Console staff show) + manual log + copy.
+9. **Activity-feed icon / filter** for `file_time`.
+
+Ship 1–5 without UI if you want a safe merge: sessions simply do not get created until step 7.
 
 ---
 
@@ -474,11 +508,13 @@ Ship 1–4 without UI if you want a safe merge: sessions simply do not get creat
 
 - [x] Staff auth guard and id: `auth:admin` → `staff.id`
 - [x] Record primary key on detail: `admins.id` (student/lead), `partners.id` (college)
-- [x] Optional case id: `applications.id` when application selected on student detail
+- [x] Optional case id: `applications.id` when application selected on student detail (`ClientController` route `applicationId` + tab `data-application-id`)
 - [x] Business timezone + day bounds: `StaffWorkloadService::dayBounds()` / `config('app.timezone')`
-- [x] Activity timeline: `activities_logs` (+ partner `task_group`); insert with `task_status = 0`, never mark task complete
-- [ ] Record access gate reused on heartbeat (mirror client/partner detail authorization + grants)
-- [ ] List of write sources that count as “CRM work” for promotion (start from §7)
+- [x] Activity timeline: `activities_logs` (+ partner `task_group`); insert with `task_status = 0`, `pin = 0`, never mark task complete; **`use_for` stays null**
+- [x] Student access gate: `StaffClientVisibility::canAccessAdminRecord` (+ CRM access grants)
+- [x] Partner access gate: role / partners-module checks in `PartnersController` (not the same as student visibility — do not invent `StaffClientVisibility` for partners)
+- [ ] Heartbeat reuses those gates (student vs partner branches)
+- [ ] List of write sources that count as “CRM work” for promotion (start from §7; notes have **no** `application_id` column — null-application attribution is the default for Call/In-Person notes)
 
 ### Must decide — recommendations
 
@@ -487,7 +523,7 @@ Ship 1–4 without UI if you want a safe merge: sessions simply do not get creat
 | Manual preset kinds | `prisms`, `provider_portal`, `mailbox`, `draft`, `internal`, `other` |
 | Student vs partner identity | **Polymorphic** `record_type` + `record_id` (required — separate tables, overlapping ids) |
 | Leads vs clients | Same `record_type = student` (both live in `admins`) |
-| Manager visibility | Personal-only on dashboard; optional `staff_day_summaries` for Admin Console later |
+| Manager visibility | Personal diary on dashboard only. Admin Console already shows **workload** for other staff (Super Admin) — keep that; add diary/snapshots only in Phase E as read-only |
 | Live timer vs log modal | **Log-minutes-only modal for v1**; live timer optional later |
 | Idle thresholds | Keep 15m / 2m |
 | Table naming | Prefer `staff_file_sessions` over `staff_matter_sessions` |
@@ -496,6 +532,10 @@ Ship 1–4 without UI if you want a safe merge: sessions simply do not get creat
 
 - [ ] Do not store auto time inside `notes` / actions tables
 - [ ] Do not let `file_time` inflate KPI / workload cards (`StaffWorkloadService`)
+- [ ] Do not set `activities_logs.use_for` to a matter/application string (wrong column semantics here)
+- [ ] Do not mount the diary on Admin Console staff-workload index/show
+- [ ] Do not fold diary into `my-day-panel` (Console reuses it for other staff)
+- [ ] Do not add auto-minutes columns to the Console team overview in v1
 - [ ] Do not require a Start button for in-CRM file time
 - [ ] Do not count background tabs or blurred windows
 - [ ] Do not post feed rows for `accessed`-only opens
@@ -575,6 +615,8 @@ Ship 1–4 without UI if you want a safe merge: sessions simply do not get creat
 | Concern | Path |
 |---------|------|
 | Existing workload My Day | `app/Services/StaffWorkloadService.php`, `resources/views/Admin/partials/my-day-panel.blade.php` |
+| Admin Console team + show | `app/Http/Controllers/AdminConsole/StaffWorkloadController.php`, `resources/views/AdminConsole/staff_workload/*`, `routes/adminconsole.php` |
+| Admin Console nav | `resources/views/Elements/AdminConsole/setting.blade.php` (“Staff Workload Today”, role 1) |
 | Hours / login stats | `app/Services/DashboardService.php` (`getLoginStatistics`) |
 | Dashboard host | `app/Http/Controllers/Admin/AdminController.php`, `resources/views/Admin/dashboard.blade.php` |
 | My Day route redirect | `app/Http/Controllers/Admin/MyDayController.php`, `routes/web.php` (`staff.my-day`) |
@@ -595,3 +637,194 @@ Ship 1–4 without UI if you want a safe merge: sessions simply do not get creat
 **My Day diary** sits beside the existing **My Day workload** tiles: a read-only “what I already did” list, silent focused-tab time on open student/college/application files that promotes when those writes happen (or after a short review), optional manual minutes for off-CRM work (PRISMS, portals, mailbox), and a copy-paste summary for Teams — without asking staff to re-log in-CRM work or letting timers rewrite contact/throughput/caseload KPIs.
 
 Keep that mental model, use **polymorphic record identity** for students vs partners, treat **applications** as the case unit, implement **auto sessions first**, and leave `StaffWorkloadService` alone.
+
+---
+
+## 19. Implementation plan (apply in bansalcrm2)
+
+**Goal:** ship silent auto file-time + diary UI without changing workload KPI maths.  
+**Upstream behaviour to port:** `migrationmanager2` `StaffMatterSessionService` + related tests (rename to file/application vocabulary).  
+**Hard constraints:** personal view only; `file_time` never inflates `StaffWorkloadService`; partner vs student ids never collide.
+
+**CRM review notes (Sep 2026 — adjust plan vs naïve upstream copy):**
+
+| Finding | Impact on plan |
+|---------|----------------|
+| Existing My Day = workload only (`StaffWorkloadService` + `my-day-panel`) | Diary is additive; never merge into workload maths |
+| Admin Console **Staff Workload Today** (Super Admin) team table + per-staff show | Workload “view another staff” already exists; **diary must not** follow that path |
+| Console show reuses `my-day-panel` for `$staff->id` | Keep diary in a **separate** partial; never bake into `my-day-panel` |
+| Console index columns from `getTeamOverview()` | No auto-minutes columns in v1; KPI exclusion still required |
+| Console gate = `role == 1` (controller + sidebar) | Diary APIs stay owner-only even for Super Admin |
+| `activities_logs.use_for` is integer assignment, not matter | Never copy upstream `use_for = 'matter'` |
+| Throughput credits `activities_logs.created_by` | Exclude `file_time` in **Phase A** with first `postToFeed` |
+| No `app/Http/Requests` tree today | JSON My Day endpoints may introduce Form Requests **or** validate in-controller like other Admin APIs |
+| Almost no model factories (`UserFactory` only) | Prefer focused unit/feature tests; optional factory for sessions only |
+| `Kernel::$commands` is explicit; `load(Commands)` is commented out | Register `CloseStaleFileSessions` in `$commands` **and** schedule it |
+| Student gate ≠ partner gate | Heartbeat: `StaffClientVisibility` for students; partners-module/role for colleges |
+| `notes` have no `application_id` | Promotion attribution: student notes with null app still count for open application session (§5.4); stage moves use `application_activities_logs.app_id` |
+| Application context is route/`data-application-id` (often AJAX app panel) | Tracker must re-bind when `applicationId` changes without full reload |
+| Tests force `sqlite :memory:` (`phpunit.xml`) | Migrations must be portable; no Postgres-only partial indexes required for v1 auto table |
+| Production comments mention PostgreSQL NOT NULL on `task_status`/`pin` | Always set both explicitly on insert |
+
+### 19.0 Locked decisions (do not reopen in PRs)
+
+| Topic | Decision |
+|-------|----------|
+| Session table | `staff_file_sessions` with `record_type` + `record_id` + `application_key` |
+| Manual table | `staff_file_time_entries` (log-minutes modal in Phase D; no live timer in v1) |
+| Case unit | `applications.id` when selected; else student/lead only |
+| Timezone | Reuse `StaffWorkloadService::dayBounds()` / `config('app.timezone')` |
+| Workload panel | Untouched — diary mounts **below** `my-day-panel` on **personal dashboard only** |
+| Feed `use_for` | Always `null` for `file_time` |
+| Manual kinds v1 | `prisms`, `provider_portal`, `mailbox`, `draft`, `internal`, `other` |
+| Manager live diary | Out of v1 — Console keeps workload tiles/team table only |
+| Diary Blade | Separate `my-day-diary` partial — never inside `my-day-panel` |
+| Manager snapshots | Out of v1 (optional Phase E, read-only on Console show) |
+
+### 19.1 Phase A — Data + promotion core (mergeable with no UI)
+
+**Outcome:** sessions can be created/updated/closed in tests and via artisan; no detail JS yet → no browser traffic. Closer may post feed rows in prod if any session rows exist — so KPI exclusion ships here.
+
+| Step | Work | Primary files |
+|------|------|----------------|
+| A1 | Migration `staff_file_sessions` + unique indexes (§8.1); portable MySQL/Postgres/SQLite | `database/migrations/xxxx_create_staff_file_sessions_table.php` |
+| A2 | Model (+ optional factory) | `app/Models/StaffFileSession.php` |
+| A3 | `StaffDayCrmEventsService` — `forStaff` / `forStaffOnRecord` using §7; honour `ActivitiesLog::forStudentRecords()` / partner `task_group`; exclude `file_time` from the union | `app/Services/StaffDayCrmEventsService.php` |
+| A4 | `StaffFileSessionService` — heartbeat, blur, idleCut, promoteIfWritten, closeStale, feed post/update (`use_for` null), board payloads | `app/Services/StaffFileSessionService.php` |
+| A5 | **KPI guard:** exclude `activity_type = file_time` from `StaffWorkloadService` throughput + quiet/inactive activity legs | `app/Services/StaffWorkloadService.php` + unit assertion |
+| A6 | Unit tests — §16 auto matrix; follow existing style (`StaffWorkloadServiceTest` / upstream in-memory schema as needed) | `tests/Unit/Services/StaffDayCrmEventsServiceTest.php`, `StaffFileSessionServiceTest.php` |
+| A7 | Artisan closer + register in `Kernel::$commands` + schedule every 5 min `withoutOverlapping` | `app/Console/Commands/CloseStaleFileSessions.php`, `app/Console/Kernel.php` |
+
+**Acceptance**
+
+- [ ] Unique key prevents duplicate rows for same staff/record/application/day
+- [ ] Same numeric id as student vs partner → two rows (`record_type` differs)
+- [ ] Promote on note/email/doc/stage in window; reviewed-only at ≥120s; accessed under 120s no write
+- [ ] `closeStale` sets `ended_at = last_heartbeat_at`; posts `file_time` only for `recorded` with minutes ≥ 1
+- [ ] Partner feed rows use `task_group = partner`; student rows do not; `use_for` is null
+- [ ] `file_time` rows: `activity_type = file_time`, `task_status = 0`, `pin = 0`, `created_by = staff_id`
+- [ ] Creating a `file_time` activity does **not** change throughput unique-student counts / quiet bands
+
+**Do not** touch dashboard Blade or detail pages in Phase A.
+
+### 19.2 Phase B — HTTP API + auth
+
+**Outcome:** staff can heartbeat/blur via JSON; guests and other staff blocked.
+
+| Step | Work | Primary files |
+|------|------|----------------|
+| B1 | Validate `record_type`, ids, `focused_seconds` 0–86400, minutes 1–480 (Form Request **or** controller validation — no existing Requests tree) | controller and/or `app/Http/Requests/MyDay/*` |
+| B2 | Controller + session ownership (`session.staff_id`) | `app/Http/Controllers/Admin/StaffFileSessionController.php` |
+| B3 | Access: student/lead → `StaffClientVisibility::canAccessAdminRecord`; partner → same gate as `PartnersController::detail` (role/module); application must belong to that student when provided | controller or small support helper |
+| B4 | Routes under `auth:admin` | `routes/web.php` (`/dashboard/my-day/sessions/*`) |
+| B5 | Feature tests | `tests/Feature/StaffFileSessionRoutesTest.php` |
+
+**Acceptance**
+
+- [ ] Guest → 401/302; staff B cannot PATCH/DELETE staff A’s session
+- [ ] Heartbeat rejected when staff cannot open that student (allocation/grants) or partner
+- [ ] Heartbeat rejected when `application_id` is not on that student
+- [ ] Beacon-friendly blur accepts `_token` in body
+
+### 19.3 Phase C — Silent detail tracking (auto time starts in prod)
+
+**Outcome:** opening student/lead/partner detail accrues focus time with no Start button.
+
+| Step | Work | Primary files |
+|------|------|----------------|
+| C1 | Standalone tracker JS (heartbeat / blur / idle / BroadcastChannel); fail closed | `public/js/my-day/file-time-session.js` |
+| C2 | Blade bootstrap partial | `resources/views/partials/my-day-session-script.blade.php` |
+| C3 | Wire student/lead detail — `recordType: student`, `applicationId` from `$applicationId` / `#client_tabs[data-application-id]`; **re-init on application context change** (AJAX app panel / attribute updates), not only full reload | `resources/views/Admin/clients/detail.blade.php` |
+| C4 | Wire partner detail — `recordType: partner`, no application | `resources/views/Admin/partners/detail.blade.php` |
+| C5 | Do **not** wire sheets (`ongoing`, checklist, COE, …), list, or search pages | — |
+| C6 | Smoke: network errors swallowed; no toasts | manual |
+
+**Acceptance**
+
+- [ ] Focused tab heartbeats every ~60s; blur/pagehide sends beacon
+- [ ] Application switch (route or in-page) flushes old session and continues correct `application_key`
+- [ ] Idle 15m → prompt; 2m no answer → idle-cut
+- [ ] Tracking failure does not break note/email/UI workflows
+
+### 19.4 Phase D — Dashboard diary + manual log + copy
+
+**Outcome:** staff see auto/opened/Already-in-CRM below workload tiles on **their** dashboard; can log off-CRM minutes and copy end-of-day text.
+
+| Step | Work | Primary files |
+|------|------|----------------|
+| D1 | Migration `staff_file_time_entries` (§8.2) + model | migration + `StaffFileTimeEntry` |
+| D2 | `StaffFileTimeService` — one-shot log, board rows, copy-summary text (§11) | `app/Services/StaffFileTimeService.php` |
+| D3 | Diary controller endpoints (log, copy-summary GET, optional record-search) | `app/Http/Controllers/Admin/DashboardMyDayDiaryController.php` (or extend `MyDayController`) |
+| D4 | Blade partials + CSS + JS — **new** `my-day-diary` partial (do **not** edit `my-day-panel` to include diary) | `resources/views/Admin/partials/my-day-diary.blade.php`, `public/css/my-day-diary.css`, `public/js/my-day/dashboard-diary.js` |
+| D5 | Include from `Admin/dashboard.blade.php` **after** `my-day-panel`; load diary for **Auth staff only** in `AdminController` | dashboard host |
+| D6 | Leave `AdminConsole/staff_workload/show.blade.php` and `index.blade.php` unchanged (workload only) | Admin Console |
+| D7 | Activity feed: icon + `ClientDetailActivities` filter case for `file_time` / subject `logged …m on` | `ClientDetailActivities` + activity tab UI |
+| D8 | Feature + markup tests | diary routes; assert workload tiles still render; assert Console show/index HTML has no diary / no session PATCH scripts |
+
+**Acceptance**
+
+- [ ] Workload tiles unchanged in counts when auto/manual minutes exist (personal + Console team overview)
+- [ ] Personal dashboard shows diary; Admin Console staff-workload index/show do not
+- [ ] Super Admin cannot mutate another staff’s sessions via diary APIs
+- [ ] Already in CRM lists today’s writes; chips show minute splits when session closed
+- [ ] Time on files editable per §4; Files opened read-only
+- [ ] Manual log with student/application → feed; Admin/no-file → My Day only
+- [ ] Copy summary matches §11; clipboard text = server string
+
+### 19.5 Phase E — Optional Admin Console + polish (not required for v1)
+
+| Step | Work | Notes |
+|------|------|-------|
+| E1 | `staff_day_summaries` table + nightly snapshot command | Persist §11 copy text per staff/day |
+| E2 | Console show: read-only “End-of-day summary” `<pre>` when snapshot exists | No edit, no live sessions list, no PATCH |
+| E3 | Optional Console index column: “Summary saved?” yes/no — **not** total auto minutes | Avoid ranking by focus time |
+| E4 | Live manual timer (`is_running`) on **personal** diary only | Enforce uniqueness in service |
+| E5 | Record typeahead polish; `graphify update .` after large PHP landings | |
+
+**Do not in Phase E:** live “Time on files” for another staff; team-table auto-minute totals; folding diary into `my-day-panel`.
+
+### 19.6 PR / merge strategy
+
+| PR | Contains | Safe alone? |
+|----|----------|-------------|
+| **PR1** | Phase A (includes KPI exclusion) | Yes — no UI, no heartbeats from browsers |
+| **PR2** | Phase B + Phase C | Yes — accrues silently; diary optional |
+| **PR3** | Phase D | Needs A–C; staff *see* the diary |
+| **PR4** | Phase E | Optional |
+
+Prefer green tests at each PR. Run `vendor/bin/pint --dirty --format agent` on dirty PHP. Do not commit `.env` or secrets.
+
+### 19.7 Verification commands (per phase)
+
+```bash
+# Phase A
+php artisan test --compact --filter=StaffDayCrmEventsService
+php artisan test --compact --filter=StaffFileSessionService
+php artisan test --compact --filter=StaffWorkloadService
+php artisan my-day:close-stale-sessions
+
+# Phase B
+php artisan test --compact --filter=StaffFileSessionRoutes
+
+# Phase D
+php artisan test --compact --filter=DashboardMyDay
+php artisan test --compact --filter=StaffWorkloadService
+vendor/bin/pint --dirty --format agent
+```
+
+### 19.8 Explicit non-goals (reject in review)
+
+- Timers on Call / In-Person note forms
+- Inflating Spoke to / Met / stage-move / actions-completed / worked-on uniques from `file_time`
+- Using `use_for` to store application/matter identity
+- Mounting diary on Admin Console staff-workload index/show
+- Folding diary into `Admin.partials.my-day-panel` (Console reuses that panel)
+- Adding auto-minutes totals to the Console team table
+- Super Admin mutating another staff’s live sessions
+- Manager live peek of another staff’s open auto sessions
+- Sessions on sheets, search, or list pages
+- Storing per-event minute rows in the DB (split is display-only)
+
+### 19.9 Suggested first ticket (start here)
+
+**Ticket:** Phase A1–A7 — create `staff_file_sessions`, port promotion/close from migrationmanager2 `StaffMatterSessionService` (fix matter→application/record_type; drop `use_for='matter'`), exclude `file_time` from `StaffWorkloadService`, register + schedule closer, unit tests green. No Blade/JS.

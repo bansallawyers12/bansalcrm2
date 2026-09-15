@@ -251,11 +251,13 @@ class StaffWorkloadService
 
         $activityStudentIds = $this->filterStudentAdminIds(
             $this->applyExcludeNoteAuditSubjects(
-                ActivitiesLog::query()
-                    ->forStudentRecords()
-                    ->where('created_by', $staffId)
-                    ->whereBetween('created_at', [$start, $end])
-                    ->whereNotNull('client_id')
+                $this->excludeFileTimeActivities(
+                    ActivitiesLog::query()
+                        ->forStudentRecords()
+                        ->where('created_by', $staffId)
+                        ->whereBetween('created_at', [$start, $end])
+                        ->whereNotNull('client_id')
+                )
             )
                 ->distinct()
                 ->pluck('client_id')
@@ -652,11 +654,13 @@ class StaffWorkloadService
         }
 
         $activityRows = $this->applyExcludeNoteAuditSubjects(
-            ActivitiesLog::query()
-                ->forStudentRecords()
-                ->select('client_id', DB::raw('MAX(created_at) as last_at'))
-                ->where('created_by', $staffId)
-                ->whereIn('client_id', $ids)
+            $this->excludeFileTimeActivities(
+                ActivitiesLog::query()
+                    ->forStudentRecords()
+                    ->select('client_id', DB::raw('MAX(created_at) as last_at'))
+                    ->where('created_by', $staffId)
+                    ->whereIn('client_id', $ids)
+            )
         )
             ->groupBy('client_id')
             ->get();
@@ -780,6 +784,20 @@ class StaffWorkloadService
                     'LOWER(TRIM('.$column.')) NOT IN ('.$placeholders.')',
                     self::NOTE_AUDIT_SUBJECTS
                 );
+        });
+    }
+
+    /**
+     * Auto/manual file-time feed rows must never inflate throughput or quiet/inactive bands.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    private function excludeFileTimeActivities(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q): void {
+            $q->whereNull('activity_type')
+                ->orWhere('activity_type', '!=', 'file_time');
         });
     }
 

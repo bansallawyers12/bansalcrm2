@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\Client\ClientController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientNoteController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
+use App\Http\Controllers\Admin\DashboardMyDayDiaryController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\FollowupCalendarBlockTimingController;
 use App\Http\Controllers\Admin\FollowupCalendarSettingController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StaffFileSessionController;
 use App\Http\Controllers\Admin\StaffroleController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\TinyMCEImageUploadController;
@@ -150,6 +152,18 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 // General
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 Route::get('/my-day', [MyDayController::class, 'index'])->name('staff.my-day')->middleware('auth:admin');
+Route::middleware(['auth:admin'])->prefix('dashboard/my-day')->name('dashboard.my-day.')->group(function () {
+    Route::post('/sessions/heartbeat', [StaffFileSessionController::class, 'heartbeat'])->name('sessions.heartbeat');
+    Route::post('/sessions/blur', [StaffFileSessionController::class, 'blur'])->name('sessions.blur');
+    Route::post('/sessions/{session}/idle-cut', [StaffFileSessionController::class, 'idleCut'])->name('sessions.idle-cut');
+    Route::patch('/sessions/{session}', [StaffFileSessionController::class, 'update'])->name('sessions.update');
+    Route::delete('/sessions/{session}', [StaffFileSessionController::class, 'destroy'])->name('sessions.destroy');
+
+    Route::get('/diary', [DashboardMyDayDiaryController::class, 'diary'])->name('diary');
+    Route::post('/file-time/log', [DashboardMyDayDiaryController::class, 'logCompleted'])->name('file-time.log');
+    Route::get('/copy-summary', [DashboardMyDayDiaryController::class, 'copySummary'])->name('copy-summary');
+    Route::get('/record-search', [DashboardMyDayDiaryController::class, 'recordSearch'])->name('record-search');
+});
 Route::redirect('/appointments', '/followups', 301);
 Route::get('/followups', [FollowupController::class, 'index'])->name('followups.index');
 Route::get('/followups/view/{note}', [FollowupController::class, 'viewNote'])->name('followups.view');

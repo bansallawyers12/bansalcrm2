@@ -2265,4 +2265,11 @@ use App\Http\Controllers\Controller;
 @endpush
 @endif
 
+@include('partials.my-day-session-script', [
+    'myDayRecordType' => 'partner',
+    'myDayRecordId' => $fetchedData->id ?? null,
+    'myDayApplicationId' => null,
+    'myDayRef' => (string) ($fetchedData->partner_name ?? ('College #'.($fetchedData->id ?? ''))),
+])
+
 @endsection

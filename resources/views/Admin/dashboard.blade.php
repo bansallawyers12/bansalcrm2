@@ -673,6 +673,7 @@
                 'summary' => $myDaySummary,
                 'embeddedOnDashboard' => true,
             ])
+            @include('Admin.partials.my-day-diary')
         @endif
 
         <div class="row">

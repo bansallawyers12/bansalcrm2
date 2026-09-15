@@ -760,6 +760,7 @@ use App\Http\Controllers\Controller;
 															'services' => 'Services',
 															'status' => 'Status',
 															'checkins' => 'Check-ins',
+															'file_time' => 'File time',
 															'other' => 'Other'
 														];
 														
@@ -3114,4 +3115,13 @@ $(document).ready(function(){
 @push('tinymce-scripts')
 @include('partials.tinymce')
 @endpush
+
+@include('partials.my-day-session-script', [
+    'myDayRecordType' => 'student',
+    'myDayRecordId' => $fetchedData->id ?? null,
+    'myDayApplicationId' => $applicationId ?? null,
+    'myDayRef' => trim(($fetchedData->client_id ?? '') !== ''
+        ? (string) $fetchedData->client_id
+        : trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? ''))),
+])
 @endsection
