@@ -56,4 +56,26 @@ class DashboardMyDayDiaryTest extends TestCase
             $contents
         );
     }
+
+    public function test_dashboard_diary_js_renders_ref_links_when_url_present(): void
+    {
+        $path = public_path('js/my-day/dashboard-diary.js');
+        $this->assertFileExists($path);
+        $contents = file_get_contents($path);
+        $this->assertStringContainsString('function formatRef', $contents);
+        $this->assertStringContainsString('my-day-diary-ref', $contents);
+        $this->assertStringContainsString('item.url', $contents);
+    }
+
+    public function test_client_and_partner_detail_entries_include_deep_link_highlight(): void
+    {
+        $clientEntry = file_get_contents(resource_path('js/pages/admin/client-detail-entry.js'));
+        $partnerEntry = file_get_contents(resource_path('js/pages/admin/partner-detail-entry.js'));
+        $this->assertStringContainsString('deep-link-highlight.js', $clientEntry);
+        $this->assertStringContainsString('deep-link-highlight.js', $partnerEntry);
+        $this->assertFileExists(resource_path('js/pages/admin/client-detail/deep-link-highlight.js'));
+        $highlight = file_get_contents(resource_path('js/pages/admin/client-detail/deep-link-highlight.js'));
+        $this->assertStringContainsString('initActivityDeepLinkHighlight', $highlight);
+        $this->assertStringContainsString('deep-link-highlight', $highlight);
+    }
 }

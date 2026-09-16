@@ -52,6 +52,15 @@
 .my-day-diary-list li:last-child {
     border-bottom: none;
 }
+.my-day-diary-list a.my-day-diary-ref {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.my-day-diary-list a.my-day-diary-ref:hover {
+    color: #2563eb;
+}
 .my-day-auto li {
     border-left: 3px solid #6366f1;
     padding-left: 0.65rem;

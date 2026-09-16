@@ -5,6 +5,8 @@ namespace Tests\Unit\Services;
 use App\Models\ActivitiesLog;
 use App\Services\StaffWorkloadService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -68,6 +70,55 @@ class StaffWorkloadServiceTest extends TestCase
     public function test_contact_titles_are_call_and_in_person_only(): void
     {
         $this->assertSame(['Call', 'In-Person'], StaffWorkloadService::CONTACT_TITLES);
+    }
+
+    public function test_diary_deep_link_fragment_from_feed_note_and_activities_log(): void
+    {
+        $service = $this->service();
+
+        $this->assertSame('activity_99', $service->diaryDeepLinkFragment(['key' => 'feed:99']));
+        $this->assertSame('note_id_12', $service->diaryDeepLinkFragment(['key' => 'note:12']));
+        $this->assertSame('activity_7', $service->diaryDeepLinkFragment(['activities_log_id' => 7]));
+        $this->assertNull($service->diaryDeepLinkFragment(['key' => 'email:3']));
+        $this->assertNull($service->diaryDeepLinkFragment([]));
+    }
+
+    public function test_attach_diary_record_links_adds_client_url_and_note_hash(): void
+    {
+        $service = $this->service();
+        $encoded = $service->encodeRecordId(10);
+
+        Schema::dropIfExists('admins');
+        Schema::create('admins', function ($table) {
+            $table->increments('id');
+            $table->string('type')->nullable();
+            $table->timestamps();
+        });
+        DB::table('admins')->insert([
+            'id' => 10,
+            'type' => 'client',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $linked = $service->attachDiaryRecordLinks([
+            [
+                'key' => 'note:5',
+                'ref' => 'STU10',
+                'record_type' => 'student',
+                'record_id' => 10,
+            ],
+            [
+                'ref' => 'No record',
+            ],
+        ]);
+
+        $this->assertSame(
+            route('clients.detail', ['id' => $encoded]).'#note_id_5',
+            $linked[0]['url']
+        );
+        $this->assertSame('note_id_5', $linked[0]['deep_link']);
+        $this->assertArrayNotHasKey('url', $linked[1]);
     }
 
     public function test_student_activity_scope_keeps_null_and_non_partner_task_groups(): void

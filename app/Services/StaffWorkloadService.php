@@ -12,6 +12,7 @@ use App\Models\Note;
 use App\Models\Partner;
 use App\Models\SmsLog;
 use App\Models\Staff;
+use App\Models\StaffFileSession;
 use App\Support\StaffAllocationScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -423,6 +424,113 @@ class StaffWorkloadService
         $route = $type === 'lead' ? 'leads.detail' : 'clients.detail';
 
         return route($route, ['id' => $encoded]);
+    }
+
+    /**
+     * Add detail-page URLs (and optional #hash deep links) to diary board rows.
+     * Additive only — existing keys are preserved for other consumers.
+     *
+     * @param  list<array<string, mixed>>  $items
+     * @return list<array<string, mixed>>
+     */
+    public function attachDiaryRecordLinks(array $items): array
+    {
+        $studentIds = [];
+        foreach ($items as $item) {
+            if (($item['record_type'] ?? null) !== StaffFileSession::RECORD_TYPE_STUDENT) {
+                continue;
+            }
+            $recordId = isset($item['record_id']) ? (int) $item['record_id'] : 0;
+            if ($recordId > 0) {
+                $studentIds[] = $recordId;
+            }
+        }
+
+        $typesById = $studentIds === []
+            ? collect()
+            : Admin::query()->whereIn('id', array_values(array_unique($studentIds)))->pluck('type', 'id');
+
+        return array_map(function (array $item) use ($typesById): array {
+            $recordType = isset($item['record_type']) ? (string) $item['record_type'] : '';
+            $recordId = isset($item['record_id']) ? (int) $item['record_id'] : 0;
+            if ($recordType === '' || $recordId < 1) {
+                return $item;
+            }
+
+            $adminType = $typesById->get($recordId);
+            $applicationId = isset($item['application_id']) && is_numeric($item['application_id'])
+                ? (int) $item['application_id']
+                : null;
+            $url = $this->diaryRecordUrl($recordType, $recordId, $applicationId, is_string($adminType) ? $adminType : null);
+            if ($url === null) {
+                return $item;
+            }
+
+            $fragment = $this->diaryDeepLinkFragment($item);
+            $item['url'] = $fragment !== null ? $url.'#'.$fragment : $url;
+            if ($fragment !== null) {
+                $item['deep_link'] = $fragment;
+            }
+
+            return $item;
+        }, $items);
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    public function diaryDeepLinkFragment(array $item): ?string
+    {
+        $key = isset($item['key']) ? (string) $item['key'] : '';
+        if (preg_match('/^feed:(\d+)$/', $key, $matches) === 1) {
+            return 'activity_'.$matches[1];
+        }
+        if (preg_match('/^note:(\d+)$/', $key, $matches) === 1) {
+            return 'note_id_'.$matches[1];
+        }
+
+        $activitiesLogId = isset($item['activities_log_id']) ? (int) $item['activities_log_id'] : 0;
+        if ($activitiesLogId > 0) {
+            return 'activity_'.$activitiesLogId;
+        }
+
+        return null;
+    }
+
+    public function diaryRecordUrl(
+        string $recordType,
+        int $recordId,
+        ?int $applicationId = null,
+        ?string $adminType = null,
+    ): ?string {
+        if ($recordId < 1) {
+            return null;
+        }
+
+        if ($recordType === StaffFileSession::RECORD_TYPE_PARTNER) {
+            return route('partners.detail', ['id' => $this->encodeRecordId($recordId)]);
+        }
+
+        if ($recordType !== StaffFileSession::RECORD_TYPE_STUDENT) {
+            return null;
+        }
+
+        $type = $adminType;
+        if ($type === null || $type === '') {
+            $type = (string) (Admin::query()->where('id', $recordId)->value('type') ?? 'client');
+        }
+        if ($type === '') {
+            $type = 'client';
+        }
+
+        $encoded = $this->encodeRecordId($recordId);
+        if ($applicationId !== null && $applicationId > 0) {
+            $route = $type === 'lead' ? 'leads.detail.application' : 'clients.detail.application';
+
+            return route($route, ['id' => $encoded, 'applicationId' => $applicationId]);
+        }
+
+        return $this->clientDetailUrl($recordId, $type);
     }
 
     public function isNoteAuditSubject(?string $subject): bool

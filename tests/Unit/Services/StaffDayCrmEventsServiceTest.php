@@ -62,6 +62,70 @@ class StaffDayCrmEventsServiceTest extends TestCase
     }
 
     #[Test]
+    public function for_staff_includes_non_contact_note_titles_like_others(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 10:30:00', 'Australia/Melbourne'));
+        $this->seedBasics();
+
+        DB::table('notes')->insert([
+            'id' => 3,
+            'user_id' => 1,
+            'client_id' => 10,
+            'type' => 'client',
+            'is_action' => 0,
+            'assigned_to' => null,
+            'title' => 'Others',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $payload = $this->service->forStaff(1);
+        $item = collect($payload['items'])->firstWhere('key', 'note:3');
+
+        $this->assertNotNull($item);
+        $this->assertSame('Note', $item['kind']);
+        $this->assertSame('Others', $item['title']);
+    }
+
+    #[Test]
+    public function for_staff_still_excludes_assigned_action_notes(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 10:45:00', 'Australia/Melbourne'));
+        $this->seedBasics();
+
+        DB::table('notes')->insert([
+            [
+                'id' => 4,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'client',
+                'is_action' => 1,
+                'assigned_to' => null,
+                'title' => 'Others',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 5,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'client',
+                'is_action' => 0,
+                'assigned_to' => 99,
+                'title' => 'Others',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $payload = $this->service->forStaff(1);
+        $keys = array_column($payload['items'], 'key');
+
+        $this->assertNotContains('note:4', $keys);
+        $this->assertNotContains('note:5', $keys);
+    }
+
+    #[Test]
     public function for_staff_on_record_attributes_null_application_notes_to_open_application(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-09-15 11:00:00', 'Australia/Melbourne'));

@@ -10,6 +10,7 @@ import '@legacy/common/crud-operations.js';
 import '@legacy/common/activity-handlers.js';
 import '@legacy/common/document-handlers.js';
 import '@legacy/pages/admin/client-detail/preview-file-scroll.js';
+import './client-detail/deep-link-highlight.js';
 import '@legacy/common/ui-components.js';
 import '@legacy/common/modal-utils.js';
 

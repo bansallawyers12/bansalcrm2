@@ -17,6 +17,7 @@ import '@legacy/pages/admin/client-detail/document-rename.js';
 import '@legacy/pages/admin/client-detail/document-context-menu.js';
 import '@legacy/pages/admin/client-detail/document-actions.js';
 import '@legacy/pages/admin/client-detail/preview-file-scroll.js';
+import './client-detail/deep-link-highlight.js';
 
 import '@legacy/pages/admin/partner-detail/application-tab.js';
 import '@legacy/pages/admin/partner-detail/application-handlers.js';

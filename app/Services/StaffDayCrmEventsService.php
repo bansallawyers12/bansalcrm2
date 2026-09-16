@@ -276,6 +276,10 @@ class StaffDayCrmEventsService
     }
 
     /**
+     * Notes this staff posted today (client/lead/partner file notes, not assigned actions).
+     * Intentionally broader than StaffWorkloadService::CONTACT_TITLES so diary lists all
+     * posted notes; Call/In-Person-only filtering stays on workload contact metrics.
+     *
      * @return Collection<int, array<string, mixed>>
      */
     protected function contactNoteEvents(int $staffId, Carbon $start, Carbon $end): Collection
@@ -289,10 +293,9 @@ class StaffDayCrmEventsService
             ->where('is_action', 0)
             ->whereNull('assigned_to')
             ->whereIn('type', ['client', 'lead', 'partner'])
-            ->whereIn('title', StaffWorkloadService::CONTACT_TITLES)
             ->whereBetween('created_at', [$start, $end])
             ->orderByDesc('created_at')
-            ->limit(40)
+            ->limit(80)
             ->get(['id', 'title', 'type', 'client_id', 'created_at'])
             ->map(function (Note $note): ?array {
                 $clientId = $note->client_id !== null ? (int) $note->client_id : null;
@@ -306,7 +309,7 @@ class StaffDayCrmEventsService
                 }
 
                 $title = (string) ($note->title ?: 'Note');
-                $kind = stripos($title, 'person') !== false ? 'In-person note' : 'Call note';
+                $kind = $this->noteKindLabel($title);
 
                 return $this->row(
                     $kind,
@@ -321,6 +324,21 @@ class StaffDayCrmEventsService
             })
             ->filter()
             ->values();
+    }
+
+    protected function noteKindLabel(string $title): string
+    {
+        $normalized = strtolower(trim($title));
+
+        if (str_contains($normalized, 'person')) {
+            return 'In-person note';
+        }
+
+        if ($normalized === 'call') {
+            return 'Call note';
+        }
+
+        return 'Note';
     }
 
     /**

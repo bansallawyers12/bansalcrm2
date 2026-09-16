@@ -39,6 +39,20 @@
             .replace(/"/g, '&quot;');
     }
 
+    function escapeAttr(str) {
+        return escapeHtml(str).replace(/'/g, '&#39;');
+    }
+
+    /** Link only the client/college ref when a detail URL is present; keep the rest plain text. */
+    function formatRef(item) {
+        var ref = escapeHtml(item.ref || '—');
+        if (!item.url) {
+            return ref;
+        }
+
+        return '<a class="my-day-diary-ref" href="' + escapeAttr(item.url) + '">' + ref + '</a>';
+    }
+
     function renderList(selector, items, renderer, emptyText) {
         var el = root.querySelector(selector);
         if (!el) {
@@ -61,7 +75,7 @@
         var crm = (data.crm_events && data.crm_events.items) || [];
         renderList('[data-crm-list]', crm, function (item) {
             var chip = item.minutes ? '<span class="my-day-diary-chip">' + escapeHtml(item.minutes) + 'm</span>' : '';
-            return '<li><span>' + escapeHtml(item.ref || '—') + ' · ' + escapeHtml(item.kind) + ' · ' +
+            return '<li><span>' + formatRef(item) + ' · ' + escapeHtml(item.kind) + ' · ' +
                 escapeHtml(item.title) + ' · ' + escapeHtml(item.time || '') + chip + '</span></li>';
         }, 'No CRM writes yet today');
 
@@ -81,15 +95,15 @@
                 ? '<span>' + escapeHtml(item.confirmed_minutes) + 'm</span>'
                 : '<input type="number" class="form-control form-control-sm my-day-diary-minutes-input" min="1" max="480" value="' +
                     escapeHtml(item.confirmed_minutes) + '" data-session-id="' + escapeHtml(item.id) + '">';
-            return '<li><span>' + escapeHtml(item.ref) + ' · ' + escapeHtml(label) + '</span>' + input + '</li>';
+            return '<li><span>' + formatRef(item) + ' · ' + escapeHtml(label) + '</span>' + input + '</li>';
         }, 'No recorded file time yet');
 
         renderList('[data-opened-list]', data.opened || [], function (item) {
-            return '<li><span>' + escapeHtml(item.ref) + ' · ' + escapeHtml(item.minutes || 0) + 'm (open)</span></li>';
+            return '<li><span>' + formatRef(item) + ' · ' + escapeHtml(item.minutes || 0) + 'm (open)</span></li>';
         }, 'No open files');
 
         renderList('[data-manual-list]', data.manual || [], function (item) {
-            return '<li><span>' + escapeHtml(item.ref) + ' · ' + escapeHtml(item.kind_label || item.kind) +
+            return '<li><span>' + formatRef(item) + ' · ' + escapeHtml(item.kind_label || item.kind) +
                 ' · ' + escapeHtml(item.title) + ' · ' + escapeHtml(item.confirmed_minutes) + 'm</span></li>';
         }, 'No manual logs');
     }

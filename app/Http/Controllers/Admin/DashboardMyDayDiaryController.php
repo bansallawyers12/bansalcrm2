@@ -15,6 +15,7 @@ use App\Services\StaffDayHoursService;
 use App\Services\StaffDaySummaryService;
 use App\Services\StaffFileSessionService;
 use App\Services\StaffFileTimeService;
+use App\Services\StaffWorkloadService;
 use App\Support\StaffClientVisibility;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class DashboardMyDayDiaryController extends Controller
         protected StaffFileTimeService $fileTime,
         protected StaffDayHoursService $hours,
         protected StaffDaySummaryService $daySummaries,
+        protected StaffWorkloadService $workload,
     ) {
         $this->middleware('auth:admin');
     }
@@ -55,14 +57,14 @@ class DashboardMyDayDiaryController extends Controller
             'success' => true,
             'hours' => $hours,
             'crm_events' => [
-                'items' => $crmItems,
+                'items' => $this->workload->attachDiaryRecordLinks($crmItems),
                 'total' => $events['total'] ?? 0,
                 'more' => $events['more'] ?? 0,
                 'date' => $events['date'] ?? null,
             ],
-            'auto' => $sessions['auto'] ?? [],
-            'opened' => $sessions['opened'] ?? [],
-            'manual' => $manual['entries'] ?? [],
+            'auto' => $this->workload->attachDiaryRecordLinks($sessions['auto'] ?? []),
+            'opened' => $this->workload->attachDiaryRecordLinks($sessions['opened'] ?? []),
+            'manual' => $this->workload->attachDiaryRecordLinks($manual['entries'] ?? []),
             'kinds' => StaffFileTimeEntry::kinds(),
         ]);
     }
