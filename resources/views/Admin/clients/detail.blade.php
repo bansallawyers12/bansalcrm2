@@ -483,16 +483,7 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 								<?php
-                                use Illuminate\Support\Str;
-                                //dd($fetchedData->assignee);
-                                if( Str::contains($fetchedData->assignee, ',')){
-                                    $assigneeUArr = explode(",",$fetchedData->assignee);
-                                    $assigneeArr = \App\Models\Staff::select('id', 'first_name', 'last_name')->whereIn('id',$assigneeUArr)->get();
-                                } else {
-                                    $assigneeU = $fetchedData->assignee;
-                                    $assigneeArr = \App\Models\Staff::select('id', 'first_name', 'last_name')->where('id',$assigneeU)->get();
-                                }
-                                //dd($assigneeArr);
+                                $assigneeArr = \App\Support\StaffAssigneeResolver::staffCollectionFromAssigneeValue($fetchedData->assignee ?? null);
                                 ?>
 							<div class="client_assign client_info_tags">
 								<span class="">Office:</span>
