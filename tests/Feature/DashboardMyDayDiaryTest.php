@@ -57,6 +57,22 @@ class DashboardMyDayDiaryTest extends TestCase
         );
     }
 
+    public function test_log_minutes_cancel_bypasses_html_validation(): void
+    {
+        $path = resource_path('views/Admin/partials/my-day-diary.blade.php');
+        $this->assertFileExists($path);
+        $contents = file_get_contents($path);
+        $this->assertMatchesRegularExpression(
+            '/value=["\']cancel["\'][^>]*\bformnovalidate\b|\bformnovalidate\b[^>]*value=["\']cancel["\']/',
+            $contents
+        );
+        $this->assertStringContainsString('value="save"', $contents);
+        $this->assertDoesNotMatchRegularExpression(
+            '/value=["\']save["\'][^>]*\bformnovalidate\b|\bformnovalidate\b[^>]*value=["\']save["\']/',
+            $contents
+        );
+    }
+
     public function test_dashboard_diary_js_renders_ref_links_when_url_present(): void
     {
         $path = public_path('js/my-day/dashboard-diary.js');

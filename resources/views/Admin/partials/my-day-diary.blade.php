@@ -87,7 +87,7 @@
             <div class="my-day-diary-search-results" data-search-results></div>
         </label>
         <div class="d-flex gap-2 justify-content-end mt-3">
-            <button type="submit" value="cancel" class="btn btn-sm btn-light">Cancel</button>
+            <button type="submit" value="cancel" formnovalidate class="btn btn-sm btn-light">Cancel</button>
             <button type="submit" value="save" class="btn btn-sm btn-primary">Save</button>
         </div>
     </form>
