@@ -371,11 +371,13 @@ class StaffDayCrmEventsService
                 $recordId = (int) $application->client_id;
                 $title = (string) ($log->title ?: $log->comment ?: ('Stage → '.($log->stage ?: $application->stage)));
 
+                // Diary list should show the student client ref (e.g. TEST…), not college · #application.
+                // Keep application_id on the row so detail links can still open the application.
                 return $this->row(
                     'Stage',
                     $title,
                     $log->created_at,
-                    $this->recordRef(StaffFileSession::RECORD_TYPE_STUDENT, $recordId, $appId),
+                    $this->recordRef(StaffFileSession::RECORD_TYPE_STUDENT, $recordId),
                     'stage:'.$log->id,
                     StaffFileSession::RECORD_TYPE_STUDENT,
                     $recordId,

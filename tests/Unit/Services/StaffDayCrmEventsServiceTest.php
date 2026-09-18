@@ -156,6 +156,43 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertSame('note:2', $events->first()['key']);
     }
 
+    #[Test]
+    public function for_staff_stage_move_uses_student_client_ref_not_college_application_label(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 12:00:00', 'Australia/Melbourne'));
+        $this->seedBasics();
+
+        DB::table('partners')->insert([
+            'id' => 20,
+            'partner_name' => 'Test College',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('applications')->where('id', 5)->update(['partner_id' => 20]);
+
+        DB::table('application_activities_logs')->insert([
+            'id' => 1,
+            'app_id' => 5,
+            'user_id' => 1,
+            'type' => 'stage',
+            'stage' => 'Lodged',
+            'title' => 'Stage moved to Lodged',
+            'comment' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $payload = $this->service->forStaff(1);
+        $item = collect($payload['items'])->firstWhere('key', 'stage:1');
+
+        $this->assertNotNull($item);
+        $this->assertSame('Stage', $item['kind']);
+        $this->assertSame('STU10', $item['ref']);
+        $this->assertSame(10, $item['record_id']);
+        $this->assertSame(5, $item['application_id']);
+        $this->assertStringNotContainsString('Test College', (string) $item['ref']);
+    }
+
     private function seedBasics(): void
     {
         DB::table('staff')->insert([
