@@ -80,6 +80,19 @@ class StaffDayCrmEventsServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
+        DB::table('activities_logs')->insert([
+            'id' => 30,
+            'client_id' => 10,
+            'created_by' => 1,
+            'subject' => 'added a note',
+            'description' => '<span class="text-semi-bold">Others</span><p>Test Others. Please ignore</p>',
+            'activity_type' => null,
+            'task_status' => 0,
+            'pin' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         $payload = $this->service->forStaff(1);
         $item = collect($payload['items'])->firstWhere('key', 'note:3');
 
@@ -87,6 +100,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertSame('Note', $item['kind']);
         $this->assertSame('Others', $item['title']);
         $this->assertSame('Test Others. Please ignore', $item['body']);
+        $this->assertSame(30, $item['activities_log_id']);
     }
 
     #[Test]

@@ -485,14 +485,23 @@ class StaffWorkloadService
         if (preg_match('/^feed:(\d+)$/', $key, $matches) === 1) {
             return 'activity_'.$matches[1];
         }
+
+        $activitiesLogId = isset($item['activities_log_id']) ? (int) $item['activities_log_id'] : 0;
+
+        // Prefer activity-feed deep link for notes so the default Activities tab highlights.
+        // Fall back to Notes-tab #note_id_* when no matching activity row exists (e.g. partner notes).
         if (preg_match('/^note:(\d+)$/', $key, $matches) === 1) {
+            if ($activitiesLogId > 0) {
+                return 'activity_'.$activitiesLogId;
+            }
+
             return 'note_id_'.$matches[1];
         }
+
         if (preg_match('/^stage:(\d+)$/', $key, $matches) === 1) {
             return 'app_stage_log_'.$matches[1];
         }
 
-        $activitiesLogId = isset($item['activities_log_id']) ? (int) $item['activities_log_id'] : 0;
         if ($activitiesLogId > 0) {
             return 'activity_'.$activitiesLogId;
         }

@@ -78,6 +78,10 @@ class StaffWorkloadServiceTest extends TestCase
 
         $this->assertSame('activity_99', $service->diaryDeepLinkFragment(['key' => 'feed:99']));
         $this->assertSame('note_id_12', $service->diaryDeepLinkFragment(['key' => 'note:12']));
+        $this->assertSame(
+            'activity_55',
+            $service->diaryDeepLinkFragment(['key' => 'note:12', 'activities_log_id' => 55])
+        );
         $this->assertSame('app_stage_log_44', $service->diaryDeepLinkFragment(['key' => 'stage:44']));
         $this->assertSame('activity_7', $service->diaryDeepLinkFragment(['activities_log_id' => 7]));
         $this->assertSame(
@@ -114,6 +118,13 @@ class StaffWorkloadServiceTest extends TestCase
                 'record_id' => 10,
             ],
             [
+                'key' => 'note:6',
+                'ref' => 'STU10',
+                'record_type' => 'student',
+                'record_id' => 10,
+                'activities_log_id' => 88,
+            ],
+            [
                 'key' => 'stage:9',
                 'ref' => 'STU10',
                 'record_type' => 'student',
@@ -138,16 +149,21 @@ class StaffWorkloadServiceTest extends TestCase
         );
         $this->assertSame('note_id_5', $linked[0]['deep_link']);
         $this->assertSame(
-            route('clients.detail.application', ['id' => $encoded, 'applicationId' => 3]).'#app_stage_log_9',
+            route('clients.detail', ['id' => $encoded]).'#activity_88',
             $linked[1]['url']
         );
-        $this->assertSame('app_stage_log_9', $linked[1]['deep_link']);
+        $this->assertSame('activity_88', $linked[1]['deep_link']);
         $this->assertSame(
-            route('clients.detail', ['id' => $encoded]).'#activity_77',
+            route('clients.detail.application', ['id' => $encoded, 'applicationId' => 3]).'#app_stage_log_9',
             $linked[2]['url']
         );
-        $this->assertSame('activity_77', $linked[2]['deep_link']);
-        $this->assertArrayNotHasKey('url', $linked[3]);
+        $this->assertSame('app_stage_log_9', $linked[2]['deep_link']);
+        $this->assertSame(
+            route('clients.detail', ['id' => $encoded]).'#activity_77',
+            $linked[3]['url']
+        );
+        $this->assertSame('activity_77', $linked[3]['deep_link']);
+        $this->assertArrayNotHasKey('url', $linked[4]);
     }
 
     public function test_student_activity_scope_keeps_null_and_non_partner_task_groups(): void

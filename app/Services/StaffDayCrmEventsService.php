@@ -431,43 +431,161 @@ class StaffDayCrmEventsService
                 'title',
                 'type',
                 'client_id',
+                'user_id',
                 'created_at',
                 Schema::hasColumn('notes', 'description') ? 'description' : null,
             ])))
-            ->map(function (Note $note): ?array {
-                $clientId = $note->client_id !== null ? (int) $note->client_id : null;
-                if ($clientId === null) {
-                    return null;
-                }
+            ->pipe(function (Collection $notes): Collection {
+                $activityIds = $this->activityLogIdsForNotes($notes);
 
-                [$recordType, $recordId] = $this->resolveRecordFromType((string) ($note->type ?? ''), $clientId);
-                if ($recordType === null) {
-                    return null;
-                }
+                return $notes->map(function (Note $note) use ($activityIds): ?array {
+                    $clientId = $note->client_id !== null ? (int) $note->client_id : null;
+                    if ($clientId === null) {
+                        return null;
+                    }
 
-                $title = (string) ($note->title ?: 'Note');
-                $kind = $this->noteKindLabel($title);
+                    [$recordType, $recordId] = $this->resolveRecordFromType((string) ($note->type ?? ''), $clientId);
+                    if ($recordType === null) {
+                        return null;
+                    }
 
-                $row = $this->row(
-                    $kind,
-                    $title,
-                    $note->created_at,
-                    $this->recordRef($recordType, $recordId),
-                    'note:'.$note->id,
-                    $recordType,
-                    $recordId,
-                    null,
-                );
+                    $title = (string) ($note->title ?: 'Note');
+                    $kind = $this->noteKindLabel($title);
 
-                $body = $this->plainTextForDiary((string) ($note->description ?? ''));
-                if ($body !== '') {
-                    $row['body'] = $body;
-                }
+                    $row = $this->row(
+                        $kind,
+                        $title,
+                        $note->created_at,
+                        $this->recordRef($recordType, $recordId),
+                        'note:'.$note->id,
+                        $recordType,
+                        $recordId,
+                        null,
+                    );
 
-                return $row;
+                    $body = $this->plainTextForDiary((string) ($note->description ?? ''));
+                    if ($body !== '') {
+                        $row['body'] = $body;
+                    }
+
+                    $activityId = $activityIds[(int) $note->id] ?? null;
+                    if ($activityId !== null) {
+                        $row['activities_log_id'] = $activityId;
+                    }
+
+                    return $row;
+                });
             })
             ->filter()
             ->values();
+    }
+
+    /**
+     * Map note ids to matching client activity-feed rows ("added/updated a note") for diary deep links.
+     *
+     * @param  Collection<int, Note>  $notes
+     * @return array<int, int>
+     */
+    protected function activityLogIdsForNotes(Collection $notes): array
+    {
+        if ($notes->isEmpty() || ! Schema::hasTable('activities_logs')) {
+            return [];
+        }
+
+        $clientIds = $notes->pluck('client_id')
+            ->filter(fn ($id): bool => $id !== null && (int) $id > 0)
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($clientIds === []) {
+            return [];
+        }
+
+        $createdAts = $notes->pluck('created_at')->filter();
+        if ($createdAts->isEmpty()) {
+            return [];
+        }
+
+        $start = Carbon::parse($createdAts->min())->subMinutes(3);
+        $end = Carbon::parse($createdAts->max())->addMinutes(3);
+
+        $userIds = $notes->pluck('user_id')
+            ->filter(fn ($id): bool => $id !== null && (int) $id > 0)
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $logsQuery = ActivitiesLog::query()
+            ->whereIn('client_id', $clientIds)
+            ->whereBetween('created_at', [$start, $end])
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(TRIM(subject)) = ?', ['added a note'])
+                    ->orWhereRaw('LOWER(TRIM(subject)) = ?', ['updated a note']);
+            })
+            ->orderBy('id');
+
+        if ($userIds !== []) {
+            $logsQuery->whereIn('created_by', $userIds);
+        }
+
+        $logs = $logsQuery->get(['id', 'client_id', 'created_by', 'subject', 'description', 'created_at']);
+        if ($logs->isEmpty()) {
+            return [];
+        }
+
+        $map = [];
+        $used = [];
+
+        foreach ($notes as $note) {
+            $noteId = (int) $note->id;
+            $noteClientId = $note->client_id !== null ? (int) $note->client_id : 0;
+            $noteUserId = $note->user_id !== null ? (int) $note->user_id : 0;
+            if ($noteClientId < 1) {
+                continue;
+            }
+
+            $noteAt = Carbon::parse($note->created_at)->getTimestamp();
+            $title = trim((string) ($note->title ?? ''));
+            $bestId = null;
+            $bestScore = PHP_INT_MAX;
+
+            foreach ($logs as $log) {
+                $logId = (int) $log->id;
+                if (isset($used[$logId])) {
+                    continue;
+                }
+                if ((int) $log->client_id !== $noteClientId) {
+                    continue;
+                }
+                if ($noteUserId > 0 && (int) $log->created_by !== $noteUserId) {
+                    continue;
+                }
+
+                $delta = abs(Carbon::parse($log->created_at)->getTimestamp() - $noteAt);
+                if ($delta > 180) {
+                    continue;
+                }
+
+                $description = (string) ($log->description ?? '');
+                $hasTitleOverlap = $title === '' || stripos($description, $title) !== false;
+                // Prefer title overlap when present; still allow close-in-time note audit rows.
+                $score = $delta + ($hasTitleOverlap ? 0 : 1000);
+                if ($score < $bestScore) {
+                    $bestScore = $score;
+                    $bestId = $logId;
+                }
+            }
+
+            if ($bestId !== null) {
+                $map[$noteId] = $bestId;
+                $used[$bestId] = true;
+            }
+        }
+
+        return $map;
     }
 
     protected function noteKindLabel(string $title): string
