@@ -374,7 +374,8 @@ class StaffDayCrmEventsService
                 }
 
                 $recordId = (int) $application->client_id;
-                $title = (string) ($log->title ?: $log->comment ?: ('Stage → '.($log->stage ?: $application->stage)));
+                $rawTitle = (string) ($log->title ?: $log->comment ?: ('Stage → '.($log->stage ?: $application->stage)));
+                $title = $this->plainTextForDiary($rawTitle);
 
                 // Diary list should show the student client ref (e.g. TEST…), not college · #application.
                 // Keep application_id on the row so detail links can still open the application.
@@ -520,6 +521,17 @@ class StaffDayCrmEventsService
             'record_id' => $recordId,
             'application_id' => $applicationId,
         ];
+    }
+
+    /**
+     * Diary UI escapes HTML, so strip tags from stored stage comments (e.g. <b>Stage</b>).
+     */
+    protected function plainTextForDiary(string $value): string
+    {
+        $plain = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $collapsed = preg_replace('/\s+/u', ' ', $plain);
+
+        return trim(is_string($collapsed) ? $collapsed : $plain);
     }
 
     protected function recordRef(string $recordType, int $recordId, ?int $applicationId = null): ?string

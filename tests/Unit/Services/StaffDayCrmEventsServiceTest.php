@@ -176,8 +176,8 @@ class StaffDayCrmEventsServiceTest extends TestCase
             'user_id' => 1,
             'type' => 'stage',
             'stage' => 'Lodged',
-            'title' => 'Stage moved to Lodged',
-            'comment' => null,
+            'title' => null,
+            'comment' => 'moved the stage from  <b>Coe issued</b> to <b>Enrolled</b>',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -188,9 +188,11 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertNotNull($item);
         $this->assertSame('Stage', $item['kind']);
         $this->assertSame('STU10', $item['ref']);
+        $this->assertSame('moved the stage from Coe issued to Enrolled', $item['title']);
         $this->assertSame(10, $item['record_id']);
         $this->assertSame(5, $item['application_id']);
         $this->assertStringNotContainsString('Test College', (string) $item['ref']);
+        $this->assertStringNotContainsString('<b>', (string) $item['title']);
     }
 
     #[Test]
