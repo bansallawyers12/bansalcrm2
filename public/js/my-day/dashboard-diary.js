@@ -75,8 +75,17 @@
         var crm = (data.crm_events && data.crm_events.items) || [];
         renderList('[data-crm-list]', crm, function (item) {
             var chip = item.minutes ? '<span class="my-day-diary-chip">' + escapeHtml(item.minutes) + 'm</span>' : '';
-            return '<li><span>' + formatRef(item) + ' · ' + escapeHtml(item.kind) + ' · ' +
-                escapeHtml(item.title) + ' · ' + escapeHtml(item.time || '') + chip + '</span></li>';
+            var line = formatRef(item) + ' · ' + escapeHtml(item.kind) + ' · ' +
+                escapeHtml(item.title) + ' · ' + escapeHtml(item.time || '') + chip;
+            var bodyHtml = '';
+            if (item.body) {
+                bodyHtml = '<div class="my-day-crm-body is-collapsed">' +
+                    '<div class="my-day-crm-body-text">' + escapeHtml(item.body) + '</div>' +
+                    '<button type="button" class="my-day-crm-show-more" aria-expanded="false">Show more</button>' +
+                    '</div>';
+            }
+            return '<li><div class="my-day-diary-crm-main"><div class="my-day-diary-crm-line">' + line +
+                '</div>' + bodyHtml + '</div></li>';
         }, 'No CRM writes yet today');
 
         var moreEl = root.querySelector('[data-crm-more]');
@@ -311,6 +320,25 @@
             loadCopySummary().then(function () {
                 return saveSummary();
             });
+        });
+    }
+
+    if (!root.dataset.crmBodyToggleBound) {
+        root.dataset.crmBodyToggleBound = '1';
+        root.addEventListener('click', function (event) {
+            var btn = event.target.closest('.my-day-crm-show-more');
+            if (!btn || !root.contains(btn)) {
+                return;
+            }
+            event.preventDefault();
+            var body = btn.closest('.my-day-crm-body');
+            if (!body) {
+                return;
+            }
+            var expanding = body.classList.contains('is-collapsed');
+            body.classList.toggle('is-collapsed', !expanding);
+            btn.setAttribute('aria-expanded', expanding ? 'true' : 'false');
+            btn.textContent = expanding ? 'Show less' : 'Show more';
         });
     }
 

@@ -128,3 +128,33 @@
     font-size: 0.875rem;
     margin: 0;
 }
+.my-day-diary-crm-main {
+    flex: 1;
+    min-width: 0;
+}
+.my-day-crm-body {
+    margin-top: 0.25rem;
+}
+.my-day-crm-body.is-collapsed .my-day-crm-body-text {
+    display: none;
+}
+.my-day-crm-body-text {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: #516275;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.my-day-crm-show-more {
+    margin-top: 0.15rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.my-day-crm-show-more:hover {
+    text-decoration: underline;
+}

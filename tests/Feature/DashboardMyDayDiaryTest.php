@@ -81,6 +81,8 @@ class DashboardMyDayDiaryTest extends TestCase
         $this->assertStringContainsString('function formatRef', $contents);
         $this->assertStringContainsString('my-day-diary-ref', $contents);
         $this->assertStringContainsString('item.url', $contents);
+        $this->assertStringContainsString('my-day-crm-show-more', $contents);
+        $this->assertStringContainsString('item.body', $contents);
     }
 
     public function test_client_and_partner_detail_entries_include_deep_link_highlight(): void

@@ -75,6 +75,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
             'is_action' => 0,
             'assigned_to' => null,
             'title' => 'Others',
+            'description' => '<p>Test Others. Please ignore</p>',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -85,6 +86,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertNotNull($item);
         $this->assertSame('Note', $item['kind']);
         $this->assertSame('Others', $item['title']);
+        $this->assertSame('Test Others. Please ignore', $item['body']);
     }
 
     #[Test]
@@ -340,6 +342,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
             $table->string('type')->nullable();
             $table->tinyInteger('is_action')->default(0);
             $table->string('title')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
 

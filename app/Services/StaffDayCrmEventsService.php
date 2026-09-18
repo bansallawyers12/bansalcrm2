@@ -301,7 +301,14 @@ class StaffDayCrmEventsService
             ->whereBetween('created_at', [$start, $end])
             ->orderByDesc('created_at')
             ->limit(80)
-            ->get(['id', 'title', 'type', 'client_id', 'created_at'])
+            ->get(array_values(array_filter([
+                'id',
+                'title',
+                'type',
+                'client_id',
+                'created_at',
+                Schema::hasColumn('notes', 'description') ? 'description' : null,
+            ])))
             ->map(function (Note $note): ?array {
                 $clientId = $note->client_id !== null ? (int) $note->client_id : null;
                 if ($clientId === null) {
@@ -316,7 +323,7 @@ class StaffDayCrmEventsService
                 $title = (string) ($note->title ?: 'Note');
                 $kind = $this->noteKindLabel($title);
 
-                return $this->row(
+                $row = $this->row(
                     $kind,
                     $title,
                     $note->created_at,
@@ -326,6 +333,13 @@ class StaffDayCrmEventsService
                     $recordId,
                     null,
                 );
+
+                $body = $this->plainTextForDiary((string) ($note->description ?? ''));
+                if ($body !== '') {
+                    $row['body'] = $body;
+                }
+
+                return $row;
             })
             ->filter()
             ->values();
