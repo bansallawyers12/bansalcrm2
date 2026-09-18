@@ -193,6 +193,70 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertStringNotContainsString('Test College', (string) $item['ref']);
     }
 
+    #[Test]
+    public function for_staff_client_uploaded_email_shows_as_email_not_document(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 13:00:00', 'Australia/Melbourne'));
+        $this->seedBasics();
+
+        DB::table('documents')->insert([
+            [
+                'id' => 50,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'client',
+                'file_name' => 'uploaded.msg',
+                'doc_type' => 'conversion_email_fetch',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 51,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'client',
+                'file_name' => 'passport.pdf',
+                'doc_type' => 'documents',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 52,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'partner',
+                'file_name' => 'partner-mail.msg',
+                'doc_type' => 'partner_email_fetch',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        DB::table('emails')->insert([
+            'id' => 7,
+            'user_id' => 1,
+            'client_id' => 10,
+            'type' => 'client',
+            'subject' => 'Offer letter',
+            'conversion_type' => 'conversion_email_fetch',
+            'mail_body_type' => 'inbox',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $payload = $this->service->forStaff(1);
+        $keys = array_column($payload['items'], 'key');
+        $email = collect($payload['items'])->firstWhere('key', 'email:7');
+
+        $this->assertContains('email:7', $keys);
+        $this->assertNotNull($email);
+        $this->assertSame('Email', $email['kind']);
+        $this->assertSame('Offer letter', $email['title']);
+        $this->assertNotContains('document:50', $keys);
+        $this->assertContains('document:51', $keys);
+        $this->assertContains('document:52', $keys);
+    }
+
     private function seedBasics(): void
     {
         DB::table('staff')->insert([
@@ -296,6 +360,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
             $table->unsignedInteger('application_id')->nullable();
             $table->string('type')->nullable();
             $table->string('file_name')->nullable();
+            $table->string('doc_type')->nullable();
             $table->timestamps();
         });
 

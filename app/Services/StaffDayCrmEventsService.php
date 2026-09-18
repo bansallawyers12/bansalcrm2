@@ -121,18 +121,9 @@ class StaffDayCrmEventsService
             ->whereBetween('created_at', [$start, $end])
             ->where(function ($q) {
                 $q->whereNull('conversion_type')
-                    ->orWhere(function ($sub) {
-                        $sub->where('conversion_type', '!=', 'system_generated');
-                    });
+                    ->orWhere('conversion_type', '!=', 'system_generated');
             })
-            ->where(function ($q) {
-                $q->whereNull('conversion_type')
-                    ->orWhere('conversion_type', '!=', 'conversion_email_fetch')
-                    ->orWhere(function ($sub) {
-                        $sub->where('conversion_type', 'conversion_email_fetch')
-                            ->where('mail_body_type', 'sent');
-                    });
-            })
+            // Include client/lead uploaded emails (conversion_email_fetch), not only sent ones.
             ->orderByDesc('created_at')
             ->limit(80)
             ->get(['id', 'subject', 'mail_body_type', 'conversion_type', 'type', 'client_id', 'created_at'])
@@ -174,6 +165,8 @@ class StaffDayCrmEventsService
             return collect();
         }
 
+        $hasDocType = Schema::hasColumn('documents', 'doc_type');
+
         $columns = array_values(array_filter([
             'id',
             Schema::hasColumn('documents', 'file_name') ? 'file_name' : null,
@@ -181,15 +174,27 @@ class StaffDayCrmEventsService
             Schema::hasColumn('documents', 'doc_name') ? 'doc_name' : null,
             'type',
             'client_id',
+            $hasDocType ? 'doc_type' : null,
             Schema::hasColumn('documents', 'application_id') ? 'application_id' : null,
             'created_at',
         ]));
 
-        return Document::query()
+        $query = Document::query()
             ->where(function ($q) use ($staffId) {
                 $q->where('created_by', $staffId)->orWhere('user_id', $staffId);
             })
-            ->whereBetween('created_at', [$start, $end])
+            ->whereBetween('created_at', [$start, $end]);
+
+        // Hide client email-upload storage/PDF rows from diary Document list (shown as Email instead).
+        // Partner email docs (partner_email_fetch) stay listed as Document.
+        if ($hasDocType) {
+            $query->where(function ($q) {
+                $q->whereNull('doc_type')
+                    ->orWhere('doc_type', '!=', 'conversion_email_fetch');
+            });
+        }
+
+        return $query
             ->orderByDesc('created_at')
             ->limit(80)
             ->get($columns)
