@@ -95,5 +95,7 @@ class DashboardMyDayDiaryTest extends TestCase
         $highlight = file_get_contents(resource_path('js/pages/admin/client-detail/deep-link-highlight.js'));
         $this->assertStringContainsString('initActivityDeepLinkHighlight', $highlight);
         $this->assertStringContainsString('deep-link-highlight', $highlight);
+        $this->assertStringContainsString('app_stage_log_', $highlight);
+        $this->assertStringContainsString("block: 'start'", $highlight);
     }
 }

@@ -281,7 +281,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 								<?php foreach($applicationlists as $applicationlist){ 
 								$admin = \App\Models\Staff::find($applicationlist->user_id);
 								?>
-									<div class="activity_col">
+									<div class="activity_col" id="app_stage_log_{{ $applicationlist->id }}">
 										<div class="activity_txt_time">
 											<span class="span_txt"><b>{{$admin->first_name}}</b> {!! $applicationlist->comment !!}</span>
 											<span class="span_time"><?php echo date('d D, M Y h:i A', strtotime($applicationlist->created_at)); ?></span>

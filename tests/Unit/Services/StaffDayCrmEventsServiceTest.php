@@ -248,6 +248,19 @@ class StaffDayCrmEventsServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
+        DB::table('activities_logs')->insert([
+            'id' => 70,
+            'client_id' => 10,
+            'created_by' => 1,
+            'subject' => 'uploaded Email: Offer letter',
+            'description' => '',
+            'activity_type' => null,
+            'task_status' => 0,
+            'pin' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         $payload = $this->service->forStaff(1);
         $keys = array_column($payload['items'], 'key');
         $email = collect($payload['items'])->firstWhere('key', 'email:7');
@@ -256,6 +269,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertNotNull($email);
         $this->assertSame('Email', $email['kind']);
         $this->assertSame('Offer letter', $email['title']);
+        $this->assertSame(70, $email['activities_log_id']);
         $this->assertNotContains('document:50', $keys);
         $this->assertContains('document:51', $keys);
         $this->assertContains('document:52', $keys);

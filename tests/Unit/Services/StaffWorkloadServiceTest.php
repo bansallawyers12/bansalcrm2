@@ -78,7 +78,12 @@ class StaffWorkloadServiceTest extends TestCase
 
         $this->assertSame('activity_99', $service->diaryDeepLinkFragment(['key' => 'feed:99']));
         $this->assertSame('note_id_12', $service->diaryDeepLinkFragment(['key' => 'note:12']));
+        $this->assertSame('app_stage_log_44', $service->diaryDeepLinkFragment(['key' => 'stage:44']));
         $this->assertSame('activity_7', $service->diaryDeepLinkFragment(['activities_log_id' => 7]));
+        $this->assertSame(
+            'activity_8',
+            $service->diaryDeepLinkFragment(['key' => 'email:3', 'activities_log_id' => 8])
+        );
         $this->assertNull($service->diaryDeepLinkFragment(['key' => 'email:3']));
         $this->assertNull($service->diaryDeepLinkFragment([]));
     }
@@ -109,6 +114,20 @@ class StaffWorkloadServiceTest extends TestCase
                 'record_id' => 10,
             ],
             [
+                'key' => 'stage:9',
+                'ref' => 'STU10',
+                'record_type' => 'student',
+                'record_id' => 10,
+                'application_id' => 3,
+            ],
+            [
+                'key' => 'email:2',
+                'ref' => 'STU10',
+                'record_type' => 'student',
+                'record_id' => 10,
+                'activities_log_id' => 77,
+            ],
+            [
                 'ref' => 'No record',
             ],
         ]);
@@ -118,7 +137,17 @@ class StaffWorkloadServiceTest extends TestCase
             $linked[0]['url']
         );
         $this->assertSame('note_id_5', $linked[0]['deep_link']);
-        $this->assertArrayNotHasKey('url', $linked[1]);
+        $this->assertSame(
+            route('clients.detail.application', ['id' => $encoded, 'applicationId' => 3]).'#app_stage_log_9',
+            $linked[1]['url']
+        );
+        $this->assertSame('app_stage_log_9', $linked[1]['deep_link']);
+        $this->assertSame(
+            route('clients.detail', ['id' => $encoded]).'#activity_77',
+            $linked[2]['url']
+        );
+        $this->assertSame('activity_77', $linked[2]['deep_link']);
+        $this->assertArrayNotHasKey('url', $linked[3]);
     }
 
     public function test_student_activity_scope_keeps_null_and_non_partner_task_groups(): void

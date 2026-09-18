@@ -126,34 +126,159 @@ class StaffDayCrmEventsService
             // Include client/lead uploaded emails (conversion_email_fetch), not only sent ones.
             ->orderByDesc('created_at')
             ->limit(80)
-            ->get(['id', 'subject', 'mail_body_type', 'conversion_type', 'type', 'client_id', 'created_at'])
-            ->map(function (Email $log): ?array {
-                $clientId = $log->client_id !== null ? (int) $log->client_id : null;
-                if ($clientId === null) {
-                    return null;
-                }
+            ->get(['id', 'subject', 'mail_body_type', 'conversion_type', 'type', 'client_id', 'created_at', 'user_id'])
+            ->pipe(function (Collection $emails): Collection {
+                $activityIds = $this->activityLogIdsForEmails($emails);
 
-                [$recordType, $recordId] = $this->resolveRecordFromType((string) ($log->type ?? ''), $clientId);
-                if ($recordType === null) {
-                    return null;
-                }
+                return $emails->map(function (Email $log) use ($activityIds): ?array {
+                    $clientId = $log->client_id !== null ? (int) $log->client_id : null;
+                    if ($clientId === null) {
+                        return null;
+                    }
 
-                $isSent = ($log->mail_body_type ?? '') === 'sent';
-                $kind = $isSent ? 'Email out' : 'Email';
+                    [$recordType, $recordId] = $this->resolveRecordFromType((string) ($log->type ?? ''), $clientId);
+                    if ($recordType === null) {
+                        return null;
+                    }
 
-                return $this->row(
-                    $kind,
-                    (string) ($log->subject ?: 'Email'),
-                    $log->created_at,
-                    $this->recordRef($recordType, $recordId),
-                    'email:'.$log->id,
-                    $recordType,
-                    $recordId,
-                    null,
-                );
+                    $isSent = ($log->mail_body_type ?? '') === 'sent';
+                    $kind = $isSent ? 'Email out' : 'Email';
+
+                    $row = $this->row(
+                        $kind,
+                        (string) ($log->subject ?: 'Email'),
+                        $log->created_at,
+                        $this->recordRef($recordType, $recordId),
+                        'email:'.$log->id,
+                        $recordType,
+                        $recordId,
+                        null,
+                    );
+
+                    $activityId = $activityIds[(int) $log->id] ?? null;
+                    if ($activityId !== null) {
+                        $row['activities_log_id'] = $activityId;
+                    }
+
+                    return $row;
+                });
             })
             ->filter()
             ->values();
+    }
+
+    /**
+     * Map email ids to matching client activity-feed rows for diary deep links.
+     *
+     * @param  Collection<int, Email>  $emails
+     * @return array<int, int>
+     */
+    protected function activityLogIdsForEmails(Collection $emails): array
+    {
+        if ($emails->isEmpty() || ! Schema::hasTable('activities_logs')) {
+            return [];
+        }
+
+        $clientIds = $emails->pluck('client_id')
+            ->filter(fn ($id): bool => $id !== null && (int) $id > 0)
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($clientIds === []) {
+            return [];
+        }
+
+        $createdAts = $emails->pluck('created_at')->filter();
+        if ($createdAts->isEmpty()) {
+            return [];
+        }
+
+        $start = Carbon::parse($createdAts->min())->subMinutes(3);
+        $end = Carbon::parse($createdAts->max())->addMinutes(3);
+
+        $userIds = $emails->pluck('user_id')
+            ->filter(fn ($id): bool => $id !== null && (int) $id > 0)
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $logsQuery = ActivitiesLog::query()
+            ->whereIn('client_id', $clientIds)
+            ->whereBetween('created_at', [$start, $end])
+            ->where(function ($q) {
+                $q->where('subject', 'like', 'uploaded Email:%')
+                    ->orWhere('subject', 'like', '%sent an email%')
+                    ->orWhere('subject', 'like', 'Email%');
+            })
+            ->orderBy('id');
+
+        if ($userIds !== []) {
+            $logsQuery->whereIn('created_by', $userIds);
+        }
+
+        $logs = $logsQuery->get(['id', 'client_id', 'created_by', 'subject', 'created_at']);
+        if ($logs->isEmpty()) {
+            return [];
+        }
+
+        $map = [];
+        $used = [];
+
+        foreach ($emails as $email) {
+            $emailId = (int) $email->id;
+            $emailClientId = $email->client_id !== null ? (int) $email->client_id : 0;
+            $emailUserId = $email->user_id !== null ? (int) $email->user_id : 0;
+            if ($emailClientId < 1) {
+                continue;
+            }
+
+            $emailAt = Carbon::parse($email->created_at)->getTimestamp();
+            $subject = trim((string) ($email->subject ?? ''));
+            $bestId = null;
+            $bestScore = PHP_INT_MAX;
+
+            foreach ($logs as $log) {
+                $logId = (int) $log->id;
+                if (isset($used[$logId])) {
+                    continue;
+                }
+                if ((int) $log->client_id !== $emailClientId) {
+                    continue;
+                }
+                if ($emailUserId > 0 && (int) $log->created_by !== $emailUserId) {
+                    continue;
+                }
+
+                $delta = abs(Carbon::parse($log->created_at)->getTimestamp() - $emailAt);
+                if ($delta > 180) {
+                    continue;
+                }
+
+                $logSubject = (string) ($log->subject ?? '');
+                $hasSubjectOverlap = $subject !== '' && stripos($logSubject, $subject) !== false;
+                $isUploadEmailRow = str_starts_with($logSubject, 'uploaded Email:');
+                if (! $hasSubjectOverlap && ! $isUploadEmailRow) {
+                    continue;
+                }
+
+                // Prefer subject overlap; then closer timestamps.
+                $score = $delta + ($hasSubjectOverlap ? 0 : 1000);
+                if ($score < $bestScore) {
+                    $bestScore = $score;
+                    $bestId = $logId;
+                }
+            }
+
+            if ($bestId !== null) {
+                $map[$emailId] = $bestId;
+                $used[$bestId] = true;
+            }
+        }
+
+        return $map;
     }
 
     /**
