@@ -83,6 +83,18 @@ class DashboardMyDayDiaryTest extends TestCase
         $this->assertStringContainsString('item.url', $contents);
         $this->assertStringContainsString('my-day-crm-show-more', $contents);
         $this->assertStringContainsString('item.body', $contents);
+        $this->assertStringContainsString('my-day-auto-events-btn', $contents);
+        $this->assertStringContainsString('openAutoEventsDialog', $contents);
+        $this->assertStringContainsString('myDayAutoEventsDialog', $contents);
+    }
+
+    public function test_diary_partial_includes_auto_events_dialog(): void
+    {
+        $path = resource_path('views/Admin/partials/my-day-diary.blade.php');
+        $this->assertFileExists($path);
+        $contents = file_get_contents($path);
+        $this->assertStringContainsString('myDayAutoEventsDialog', $contents);
+        $this->assertStringContainsString('data-auto-events-list', $contents);
     }
 
     public function test_client_and_partner_detail_entries_include_deep_link_highlight(): void

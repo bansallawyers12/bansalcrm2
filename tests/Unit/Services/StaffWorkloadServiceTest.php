@@ -164,6 +164,29 @@ class StaffWorkloadServiceTest extends TestCase
         );
         $this->assertSame('activity_77', $linked[3]['deep_link']);
         $this->assertArrayNotHasKey('url', $linked[4]);
+
+        $withNested = $service->attachDiaryRecordLinks([
+            [
+                'ref' => 'STU10',
+                'record_type' => 'student',
+                'record_id' => 10,
+                'events' => [
+                    [
+                        'key' => 'note:9',
+                        'ref' => 'STU10',
+                        'record_type' => 'student',
+                        'record_id' => 10,
+                        'activities_log_id' => 91,
+                        'title' => 'Others',
+                    ],
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            route('clients.detail', ['id' => $encoded]).'#activity_91',
+            $withNested[0]['events'][0]['url']
+        );
+        $this->assertSame('activity_91', $withNested[0]['events'][0]['deep_link']);
     }
 
     public function test_student_activity_scope_keeps_null_and_non_partner_task_groups(): void

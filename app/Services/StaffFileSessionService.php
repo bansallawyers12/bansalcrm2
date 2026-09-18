@@ -473,7 +473,8 @@ class StaffFileSessionService
         foreach ($sorted as $index => $event) {
             $eventMinutes = $base + ($index === 0 ? $remainder : 0);
             $row = $event;
-            unset($row['sort_at'], $row['record_type'], $row['record_id'], $row['application_id']);
+            // Keep record_type/record_id/application_id for diary deep links in the activities popup.
+            unset($row['sort_at']);
             $row['minutes'] = $eventMinutes;
             $result[] = $row;
         }

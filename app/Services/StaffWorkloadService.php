@@ -436,13 +436,26 @@ class StaffWorkloadService
     public function attachDiaryRecordLinks(array $items): array
     {
         $studentIds = [];
-        foreach ($items as $item) {
-            if (($item['record_type'] ?? null) !== StaffFileSession::RECORD_TYPE_STUDENT) {
-                continue;
+        $collectStudentIds = function (array $item) use (&$studentIds, &$collectStudentIds): void {
+            if (($item['record_type'] ?? null) === StaffFileSession::RECORD_TYPE_STUDENT) {
+                $recordId = isset($item['record_id']) ? (int) $item['record_id'] : 0;
+                if ($recordId > 0) {
+                    $studentIds[] = $recordId;
+                }
             }
-            $recordId = isset($item['record_id']) ? (int) $item['record_id'] : 0;
-            if ($recordId > 0) {
-                $studentIds[] = $recordId;
+            if (! isset($item['events']) || ! is_array($item['events'])) {
+                return;
+            }
+            foreach ($item['events'] as $event) {
+                if (is_array($event)) {
+                    $collectStudentIds($event);
+                }
+            }
+        };
+
+        foreach ($items as $item) {
+            if (is_array($item)) {
+                $collectStudentIds($item);
             }
         }
 
@@ -451,29 +464,47 @@ class StaffWorkloadService
             : Admin::query()->whereIn('id', array_values(array_unique($studentIds)))->pluck('type', 'id');
 
         return array_map(function (array $item) use ($typesById): array {
-            $recordType = isset($item['record_type']) ? (string) $item['record_type'] : '';
-            $recordId = isset($item['record_id']) ? (int) $item['record_id'] : 0;
-            if ($recordType === '' || $recordId < 1) {
-                return $item;
-            }
+            $item = $this->attachOneDiaryRecordLink($item, $typesById);
 
-            $adminType = $typesById->get($recordId);
-            $applicationId = isset($item['application_id']) && is_numeric($item['application_id'])
-                ? (int) $item['application_id']
-                : null;
-            $url = $this->diaryRecordUrl($recordType, $recordId, $applicationId, is_string($adminType) ? $adminType : null);
-            if ($url === null) {
-                return $item;
-            }
-
-            $fragment = $this->diaryDeepLinkFragment($item);
-            $item['url'] = $fragment !== null ? $url.'#'.$fragment : $url;
-            if ($fragment !== null) {
-                $item['deep_link'] = $fragment;
+            if (isset($item['events']) && is_array($item['events']) && $item['events'] !== []) {
+                $item['events'] = array_map(function ($event) use ($typesById) {
+                    return is_array($event) ? $this->attachOneDiaryRecordLink($event, $typesById) : $event;
+                }, $item['events']);
             }
 
             return $item;
         }, $items);
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @param  Collection<int|string, mixed>  $typesById
+     * @return array<string, mixed>
+     */
+    protected function attachOneDiaryRecordLink(array $item, $typesById): array
+    {
+        $recordType = isset($item['record_type']) ? (string) $item['record_type'] : '';
+        $recordId = isset($item['record_id']) ? (int) $item['record_id'] : 0;
+        if ($recordType === '' || $recordId < 1) {
+            return $item;
+        }
+
+        $adminType = $typesById->get($recordId);
+        $applicationId = isset($item['application_id']) && is_numeric($item['application_id'])
+            ? (int) $item['application_id']
+            : null;
+        $url = $this->diaryRecordUrl($recordType, $recordId, $applicationId, is_string($adminType) ? $adminType : null);
+        if ($url === null) {
+            return $item;
+        }
+
+        $fragment = $this->diaryDeepLinkFragment($item);
+        $item['url'] = $fragment !== null ? $url.'#'.$fragment : $url;
+        if ($fragment !== null) {
+            $item['deep_link'] = $fragment;
+        }
+
+        return $item;
     }
 
     /**

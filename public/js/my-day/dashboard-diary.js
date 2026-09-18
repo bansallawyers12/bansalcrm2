@@ -13,6 +13,7 @@
     var saveUrl = root.getAttribute('data-save-url');
     var searchUrl = root.getAttribute('data-search-url');
     var sessionUpdateBase = root.getAttribute('data-session-update-base');
+    var autoSessions = [];
 
     function fetchJson(url, options) {
         options = options || {};
@@ -98,13 +99,26 @@
             }
         }
 
-        renderList('[data-auto-list]', data.auto || [], function (item) {
-            var label = item.is_reviewed_only ? 'reviewed file' : ((item.event_count || 0) + ' activities');
+        autoSessions = Array.isArray(data.auto) ? data.auto : [];
+        renderList('[data-auto-list]', autoSessions, function (item) {
+            var count = parseInt(item.event_count, 10);
+            if (isNaN(count) || count < 0) {
+                count = 0;
+            }
+            var label;
+            if (item.is_reviewed_only) {
+                label = 'reviewed file';
+            } else if (count > 0) {
+                label = '<button type="button" class="my-day-auto-events-btn" data-auto-session-id="' +
+                    escapeAttr(String(item.id)) + '">' + escapeHtml(String(count)) + ' activities</button>';
+            } else {
+                label = '0 activities';
+            }
             var input = item.posted
                 ? '<span>' + escapeHtml(item.confirmed_minutes) + 'm</span>'
                 : '<input type="number" class="form-control form-control-sm my-day-diary-minutes-input" min="1" max="480" value="' +
                     escapeHtml(item.confirmed_minutes) + '" data-session-id="' + escapeHtml(item.id) + '">';
-            return '<li><span>' + formatRef(item) + ' · ' + escapeHtml(label) + '</span>' + input + '</li>';
+            return '<li><span>' + formatRef(item) + ' · ' + label + '</span>' + input + '</li>';
         }, 'No recorded file time yet');
 
         renderList('[data-opened-list]', data.opened || [], function (item) {
@@ -320,6 +334,113 @@
             loadCopySummary().then(function () {
                 return saveSummary();
             });
+        });
+    }
+
+    function openAutoEventsDialog(sessionId) {
+        if (!sessionId) {
+            return;
+        }
+        var row = autoSessions.find(function (item) {
+            return String(item.id) === String(sessionId);
+        });
+        if (!row) {
+            return;
+        }
+
+        var dialog = document.getElementById('myDayAutoEventsDialog');
+        var refEl = dialog ? dialog.querySelector('[data-auto-events-ref]') : null;
+        var listEl = dialog ? dialog.querySelector('[data-auto-events-list]') : null;
+        if (!dialog || !listEl) {
+            return;
+        }
+
+        var count = parseInt(row.event_count, 10);
+        if (isNaN(count) || count < 0) {
+            count = Array.isArray(row.events) ? row.events.length : 0;
+        }
+        var total = parseInt(row.confirmed_minutes, 10);
+        if (isNaN(total) || total < 0) {
+            total = 0;
+        }
+        var summary = count > 1
+            ? (' · total ' + total + 'm')
+            : (' · ' + total + 'm');
+        if (refEl) {
+            if (row.url && row.ref) {
+                refEl.innerHTML = '<a class="my-day-diary-ref" href="' + escapeAttr(row.url) + '">' +
+                    escapeHtml(row.ref) + '</a>' + escapeHtml(summary);
+            } else {
+                refEl.textContent = (row.ref || '—') + summary;
+            }
+        }
+
+        var events = Array.isArray(row.events) ? row.events : [];
+        if (!events.length) {
+            listEl.innerHTML = '<p class="my-day-auto-events-empty">No CRM activities found for this session.</p>';
+        } else {
+            listEl.innerHTML = events.map(function (event) {
+                var title = event.title || event.kind || 'Activity';
+                var linkUrl = event.url || row.url || '';
+                var titleHtml = linkUrl
+                    ? '<a href="' + escapeAttr(linkUrl) + '">' + escapeHtml(title) + '</a>'
+                    : escapeHtml(title);
+                var eventMins = parseInt(event.minutes, 10);
+                if (isNaN(eventMins) || eventMins < 0) {
+                    eventMins = 0;
+                }
+                var metaParts = [];
+                if (event.time) {
+                    metaParts.push(escapeHtml(String(event.time)));
+                }
+                metaParts.push(escapeHtml(eventMins + 'm'));
+                if (event.ref) {
+                    metaParts.push(
+                        linkUrl
+                            ? '<a href="' + escapeAttr(linkUrl) + '">' + escapeHtml(String(event.ref)) + '</a>'
+                            : escapeHtml(String(event.ref))
+                    );
+                }
+                return '<div class="my-day-auto-event">' +
+                    '<div class="my-day-auto-event-kind">' + escapeHtml(event.kind || 'Activity') + '</div>' +
+                    '<div class="my-day-auto-event-title">' + titleHtml + '</div>' +
+                    '<div class="my-day-auto-event-meta">' + metaParts.join(' · ') + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        if (typeof dialog.showModal === 'function') {
+            dialog.showModal();
+        } else {
+            dialog.setAttribute('open', 'open');
+        }
+    }
+
+    if (!root.dataset.autoEventsBound) {
+        root.dataset.autoEventsBound = '1';
+        root.addEventListener('click', function (event) {
+            var btn = event.target.closest('.my-day-auto-events-btn');
+            if (!btn || !root.contains(btn)) {
+                return;
+            }
+            event.preventDefault();
+            openAutoEventsDialog(btn.getAttribute('data-auto-session-id'));
+        });
+    }
+
+    var autoEventsDialog = document.getElementById('myDayAutoEventsDialog');
+    if (autoEventsDialog && !autoEventsDialog.dataset.closeBound) {
+        autoEventsDialog.dataset.closeBound = '1';
+        autoEventsDialog.addEventListener('click', function (event) {
+            var closeBtn = event.target.closest('[data-auto-events-close]');
+            if (!closeBtn) {
+                return;
+            }
+            if (typeof autoEventsDialog.close === 'function') {
+                autoEventsDialog.close();
+            } else {
+                autoEventsDialog.removeAttribute('open');
+            }
         });
     }
 

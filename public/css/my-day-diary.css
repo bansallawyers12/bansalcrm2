@@ -158,3 +158,78 @@
 .my-day-crm-show-more:hover {
     text-decoration: underline;
 }
+.my-day-auto-events-btn {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #2563eb;
+    font-size: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.my-day-auto-events-btn:hover {
+    color: #1d4ed8;
+}
+.my-day-auto-events-dialog {
+    min-width: min(520px, 92vw);
+    max-width: 92vw;
+}
+.my-day-auto-events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+.my-day-auto-events-header h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+.my-day-auto-events-list {
+    display: grid;
+    gap: 0.65rem;
+    max-height: min(60vh, 420px);
+    overflow: auto;
+}
+.my-day-auto-event {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+.my-day-auto-event-kind {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6b7280;
+    margin-bottom: 0.15rem;
+}
+.my-day-auto-event-title {
+    font-weight: 600;
+    color: #243447;
+    font-size: 0.9rem;
+}
+.my-day-auto-event-title a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.my-day-auto-event-title a:hover {
+    color: #2563eb;
+}
+.my-day-auto-event-meta {
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+.my-day-auto-event-meta a {
+    color: inherit;
+    text-decoration: underline;
+}
+.my-day-auto-events-empty {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+}

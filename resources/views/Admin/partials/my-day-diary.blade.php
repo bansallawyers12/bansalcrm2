@@ -93,4 +93,13 @@
     </form>
 </dialog>
 
+<dialog id="myDayAutoEventsDialog" class="my-day-diary-dialog my-day-auto-events-dialog">
+    <div class="my-day-auto-events-header">
+        <h4 id="myDayAutoEventsTitle">Activities on this file</h4>
+        <button type="button" class="btn btn-sm btn-light" data-auto-events-close>Close</button>
+    </div>
+    <p class="text-muted mb-2" data-auto-events-ref></p>
+    <div class="my-day-auto-events-list" data-auto-events-list></div>
+</dialog>
+
 <script defer src="{{ asset('js/my-day/dashboard-diary.js') }}?v={{ file_exists(public_path('js/my-day/dashboard-diary.js')) ? filemtime(public_path('js/my-day/dashboard-diary.js')) : time() }}"></script>
