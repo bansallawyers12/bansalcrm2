@@ -290,6 +290,58 @@ class StaffDayCrmEventsServiceTest extends TestCase
     }
 
     #[Test]
+    public function for_staff_skips_checklist_placeholder_documents_without_file_name(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 15:00:00', 'Australia/Melbourne'));
+        $this->seedBasics();
+
+        DB::table('documents')->insert([
+            [
+                'id' => 60,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'client',
+                'file_name' => null,
+                'doc_type' => 'documents',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 61,
+                'user_id' => 1,
+                'client_id' => 10,
+                'type' => 'client',
+                'file_name' => 'Form956.pdf',
+                'doc_type' => 'documents',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        DB::table('activities_logs')->insert([
+            'id' => 80,
+            'client_id' => 10,
+            'created_by' => 1,
+            'subject' => 'added document checklist',
+            'description' => '',
+            'activity_type' => null,
+            'task_status' => 0,
+            'pin' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $payload = $this->service->forStaff(1);
+        $keys = array_column($payload['items'], 'key');
+
+        $this->assertNotContains('document:60', $keys);
+        $this->assertContains('document:61', $keys);
+        $this->assertContains('feed:80', $keys);
+        $checklist = collect($payload['items'])->firstWhere('key', 'feed:80');
+        $this->assertSame('Checklist', $checklist['kind']);
+    }
+
+    #[Test]
     public function for_staff_includes_receipt_not_used_action_assign_checklist_and_service_feed_rows(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-09-15 14:00:00', 'Australia/Melbourne'));

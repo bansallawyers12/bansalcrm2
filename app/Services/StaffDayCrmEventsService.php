@@ -311,6 +311,11 @@ class StaffDayCrmEventsService
             })
             ->whereBetween('created_at', [$start, $end]);
 
+        // Skip checklist placeholders (Add Checklist with no file yet). Real uploads set file_name.
+        if (Schema::hasColumn('documents', 'file_name')) {
+            $query->whereNotNull('file_name')->where('file_name', '!=', '');
+        }
+
         // Hide client email-upload storage/PDF rows from diary Document list (shown as Email instead).
         // Partner email docs (partner_email_fetch) stay listed as Document.
         if ($hasDocType) {
