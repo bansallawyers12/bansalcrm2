@@ -289,6 +289,125 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertContains('document:52', $keys);
     }
 
+    #[Test]
+    public function for_staff_includes_receipt_not_used_action_assign_checklist_and_service_feed_rows(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 14:00:00', 'Australia/Melbourne'));
+        $this->seedBasics();
+
+        DB::table('activities_logs')->insert([
+            [
+                'id' => 201,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'documents document moved to Not Used Tab',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 202,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'added client receipt with Receipt Id-9 and Trans. No-Rec9',
+                'description' => '',
+                'activity_type' => 'receipt_created',
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 203,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'added student invoice with invoice No-INV1',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 204,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'set action for Test Staff',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 205,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'added an interested service',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 206,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'added document checklist',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 207,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'uploaded document',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        DB::table('application_activities_logs')->insert([
+            'id' => 11,
+            'app_id' => 5,
+            'user_id' => 1,
+            'type' => 'document',
+            'stage' => 'Lodged',
+            'title' => null,
+            'comment' => 'added a document',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $payload = $this->service->forStaff(1);
+        $byKey = collect($payload['items'])->keyBy('key');
+
+        $this->assertSame('Document', $byKey['feed:201']['kind']);
+        $this->assertSame('Receipt', $byKey['feed:202']['kind']);
+        $this->assertSame('Invoice', $byKey['feed:203']['kind']);
+        $this->assertSame('Action assigned', $byKey['feed:204']['kind']);
+        $this->assertSame('Service', $byKey['feed:205']['kind']);
+        $this->assertSame('Checklist', $byKey['feed:206']['kind']);
+        $this->assertArrayNotHasKey('feed:207', $byKey->all());
+        $this->assertSame('Document', $byKey['appdoc:11']['kind']);
+        $this->assertSame(5, $byKey['appdoc:11']['application_id']);
+    }
+
     private function seedBasics(): void
     {
         DB::table('staff')->insert([

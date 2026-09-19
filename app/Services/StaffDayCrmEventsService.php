@@ -104,6 +104,7 @@ class StaffDayCrmEventsService
             ->merge($this->smsEvents($staffId, $start, $end))
             ->merge($this->contactNoteEvents($staffId, $start, $end))
             ->merge($this->stageEvents($staffId, $start, $end))
+            ->merge($this->applicationDocumentEvents($staffId, $start, $end))
             ->merge($this->feedEvents($staffId, $start, $end));
     }
 
@@ -652,6 +653,54 @@ class StaffDayCrmEventsService
     }
 
     /**
+     * Application checklist / stage document uploads (application_activities_logs type=document).
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    protected function applicationDocumentEvents(int $staffId, Carbon $start, Carbon $end): Collection
+    {
+        if (! Schema::hasTable('application_activities_logs') || ! Schema::hasTable('applications')) {
+            return collect();
+        }
+
+        return ApplicationActivitiesLog::query()
+            ->where('user_id', $staffId)
+            ->where('type', 'document')
+            ->whereBetween('created_at', [$start, $end])
+            ->orderByDesc('created_at')
+            ->limit(80)
+            ->get(['id', 'app_id', 'stage', 'title', 'comment', 'created_at'])
+            ->map(function (ApplicationActivitiesLog $log): ?array {
+                $appId = $log->app_id !== null ? (int) $log->app_id : null;
+                if ($appId === null) {
+                    return null;
+                }
+
+                $application = Application::query()->find($appId, ['id', 'client_id']);
+                if (! $application || $application->client_id === null) {
+                    return null;
+                }
+
+                $recordId = (int) $application->client_id;
+                $rawTitle = (string) ($log->title ?: $log->comment ?: 'added a document');
+                $title = $this->plainTextForDiary($rawTitle);
+
+                return $this->row(
+                    'Document',
+                    $title !== '' ? $title : 'Document',
+                    $log->created_at,
+                    $this->recordRef(StaffFileSession::RECORD_TYPE_STUDENT, $recordId),
+                    'appdoc:'.$log->id,
+                    StaffFileSession::RECORD_TYPE_STUDENT,
+                    $recordId,
+                    $appId,
+                );
+            })
+            ->filter()
+            ->values();
+    }
+
+    /**
      * Non-note feed rows (exclude file_time and note-audit duplicates).
      *
      * @return Collection<int, array<string, mixed>>
@@ -679,12 +728,35 @@ class StaffDayCrmEventsService
                         ]);
                     });
             })
+            // Skip Documents-tab upload audits already covered by documentEvents().
+            ->where(function ($q) {
+                $q->whereNull('subject')
+                    ->orWhere(function ($sub) {
+                        $sub->whereRaw('LOWER(TRIM(subject)) NOT IN (?, ?)', [
+                            'uploaded document',
+                            'added 1 document',
+                        ])->where('subject', 'not like', 'bulk uploaded % documents');
+                    });
+            })
             ->where(function ($q) {
                 $q->where('activity_type', 'stage')
+                    ->orWhere('activity_type', 'like', 'receipt_%')
                     ->orWhere('subject', 'like', 'completed action for%')
                     ->orWhere('subject', 'like', 'Updated action for%')
                     ->orWhere('subject', 'like', 'Completed action%')
-                    ->orWhere('subject', 'like', '%started an application%');
+                    ->orWhere('subject', 'like', '%started an application%')
+                    ->orWhere('subject', 'like', '%moved to Not Used Tab%')
+                    ->orWhere('subject', 'like', 'added client receipt%')
+                    ->orWhere('subject', 'like', 'updated client receipt%')
+                    ->orWhere('subject', 'like', 'added student invoice%')
+                    ->orWhere('subject', 'like', 'added record invoice%')
+                    ->orWhere('subject', 'like', 'added record payment%')
+                    ->orWhere('subject', 'like', 'set action for%')
+                    ->orWhere('subject', 'like', 'assigned task for%')
+                    ->orWhere('subject', 'like', 'Update task for%')
+                    ->orWhere('subject', 'like', '%an interested service%')
+                    ->orWhere('subject', 'like', '%updated their profile details%')
+                    ->orWhere('subject', 'like', 'added document checklist%');
             })
             ->orderByDesc('created_at')
             ->limit(80)
@@ -702,15 +774,7 @@ class StaffDayCrmEventsService
 
                 $subject = (string) ($log->subject ?? '');
                 $type = (string) ($log->activity_type ?? '');
-                if (str_starts_with(strtolower($subject), 'completed action')) {
-                    $kind = 'Action completed';
-                } elseif (str_starts_with(strtolower($subject), 'updated action')) {
-                    $kind = 'Action updated';
-                } elseif ($type === 'stage') {
-                    $kind = 'Stage';
-                } else {
-                    $kind = 'Activity';
-                }
+                $kind = $this->feedKindLabel($subject, $type);
 
                 return $this->row(
                     $kind,
@@ -725,6 +789,51 @@ class StaffDayCrmEventsService
             })
             ->filter()
             ->values();
+    }
+
+    protected function feedKindLabel(string $subject, string $activityType): string
+    {
+        $lower = strtolower(trim($subject));
+
+        if (str_starts_with($lower, 'completed action')) {
+            return 'Action completed';
+        }
+        if (str_starts_with($lower, 'updated action')) {
+            return 'Action updated';
+        }
+        if (
+            str_starts_with($lower, 'set action for')
+            || str_starts_with($lower, 'assigned task for')
+            || str_starts_with($lower, 'update task for')
+        ) {
+            return 'Action assigned';
+        }
+        if (str_contains($lower, 'moved to not used tab')) {
+            return 'Document';
+        }
+        if (str_contains($lower, 'document checklist')) {
+            return 'Checklist';
+        }
+        if (str_starts_with($activityType, 'receipt_') || str_contains($lower, 'receipt')) {
+            return 'Receipt';
+        }
+        if (
+            str_contains($lower, 'invoice')
+            || str_starts_with($lower, 'added record payment')
+        ) {
+            return 'Invoice';
+        }
+        if (str_contains($lower, 'interested service')) {
+            return 'Service';
+        }
+        if (str_contains($lower, 'profile details')) {
+            return 'Profile';
+        }
+        if ($activityType === 'stage') {
+            return 'Stage';
+        }
+
+        return 'Activity';
     }
 
     /**
