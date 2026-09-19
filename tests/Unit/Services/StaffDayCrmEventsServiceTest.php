@@ -449,6 +449,18 @@ class StaffDayCrmEventsServiceTest extends TestCase
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'id' => 208,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'A updated client profile details',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
         DB::table('application_activities_logs')->insert([
@@ -473,6 +485,7 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertSame('Service', $byKey['feed:205']['kind']);
         $this->assertSame('Checklist', $byKey['feed:206']['kind']);
         $this->assertArrayNotHasKey('feed:207', $byKey->all());
+        $this->assertSame('Profile', $byKey['feed:208']['kind']);
         $this->assertSame('Document', $byKey['appdoc:11']['kind']);
         $this->assertSame(5, $byKey['appdoc:11']['application_id']);
     }

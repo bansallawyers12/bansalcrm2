@@ -603,6 +603,15 @@ class ClientController extends Controller
                       }
                   }
               }
+
+              // Diary / Activities feed: staff client-edit saves previously updated Admin only.
+              $profileLog = new ActivitiesLog;
+              $profileLog->client_id = (int) ($requestData['id'] ?? $request->id);
+              $profileLog->created_by = Auth::user()->id;
+              $profileLog->subject = Auth::user()->first_name.' updated client profile details';
+              $profileLog->task_status = 0;
+              $profileLog->pin = 0;
+              $profileLog->save();
               
               return redirect()->route('clients.detail', $this->encodeString(@$requestData['id']))->with('success', 'Clients Edited Successfully');
 			}

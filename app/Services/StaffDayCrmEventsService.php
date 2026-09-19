@@ -897,6 +897,7 @@ class StaffDayCrmEventsService
                     ->orWhere('subject', 'like', 'Update task for%')
                     ->orWhere('subject', 'like', '%an interested service%')
                     ->orWhere('subject', 'like', '%updated their profile details%')
+                    ->orWhere('subject', 'like', '%updated client profile details%')
                     ->orWhere('subject', 'like', 'added document checklist%');
             })
             ->orderByDesc('created_at')
