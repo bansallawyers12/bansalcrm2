@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File; 
 
+use App\Models\ActivitiesLog;
 use App\Models\Admin;
 use App\Models\Application;
 use App\Models\Invoice;
@@ -768,6 +769,11 @@ class InvoiceController extends Controller
 			$objss->status = 1;
 			$objss->save();
 		}
+
+			$this->logClientInvoiceActivity(
+				(int) ($obj->client_id ?? 0),
+				(string) ($objsss->invoice_no ?? '')
+			);
 		
 			if(@$requestData['btn'] == 'savepreview'){
 				return redirect()->to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
@@ -1022,6 +1028,11 @@ class InvoiceController extends Controller
 			$objsss = \App\Models\Invoice::find($obj->id);
 			$objsss->invoice_no = date('Y').'/'.date('m').'/'.$obj->id;
 			$objsss->save();
+
+			$this->logClientInvoiceActivity(
+				(int) ($obj->client_id ?? 0),
+				(string) ($objsss->invoice_no ?? '')
+			);
 		
 			if(@$requestData['btn'] == 'savepreview'){
 				return Redirect::to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
@@ -1346,6 +1357,25 @@ class InvoiceController extends Controller
 		} else {
 			$this->syncInvoiceStatus($invoiceId);
 		}
+	}
+
+	/**
+	 * Client Accounts invoices only (not partner invoice flows).
+	 * Subject matches StaffDayCrmEventsService feedEvents + Activities tab invoice filter.
+	 */
+	private function logClientInvoiceActivity(int $clientId, string $invoiceNo): void
+	{
+		if ($clientId <= 0 || $invoiceNo === '') {
+			return;
+		}
+
+		$log = new ActivitiesLog;
+		$log->client_id = $clientId;
+		$log->created_by = Auth::user()->id;
+		$log->subject = 'added student invoice with invoice No-'.$invoiceNo;
+		$log->task_status = 0;
+		$log->pin = 0;
+		$log->save();
 	}
 	
 }
