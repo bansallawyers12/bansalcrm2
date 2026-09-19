@@ -263,16 +263,30 @@ class StaffDayCrmEventsServiceTest extends TestCase
         ]);
 
         DB::table('activities_logs')->insert([
-            'id' => 70,
-            'client_id' => 10,
-            'created_by' => 1,
-            'subject' => 'uploaded Email: Offer letter',
-            'description' => '',
-            'activity_type' => null,
-            'task_status' => 0,
-            'pin' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
+            [
+                'id' => 70,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'uploaded Email: Offer letter',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 71,
+                'client_id' => 10,
+                'created_by' => 1,
+                'subject' => 'uploaded document',
+                'description' => '',
+                'activity_type' => null,
+                'task_status' => 0,
+                'pin' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
         $payload = $this->service->forStaff(1);
@@ -287,6 +301,9 @@ class StaffDayCrmEventsServiceTest extends TestCase
         $this->assertNotContains('document:50', $keys);
         $this->assertContains('document:51', $keys);
         $this->assertContains('document:52', $keys);
+        $doc = collect($payload['items'])->firstWhere('key', 'document:51');
+        $this->assertNotNull($doc);
+        $this->assertSame(71, $doc['activities_log_id']);
     }
 
     #[Test]

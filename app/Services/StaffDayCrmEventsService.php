@@ -300,6 +300,8 @@ class StaffDayCrmEventsService
             Schema::hasColumn('documents', 'doc_name') ? 'doc_name' : null,
             'type',
             'client_id',
+            Schema::hasColumn('documents', 'user_id') ? 'user_id' : null,
+            Schema::hasColumn('documents', 'created_by') ? 'created_by' : null,
             $hasDocType ? 'doc_type' : null,
             Schema::hasColumn('documents', 'application_id') ? 'application_id' : null,
             'created_at',
@@ -329,37 +331,171 @@ class StaffDayCrmEventsService
             ->orderByDesc('created_at')
             ->limit(80)
             ->get($columns)
-            ->map(function (Document $doc): ?array {
-                $clientId = $doc->client_id !== null ? (int) $doc->client_id : null;
-                if ($clientId === null) {
-                    return null;
-                }
+            ->pipe(function (Collection $docs): Collection {
+                $activityIds = $this->activityLogIdsForDocuments($docs);
 
-                [$recordType, $recordId] = $this->resolveRecordFromType((string) ($doc->type ?? ''), $clientId);
-                if ($recordType === null) {
-                    return null;
-                }
+                return $docs->map(function (Document $doc) use ($activityIds): ?array {
+                    $clientId = $doc->client_id !== null ? (int) $doc->client_id : null;
+                    if ($clientId === null) {
+                        return null;
+                    }
 
-                $title = (string) ($doc->file_name ?? $doc->name ?? $doc->doc_name ?? 'Document');
-                $appId = Schema::hasColumn('documents', 'application_id')
-                    && $doc->application_id !== null
-                    && is_numeric($doc->application_id)
-                    ? (int) $doc->application_id
-                    : null;
+                    [$recordType, $recordId] = $this->resolveRecordFromType((string) ($doc->type ?? ''), $clientId);
+                    if ($recordType === null) {
+                        return null;
+                    }
 
-                return $this->row(
-                    'Document',
-                    $title,
-                    $doc->created_at,
-                    $this->recordRef($recordType, $recordId, $appId),
-                    'document:'.$doc->id,
-                    $recordType,
-                    $recordId,
-                    $appId,
-                );
+                    $title = (string) ($doc->file_name ?? $doc->name ?? $doc->doc_name ?? 'Document');
+                    $appId = Schema::hasColumn('documents', 'application_id')
+                        && $doc->application_id !== null
+                        && is_numeric($doc->application_id)
+                        ? (int) $doc->application_id
+                        : null;
+
+                    $row = $this->row(
+                        'Document',
+                        $title,
+                        $doc->created_at,
+                        $this->recordRef($recordType, $recordId, $appId),
+                        'document:'.$doc->id,
+                        $recordType,
+                        $recordId,
+                        $appId,
+                    );
+
+                    $activityId = $activityIds[(int) $doc->id] ?? null;
+                    if ($activityId !== null) {
+                        $row['activities_log_id'] = $activityId;
+                    }
+
+                    return $row;
+                });
             })
             ->filter()
             ->values();
+    }
+
+    /**
+     * Map document ids to matching client activity-feed rows for diary deep links.
+     *
+     * @param  Collection<int, Document>  $docs
+     * @return array<int, int>
+     */
+    protected function activityLogIdsForDocuments(Collection $docs): array
+    {
+        if ($docs->isEmpty() || ! Schema::hasTable('activities_logs')) {
+            return [];
+        }
+
+        $clientIds = $docs->pluck('client_id')
+            ->filter(fn ($id): bool => $id !== null && (int) $id > 0)
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($clientIds === []) {
+            return [];
+        }
+
+        $createdAts = $docs->pluck('created_at')->filter();
+        if ($createdAts->isEmpty()) {
+            return [];
+        }
+
+        $start = Carbon::parse($createdAts->min())->subMinutes(3);
+        $end = Carbon::parse($createdAts->max())->addMinutes(3);
+
+        $userIds = $docs->map(function (Document $doc): int {
+            $createdBy = $doc->created_by ?? null;
+            if ($createdBy !== null && (int) $createdBy > 0) {
+                return (int) $createdBy;
+            }
+
+            return $doc->user_id !== null ? (int) $doc->user_id : 0;
+        })->filter(fn (int $id): bool => $id > 0)->unique()->values()->all();
+
+        $logsQuery = ActivitiesLog::query()
+            ->whereIn('client_id', $clientIds)
+            ->whereBetween('created_at', [$start, $end])
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(TRIM(subject)) = ?', ['uploaded document'])
+                    ->orWhereRaw('LOWER(TRIM(subject)) = ?', ['added 1 document'])
+                    ->orWhere('subject', 'like', 'bulk uploaded % documents');
+            })
+            ->orderBy('id');
+
+        if ($userIds !== []) {
+            $logsQuery->whereIn('created_by', $userIds);
+        }
+
+        $logs = $logsQuery->get(['id', 'client_id', 'created_by', 'subject', 'description', 'created_at']);
+        if ($logs->isEmpty()) {
+            return [];
+        }
+
+        $map = [];
+        $used = [];
+
+        foreach ($docs as $doc) {
+            $docId = (int) $doc->id;
+            $docClientId = $doc->client_id !== null ? (int) $doc->client_id : 0;
+            $docUserId = 0;
+            if (($doc->created_by ?? null) !== null && (int) $doc->created_by > 0) {
+                $docUserId = (int) $doc->created_by;
+            } elseif ($doc->user_id !== null) {
+                $docUserId = (int) $doc->user_id;
+            }
+            if ($docClientId < 1) {
+                continue;
+            }
+
+            $docAt = Carbon::parse($doc->created_at)->getTimestamp();
+            $fileName = trim((string) ($doc->file_name ?? $doc->name ?? $doc->doc_name ?? ''));
+            $bestId = null;
+            $bestScore = PHP_INT_MAX;
+
+            foreach ($logs as $log) {
+                $logId = (int) $log->id;
+                if (isset($used[$logId])) {
+                    continue;
+                }
+                if ((int) $log->client_id !== $docClientId) {
+                    continue;
+                }
+                if ($docUserId > 0 && (int) $log->created_by !== $docUserId) {
+                    continue;
+                }
+
+                $delta = abs(Carbon::parse($log->created_at)->getTimestamp() - $docAt);
+                if ($delta > 180) {
+                    continue;
+                }
+
+                $logSubject = strtolower(trim((string) ($log->subject ?? '')));
+                $haystack = $logSubject.' '.(string) ($log->description ?? '');
+                $hasFileOverlap = $fileName !== '' && stripos($haystack, $fileName) !== false;
+                $isUploadDocRow = in_array($logSubject, ['uploaded document', 'added 1 document'], true)
+                    || str_starts_with($logSubject, 'bulk uploaded ');
+
+                if (! $hasFileOverlap && ! $isUploadDocRow) {
+                    continue;
+                }
+
+                $score = $delta + ($hasFileOverlap ? 0 : 1000);
+                if ($score < $bestScore) {
+                    $bestScore = $score;
+                    $bestId = $logId;
+                }
+            }
+
+            if ($bestId !== null) {
+                $map[$docId] = $bestId;
+                $used[$bestId] = true;
+            }
+        }
+
+        return $map;
     }
 
     /**

@@ -88,7 +88,12 @@ class StaffWorkloadServiceTest extends TestCase
             'activity_8',
             $service->diaryDeepLinkFragment(['key' => 'email:3', 'activities_log_id' => 8])
         );
+        $this->assertSame(
+            'activity_15',
+            $service->diaryDeepLinkFragment(['key' => 'document:9', 'activities_log_id' => 15])
+        );
         $this->assertNull($service->diaryDeepLinkFragment(['key' => 'email:3']));
+        $this->assertNull($service->diaryDeepLinkFragment(['key' => 'document:9']));
         $this->assertNull($service->diaryDeepLinkFragment([]));
     }
 
