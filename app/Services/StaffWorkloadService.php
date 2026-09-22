@@ -167,12 +167,14 @@ class StaffWorkloadService
             ->whereIn('type', ['client', 'lead'])
             ->pluck('id');
 
-        $studentsWithApps = Application::query()
-            ->whereIn('client_id', $allocatedStudentIds)
-            ->distinct()
-            ->pluck('client_id');
-
-        $noApplicationCount = $allocatedStudentIds->diff($studentsWithApps)->count();
+        $noApplicationCount = $this->allocatedAdminsQuery($staffId)
+            ->whereIn('type', ['client', 'lead'])
+            ->whereNotExists(function ($query): void {
+                $query->selectRaw('1')
+                    ->from('applications')
+                    ->whereColumn('applications.client_id', 'admins.id');
+            })
+            ->count();
 
         $quietInactive = $this->getQuietInactive($staffId, $allocatedStudentIds, (clone $openAppsQuery)->pluck('id'));
 
@@ -705,79 +707,128 @@ class StaffWorkloadService
         $studentLastWork = $this->lastWorkByStudent($staffId, $studentIds);
         $applicationLastWork = $this->lastWorkByApplication($staffId, $applicationIds);
 
-        $quietStudents = [];
-        $inactiveStudents = [];
-        $quietApps = [];
-        $inactiveApps = [];
+        [$quietStudentIds, $inactiveStudentIds, $quietStudentCount, $inactiveStudentCount] = $this->bandPreview(
+            $studentIds,
+            $studentLastWork,
+            $today,
+        );
+        [$quietAppIds, $inactiveAppIds, $quietAppCount, $inactiveAppCount] = $this->bandPreview(
+            $applicationIds,
+            $applicationLastWork,
+            $today,
+        );
 
-        $studentRows = Admin::query()
-            ->whereIn('id', $studentIds)
-            ->get(['id', 'first_name', 'last_name', 'client_id', 'type'])
-            ->keyBy('id');
+        $studentRows = $quietStudentIds === [] && $inactiveStudentIds === []
+            ? collect()
+            : Admin::query()
+                ->whereIn('id', array_merge($quietStudentIds, $inactiveStudentIds))
+                ->get(['id', 'first_name', 'last_name', 'client_id', 'type'])
+                ->keyBy('id');
 
-        foreach ($studentIds as $studentId) {
-            $band = $this->inactivityBand($studentLastWork->get((int) $studentId), $today);
+        $applicationRows = $quietAppIds === [] && $inactiveAppIds === []
+            ? collect()
+            : Application::query()
+                ->whereIn('id', array_merge($quietAppIds, $inactiveAppIds))
+                ->with(['client:id,first_name,last_name,client_id,type'])
+                ->get(['id', 'client_id', 'stage'])
+                ->keyBy('id');
+
+        return [
+            'quiet_students_count' => $quietStudentCount,
+            'inactive_students_count' => $inactiveStudentCount,
+            'quiet_applications_count' => $quietAppCount,
+            'inactive_applications_count' => $inactiveAppCount,
+            'quiet_students' => $this->studentPreview($quietStudentIds, $studentRows, $studentLastWork),
+            'inactive_students' => $this->studentPreview($inactiveStudentIds, $studentRows, $studentLastWork),
+            'quiet_applications' => $this->applicationPreview($quietAppIds, $applicationRows, $applicationLastWork),
+            'inactive_applications' => $this->applicationPreview($inactiveAppIds, $applicationRows, $applicationLastWork),
+        ];
+    }
+
+    /**
+     * Same band rules and the same list order as walking every allocated id.
+     *
+     * @param  Collection<int, int|string>  $ids
+     * @param  Collection<int, Carbon>  $lastWork
+     * @return array{0: list<int>, 1: list<int>, 2: int, 3: int}
+     */
+    private function bandPreview(Collection $ids, Collection $lastWork, Carbon $today): array
+    {
+        $quietIds = [];
+        $inactiveIds = [];
+        $quietCount = 0;
+        $inactiveCount = 0;
+
+        foreach ($ids as $rawId) {
+            $id = (int) $rawId;
+            $band = $this->inactivityBand($lastWork->get($id), $today);
             if ($band === null) {
                 continue;
             }
 
-            $row = $studentRows->get((int) $studentId);
-            if (! $row) {
-                continue;
-            }
-
-            $entry = $this->formatStudentRow($row, $studentLastWork->get((int) $studentId));
             if ($band === 'quiet') {
-                $quietStudents[] = $entry;
+                $quietCount++;
+                if (count($quietIds) < 25) {
+                    $quietIds[] = $id;
+                }
             } else {
-                $inactiveStudents[] = $entry;
+                $inactiveCount++;
+                if (count($inactiveIds) < 25) {
+                    $inactiveIds[] = $id;
+                }
             }
         }
 
-        $applicationRows = Application::query()
-            ->whereIn('id', $applicationIds)
-            ->with(['client:id,first_name,last_name,client_id,type'])
-            ->get(['id', 'client_id', 'stage'])
-            ->keyBy('id');
+        return [$quietIds, $inactiveIds, $quietCount, $inactiveCount];
+    }
 
-        foreach ($applicationIds as $applicationId) {
-            $band = $this->inactivityBand($applicationLastWork->get((int) $applicationId), $today);
-            if ($band === null) {
+    /**
+     * @param  list<int>  $ids
+     * @param  Collection<int, Admin>  $rows
+     * @param  Collection<int, Carbon>  $lastWork
+     * @return list<array<string, mixed>>
+     */
+    private function studentPreview(array $ids, Collection $rows, Collection $lastWork): array
+    {
+        $preview = [];
+        foreach ($ids as $id) {
+            $entry = $this->formatStudentRow($rows->get($id), $lastWork->get($id));
+            if ($entry === null) {
                 continue;
             }
+            $preview[] = $entry;
+        }
 
-            $app = $applicationRows->get((int) $applicationId);
+        return $preview;
+    }
+
+    /**
+     * @param  list<int>  $ids
+     * @param  Collection<int, Application>  $rows
+     * @param  Collection<int, Carbon>  $lastWork
+     * @return list<array<string, mixed>>
+     */
+    private function applicationPreview(array $ids, Collection $rows, Collection $lastWork): array
+    {
+        $preview = [];
+        foreach ($ids as $id) {
+            $app = $rows->get($id);
             if (! $app) {
                 continue;
             }
 
             $client = $app->client;
-            $entry = [
+            $preview[] = [
                 'id' => $app->id,
                 'stage' => $app->stage,
                 'client_name' => $client ? trim($client->first_name.' '.$client->last_name) : 'Unknown',
                 'client_reference' => $client?->client_id,
-                'last_work_at' => $applicationLastWork->get((int) $applicationId)?->timezone($this->timezone())->format('d/m/Y'),
+                'last_work_at' => $lastWork->get($id)?->timezone($this->timezone())->format('d/m/Y'),
                 'url' => $client ? $this->clientDetailUrl((int) $client->id, (string) ($client->type ?? 'client')) : null,
             ];
-
-            if ($band === 'quiet') {
-                $quietApps[] = $entry;
-            } else {
-                $inactiveApps[] = $entry;
-            }
         }
 
-        return [
-            'quiet_students_count' => count($quietStudents),
-            'inactive_students_count' => count($inactiveStudents),
-            'quiet_applications_count' => count($quietApps),
-            'inactive_applications_count' => count($inactiveApps),
-            'quiet_students' => array_slice($quietStudents, 0, 25),
-            'inactive_students' => array_slice($inactiveStudents, 0, 25),
-            'quiet_applications' => array_slice($quietApps, 0, 25),
-            'inactive_applications' => array_slice($inactiveApps, 0, 25),
-        ];
+        return $preview;
     }
 
     /**
@@ -790,13 +841,12 @@ class StaffWorkloadService
             return collect();
         }
 
-        $ids = $studentIds->map(fn ($id) => (int) $id)->all();
         $last = collect();
 
         $noteRows = Note::query()
             ->select('client_id', DB::raw('MAX(created_at) as last_at'))
             ->where('user_id', $staffId)
-            ->whereIn('client_id', $ids)
+            ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
 
@@ -810,7 +860,7 @@ class StaffWorkloadService
                     ->forStudentRecords()
                     ->select('client_id', DB::raw('MAX(created_at) as last_at'))
                     ->where('created_by', $staffId)
-                    ->whereIn('client_id', $ids)
+                    ->whereNotNull('client_id')
             )
         )
             ->groupBy('client_id')
@@ -823,7 +873,7 @@ class StaffWorkloadService
         $emailRows = Email::query()
             ->select('client_id', DB::raw('MAX(created_at) as last_at'))
             ->where('user_id', $staffId)
-            ->whereIn('client_id', $ids)
+            ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
 
@@ -834,7 +884,7 @@ class StaffWorkloadService
         $smsRows = SmsLog::query()
             ->select('client_id', DB::raw('MAX(created_at) as last_at'))
             ->where('sender_id', $staffId)
-            ->whereIn('client_id', $ids)
+            ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
 
@@ -847,7 +897,7 @@ class StaffWorkloadService
             ->where(function (Builder $q) use ($staffId) {
                 $q->where('created_by', $staffId)->orWhere('user_id', $staffId);
             })
-            ->whereIn('client_id', $ids)
+            ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
 
