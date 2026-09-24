@@ -62,6 +62,22 @@ class StaffFileSessionServiceTest extends TestCase
     }
 
     #[Test]
+    public function partner_blur_reuses_existing_session_for_same_staff_record_and_day(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-15 09:00:00', 'Australia/Melbourne'));
+        $this->insertStaff(1);
+        $this->insertPartner(282);
+
+        $heartbeat = $this->service->heartbeat(1, 'partner', 282, null, 30);
+        Carbon::setTestNow(Carbon::parse('2026-09-15 09:01:00', 'Australia/Melbourne'));
+        $blur = $this->service->blur(1, 'partner', 282, null, 90);
+
+        $this->assertSame($heartbeat->id, $blur->id);
+        $this->assertSame(1, DB::table('staff_file_sessions')->count());
+        $this->assertSame(90, (int) $blur->focused_seconds);
+    }
+
+    #[Test]
     public function student_and_partner_with_same_numeric_id_do_not_collide(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-09-15 09:00:00', 'Australia/Melbourne'));

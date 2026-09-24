@@ -344,37 +344,33 @@ class StaffFileSessionService
         $sessionDate = $start->toDateString();
         $applicationKey = (int) ($applicationId ?? 0);
 
-        return DB::transaction(function () use ($staffId, $recordType, $recordId, $applicationId, $sessionDate, $applicationKey): StaffFileSession {
-            $existing = $this->findTodaySession(
-                $staffId,
-                $recordType,
-                $recordId,
-                $sessionDate,
-                $applicationKey,
-                forUpdate: true,
-            );
+        try {
+            return DB::transaction(function () use ($staffId, $recordType, $recordId, $applicationId, $sessionDate, $applicationKey): StaffFileSession {
+                $existing = $this->findTodaySession(
+                    $staffId,
+                    $recordType,
+                    $recordId,
+                    $sessionDate,
+                    $applicationKey,
+                    forUpdate: true,
+                );
 
-            if ($existing) {
-                return $existing;
-            }
+                if ($existing) {
+                    return $existing;
+                }
 
-            $now = now();
-
-            try {
-                return StaffFileSession::query()->create([
-                    'staff_id' => $staffId,
-                    'record_type' => $recordType,
-                    'record_id' => $recordId,
-                    'application_id' => $applicationId,
-                    'application_key' => $applicationKey,
-                    'session_date' => $sessionDate,
-                    'status' => StaffFileSession::STATUS_ACCESSED,
-                    'focused_seconds' => 0,
-                    'idle_cut_seconds' => 0,
-                    'started_at' => $now,
-                    'last_heartbeat_at' => $now,
-                ]);
-            } catch (UniqueConstraintViolationException $exception) {
+                return $this->createTodaySession(
+                    $staffId,
+                    $recordType,
+                    $recordId,
+                    $applicationId,
+                    $sessionDate,
+                    $applicationKey,
+                );
+            });
+        } catch (UniqueConstraintViolationException $exception) {
+            // PostgreSQL aborts the whole transaction after a duplicate insert; retry in a new transaction.
+            return DB::transaction(function () use ($staffId, $recordType, $recordId, $sessionDate, $applicationKey, $exception): StaffFileSession {
                 $existing = $this->findTodaySession(
                     $staffId,
                     $recordType,
@@ -389,8 +385,33 @@ class StaffFileSessionService
                 }
 
                 throw $exception;
-            }
-        });
+            });
+        }
+    }
+
+    protected function createTodaySession(
+        int $staffId,
+        string $recordType,
+        int $recordId,
+        ?int $applicationId,
+        string $sessionDate,
+        int $applicationKey,
+    ): StaffFileSession {
+        $now = now();
+
+        return StaffFileSession::query()->create([
+            'staff_id' => $staffId,
+            'record_type' => $recordType,
+            'record_id' => $recordId,
+            'application_id' => $applicationId,
+            'application_key' => $applicationKey,
+            'session_date' => $sessionDate,
+            'status' => StaffFileSession::STATUS_ACCESSED,
+            'focused_seconds' => 0,
+            'idle_cut_seconds' => 0,
+            'started_at' => $now,
+            'last_heartbeat_at' => $now,
+        ]);
     }
 
     protected function findTodaySession(
