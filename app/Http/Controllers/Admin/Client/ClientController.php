@@ -216,14 +216,7 @@ class ClientController extends Controller
                 return redirect()->back()->withInput()->with('error', "Error: 'Personal' email type can only be used once.");
             }
           
-			$related_files = '';
-	        if(isset($requestData['related_files'])){
-	            $relatedFilesCount = count($requestData['related_files']);
-	            for($i=0; $i<$relatedFilesCount; $i++){
-	                $related_files .= $requestData['related_files'][$i].',';
-	            }
-
-	        }
+			$relatedClientIds = $this->normalizeRelatedClientIds($requestData['related_files'] ?? null);
 	         $dob = '';
 	        if(array_key_exists("dob",$requestData) && $requestData['dob'] != ''){
 	           $dobs = explode('/', $requestData['dob']);
@@ -250,7 +243,7 @@ class ClientController extends Controller
                 $obj->age	=	$calculate_age;
             }
           
-			$obj->related_files	=	rtrim($related_files,',');
+			$obj->related_files	=	implode(',', $relatedClientIds);
 			// Primary (first) email and type go to admins; all emails also sync to client_emails below
 			$emails = $requestData['email'] ?? [];
 			$emailTypes = $requestData['email_type'] ?? [];
@@ -502,13 +495,13 @@ class ClientController extends Controller
 			{
               
               //Code for addition of simiar related files in added users account  
-                    if(isset($requestData['related_files']))
+                    if($relatedClientIds !== [])
                     {
-                        $relatedFilesCount = count($requestData['related_files']);
+                        $relatedFilesCount = count($relatedClientIds);
                         for($j=0; $j<$relatedFilesCount; $j++){
-                            if(Admin::where('id', '=', $requestData['related_files'][$j])->exists())
+                            if(Admin::where('id', '=', $relatedClientIds[$j])->exists())
                             {
-                                $objsY = Admin::select('id', 'related_files')->where('id', $requestData['related_files'][$j])->get();
+                                $objsY = Admin::select('id', 'related_files')->where('id', $relatedClientIds[$j])->get();
                                 if(!empty($objsY)){
                                     if($objsY[0]->related_files != ""){
                                         $related_files_string = $objsY[0]->related_files;
@@ -537,7 +530,7 @@ class ClientController extends Controller
                                     } else {
                                         $related_files_latest = $requestData['id'];
                                     }
-                                    Admin::where('id', $requestData['related_files'][$j])->update(['related_files' => $related_files_latest]);
+                                    Admin::where('id', $relatedClientIds[$j])->update(['related_files' => $related_files_latest]);
                                 }
                             }
                         } //end foreach
@@ -547,25 +540,15 @@ class ClientController extends Controller
               if( isset($requestData['related_files'])  || !isset($requestData['related_files']) )
               {
 
-                  if( isset($requestData['related_files']) ) {
-                    $req_arr11 = $requestData['related_files'];
-                  } else {
-                    $req_arr11 = array();
-                  }
+                  $req_arr11 = $relatedClientIds;
 
                   if( !empty($db_arr)  ){
-                      $commaPosition11 = strpos($db_arr[0]->related_files, ',');
-                      if ($commaPosition11 !== false) { //If comma is exist
-                        $db_arr11 = explode(",",$db_arr[0]->related_files);
-                      } else { //If comma is not exist
-                        $db_arr11 = array($db_arr[0]->related_files);
-                      }
+                      $db_arr11 = $this->normalizeRelatedClientIds($db_arr[0]->related_files ?? null);
 
                       //echo "<pre>db_arr11=";print_r($db_arr11);
                       //echo "<pre>req_arr11=";print_r($req_arr11);
-                      $diff_arr = array_diff( $db_arr11,$req_arr11 );
+                      $diff_arr = $this->normalizeRelatedClientIds(array_diff($db_arr11, $req_arr11));
                       //echo "<pre>diff_arr=";print_r($diff_arr);
-                      $diff_arr = array_values($diff_arr);
                       //echo "<pre>diff_arr=";print_r($diff_arr);die;
                   }
 
