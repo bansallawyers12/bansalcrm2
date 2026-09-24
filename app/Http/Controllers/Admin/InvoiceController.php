@@ -510,6 +510,8 @@ class InvoiceController extends Controller
 		$invoicelists = \App\Models\Invoice::where('client_id',$client_id)->orderby('created_at','DESC')->get();
 		ob_start();
 		foreach($invoicelists as $invoicelist){
+			$workflowdaa = null;
+			$partnerdata = null;
 			if($invoicelist->type == 3){
 				$workflowdaa = \App\Models\Workflow::where('id', $invoicelist->application_id)->first();
 			}else{
@@ -552,7 +554,7 @@ class InvoiceController extends Controller
 					$rtype = 'General';
 				} ?>
 				<span title="<?php echo $rtype; ?>" class="ui label zippyLabel"><?php echo $rtype; ?></span></td>
-				<td class="invoice-service-col"><?php echo $workflowdaa->name; ?><br><?php echo @$partnerdata->partner_name; ?></td>
+				<td class="invoice-service-col"><?php echo $workflowdaa?->name; ?><br><?php echo $partnerdata?->partner_name; ?></td>
 				<td>AUD <?php echo $invoicelist->net_fee_rec; ?></td>	
 				<td><?php echo $invoicelist->discount; ?></td>
 				<td>-</td>
