@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Models\Partner;
 use App\Models\StaffFileSession;
 use Carbon\Carbon;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -344,14 +345,14 @@ class StaffFileSessionService
         $applicationKey = (int) ($applicationId ?? 0);
 
         return DB::transaction(function () use ($staffId, $recordType, $recordId, $applicationId, $sessionDate, $applicationKey): StaffFileSession {
-            $existing = StaffFileSession::query()
-                ->where('staff_id', $staffId)
-                ->where('record_type', $recordType)
-                ->where('record_id', $recordId)
-                ->whereDate('session_date', $sessionDate)
-                ->where('application_key', $applicationKey)
-                ->lockForUpdate()
-                ->first();
+            $existing = $this->findTodaySession(
+                $staffId,
+                $recordType,
+                $recordId,
+                $sessionDate,
+                $applicationKey,
+                forUpdate: true,
+            );
 
             if ($existing) {
                 return $existing;
@@ -359,20 +360,59 @@ class StaffFileSessionService
 
             $now = now();
 
-            return StaffFileSession::query()->create([
-                'staff_id' => $staffId,
-                'record_type' => $recordType,
-                'record_id' => $recordId,
-                'application_id' => $applicationId,
-                'application_key' => $applicationKey,
-                'session_date' => $sessionDate,
-                'status' => StaffFileSession::STATUS_ACCESSED,
-                'focused_seconds' => 0,
-                'idle_cut_seconds' => 0,
-                'started_at' => $now,
-                'last_heartbeat_at' => $now,
-            ]);
+            try {
+                return StaffFileSession::query()->create([
+                    'staff_id' => $staffId,
+                    'record_type' => $recordType,
+                    'record_id' => $recordId,
+                    'application_id' => $applicationId,
+                    'application_key' => $applicationKey,
+                    'session_date' => $sessionDate,
+                    'status' => StaffFileSession::STATUS_ACCESSED,
+                    'focused_seconds' => 0,
+                    'idle_cut_seconds' => 0,
+                    'started_at' => $now,
+                    'last_heartbeat_at' => $now,
+                ]);
+            } catch (UniqueConstraintViolationException $exception) {
+                $existing = $this->findTodaySession(
+                    $staffId,
+                    $recordType,
+                    $recordId,
+                    $sessionDate,
+                    $applicationKey,
+                    forUpdate: true,
+                );
+
+                if ($existing) {
+                    return $existing;
+                }
+
+                throw $exception;
+            }
         });
+    }
+
+    protected function findTodaySession(
+        int $staffId,
+        string $recordType,
+        int $recordId,
+        string $sessionDate,
+        int $applicationKey,
+        bool $forUpdate = false,
+    ): ?StaffFileSession {
+        $query = StaffFileSession::query()
+            ->where('staff_id', $staffId)
+            ->where('record_type', $recordType)
+            ->where('record_id', $recordId)
+            ->whereDate('session_date', $sessionDate)
+            ->where('application_key', $applicationKey);
+
+        if ($forUpdate) {
+            $query->lockForUpdate();
+        }
+
+        return $query->first();
     }
 
     protected function applyFocusedSeconds(StaffFileSession $session, int $focusedSeconds): void
