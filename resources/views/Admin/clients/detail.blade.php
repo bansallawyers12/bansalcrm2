@@ -86,7 +86,7 @@ use App\Http\Controllers\Controller;
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				@include('Elements.flash-message')
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -1593,8 +1593,8 @@ use App\Http\Controllers\Controller;
 </section>
 </div> <!-- end main-content -->
 
-@include('Admin/clients/addclientmodal')
-@include('Admin/clients/editclientmodal')
+@include('Admin.clients.addclientmodal')
+@include('Admin.clients.editclientmodal')
 
 <div id="emailmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal compose-email-compact" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
@@ -1797,7 +1797,7 @@ use App\Http\Controllers\Controller;
                                                             $useLocalPath = ($composedoclist->doc_type == 'education' || $composedoclist->doc_type == 'migration')
                                                                 || ($composedoclist->doc_type == 'documents' && $composedoclist->category && in_array($composedoclist->category->name, ['Education', 'Migration']));
                                                             if ($useLocalPath) { ?>
-                                                                <a target="_blank" class="dropdown-item" href="{{ asset('img/documents') }}/{{ $composeMyfile }}">{{ $composedoclist->file_name }}</a>
+                                                                <a target="_blank" class="dropdown-item" href="{{ url('img/documents/'.$composeMyfile) }}">{{ $composedoclist->file_name }}</a>
                                                             <?php
                                                             } elseif (($composedoclist->doc_type ?? '') === 'documents') {
                                                                 $clientInfo = \App\Models\Admin::where('id', $fetchedData->id)->select('client_id')->first();
@@ -1808,7 +1808,7 @@ use App\Http\Controllers\Controller;
                                                                 <a target="_blank" href="<?php echo e($composedoclistUrl); ?>"><?php echo e($composedoclist->file_name); ?></a>
                                                             <?php
                                                             } else { ?>
-                                                                <a target="_blank" class="dropdown-item" href="{{ asset('img/documents') }}/{{ $composeMyfile }}">{{ $composedoclist->file_name }}</a>
+                                                                <a target="_blank" class="dropdown-item" href="{{ url('img/documents/'.$composeMyfile) }}">{{ $composedoclist->file_name }}</a>
                                                             <?php
                                                             }
                                                         } ?>
