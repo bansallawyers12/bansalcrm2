@@ -5320,7 +5320,7 @@ class PartnersController extends Controller
                 $name = time() . $files->getClientOriginalName();
                 $filePath = $partner_unique_email.'/'.$doctype.'/'. $name;
 
-                Log::error('partners.uploadalldocument start', [
+                Log::info('partners.uploadalldocument start', [
                     'debug_id' => $debugId,
                     'client_id' => $partnerid,
                     'doctype' => $doctype,
@@ -5349,7 +5349,7 @@ class PartnersController extends Controller
                         echo json_encode($response);
                         return;
                     }
-                    Log::error('partners.uploadalldocument update existing', [
+                    Log::info('partners.uploadalldocument update existing', [
                         'debug_id' => $debugId,
                         'document_id' => $obj->id,
                         'existing_checklist' => $obj->checklist,
@@ -5372,12 +5372,12 @@ class PartnersController extends Controller
                         if (!empty($checklist)) {
                             $obj->checklist = $checklist;
                         }
-                        Log::error('partners.uploadalldocument create new', [
+                        Log::info('partners.uploadalldocument create new', [
                             'debug_id' => $debugId,
                             'checklist' => $checklist,
                         ]);
                     } else {
-                        Log::error('partners.uploadalldocument reuse checklist placeholder', [
+                        Log::info('partners.uploadalldocument reuse checklist placeholder', [
                             'debug_id' => $debugId,
                             'document_id' => $obj->id,
                             'checklist' => $obj->checklist,
@@ -5396,7 +5396,7 @@ class PartnersController extends Controller
                 $obj->file_size = $size;
                 $obj->doc_type = $doctype;
                 $saved = $obj->save();
-                Log::error('partners.uploadalldocument saved', [
+                Log::log($saved ? 'info' : 'error', 'partners.uploadalldocument saved', [
                     'debug_id' => $debugId,
                     'document_id' => $obj->id,
                     'saved' => (bool) $saved,
@@ -5411,7 +5411,7 @@ class PartnersController extends Controller
                         ->whereNull('not_used_doc')
                         ->get(['id', 'checklist', 'file_name', 'created_at']);
                     if ($dupes->count() > 1) {
-                        Log::error('partners.uploadalldocument duplicates detected', [
+                        Log::warning('partners.uploadalldocument duplicates detected', [
                             'debug_id' => $debugId,
                             'duplicate_count' => $dupes->count(),
                             'records' => $dupes->map(function ($row) {
