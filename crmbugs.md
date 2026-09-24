@@ -437,7 +437,7 @@ Code re-checked against this document. Open items are listed in the **OPEN — N
 - **Fix:** Shared `Helper::s3ObjectUrl()` (disk/`AWS_URL`, pass-through full URLs); partner preview/download and invoice doc URLs use it. Print routes left as `URL::to` (app PDF, not S3).
 
 #### ~~P-7. Partner student invoice ID generation race (`MAX(invoice_id)+1` without lock)~~ — **FIXED**
-- **Fix:** New creates only — `withNextPartnerStudentInvoiceId` lock (PG advisory / MySQL GET_LOCK) + max+1, then insert in same transaction for types 1/2/3. Existing rows not rewritten.
+- **Fix:** New creates only — `withNextPartnerStudentInvoiceId` lock (`pg_advisory_xact_lock`) + max+1, then insert in same transaction for types 1/2/3. Existing rows not rewritten.
 #### ~~P-8. Accounts tab export search uses `id ILIKE` (fragile)~~ — **FIXED**
 - **Fix:** Shared `applyPartnerAccountsTabSearch` — exact numeric id + `CAST(id AS TEXT) ILIKE` + workflow name; used by Accounts table + export.
 #### ~~P-9. Cached staff dropdown stale for 1 hour (`partner_detail_staff_assignees_v2`)~~ — **FIXED**
@@ -578,7 +578,7 @@ if ($invoicelist->type == 2) {
   - `leftJoin application_fee_options` without latest-fee filter → duplicate students / inflated columns.
   - Stage filter is `where(…).orWhere(…).orWhere(…)` **without** a grouping closure. Currently those are the only filters (so results happen to match stages), but any future `where partner_id = …` etc. added alongside will leak wrong rows.
 - **Contrast:** Partner Invoice tab (P-3) **does** group its OR correctly.
-- **Fix:** Latest fee-row join via `MAX(id)` subquery (mysql/pgsql); stage OR wrapped in `where(function …)`. Also fixed page 500: blade now uses `route('clients.getcommissionreport')` instead of missing `admin.commissionreportlist`.
+- **Fix:** Latest fee-row join via `MAX(id)` subquery (PostgreSQL); stage OR wrapped in `where(function …)`. Also fixed page 500: blade now uses `route('clients.getcommissionreport')` instead of missing `admin.commissionreportlist`.
 
 ### Medium
 

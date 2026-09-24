@@ -13,9 +13,9 @@ Internal CRM for Bansal Immigration / Education — leads, clients, partners, do
 
 ## Requirements
 
-- PHP 8.3+ with common Laravel extensions (mbstring, openssl, pdo_mysql, tokenizer, xml, curl, gd/imagick, zip)
+- PHP 8.3+ with common Laravel extensions (mbstring, openssl, pdo_pgsql, tokenizer, xml, curl, gd/imagick, zip)
 - Composer 2
-- MySQL / MariaDB
+- PostgreSQL
 - Node.js ≥22 and npm ≥11
 - Python 3.7+ (for `python_services/`)
 - Optional: LibreOffice (DOCX→PDF), poppler (`pdf2image`)

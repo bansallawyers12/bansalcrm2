@@ -7,9 +7,9 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Drops unused tables as requested, keeping website_settings table.
-     * 
+     *
      * Tables being dropped:
      * - attachments (model exists but minimal usage)
      * - attach_files (model exists but minimal usage)
@@ -20,8 +20,6 @@ return new class extends Migration
      * - templates (legacy/unused - system uses email_templates instead)
      * - template_infos (quotation template information)
      * - users (client/customer table - WARNING: verify if clients are stored here)
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -37,25 +35,6 @@ return new class extends Migration
             'users',
         ];
 
-        // Drop from MySQL (if connection available)
-        foreach ($tablesToDrop as $table) {
-            try {
-                Schema::connection('mysql')->dropIfExists($table);
-            } catch (\Exception $e) {
-                // MySQL connection not available, skip
-            }
-        }
-
-        // Drop from PostgreSQL (if connection available)
-        foreach ($tablesToDrop as $table) {
-            try {
-                Schema::connection('pgsql')->dropIfExists($table);
-            } catch (\Exception $e) {
-                // PostgreSQL connection not available, skip
-            }
-        }
-
-        // Also try default connection
         foreach ($tablesToDrop as $table) {
             Schema::dropIfExists($table);
         }
@@ -67,8 +46,6 @@ return new class extends Migration
      * Note: Cannot reverse table drops without schema definitions.
      * These tables should not be recreated unless needed.
      * If restoration is needed, use a database backup.
-     *
-     * @return void
      */
     public function down(): void
     {

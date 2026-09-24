@@ -13,15 +13,10 @@ return new class extends Migration
                 DB::table('notes')->where('task_group', 'Appointment')->update(['task_group' => 'Followup']);
             }
             if (Schema::hasColumn('notes', 'title')) {
-                $driver = Schema::getConnection()->getDriverName();
-                if (in_array($driver, ['mysql', 'mariadb'], true)) {
-                    DB::statement("UPDATE notes SET title = REPLACE(title, 'Appointment —', 'Followup —') WHERE title LIKE ?", ['Appointment —%']);
-                } else {
-                    foreach (DB::table('notes')->where('title', 'like', 'Appointment —%')->cursor() as $row) {
-                        DB::table('notes')->where('id', $row->id)->update([
-                            'title' => str_replace('Appointment —', 'Followup —', (string) $row->title),
-                        ]);
-                    }
+                foreach (DB::table('notes')->where('title', 'like', 'Appointment —%')->cursor() as $row) {
+                    DB::table('notes')->where('id', $row->id)->update([
+                        'title' => str_replace('Appointment —', 'Followup —', (string) $row->title),
+                    ]);
                 }
             }
         }
@@ -31,15 +26,10 @@ return new class extends Migration
                 DB::table('activities_logs')->where('task_group', 'Appointment')->update(['task_group' => 'Followup']);
             }
             if (Schema::hasColumn('activities_logs', 'subject')) {
-                $driver = Schema::getConnection()->getDriverName();
-                if (in_array($driver, ['mysql', 'mariadb'], true)) {
-                    DB::statement("UPDATE activities_logs SET subject = REPLACE(subject, 'Scheduled appointment (', 'Scheduled follow-up (') WHERE subject LIKE ?", ['Scheduled appointment (%']);
-                } else {
-                    foreach (DB::table('activities_logs')->where('subject', 'like', 'Scheduled appointment (%')->cursor() as $row) {
-                        DB::table('activities_logs')->where('id', $row->id)->update([
-                            'subject' => str_replace('Scheduled appointment (', 'Scheduled follow-up (', (string) $row->subject),
-                        ]);
-                    }
+                foreach (DB::table('activities_logs')->where('subject', 'like', 'Scheduled appointment (%')->cursor() as $row) {
+                    DB::table('activities_logs')->where('id', $row->id)->update([
+                        'subject' => str_replace('Scheduled appointment (', 'Scheduled follow-up (', (string) $row->subject),
+                    ]);
                 }
             }
         }

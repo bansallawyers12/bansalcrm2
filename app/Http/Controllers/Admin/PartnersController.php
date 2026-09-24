@@ -3216,51 +3216,30 @@ class PartnersController extends Controller
 
 	/**
 	 * Hold a short exclusive lock for the invoice_type namespace while allocating + inserting.
-	 * PostgreSQL: transaction-scoped advisory lock. MySQL/MariaDB: GET_LOCK/RELEASE_LOCK.
+	 * PostgreSQL: transaction-scoped advisory lock.
 	 */
 	private function withNextPartnerStudentInvoiceId(int $invoiceType, callable $callback)
 	{
-		$driver = DB::connection()->getDriverName();
-		$mysqlLockName = null;
+		return DB::transaction(function () use ($invoiceType, $callback) {
+			$driver = DB::connection()->getDriverName();
 
-		try {
-			return DB::transaction(function () use ($invoiceType, $callback, $driver, &$mysqlLockName) {
-				if ($driver === 'pgsql') {
-					// Key space dedicated to partner student invoice ids (per type)
-					DB::select('SELECT pg_advisory_xact_lock(?)', [917334000 + (int) $invoiceType]);
-				} elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
-					$mysqlLockName = 'partner_student_invoice_id_'.$invoiceType;
-					$row = DB::selectOne('SELECT GET_LOCK(?, 15) AS acquired', [$mysqlLockName]);
-					if (!$row || (int) $row->acquired !== 1) {
-						throw new \RuntimeException('Unable to allocate invoice id; please try again.');
-					}
-				} else {
-					// Best-effort lock on an existing max row (empty table still uses max=null path)
-					DB::table('partner_student_invoices')
-						->where('invoice_type', $invoiceType)
-						->orderByDesc('invoice_id')
-						->lockForUpdate()
-						->limit(1)
-						->get(['id']);
-				}
-
-				$nextId = $this->allocateNextPartnerStudentInvoiceId($invoiceType);
-
-				return $callback($nextId);
-			});
-		} finally {
-			if ($mysqlLockName !== null) {
-				try {
-					DB::selectOne('SELECT RELEASE_LOCK(?) AS released', [$mysqlLockName]);
-				} catch (\Throwable $e) {
-					// Avoid masking the original error/transaction outcome
-					Log::warning('Failed to release partner student invoice id lock', [
-						'lock' => $mysqlLockName,
-						'message' => $e->getMessage(),
-					]);
-				}
+			if ($driver === 'pgsql') {
+				// Key space dedicated to partner student invoice ids (per type)
+				DB::select('SELECT pg_advisory_xact_lock(?)', [917334000 + (int) $invoiceType]);
+			} else {
+				// SQLite/testing fallback: row-level lock on existing max invoice_id
+				DB::table('partner_student_invoices')
+					->where('invoice_type', $invoiceType)
+					->orderByDesc('invoice_id')
+					->lockForUpdate()
+					->limit(1)
+					->get(['id']);
 			}
-		}
+
+			$nextId = $this->allocateNextPartnerStudentInvoiceId($invoiceType);
+
+			return $callback($nextId);
+		});
 	}
 
      //Save Partner Student Invoice

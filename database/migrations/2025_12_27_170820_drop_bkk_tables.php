@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -30,19 +29,6 @@ return new class extends Migration
         ];
 
         foreach ($tables as $table) {
-            // Drop from MySQL (if connection available)
-            try {
-                Schema::connection('mysql')->dropIfExists($table);
-            } catch (\Exception $e) {
-                // MySQL connection not available, skip
-            }
-            // Drop from PostgreSQL
-            try {
-                Schema::connection('pgsql')->dropIfExists($table);
-            } catch (\Exception $e) {
-                // PostgreSQL connection not available, skip
-            }
-            // Also try default connection
             Schema::dropIfExists($table);
         }
     }

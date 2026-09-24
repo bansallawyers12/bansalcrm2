@@ -2,13 +2,12 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     /**
      * List of tables that need primary key fixes
-     * These are tables that have PRIMARY KEY in MySQL but missing in PostgreSQL
+     * These are tables that were missing PRIMARY KEY constraints in PostgreSQL
      */
     private $tablesToFix = [
         'account_client_receipts',
@@ -120,6 +119,7 @@ return new class extends Migration
         // Only proceed if using PostgreSQL
         if (DB::getDriverName() !== 'pgsql') {
             echo "Skipping migration: Not using PostgreSQL\n";
+
             return;
         }
 
@@ -139,7 +139,7 @@ return new class extends Migration
                         ) as exists
                     ");
 
-                    if (!$tableExists->exists) {
+                    if (! $tableExists->exists) {
                         return 'skipped'; // Table doesn't exist
                     }
 
@@ -165,7 +165,7 @@ return new class extends Migration
                         ) as exists
                     ");
 
-                    if (!$idColumnExists->exists) {
+                    if (! $idColumnExists->exists) {
                         return 'skipped'; // id column doesn't exist
                     }
 
@@ -182,7 +182,7 @@ return new class extends Migration
                     ");
 
                     if ($duplicates && $duplicates->count > 0) {
-                        throw new \Exception("Cannot create primary key: {$duplicates->count} duplicate ID(s) found");
+                        throw new Exception("Cannot create primary key: {$duplicates->count} duplicate ID(s) found");
                     }
 
                     $sequenceName = "{$tableName}_id_seq";
@@ -199,7 +199,7 @@ return new class extends Migration
                         ) as exists
                     ");
 
-                    if (!$sequenceExists->exists) {
+                    if (! $sequenceExists->exists) {
                         // Create the sequence
                         DB::statement("CREATE SEQUENCE {$sequenceName} START WITH {$startValue}");
                     } else {
@@ -222,7 +222,7 @@ return new class extends Migration
                     foreach ($checkConstraints as $constraint) {
                         try {
                             DB::statement("ALTER TABLE {$tableName} DROP CONSTRAINT IF EXISTS {$constraint->constraint_name}");
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             // Ignore errors when dropping constraints
                         }
                     }
@@ -246,14 +246,14 @@ return new class extends Migration
 
                     return 'fixed';
                 });
-                
+
                 if ($result === 'skipped') {
                     $skipped++;
                 } elseif ($result === 'fixed') {
                     $fixed++;
                 }
-                
-            } catch (\Exception $e) {
+
+            } catch (Exception $e) {
                 $errors[$tableName] = $e->getMessage();
             }
         }
@@ -262,8 +262,8 @@ return new class extends Migration
         echo "Primary Key Fix Summary:\n";
         echo "  - Fixed: {$fixed} tables\n";
         echo "  - Skipped: {$skipped} tables\n";
-        echo "  - Errors: " . count($errors) . " tables\n";
-        
+        echo '  - Errors: '.count($errors)." tables\n";
+
         if (count($errors) > 0) {
             echo "\nErrors:\n";
             foreach ($errors as $table => $error) {
@@ -294,7 +294,7 @@ return new class extends Migration
                     ) as exists
                 ");
 
-                if (!$tableExists->exists) {
+                if (! $tableExists->exists) {
                     continue;
                 }
 
@@ -314,7 +314,7 @@ return new class extends Migration
                 $sequenceName = "{$tableName}_id_seq";
                 DB::statement("DROP SEQUENCE IF EXISTS {$sequenceName}");
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Continue with other tables even if one fails
                 continue;
             }

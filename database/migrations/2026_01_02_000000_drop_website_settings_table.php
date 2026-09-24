@@ -7,32 +7,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Drops the website_settings table.
      * This table stored website configuration (phone, email, logo, etc.)
      * but is no longer needed as the data is not actively used in views.
-     * 
-     * @return void
      */
     public function up(): void
     {
-        // Drop from PostgreSQL (if connection available)
-        try {
-            Schema::connection('pgsql')->dropIfExists('website_settings');
-        } catch (\Exception $e) {
-            // PostgreSQL connection not available, skip
-        }
-
-        // Drop from MySQL (if connection available)
-        try {
-            Schema::connection('mysql')->dropIfExists('website_settings');
-        } catch (\Exception $e) {
-            // MySQL connection not available, skip
-        }
-
-        // Also try default connection
         Schema::dropIfExists('website_settings');
-        
+
         echo "Dropped table: website_settings\n";
     }
 
@@ -41,8 +24,6 @@ return new class extends Migration
      *
      * Note: Cannot reverse table drop without schema definition.
      * If restoration is needed, use a database backup.
-     *
-     * @return void
      */
     public function down(): void
     {
@@ -62,4 +43,3 @@ return new class extends Migration
         // - created_at, updated_at (timestamps)
     }
 };
-

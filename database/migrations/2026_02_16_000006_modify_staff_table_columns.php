@@ -15,7 +15,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('staff')) {
+        if (! Schema::hasTable('staff')) {
             return;
         }
 
@@ -31,22 +31,11 @@ return new class extends Migration
         Schema::table('staff', function (Blueprint $table) {
             $columnsToDrop = ['staff_id', 'is_archived', 'archived_by', 'archived_on'];
             $existing = array_filter($columnsToDrop, fn ($c) => Schema::hasColumn('staff', $c));
-            if (!empty($existing)) {
+            if (! empty($existing)) {
                 $table->dropColumn($existing);
             }
         });
 
-        if ($driver === 'mysql') {
-            Schema::table('staff', function (Blueprint $table) {
-                $table->dropForeign(['role']);
-            });
-            DB::statement('ALTER TABLE staff MODIFY COLUMN role INT NULL AFTER id');
-            Schema::table('staff', function (Blueprint $table) {
-                if (Schema::hasTable('user_roles')) {
-                    $table->foreign('role')->references('id')->on('user_roles')->onDelete('set null');
-                }
-            });
-        }
         // PostgreSQL: column order cannot be changed without full table recreation
     }
 
@@ -55,7 +44,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (!Schema::hasTable('staff')) {
+        if (! Schema::hasTable('staff')) {
             return;
         }
 
@@ -70,17 +59,5 @@ return new class extends Migration
             $table->foreign('archived_by')->references('id')->on('staff')->onDelete('set null');
         });
 
-        $driver = Schema::getConnection()->getDriverName();
-        if ($driver === 'mysql') {
-            Schema::table('staff', function (Blueprint $table) {
-                $table->dropForeign(['role']);
-            });
-            DB::statement('ALTER TABLE staff MODIFY COLUMN role INT NULL AFTER show_dashboard_per');
-            Schema::table('staff', function (Blueprint $table) {
-                if (Schema::hasTable('user_roles')) {
-                    $table->foreign('role')->references('id')->on('user_roles')->onDelete('set null');
-                }
-            });
-        }
     }
 };

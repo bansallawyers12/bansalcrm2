@@ -351,7 +351,7 @@ Create/find under `lockForUpdate()` so concurrent heartbeats do not duplicate.
 | `started_at`, `completed_at` | |
 | `activities_log_id` | Feed when posted |
 
-Partial unique: `(staff_id) WHERE is_running = true` if live timer ships. Confirm DB engine support (MySQL 8+ functional/partial indexes vary — enforce `pauseAllRunning` in service either way).
+Partial unique: `(staff_id) WHERE is_running = true` if live timer ships. Confirm partial-index support on PostgreSQL (varies by version) — enforce `pauseAllRunning` in service either way).
 
 ### 8.3 Optional `staff_day_summaries`
 
@@ -687,7 +687,7 @@ Keep that mental model, use **polymorphic record identity** for students vs part
 
 | Step | Work | Primary files |
 |------|------|----------------|
-| A1 | Migration `staff_file_sessions` + unique indexes (§8.1); portable MySQL/Postgres/SQLite | `database/migrations/xxxx_create_staff_file_sessions_table.php` |
+| A1 | Migration `staff_file_sessions` + unique indexes (§8.1); portable PostgreSQL/SQLite | `database/migrations/xxxx_create_staff_file_sessions_table.php` |
 | A2 | Model (+ optional factory) | `app/Models/StaffFileSession.php` |
 | A3 | `StaffDayCrmEventsService` — `forStaff` / `forStaffOnRecord` using §7; honour `ActivitiesLog::forStudentRecords()` / partner `task_group`; exclude `file_time` from the union | `app/Services/StaffDayCrmEventsService.php` |
 | A4 | `StaffFileSessionService` — heartbeat, blur, idleCut, promoteIfWritten, closeStale, feed post/update (`use_for` null), board payloads | `app/Services/StaffFileSessionService.php` |

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('staff')) {
+        if (! Schema::hasTable('staff')) {
             return;
         }
 
@@ -54,17 +54,17 @@ return new class extends Migration
             foreach ($staff->chunk(50) as $chunk) {
                 foreach ($chunk as $row) {
                     $insert = (array) $row;
-                    if (isset($insert['office_id']) && $insert['office_id'] !== null && !isset($validBranchIds[$insert['office_id']])) {
+                    if (isset($insert['office_id']) && $insert['office_id'] !== null && ! isset($validBranchIds[$insert['office_id']])) {
                         $insert['office_id'] = null;
                     }
-                    if (isset($insert['role']) && $insert['role'] !== null && !isset($validRoleIds[$insert['role']])) {
+                    if (isset($insert['role']) && $insert['role'] !== null && ! isset($validRoleIds[$insert['role']])) {
                         $insert['role'] = null;
                     }
                     // staff table requires non-null status and verified; admins may have nulls
-                    if (!isset($insert['status']) || $insert['status'] === null) {
+                    if (! isset($insert['status']) || $insert['status'] === null) {
                         $insert['status'] = 1;
                     }
-                    if (!isset($insert['verified']) || $insert['verified'] === null) {
+                    if (! isset($insert['verified']) || $insert['verified'] === null) {
                         $insert['verified'] = 0;
                     }
                     DB::table('staff')->insert($insert);
@@ -82,10 +82,6 @@ return new class extends Migration
 
         if ($driver === 'pgsql') {
             DB::statement("SELECT setval(pg_get_serial_sequence('staff', 'id'), ?)", [$maxId]);
-        }
-
-        if ($driver === 'mysql') {
-            DB::statement("ALTER TABLE staff AUTO_INCREMENT = ?", [$maxId + 1]);
         }
     }
 
