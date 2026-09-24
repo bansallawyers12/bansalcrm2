@@ -523,7 +523,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 			</div>
           
           	<div class="divider"></div>
-            <input type="text" name="student_id" data-applicationid="{{$fetchData->id}}" id="student_id" value="{{$fetchData->student_id}}" placeholder="Enter Student Id" style="width: 132px;">
+            <input type="text" name="student_id" data-applicationid="{{$fetchData->id}}" id="student_id" value="{{$fetchData->student_id}}" placeholder="Enter Student Id" maxlength="{{ \App\Models\Application::STUDENT_ID_MAX_LENGTH }}" style="width: 132px;">
             
 			<div class="divider"></div>
 			

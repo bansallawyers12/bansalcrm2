@@ -171,37 +171,59 @@ jQuery(document).ready(function($){
     // STUDENT ID - AUTO-SAVE ON BLUR
     // ============================================================================
     
-    $(document).on('blur', '#student_id', function() {
-        var studentId = $(this).val();
-        var applicationId = $(this).attr('data-applicationid');
-        
-        if (applicationId) {
-            $.ajax({
-                url: App.getUrl('siteUrl') + '/application/updateStudentId',
-                type: 'POST',
-                data: {
-                    application_id: applicationId,
-                    student_id: studentId,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    if (response.status) {
-                        console.log('Student ID saved:', response.student_id);
-                        // Optional: Show success message
-                        // iziToast.success({title: 'Saved', message: 'Student ID updated successfully'});
-                    } else {
-                        console.error('Failed to save Student ID:', response.message);
-                        // Optional: Show error message
-                        // iziToast.error({title: 'Error', message: response.message});
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error saving Student ID:', error);
-                    // Optional: Show error message
-                    // iziToast.error({title: 'Error', message: 'Failed to save Student ID'});
-                }
-            });
+    var studentIdMaxLength = 225;
+
+    function showStudentIdSaveMessage(type, message) {
+        if (typeof iziToast !== 'undefined') {
+            iziToast[type]({ title: type === 'success' ? 'Saved' : 'Error', message: message, position: 'topRight' });
+            return;
         }
+
+        console[type === 'success' ? 'log' : 'error'](message);
+    }
+
+    $(document).on('blur', '#student_id', function() {
+        var $input = $(this);
+        var studentId = $.trim($input.val());
+        var applicationId = $input.attr('data-applicationid');
+        var previousValue = $.trim($input.data('previous-student-id') || $input.attr('value') || '');
+
+        if (!applicationId || studentId === previousValue) {
+            return;
+        }
+
+        if (studentId.length > studentIdMaxLength) {
+            showStudentIdSaveMessage('error', 'Student ID cannot be longer than ' + studentIdMaxLength + ' characters.');
+            return;
+        }
+
+        $.ajax({
+            url: App.getUrl('siteUrl') + '/application/updateStudentId',
+            type: 'POST',
+            data: {
+                application_id: applicationId,
+                student_id: studentId,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status) {
+                    $input.data('previous-student-id', response.student_id || studentId);
+                    showStudentIdSaveMessage('success', response.message || 'Student ID updated successfully.');
+                } else {
+                    showStudentIdSaveMessage('error', response.message || 'Failed to save Student ID.');
+                }
+            },
+            error: function(xhr) {
+                var message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Failed to save Student ID.';
+                showStudentIdSaveMessage('error', message);
+            }
+        });
+    });
+
+    $(document).on('focus', '#student_id', function() {
+        $(this).data('previous-student-id', $.trim($(this).val()));
     });
 
     // ============================================================================

@@ -27,6 +27,8 @@ class Application extends BaseModel
 
     public const COMPANY_ELITE_11 = 'elite_11';
 
+    public const STUDENT_ID_MAX_LENGTH = 225;
+
     public static function enrolmentTypeOptions(): array
     {
         return [

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 use App\Models\Admin;
 use App\Models\Application;
@@ -1824,9 +1825,29 @@ class ApplicationsController extends Controller
   
     //Update Student id
     public function updateStudentId(Request $request){
-		$requestData = $request->all(); //dd($requestData);
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|integer',
+            'student_id' => 'nullable|string|max:'.Application::STUDENT_ID_MAX_LENGTH,
+        ]);
+
+        if ($validator->fails()) {
+            echo json_encode([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ]);
+            return;
+        }
+
         $obj = Application::find($request->application_id);
-        $obj->student_id = $request->student_id;
+        if (!$obj) {
+            echo json_encode([
+                'status' => false,
+                'message' => 'Application not found. Please try again.',
+            ]);
+            return;
+        }
+
+        $obj->student_id = trim((string) ($request->student_id ?? ''));
         $saved = $obj->save();
         if($saved){
             $response['status'] 	= 	true;
