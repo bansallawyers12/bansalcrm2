@@ -3,20 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
-use App\Models\Staff;
-use App\Support\StaffClientVisibility;
 use App\Models\ActivitiesLog;
+use App\Models\Admin;
 use App\Models\Application;
 use App\Models\ApplicationActivitiesLog;
 use App\Models\ApplicationReminder;
-use App\Models\ClientOngoingReference;
 use App\Models\Branch;
 use App\Models\CheckinLog;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ClientOngoingReference;
+use App\Models\Staff;
+use App\Support\ApplicationStage;
+use App\Support\StaffClientVisibility;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class OngoingSheetController extends Controller
 {
@@ -39,12 +42,13 @@ class OngoingSheetController extends Controller
     public static function getSheetConfig(string $sheetType): array
     {
         $configs = [
-            'ongoing'       => ['title' => 'Ongoing Sheet', 'route' => 'clients.sheets.ongoing', 'session_key' => 'ongoing_sheet_filters'],
+            'ongoing' => ['title' => 'Ongoing Sheet', 'route' => 'clients.sheets.ongoing', 'session_key' => 'ongoing_sheet_filters'],
             'coe_enrolled' => ['title' => 'COE Issued & Enrolled', 'route' => 'clients.sheets.coe-enrolled', 'session_key' => 'coe_enrolled_sheet_filters'],
-            'discontinue'   => ['title' => 'Discontinue', 'route' => 'clients.sheets.discontinue', 'session_key' => 'discontinue_sheet_filters'],
-            'refund'        => ['title' => 'Refund', 'route' => 'clients.sheets.refund', 'session_key' => 'refund_sheet_filters'],
-            'checklist'    => ['title' => 'Checklist', 'route' => 'clients.sheets.checklist', 'session_key' => 'checklist_sheet_filters'],
+            'discontinue' => ['title' => 'Discontinue', 'route' => 'clients.sheets.discontinue', 'session_key' => 'discontinue_sheet_filters'],
+            'refund' => ['title' => 'Refund', 'route' => 'clients.sheets.refund', 'session_key' => 'refund_sheet_filters'],
+            'checklist' => ['title' => 'Checklist', 'route' => 'clients.sheets.checklist', 'session_key' => 'checklist_sheet_filters'],
         ];
+
         return $configs[$sheetType] ?? $configs['ongoing'];
     }
 
@@ -54,7 +58,7 @@ class OngoingSheetController extends Controller
     public function index(Request $request, $sheetType = null)
     {
         $sheetType = $sheetType ?? $request->route('sheetType', 'ongoing');
-        if (!in_array($sheetType, self::SHEET_TYPES, true)) {
+        if (! in_array($sheetType, self::SHEET_TYPES, true)) {
             $sheetType = 'ongoing';
         }
         $config = self::getSheetConfig($sheetType);
@@ -63,6 +67,7 @@ class OngoingSheetController extends Controller
         // Clear stored filters when user explicitly requests it (Reset / Clear Filters)
         if ($request->has('clear_filters')) {
             session()->forget($this->currentFilterSessionKey);
+
             return redirect()->route($config['route']);
         }
 
@@ -84,7 +89,7 @@ class OngoingSheetController extends Controller
         // Pagination
         $perPage = (int) $request->get('per_page', 50);
         $allowedPerPage = [10, 25, 50, 100, 200];
-        if (!in_array($perPage, $allowedPerPage, true)) {
+        if (! in_array($perPage, $allowedPerPage, true)) {
             $perPage = 50;
         }
 
@@ -111,7 +116,7 @@ class OngoingSheetController extends Controller
         $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
         $assignees = $this->getSheetAssigneeFilterOptions();
         // Full staff list for Change assignee modal (active only, same as Application tab)
-        $assigneesForChangeModal = \App\Models\Staff::where('status', 1)
+        $assigneesForChangeModal = Staff::where('status', 1)
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
         $currentStages = $this->getCurrentStagesForSheet($sheetType);
@@ -160,6 +165,7 @@ class OngoingSheetController extends Controller
                 if ($this->nonEmptyFilterValues($value) !== []) {
                     return true;
                 }
+
                 continue;
             }
             if ($value !== null && $value !== '') {
@@ -188,6 +194,7 @@ class OngoingSheetController extends Controller
                 if ($this->nonEmptyFilterValues($value) !== []) {
                     return true;
                 }
+
                 continue;
             }
             if ($value !== null && $value !== '') {
@@ -266,6 +273,7 @@ class OngoingSheetController extends Controller
             if (is_array($v)) {
                 return $this->nonEmptyFilterValues($v) !== [];
             }
+
             return $v !== null && $v !== '';
         });
         $key = $this->currentFilterSessionKey ?? self::FILTER_SESSION_KEY;
@@ -327,7 +335,7 @@ class OngoingSheetController extends Controller
             ->get(['id', 'first_name', 'last_name', 'email']);
 
         return $staff
-            ->sortBy(fn ($member) => strtolower(trim(($member->first_name ?? '') . ' ' . ($member->last_name ?? '')) ?: ($member->email ?? '')))
+            ->sortBy(fn ($member) => strtolower(trim(($member->first_name ?? '').' '.($member->last_name ?? '')) ?: ($member->email ?? '')))
             ->values();
     }
 
@@ -341,6 +349,7 @@ class OngoingSheetController extends Controller
     protected function getChecklistEarlyStages(): array
     {
         $stages = config('sheets.checklist_early_stages', []);
+
         return array_values(array_map(function ($s) {
             return strtolower(trim((string) $s));
         }, is_array($stages) ? $stages : []));
@@ -351,17 +360,17 @@ class OngoingSheetController extends Controller
      * Config supplies preferred order and “always show” labels; DB adds any stages
      * that appear on the sheet but are missing from config (e.g. “Offer letter sent”).
      */
-    protected function getCurrentStagesForSheet(string $sheetType): \Illuminate\Support\Collection
+    protected function getCurrentStagesForSheet(string $sheetType): Collection
     {
         $key = match ($sheetType) {
             'coe_enrolled' => 'sheets.coe_enrolled_stages',
-            'discontinue'   => 'sheets.discontinue_stages',
-            'refund'        => 'sheets.refund_stages',
-            'checklist'     => 'sheets.checklist_early_stages',
-            default         => 'sheets.ongoing_stages',
+            'discontinue' => 'sheets.discontinue_stages',
+            'refund' => 'sheets.refund_stages',
+            'checklist' => 'sheets.checklist_early_stages',
+            default => 'sheets.ongoing_stages',
         };
         $stages = config($key, []);
-        if (!is_array($stages)) {
+        if (! is_array($stages)) {
             $stages = [];
         }
         $fromConfig = collect($stages)
@@ -381,10 +390,10 @@ class OngoingSheetController extends Controller
     /**
      * Config stages first (deduped case-insensitively), then remaining DB stages sorted by label.
      *
-     * @param  \Illuminate\Support\Collection<string, string>  $fromConfig
-     * @param  \Illuminate\Support\Collection<string, string>  $fromDb
+     * @param  Collection<string, string>  $fromConfig
+     * @param  Collection<string, string>  $fromDb
      */
-    protected function mergeStageFilterOptions(\Illuminate\Support\Collection $fromConfig, \Illuminate\Support\Collection $fromDb): \Illuminate\Support\Collection
+    protected function mergeStageFilterOptions(Collection $fromConfig, Collection $fromDb): Collection
     {
         $seen = [];
         $ordered = collect();
@@ -412,9 +421,9 @@ class OngoingSheetController extends Controller
     /**
      * Distinct stage values from applications on this sheet (same rules as the table query).
      */
-    protected function getCurrentStagesFromDatabase(string $sheetType): \Illuminate\Support\Collection
+    protected function getCurrentStagesFromDatabase(string $sheetType): Collection
     {
-        $query = $this->buildBaseQuery(new Request(), $sheetType);
+        $query = $this->buildBaseQuery(new Request, $sheetType);
 
         $staffUser = Auth::guard('admin')->user();
         if ($staffUser instanceof Staff) {
@@ -461,7 +470,7 @@ class OngoingSheetController extends Controller
                 'ongoing.payment_display_note',
                 'ongoing.institute_override',
                 'ongoing.visa_category_override',
-                DB::raw("(SELECT COALESCE(SUM(acr.deposit_amount), 0) 
+                DB::raw('(SELECT COALESCE(SUM(acr.deposit_amount), 0) 
                          FROM account_client_receipts acr 
                          WHERE acr.client_id = admins.id 
                          AND (acr.receipt_type = 1 OR acr.receipt_type = 2)
@@ -472,7 +481,7 @@ class OngoingSheetController extends Controller
                              acr.application_id IS NULL 
                              AND (SELECT COUNT(*) FROM applications a2 WHERE a2.client_id = admins.id AND a2.status NOT IN (2, 8)) = 1
                            )
-                         )) as total_payment"),
+                         )) as total_payment'),
                 DB::raw("(SELECT CASE 
                          WHEN (SELECT COALESCE(SUM(acr2.deposit_amount), 0) FROM account_client_receipts acr2 
                                WHERE acr2.client_id = admins.id 
@@ -503,23 +512,26 @@ class OngoingSheetController extends Controller
                          THEN 1
                          ELSE 0
                          END) as is_paid_to_college"),
-                DB::raw('(SELECT edu_college 
-                         FROM client_service_takens 
-                         WHERE client_id = admins.id 
-                         ORDER BY id DESC 
+                DB::raw('(SELECT cst.edu_college
+                         FROM client_service_takens cst
+                         WHERE cst.client_id = admins.id
+                         ORDER BY cst.id DESC
                          LIMIT 1) as service_college'),
-                DB::raw("(SELECT aal.comment FROM application_activities_logs aal 
-                         WHERE aal.app_id = applications.id AND aal.type = 'sheet_comment' 
-                         ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text")
+                DB::raw("(SELECT aal.comment FROM application_activities_logs aal
+                         WHERE aal.app_id = applications.id AND aal.type = 'sheet_comment'
+                         ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text"),
             ]);
         if ($sheetType === 'checklist') {
-            $query->addSelect('applications.checklist_sheet_status', 'applications.checklist_sent_at')
-                ->addSelect(DB::raw("(SELECT MAX(ar.reminded_at) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'email') as email_reminder_latest"))
-                ->addSelect(DB::raw("(SELECT COUNT(*) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'email') as email_reminder_count"))
-                ->addSelect(DB::raw("(SELECT MAX(ar.reminded_at) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'sms') as sms_reminder_latest"))
-                ->addSelect(DB::raw("(SELECT COUNT(*) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'sms') as sms_reminder_count"))
-                ->addSelect(DB::raw("(SELECT MAX(ar.reminded_at) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'phone') as phone_reminder_latest"))
-                ->addSelect(DB::raw("(SELECT COUNT(*) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'phone') as phone_reminder_count"));
+            $query->addSelect(
+                'applications.checklist_sheet_status',
+                'applications.checklist_sent_at',
+                'reminder_agg.email_reminder_latest',
+                'reminder_agg.email_reminder_count',
+                'reminder_agg.sms_reminder_latest',
+                'reminder_agg.sms_reminder_count',
+                'reminder_agg.phone_reminder_latest',
+                'reminder_agg.phone_reminder_count'
+            );
         }
         $query
             ->join('admins', 'applications.client_id', '=', 'admins.id')
@@ -531,34 +543,47 @@ class OngoingSheetController extends Controller
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
 
+        if ($sheetType === 'checklist') {
+            $query->leftJoin(DB::raw('(
+                SELECT application_id,
+                    MAX(reminded_at) FILTER (WHERE type = \'email\') AS email_reminder_latest,
+                    COUNT(*) FILTER (WHERE type = \'email\') AS email_reminder_count,
+                    MAX(reminded_at) FILTER (WHERE type = \'sms\') AS sms_reminder_latest,
+                    COUNT(*) FILTER (WHERE type = \'sms\') AS sms_reminder_count,
+                    MAX(reminded_at) FILTER (WHERE type = \'phone\') AS phone_reminder_latest,
+                    COUNT(*) FILTER (WHERE type = \'phone\') AS phone_reminder_count
+                FROM application_reminders
+                GROUP BY application_id
+            ) AS reminder_agg'), 'reminder_agg.application_id', '=', 'applications.id');
+        }
+
         if ($sheetType === 'discontinue') {
             $query->where(function ($q) {
                 $q->where('applications.status', 2)
-                  ->orWhereRaw('LOWER(TRIM(applications.stage)) = ?', ['coe cancelled']);
+                    ->orWhere('applications.stage_normalized', 'coe cancelled');
             });
         } elseif ($sheetType === 'refund') {
             $query->where('applications.status', 8); // 8 = Refund
         } else {
             $query->whereNotIn('applications.status', [2, 8]);
             if ($sheetType === 'coe_enrolled') {
-                $query->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled']);
+                $query->whereIn('applications.stage_normalized', ['coe issued', 'enrolled']);
             } elseif ($sheetType === 'checklist') {
                 // Checklist (first-stage / follow-up sheet): applications in early stages only, with or without follow-up.
                 // Status convert_to_client / discontinue = row moves to other sheets.
                 $earlyStages = $this->getChecklistEarlyStages();
-                if (!empty($earlyStages)) {
-                    $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
-                    $query->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages);
+                if (! empty($earlyStages)) {
+                    $query->whereIn('applications.stage_normalized', $earlyStages);
                 } else {
                     $query->whereRaw('1 = 0'); // no early stages configured: show nothing
                 }
                 $query->where(function ($q) {
                     $q->whereNull('applications.checklist_sheet_status')
-                      ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
+                        ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
                 });
             } else {
                 // Ongoing: exclude COE/Enrolled/Cancelled and also "Awaiting document" (that stage is Checklist only)
-                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?, ?)', [
+                $query->whereNotIn('applications.stage_normalized', [
                     'coe issued',
                     'enrolled',
                     'coe cancelled',
@@ -592,7 +617,7 @@ class OngoingSheetController extends Controller
         if ($request->filled('current_stage')) {
             $stage = trim((string) $request->input('current_stage'));
             if ($stage !== '') {
-                $query->whereRaw('LOWER(TRIM(applications.stage)) = ?', [strtolower($stage)]);
+                $query->where('applications.stage_normalized', ApplicationStage::normalize($stage));
             }
         }
 
@@ -640,7 +665,7 @@ class OngoingSheetController extends Controller
         if ($request->filled('search')) {
             $term = trim((string) $request->input('search'));
             if ($term !== '') {
-                $like = '%' . strtolower($term) . '%';
+                $like = '%'.strtolower($term).'%';
                 $fullNameExpr = DB::getDriverName() === 'pgsql'
                     ? "LOWER(TRIM(COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')))"
                     : "LOWER(TRIM(CONCAT(COALESCE(admins.first_name, ''), ' ', COALESCE(admins.last_name, ''))))";
@@ -651,8 +676,8 @@ class OngoingSheetController extends Controller
                 $query->where(function ($q) use ($like, $term, $fullNameExpr, $fullNameReverseExpr) {
                     $q->whereRaw('LOWER(admins.first_name) LIKE ?', [$like])
                         ->orWhereRaw('LOWER(admins.last_name) LIKE ?', [$like])
-                        ->orWhereRaw($fullNameExpr . ' LIKE ?', [$like])
-                        ->orWhereRaw($fullNameReverseExpr . ' LIKE ?', [$like])
+                        ->orWhereRaw($fullNameExpr.' LIKE ?', [$like])
+                        ->orWhereRaw($fullNameReverseExpr.' LIKE ?', [$like])
                         ->orWhereRaw('LOWER(admins.client_id) LIKE ?', [$like])
                         ->orWhereRaw('LOWER(ongoing.current_status) LIKE ?', [$like])
                         ->orWhereRaw('LOWER(applications.stage) LIKE ?', [$like]);
@@ -662,7 +687,7 @@ class OngoingSheetController extends Controller
                     if (is_array($words) && count($words) > 1) {
                         $q->orWhere(function ($nameQ) use ($words) {
                             foreach ($words as $word) {
-                                $wordLike = '%' . strtolower($word) . '%';
+                                $wordLike = '%'.strtolower($word).'%';
                                 $nameQ->where(function ($part) use ($wordLike) {
                                     $part->whereRaw('LOWER(admins.first_name) LIKE ?', [$wordLike])
                                         ->orWhereRaw('LOWER(admins.last_name) LIKE ?', [$wordLike]);
@@ -689,7 +714,7 @@ class OngoingSheetController extends Controller
         $sortField = (string) $request->get('sort', 'client_id');
         $sortDirection = strtolower((string) $request->get('direction', 'asc'));
 
-        if (!in_array($sortDirection, ['asc', 'desc'], true)) {
+        if (! in_array($sortDirection, ['asc', 'desc'], true)) {
             $sortDirection = 'asc';
         }
 
@@ -720,7 +745,7 @@ class OngoingSheetController extends Controller
                 $query->orderBy('total_payment', $sortDirection);
                 break;
             case 'institute':
-                $query->orderByRaw('COALESCE(ongoing.institute_override, partners.partner_name, \'\') ' . $sortDirection);
+                $query->orderByRaw('COALESCE(ongoing.institute_override, partners.partner_name, \'\') '.$sortDirection);
                 break;
             case 'branch':
                 $query->orderBy('branches.office_name', $sortDirection);
@@ -734,7 +759,7 @@ class OngoingSheetController extends Controller
                 break;
             case 'visa_category':
                 $query->orderByRaw(
-                    'COALESCE(ongoing.visa_category_override, TRIM(CONCAT(COALESCE(admins.visa_type, \'\'), \' \', COALESCE(admins.visa_opt, \'\')))) ' . $sortDirection
+                    'COALESCE(ongoing.visa_category_override, TRIM(CONCAT(COALESCE(admins.visa_type, \'\'), \' \', COALESCE(admins.visa_opt, \'\')))) '.$sortDirection
                 );
                 break;
             case 'stage':
@@ -800,6 +825,7 @@ class OngoingSheetController extends Controller
         if ($request->filled('search')) {
             $count++;
         }
+
         return $count;
     }
 
@@ -807,6 +833,33 @@ class OngoingSheetController extends Controller
      * Display sheets insights: conversions, clients seen, discontinues by assignee.
      */
     public function sheetsInsights(Request $request)
+    {
+        $insightsStaff = Auth::guard('admin')->user();
+        $cacheKey = 'sheets_insights:'.md5(json_encode([
+            'staff_id' => $insightsStaff?->id,
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'branch' => $request->input('branch'),
+            'assignee' => $request->input('assignee'),
+        ]));
+
+        $metrics = Cache::remember($cacheKey, 300, function () use ($request, $insightsStaff) {
+            return $this->computeSheetsInsightsMetrics($request, $insightsStaff);
+        });
+
+        $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
+        $assigneesForFilter = Staff::where('status', 1)
+            ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
+            ->orderBy('first_name')->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name']);
+
+        return view('Admin.sheets.insights', $metrics + compact('branches', 'assigneesForFilter'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function computeSheetsInsightsMetrics(Request $request, mixed $insightsStaff): array
     {
         $dateFrom = $this->parseDateFilter($request->input('date_from'));
         $dateTo = $this->parseDateFilter($request->input('date_to'));
@@ -831,7 +884,6 @@ class OngoingSheetController extends Controller
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
 
-        $insightsStaff = Auth::guard('admin')->user();
         if ($insightsStaff instanceof Staff) {
             StaffClientVisibility::restrictApplicationsToVisibleClients($appBase, $insightsStaff);
         }
@@ -856,7 +908,7 @@ class OngoingSheetController extends Controller
         // Discontinued: checklist_sheet_status = 'discontinue' OR status 2/8 (Discontinue/Refund)
         $discontinueQuery = (clone $appBase)->where(function ($q) {
             $q->where('applications.checklist_sheet_status', 'discontinue')
-              ->orWhereIn('applications.status', [2, 8]);
+                ->orWhereIn('applications.status', [2, 8]);
         });
         if ($dateFrom) {
             $discontinueQuery->where('applications.updated_at', '>=', $dateFrom->startOfDay());
@@ -907,47 +959,59 @@ class OngoingSheetController extends Controller
         $assigneeIds = Application::select('user_id')->whereNotNull('user_id')->distinct()->pluck('user_id')
             ->merge(CheckinLog::select('user_id')->distinct()->pluck('user_id'))
             ->unique()->filter()->values();
-        $assignees = \App\Models\Staff::where('status', 1)
+        $assignees = Staff::where('status', 1)
             ->whereIn('id', $assigneeIds)
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
 
+        $convByAssignee = (clone $appBase)
+            ->where('applications.checklist_sheet_status', 'convert_to_client')
+            ->when($dateFrom, fn ($q) => $q->where('applications.updated_at', '>=', $dateFrom->copy()->startOfDay()))
+            ->when($dateTo, fn ($q) => $q->where('applications.updated_at', '<=', $dateTo->copy()->endOfDay()))
+            ->whereNotNull('applications.user_id')
+            ->groupBy('applications.user_id')
+            ->selectRaw('applications.user_id as user_id, COUNT(*) as aggregate')
+            ->pluck('aggregate', 'user_id');
+
+        $discByAssignee = (clone $appBase)
+            ->where(function ($q) {
+                $q->where('applications.checklist_sheet_status', 'discontinue')
+                    ->orWhereIn('applications.status', [2, 8]);
+            })
+            ->when($dateFrom, fn ($q) => $q->where('applications.updated_at', '>=', $dateFrom->copy()->startOfDay()))
+            ->when($dateTo, fn ($q) => $q->where('applications.updated_at', '<=', $dateTo->copy()->endOfDay()))
+            ->whereNotNull('applications.user_id')
+            ->groupBy('applications.user_id')
+            ->selectRaw('applications.user_id as user_id, COUNT(*) as aggregate')
+            ->pluck('aggregate', 'user_id');
+
+        $loadBase = Application::query()
+            ->whereNotIn('status', [2, 8])
+            ->whereNotIn('stage_normalized', ['coe issued', 'enrolled']);
+        if ($insightsStaff instanceof Staff) {
+            StaffClientVisibility::restrictApplicationsToVisibleClients($loadBase, $insightsStaff);
+        } else {
+            $loadBase->whereRaw('1 = 0');
+        }
+        $loadByAssignee = $loadBase
+            ->whereNotNull('user_id')
+            ->groupBy('user_id')
+            ->selectRaw('user_id, COUNT(*) as aggregate')
+            ->pluck('aggregate', 'user_id');
+
         $assigneeData = [];
         foreach ($assignees as $a) {
             $aid = $a->id;
-            $convQ = (clone $appBase)->where('applications.user_id', $aid)
-                ->where('applications.checklist_sheet_status', 'convert_to_client');
-            $discQ = (clone $appBase)->where('applications.user_id', $aid)
-                ->where(function ($q) {
-                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhereIn('applications.status', [2, 8]);
-                });
-            if ($dateFrom) {
-                $convQ->where('applications.updated_at', '>=', $dateFrom->startOfDay());
-                $discQ->where('applications.updated_at', '>=', $dateFrom->startOfDay());
-            }
-            if ($dateTo) {
-                $convQ->where('applications.updated_at', '<=', $dateTo->endOfDay());
-                $discQ->where('applications.updated_at', '<=', $dateTo->endOfDay());
-            }
-            $conv = $convQ->count();
-            $disc = $discQ->count();
+            $conv = (int) ($convByAssignee[$aid] ?? 0);
+            $disc = (int) ($discByAssignee[$aid] ?? 0);
             $seen = (int) ($seenByAssignee[$aid] ?? 0);
-            $loadQuery = Application::query()
-                ->where('user_id', $aid)
-                ->whereNotIn('status', [2, 8])
-                ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?)', ['coe issued', 'enrolled']);
-            if ($insightsStaff instanceof Staff) {
-                StaffClientVisibility::restrictApplicationsToVisibleClients($loadQuery, $insightsStaff);
-            } else {
-                $loadQuery->whereRaw('1 = 0');
-            }
-            $load = $loadQuery->count();
+            $load = (int) ($loadByAssignee[$aid] ?? 0);
             $total = $conv + $disc;
             $rate = $total > 0 ? round(($conv / $total) * 100, 1) : 0;
 
             $assigneeData[] = [
                 'id' => $aid,
-                'name' => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) ?: ($a->email ?? '—'),
+                'name' => trim(($a->first_name ?? '').' '.($a->last_name ?? '')) ?: ($a->email ?? '—'),
                 'converted' => $conv,
                 'seen' => $seen,
                 'discontinued' => $disc,
@@ -1008,13 +1072,7 @@ class OngoingSheetController extends Controller
             ? round(($totalConversions / ($totalConversions + $totalDiscontinued)) * 100, 1)
             : 0;
 
-        $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
-        $assigneesForFilter = \App\Models\Staff::where('status', 1)
-            ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
-            ->orderBy('first_name')->orderBy('last_name')
-            ->get(['id', 'first_name', 'last_name']);
-
-        return view('Admin.sheets.insights', compact(
+        return compact(
             'totalConversions',
             'totalSeen',
             'totalDiscontinued',
@@ -1024,10 +1082,8 @@ class OngoingSheetController extends Controller
             'chartSeenByAssignee',
             'chartDiscontinueByAssignee',
             'chartConvertVsDiscontinue',
-            'chartMonthlyTrend',
-            'branches',
-            'assigneesForFilter'
-        ));
+            'chartMonthlyTrend'
+        );
     }
 
     /**
@@ -1035,7 +1091,7 @@ class OngoingSheetController extends Controller
      */
     protected function parseDateFilter(?string $value): ?Carbon
     {
-        if (!$value || trim($value) === '') {
+        if (! $value || trim($value) === '') {
             return null;
         }
         try {
@@ -1090,7 +1146,7 @@ class OngoingSheetController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Ongoing reference updated successfully',
-            'data' => $ongoingRef
+            'data' => $ongoingRef,
         ]);
     }
 
@@ -1133,8 +1189,8 @@ class OngoingSheetController extends Controller
             ActivitiesLog::create([
                 'client_id' => $app->client_id,
                 'created_by' => Auth::id(),
-                'subject' => "added a sheet comment",
-                'description' => "<strong>Sheet comment</strong> ({$title}): " . e($request->comment),
+                'subject' => 'added a sheet comment',
+                'description' => "<strong>Sheet comment</strong> ({$title}): ".e($request->comment),
                 'task_status' => 0,
                 'pin' => 0,
             ]);
@@ -1220,7 +1276,7 @@ class OngoingSheetController extends Controller
                 'client_id' => $app->client_id,
                 'created_by' => Auth::id(),
                 'subject' => 'Phone reminder recorded',
-                'description' => 'Phone reminder recorded on ' . $sentDate,
+                'description' => 'Phone reminder recorded on '.$sentDate,
                 'task_status' => 0,
                 'pin' => 0,
             ]);

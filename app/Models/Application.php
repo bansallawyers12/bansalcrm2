@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ApplicationStage;
 use Illuminate\Support\Collection;
 use Kyslik\ColumnSortable\Sortable;
 
@@ -16,8 +17,17 @@ class Application extends BaseModel
      */
     protected $fillable = [
         'id', 'client_id', 'user_id', 'product_id', 'enrolment_type', 'company_name', 'partner_id', 'branch',
-        'workflow', 'stage', 'status', 'checklist_sheet_status', 'checklist_sent_at', 'created_at', 'updated_at',
+        'workflow', 'stage', 'stage_normalized', 'status', 'checklist_sheet_status', 'checklist_sent_at', 'created_at', 'updated_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Application $application): void {
+            if ($application->isDirty('stage') || $application->stage_normalized === null) {
+                $application->stage_normalized = ApplicationStage::normalize($application->stage);
+            }
+        });
+    }
 
     public const ENROLMENT_TYPE_TRANSFER = 'transfer_option';
 
