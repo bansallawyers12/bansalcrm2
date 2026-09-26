@@ -76,6 +76,7 @@
 								</span>
 							</div>
 						</div>
+						@include('Admin.clients.partials.application-assignee-field', ['clientRecord' => $fetchedData ?? null])
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<div class="form-check">

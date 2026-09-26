@@ -840,18 +840,14 @@
 										<div class="form-group">
 											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
                                           
-											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control tomselect" data-valid="required" multiple="multiple">
-											<?php
-                                                $admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
-                                                $oldAssignTo = old('assign_to', []);
-                                                foreach($admins as $admin){
-                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                    $selected = in_array($admin->id, (array)$oldAssignTo) ? 'selected' : '';
-                                                ?>
-                                                <option value="<?php echo $admin->id; ?>" <?php echo $selected; ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                            <?php
-                                                }
-                                            ?>
+											<select style="padding: 0px 5px;" name="assign_to" id="assign_to" class="form-control tomselect" data-valid="required">
+											<option value="">Please Select Assignee</option>
+											@php $oldAssignTo = old('assign_to'); @endphp
+											@foreach(($assignableStaff ?? collect()) as $admin)
+												<option value="{{ $admin->id }}" {{ (string) $oldAssignTo === (string) $admin->id ? 'selected' : '' }}>
+													{{ trim($admin->first_name.' '.$admin->last_name) }}@if($admin->office) ({{ $admin->office->office_name }})@endif
+												</option>
+											@endforeach
                                             </select>
                                           
 											@if ($errors->has('assign_to'))

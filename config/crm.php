@@ -130,4 +130,24 @@ return [
 
     /** Absolute path to BansalLaw_CRM for port reference / prep scripts only. */
     'bansallaw_crm_root' => env('BANSALLAW_CRM_ROOT', 'C:\\xampp\\htdocs\\BansalLaw_CRM'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lead create: allowed "Assign To" staff
+    |--------------------------------------------------------------------------
+    |
+    | Only these active staff IDs appear on /leads/create, /clients/edit, and the
+    | Add Application modal; accepted on POST /leads/store and /saveapplication.
+    | Client edit saves also allow existing assignees set before this restriction.
+    | Other assignee pickers are unchanged.
+    |
+    */
+    'lead_create_assignee_ids' => [
+        1215,  // Ankit Bansal
+        541,   // Arun Bansal .
+        52594, // Jaspreet Kaur
+        1599,  // Krishh .
+        47134, // Rakshita Counseller
+        51885, // Syed Habeeb
+    ],
 ];

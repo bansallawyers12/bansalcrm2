@@ -79,12 +79,34 @@
         if (!modal) {
             return;
         }
-        ['#workflow', '#partner', '#product'].forEach(function (selector) {
+        ['#workflow', '#partner', '#product', '#application_assignee'].forEach(function (selector) {
             var el = modal.querySelector(selector);
             if (el && typeof destroyEnhancedSelect === 'function') {
                 destroyEnhancedSelect(el);
             }
         });
+    }
+
+    function restoreDefaultApplicationAssignee(modalEl) {
+        var modal = resolveApplicationModal(modalEl);
+        if (!modal) {
+            return;
+        }
+        var assignee = modal.querySelector('#application_assignee');
+        if (!assignee) {
+            return;
+        }
+        var defaultId = assignee.getAttribute('data-default-assignee');
+        if (!defaultId) {
+            return;
+        }
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue(assignee, defaultId, true);
+        } else if (window.jQuery) {
+            window.jQuery(assignee).val(defaultId).trigger('change');
+        } else {
+            assignee.value = defaultId;
+        }
     }
 
     function resetApplicationModalSelects(modalEl) {
@@ -108,6 +130,19 @@
         if (workflow) {
             workflow.value = '';
             workflow.classList.add('tomselect');
+        }
+        var assignee = modal.querySelector('#application_assignee');
+        if (assignee) {
+            clearApplicationSelectValue(assignee, true);
+            assignee.classList.add('tomselect');
+        }
+        var enrolmentType = modal.querySelector('#enrolment_type');
+        if (enrolmentType) {
+            enrolmentType.value = '';
+        }
+        var companyName = modal.querySelector('#company_name');
+        if (companyName) {
+            companyName.value = '';
         }
     }
 
@@ -214,6 +249,10 @@
 
         $(document).on('hidden.bs.modal', '.add_appliation', function () {
             resetApplicationModalSelects(this);
+        });
+
+        $(document).on('shown.bs.modal', '.add_appliation', function () {
+            restoreDefaultApplicationAssignee(this);
         });
     }
 

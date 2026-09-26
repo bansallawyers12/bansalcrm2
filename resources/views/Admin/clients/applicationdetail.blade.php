@@ -9,6 +9,15 @@ $partnerAltEmail = \App\Models\PartnerEmail::where('partner_id', $fetchData->par
 $partnerAltEmail = $partnerAltEmail ? trim((string) $partnerAltEmail) : '';
 $collegeRecipientEmail = $branchEmail !== '' ? $branchEmail : ($partnerPrimaryEmail !== '' ? $partnerPrimaryEmail : $partnerAltEmail);
 $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
+$applicationAssignee = $fetchData->application_assignee
+	?? ($fetchData->user_id ? \App\Models\Staff::find($fetchData->user_id) : null);
+$applicationAssigneeName = $applicationAssignee
+	? trim(($applicationAssignee->first_name ?? '').' '.($applicationAssignee->last_name ?? ''))
+	: '';
+$currentApplicationAssigneeId = (int) ($fetchData->user_id ?? 0);
+$applicationAssigneeOptions = \App\Support\LeadCreateAssignees::assignableStaffForEdit(
+	$currentApplicationAssigneeId > 0 ? [$currentApplicationAssigneeId] : []
+);
 ?>
 <style>
 .checklist .round{background: #fff;border: 1px solid #000; border-radius: 50%;font-size: 10px;line-height: 14px; padding: 2px 5px;width: 16px; height: 16px; display: inline-block;}
@@ -135,6 +144,24 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 				'form-control form-control-sm application-company-name-field',
 				! \App\Models\Application::canEditEnrolmentOrCompanyValue($fetchData->company_name ?? null)
 			) !!}
+		</p>
+	</div>
+	<div class="grid_column">
+		<span>Assignee:</span>
+		<p class="mb-0">
+			<select
+				id="application_grid_assignee_select"
+				class="form-control form-control-sm application-grid-assignee-field"
+				data-application-id="{{ (int) $fetchData->id }}"
+				data-current-assignee-id="{{ $currentApplicationAssigneeId }}"
+			>
+				<option value="">Select assignee</option>
+				@foreach($applicationAssigneeOptions as $staff)
+					<option value="{{ $staff->id }}" {{ $currentApplicationAssigneeId === (int) $staff->id ? 'selected' : '' }}>
+						{{ trim($staff->first_name.' '.$staff->last_name) }}@if($staff->office) ({{ $staff->office->office_name }})@endif
+					</option>
+				@endforeach
+			</select>
 		</p>
 	</div>
 	<div class="grid_column">
@@ -658,7 +685,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 				@endif 
 			</div>
 			<?php
-				$admin = \App\Models\Staff::find($fetchData->user_id);
+				$admin = $applicationAssignee;
 			?>
 			<div class="divider"></div>
 			<div class="setup_payment_sche">

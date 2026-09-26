@@ -1519,14 +1519,17 @@ $('#add_application').modal('hide');
 									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#workflow'), true);
 									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#partner'), true);
 									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#product'), true);
+									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#application_assignee'), true);
 								} else if (typeof clearEnhancedSelectValue === 'function') {
 									clearEnhancedSelectValue('.add_appliation #workflow', true);
 									clearEnhancedSelectValue('.add_appliation #partner', true);
 									clearEnhancedSelectValue('.add_appliation #product', true);
+									clearEnhancedSelectValue('.add_appliation #application_assignee', true);
 								} else {
 									$(".add_appliation #workflow").val('').trigger('change');
 									$(".add_appliation #partner").val('').trigger('change');
 									$(".add_appliation #product").val('').trigger('change');
+									$(".add_appliation #application_assignee").val('').trigger('change');
 								}
 			$(".add_appliation #enrolment_type").val('');
 			$(".add_appliation #company_name").val('');

@@ -9,7 +9,9 @@ use App\Models\Application;
 use App\Models\Partner;
 use App\Models\PartnerBranch;
 use App\Models\Product;
+use App\Models\Staff;
 use App\Models\WorkflowStage;
+use App\Support\LeadCreateAssignees;
 use App\Traits\ClientAuthorization;
 use Auth;
 use Illuminate\Http\Request;
@@ -131,6 +133,23 @@ class ClientApplicationController extends Controller
             return;
         }
 
+        $assigneeId = (int) $request->input('assignee');
+        $allowedAssigneeIds = LeadCreateAssignees::allowedStaffIds();
+        if ($assigneeId < 1 || ! in_array($assigneeId, $allowedAssigneeIds, true)) {
+            $response['message'] = 'Please select an Assignee.';
+            echo json_encode($response);
+
+            return;
+        }
+
+        $assignee = Staff::query()->where('id', $assigneeId)->where('status', 1)->first();
+        if (! $assignee) {
+            $response['message'] = 'Please select a valid active Assignee.';
+            echo json_encode($response);
+
+            return;
+        }
+
         $parsedPartnerBranch = $this->parsePartnerBranch($request->input('partner_branch'));
         if ($parsedPartnerBranch === null) {
             $response['message'] = 'Please select a Partner & Branch.';
@@ -156,7 +175,7 @@ class ClientApplicationController extends Controller
         $stage = $workflowstage->name;
         $sale_forcast = 0.00;
         $obj = new Application;
-        $obj->user_id = Auth::user()->id;
+        $obj->user_id = $assigneeId;
         $obj->workflow = $workflow;
         $obj->partner_id = $partner;
         $obj->branch = $branch;

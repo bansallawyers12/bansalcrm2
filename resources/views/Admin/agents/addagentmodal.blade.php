@@ -78,6 +78,7 @@
 								</span>
 							</div>
 						</div>
+						@include('Admin.clients.partials.application-assignee-field')
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('applicationform')" type="button" class="btn btn-primary">Save</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

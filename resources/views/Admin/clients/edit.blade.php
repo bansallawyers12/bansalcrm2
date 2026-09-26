@@ -1146,23 +1146,20 @@
 											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
                                           
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control tomselect" data-valid="required" multiple="multiple">
-											<?php
-                                            $assigneeArr = [];
-                                            if (!empty($fetchedData->assignee)) {
-                                                $assigneeArr = str_contains($fetchedData->assignee, ',')
-                                                    ? explode(',', $fetchedData->assignee)
-                                                    : [$fetchedData->assignee];
-                                            }
-                                            $admins = \App\Models\Staff::where('status', 1)->orderby('first_name', 'ASC')->get();
-                                            foreach ($admins as $admin) {
-                                                $branchname = \App\Models\Branch::where('id', $admin->office_id)->first();
-                                                $selected = in_array((string) $admin->id, array_map('strval', $assigneeArr), true);
-                                            ?>
-                                                <option @if($selected) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                            <?php
-                                            }
-                                            ?>
-
+											@php
+												$assigneeArr = old('assign_to');
+												if ($assigneeArr === null && !empty($fetchedData->assignee)) {
+													$assigneeArr = str_contains($fetchedData->assignee, ',')
+														? explode(',', $fetchedData->assignee)
+														: [$fetchedData->assignee];
+												}
+												$assigneeArr = (array) ($assigneeArr ?? []);
+											@endphp
+											@foreach(($assignableStaff ?? collect()) as $admin)
+												<option value="{{ $admin->id }}" {{ in_array((string) $admin->id, array_map('strval', $assigneeArr), true) ? 'selected' : '' }}>
+													{{ trim($admin->first_name.' '.$admin->last_name) }}@if($admin->office) ({{ $admin->office->office_name }})@endif
+												</option>
+											@endforeach
                                             </select>
                                           
 											@if ($errors->has('assign_to'))

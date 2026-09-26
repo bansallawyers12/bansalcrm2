@@ -2,42 +2,47 @@
 
 namespace App\Http\Controllers\Admin\Client;
 
+use App\Helpers\PhoneHelper;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Admin;
-use App\Models\SmsTemplate;
 use App\Models\ActivitiesLog;
+use App\Models\Admin;
 use App\Models\Application;
+use App\Models\CheckinLog;
+use App\Models\ClientEmail;
+use App\Models\ClientPhone;
+use App\Models\ClientTestScore;
 use App\Models\FollowupConsultant;
-use App\Traits\ClientHelpers;
-use App\Traits\ClientQueries;
-use App\Traits\ClientAuthorization;
-use App\Services\SearchService;
+use App\Models\Notification;
+use App\Models\SmsTemplate;
+use App\Models\Staff;
 use App\Services\ClientExportService;
 use App\Services\ClientLeadListExportService;
-use App\Models\Staff;
-use App\Support\StaffClientVisibility;
-use App\Support\ClientDetailTab;
-use App\Models\CheckinLog;
-use App\Models\ClientPhone;
-use App\Models\ClientEmail;
-use App\Models\ClientTestScore;
-use App\Helpers\PhoneHelper;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Redirect;
-use Carbon\Carbon;
+use App\Services\SearchService;
 use App\Services\Sms\UnifiedSmsManager;
+use App\Support\ClientDetailTab;
+use App\Support\LeadCreateAssignees;
+use App\Support\StaffAssigneeResolver;
+use App\Support\StaffClientVisibility;
+use App\Traits\ClientAuthorization;
+use App\Traits\ClientHelpers;
+use App\Traits\ClientQueries;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Uri;
+use Illuminate\Validation\Rule;
 
 /**
  * Core client CRUD and listing operations
- * 
+ *
  * Methods to move from ClientsController:
  * - index
  * - archived
@@ -57,7 +62,7 @@ use Illuminate\Support\Uri;
  */
 class ClientController extends Controller
 {
-    use ClientHelpers, ClientQueries, ClientAuthorization;
+    use ClientAuthorization, ClientHelpers, ClientQueries;
 
     protected ?bool $googleReviewSmsTemplateExistsCache = null;
 
@@ -67,135 +72,147 @@ class ClientController extends Controller
     }
 
     public function index(Request $request)
-	{
-		// Check authorization using trait
-		if (!$this->hasModuleAccess('20')) {
-			// Return empty result set for users without module access
-			$lists = $this->getEmptyClientQuery()->paginate(20);
-			$totalData = 0;
-			return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
-		}
-		
-		// Base + filters (default type=client when Type filter empty — C-13)
-		$query = $this->applyClientFilters($this->getBaseClientQuery(), $request);
+    {
+        // Check authorization using trait
+        if (! $this->hasModuleAccess('20')) {
+            // Return empty result set for users without module access
+            $lists = $this->getEmptyClientQuery()->paginate(20);
+            $totalData = 0;
 
-		// Paginate first so COUNT stays a simple list scan; then load the Applications column for this page only.
-		$lists = $query->with('office')->sortable(['id' => 'desc'])->paginate(20);
-		$lists->getCollection()->loadCount([
-			'applications as in_progress_applications_count' => function ($q) {
-				$q->where('status', 0);
-			},
-		]);
-		$totalData = $lists->total();
+            return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
+        }
 
-		return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
-	}
+        // Base + filters (default type=client when Type filter empty — C-13)
+        $query = $this->applyClientFilters($this->getBaseClientQuery(), $request);
 
-	/**
-	 * Export filtered client list as CSV.
-	 */
-	public function exportList(Request $request)
-	{
-		$user = Auth::guard('admin')->user();
-		if (! $user instanceof Staff || ! $user->isSuperAdmin()) {
-			return redirect()->route('clients.index')
-				->with('error', config('constants.unauthorized'));
-		}
+        // Paginate first so COUNT stays a simple list scan; then load the Applications column for this page only.
+        $lists = $query->with('office')->sortable(['id' => 'desc'])->paginate(20);
+        $lists->getCollection()->loadCount([
+            'applications as in_progress_applications_count' => function ($q) {
+                $q->where('status', 0);
+            },
+        ]);
+        $totalData = $lists->total();
 
-		$query = $this->applyClientFilters($this->getBaseClientQuery(), $request);
+        return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
+    }
 
-		return app(ClientLeadListExportService::class)
-			->export($query, 'client', 'clients_export');
-	}
+    /**
+     * Export filtered client list as CSV.
+     */
+    public function exportList(Request $request)
+    {
+        $user = Auth::guard('admin')->user();
+        if (! $user instanceof Staff || ! $user->isSuperAdmin()) {
+            return redirect()->route('clients.index')
+                ->with('error', config('constants.unauthorized'));
+        }
 
-	public function archived(Request $request)
-	{
-		// Get archived clients query with automatic agent filtering
-		$query = $this->getArchivedClientQuery();
-		
-		// Apply search and filters
-		$query = $this->applyArchivedFilters($query, $request);
-		
-		$lists = $query->sortable(['id' => 'desc'])->paginate(20)->appends($request->except('page'));
-		$totalData = $lists->total();
-		
-		// Assignees for filter dropdown (staff)
-		$assignees = \App\Models\Staff::select('id', 'first_name', 'last_name')
-			->where('status', 1)
-			->orderBy('first_name')
-			->get();
-		
-		// Staff who have archived at least one client (for "Archived by" filter)
-		$archivedByUsers = \App\Models\Staff::select('id', 'first_name', 'last_name')
-			->whereIn('id', function ($q) {
-				$q->select('archived_by')->from('admins')->where('is_archived', 1)->whereNotNull('archived_by');
-			})
-			->orderBy('first_name')
-			->get();
-		
-		return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData', 'assignees', 'archivedByUsers']));
-	}
+        $query = $this->applyClientFilters($this->getBaseClientQuery(), $request);
 
-    public function edit(Request $request, $id = NULL)
-	{
-		 
+        return app(ClientLeadListExportService::class)
+            ->export($query, 'client', 'clients_export');
+    }
+
+    public function archived(Request $request)
+    {
+        // Get archived clients query with automatic agent filtering
+        $query = $this->getArchivedClientQuery();
+
+        // Apply search and filters
+        $query = $this->applyArchivedFilters($query, $request);
+
+        $lists = $query->sortable(['id' => 'desc'])->paginate(20)->appends($request->except('page'));
+        $totalData = $lists->total();
+
+        // Assignees for filter dropdown (staff)
+        $assignees = Staff::select('id', 'first_name', 'last_name')
+            ->where('status', 1)
+            ->orderBy('first_name')
+            ->get();
+
+        // Staff who have archived at least one client (for "Archived by" filter)
+        $archivedByUsers = Staff::select('id', 'first_name', 'last_name')
+            ->whereIn('id', function ($q) {
+                $q->select('archived_by')->from('admins')->where('is_archived', 1)->whereNotNull('archived_by');
+            })
+            ->orderBy('first_name')
+            ->get();
+
+        return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData', 'assignees', 'archivedByUsers']));
+    }
+
+    public function edit(Request $request, $id = null)
+    {
+
         $showAlert = false;
-		if ($request->isMethod('post'))
-		{
-			$requestData 		= 	$request->all();
+        if ($request->isMethod('post')) {
+            $requestData = $request->all();
 
-			$editClientId = (int) ($requestData['id'] ?? 0);
-			$editClientRow = $editClientId > 0 ? Admin::find($editClientId) : null;
-			if (! $editClientRow || ! $this->canEditClient($editClientRow)) {
-				return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
-			}
+            $editClientId = (int) ($requestData['id'] ?? 0);
+            $editClientRow = $editClientId > 0 ? Admin::find($editClientId) : null;
+            if (! $editClientRow || ! $this->canEditClient($editClientRow)) {
+                return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
+            }
 
-			//echo '<pre>'; print_r($requestData); die;
+            $originalAssigneeIds = StaffAssigneeResolver::numericIdsFromAssigneeValue($editClientRow->assignee ?? null);
+            $permittedAssigneeIds = LeadCreateAssignees::permittedStaffIdsForEdit($originalAssigneeIds);
 
-			// Normalize email/email_type to arrays (handles legacy form, cached views, or string values)
-			if (!is_array($request->get('email'))) {
-				$emailVal = trim((string)($request->get('email', '') ?? ''));
-				$request->merge([
-					'email' => $emailVal !== '' ? [$emailVal] : [],
-					'email_type' => [$request->get('email_type', 'Personal') ?: 'Personal'],
-				]);
-			}
-			if (is_array($request->get('email')) && !is_array($request->get('email_type'))) {
-				$etype = $request->get('email_type', 'Personal') ?: 'Personal';
-				$request->merge(['email_type' => array_fill(0, count($request->get('email')), $etype)]);
-			}
-          
-            //Get Db values of related files
-			$db_arr = Admin::select('related_files')->where('id', $requestData['id'] ?? null)->get();
-			$requestData = $request->all();
-          
-			$this->validate($request, [
-              'first_name' => 'required|max:255',
-              'last_name' => 'required|max:255',
-              'gender' => 'required|in:Male,Female,Other',
-              'email' => 'required|array|min:1',
-              'email.*' => 'required|email|max:255',
+            // echo '<pre>'; print_r($requestData); die;
 
-              'contact_type' => 'required|array',
-              'contact_type.*' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
+            // Normalize email/email_type to arrays (handles legacy form, cached views, or string values)
+            if (! is_array($request->get('email'))) {
+                $emailVal = trim((string) ($request->get('email', '') ?? ''));
+                $request->merge([
+                    'email' => $emailVal !== '' ? [$emailVal] : [],
+                    'email_type' => [$request->get('email_type', 'Personal') ?: 'Personal'],
+                ]);
+            }
+            if (is_array($request->get('email')) && ! is_array($request->get('email_type'))) {
+                $etype = $request->get('email_type', 'Personal') ?: 'Personal';
+                $request->merge(['email_type' => array_fill(0, count($request->get('email')), $etype)]);
+            }
 
-              'client_phone' => 'required|array',
-              'client_phone.*' => 'required|max:255',
+            // Get Db values of related files
+            $db_arr = Admin::select('related_files')->where('id', $requestData['id'] ?? null)->get();
+            $requestData = $request->all();
 
-              'email_type' => 'nullable|array',
-              'email_type.*' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
-              'email_type_modal' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
+            $this->validate($request, [
+                'first_name' => 'required|max:255',
+                'last_name' => 'required|max:255',
+                'gender' => 'required|in:Male,Female,Other',
+                'email' => 'required|array|min:1',
+                'email.*' => 'required|email|max:255',
 
-              'office' => 'nullable|exists:branches,id',
+                'contact_type' => 'required|array',
+                'contact_type.*' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
 
-              'service' => 'required|string|max:255',
-              'source' => 'required|string|max:255',
+                'client_phone' => 'required|array',
+                'client_phone.*' => 'required|max:255',
+
+                'email_type' => 'nullable|array',
+                'email_type.*' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
+                'email_type_modal' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
+
+                'office' => 'nullable|exists:branches,id',
+
+                'service' => 'required|string|max:255',
+                'source' => 'required|string|max:255',
+                'assign_to' => 'required|array|min:1',
+                'assign_to.*' => ['required', 'integer', Rule::in($permittedAssigneeIds)],
 
             ]);
 
+            $newAssigneeIds = StaffAssigneeResolver::numericIdsFromAssigneeValue(
+                isset($requestData['assign_to']) && is_array($requestData['assign_to'])
+                    ? implode(',', array_map('strval', $requestData['assign_to']))
+                    : null
+            );
+            $assigneeChanged = $this->clientAssigneeIdsChanged($originalAssigneeIds, $newAssigneeIds);
+
             // Primary (first) email must be unique in admins table
             $emails = $requestData['email'] ?? [];
-            if (!empty($emails)) {
+            if (! empty($emails)) {
                 $primaryEmail = trim($emails[0]);
                 $existing = Admin::where('id', '!=', $requestData['id'])
                     ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($primaryEmail)])
@@ -204,188 +221,194 @@ class ClientController extends Controller
                     return redirect()->back()->withInput()->with('error', 'The primary email address is already in use by another client.');
                 }
             }
-          
-             if ( isset($requestData['contact_type']) && count(array_keys($requestData['contact_type'] , "Personal")) > 1) {
-                //echo "Error: 'Personal' contact type can only be used once.";
+
+            if (isset($requestData['contact_type']) && count(array_keys($requestData['contact_type'], 'Personal')) > 1) {
+                // echo "Error: 'Personal' contact type can only be used once.";
                 return redirect()->back()->withInput()->with('error', "Error: 'Personal' contact type can only be used once.");
             }
             // Email type 'Personal' can only be used once per client
             $emailTypes = $requestData['email_type'] ?? [];
-            if (is_array($emailTypes) && count(array_filter($emailTypes, function($t) { return trim($t ?? '') === 'Personal'; })) > 1) {
+            if (is_array($emailTypes) && count(array_filter($emailTypes, function ($t) {
+                return trim($t ?? '') === 'Personal';
+            })) > 1) {
                 return redirect()->back()->withInput()->with('error', "Error: 'Personal' email type can only be used once.");
             }
-          
-			$relatedClientIds = $this->normalizeRelatedClientIds($requestData['related_files'] ?? null);
-	         $dob = '';
-	        if(array_key_exists("dob",$requestData) && $requestData['dob'] != ''){
-	           $dobs = explode('/', $requestData['dob']);
-	          $dob = $dobs[2].'-'.$dobs[1].'-'. $dobs[0];
-	        }
-	         $visaExpiry = '';
-	        if(array_key_exists("visaExpiry",$requestData) && $requestData['visaExpiry'] != '' ){
-	           $visaExpirys = explode('/', $requestData['visaExpiry']);
-	          $visaExpiry = $visaExpirys[2].'-'.$visaExpirys[1].'-'. $visaExpirys[0];
-	        }
-			$obj		= 	Admin::find(@$requestData['id']);
-			$first_name = substr(@$requestData['first_name'], 0, 4);
-				$obj->first_name	=	@$requestData['first_name'];
-			$obj->last_name	=	@$requestData['last_name'];
-			//$obj->age	=	@$requestData['age'];
-			$obj->gender	=	@$requestData['gender'];
-			$obj->marital_status	=	@$requestData['marital_status'];
-			
-			$obj->service	=	@$requestData['service'];
-          
-			$obj->dob	=	($dob != '') ? $dob : null;
-            if(isset($dob) && $dob != ""){
-                $calculate_age  = $this->calculateAge($dob); //dd($age);
-                $obj->age	=	$calculate_age;
+
+            $relatedClientIds = $this->normalizeRelatedClientIds($requestData['related_files'] ?? null);
+            $dob = '';
+            if (array_key_exists('dob', $requestData) && $requestData['dob'] != '') {
+                $dobs = explode('/', $requestData['dob']);
+                $dob = $dobs[2].'-'.$dobs[1].'-'.$dobs[0];
             }
-          
-			$obj->related_files	=	implode(',', $relatedClientIds);
-			// Primary (first) email and type go to admins; all emails also sync to client_emails below
-			$emails = $requestData['email'] ?? [];
-			$emailTypes = $requestData['email_type'] ?? [];
-			$clientEmailIds = $requestData['clientemailid'] ?? [];
-			if (!empty($emails)) {
-				$obj->email = trim($emails[0]);
-				$obj->email_type = trim($emailTypes[0] ?? 'Personal') ?: 'Personal';
-			}
-          
-			//$obj->contact_type	=	@$requestData['contact_type'];
-            //$obj->country_code	=	@$requestData['country_code'];
-			//$obj->phone	=	@$requestData['phone'];
-          
-		$obj->address	=	@$requestData['address'];
-		
-			$obj->city	=	@$requestData['city'];
-			$obj->state	=	@$requestData['state'];
-			$obj->zip	=	@$requestData['zip'];
-			$obj->country	=	@$requestData['country'];
-			$obj->visa_opt = @$requestData['visa_opt'];
-			$obj->country_passport			=	@$requestData['country_passport'];
-			$obj->passport_number			=	@$requestData['passport_number'];
-			$obj->visa_type			=		@$requestData['visa_type'];
-			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
-			$obj->office_id	=	!empty($requestData['office']) ? $requestData['office'] : null;
-			//$obj->assignee	=	@$requestData['assign_to'];
-            if( isset($requestData['assign_to']) && is_array($requestData['assign_to']) ){
+            $visaExpiry = '';
+            if (array_key_exists('visaExpiry', $requestData) && $requestData['visaExpiry'] != '') {
+                $visaExpirys = explode('/', $requestData['visaExpiry']);
+                $visaExpiry = $visaExpirys[2].'-'.$visaExpirys[1].'-'.$visaExpirys[0];
+            }
+            $obj = Admin::find(@$requestData['id']);
+            $first_name = substr(@$requestData['first_name'], 0, 4);
+            $obj->first_name = @$requestData['first_name'];
+            $obj->last_name = @$requestData['last_name'];
+            // $obj->age	=	@$requestData['age'];
+            $obj->gender = @$requestData['gender'];
+            $obj->marital_status = @$requestData['marital_status'];
+
+            $obj->service = @$requestData['service'];
+
+            $obj->dob = ($dob != '') ? $dob : null;
+            if (isset($dob) && $dob != '') {
+                $calculate_age = $this->calculateAge($dob); // dd($age);
+                $obj->age = $calculate_age;
+            }
+
+            $obj->related_files = implode(',', $relatedClientIds);
+            // Primary (first) email and type go to admins; all emails also sync to client_emails below
+            $emails = $requestData['email'] ?? [];
+            $emailTypes = $requestData['email_type'] ?? [];
+            $clientEmailIds = $requestData['clientemailid'] ?? [];
+            if (! empty($emails)) {
+                $obj->email = trim($emails[0]);
+                $obj->email_type = trim($emailTypes[0] ?? 'Personal') ?: 'Personal';
+            }
+
+            // $obj->contact_type	=	@$requestData['contact_type'];
+            // $obj->country_code	=	@$requestData['country_code'];
+            // $obj->phone	=	@$requestData['phone'];
+
+            $obj->address = @$requestData['address'];
+
+            $obj->city = @$requestData['city'];
+            $obj->state = @$requestData['state'];
+            $obj->zip = @$requestData['zip'];
+            $obj->country = @$requestData['country'];
+            $obj->visa_opt = @$requestData['visa_opt'];
+            $obj->country_passport = @$requestData['country_passport'];
+            $obj->passport_number = @$requestData['passport_number'];
+            $obj->visa_type = @$requestData['visa_type'];
+            $obj->visaExpiry = ($visaExpiry != '') ? $visaExpiry : null;
+            $obj->office_id = ! empty($requestData['office']) ? $requestData['office'] : null;
+            // $obj->assignee	=	@$requestData['assign_to'];
+            if (isset($requestData['assign_to']) && is_array($requestData['assign_to'])) {
                 $assignToCount = count($requestData['assign_to']);
-                if( $assignToCount >1 ) {
-                    $obj->assignee	=  implode(",", $requestData['assign_to']);
-                } else if( $assignToCount == 1 ) {
-                    $obj->assignee	=  $requestData['assign_to'][0];
+                if ($assignToCount > 1) {
+                    $obj->assignee = implode(',', $requestData['assign_to']);
+                } elseif ($assignToCount == 1) {
+                    $obj->assignee = $requestData['assign_to'][0];
                 } else {
-                    $obj->assignee	= "";
+                    $obj->assignee = '';
                 }
             }
-          
-			$obj->status	=	@$requestData['status'];
-			$obj->lead_quality	=	@$requestData['lead_quality'];
-			$obj->nomi_occupation	=	@$requestData['nomi_occupation'];
-			$obj->skill_assessment	=	@$requestData['skill_assessment'];
-			$obj->high_quali_aus	=	@$requestData['high_quali_aus'];
-			$obj->high_quali_overseas	=	@$requestData['high_quali_overseas'];
-			$obj->relevant_work_exp_aus	=	@$requestData['relevant_work_exp_aus'];
-			$obj->relevant_work_exp_over	=	@$requestData['relevant_work_exp_over'];
 
-			$obj->married_partner	=	@$requestData['married_partner'];
-			$obj->total_points	=	@$requestData['total_points'];
-			$obj->comments_note	=	@$requestData['comments_note'];
-			$obj->type	=	@$requestData['type'];
-			$obj->source	=	@$requestData['source'];
-			if(isset($requestData['tagname'])){
-				$obj->tagname = $this->normalizeTags($requestData['tagname']);
-			}
+            $obj->status = @$requestData['status'];
+            $obj->lead_quality = @$requestData['lead_quality'];
+            $obj->nomi_occupation = @$requestData['nomi_occupation'];
+            $obj->skill_assessment = @$requestData['skill_assessment'];
+            $obj->high_quali_aus = @$requestData['high_quali_aus'];
+            $obj->high_quali_overseas = @$requestData['high_quali_overseas'];
+            $obj->relevant_work_exp_aus = @$requestData['relevant_work_exp_aus'];
+            $obj->relevant_work_exp_over = @$requestData['relevant_work_exp_over'];
 
-				if(isset($requestData['naati_py']) && !empty($requestData['naati_py'])){
-			$obj->naati_py	=	implode(',',@$requestData['naati_py']);
-			}else{
-			   	$obj->naati_py	=	'';
-			}
-			if(@$requestData['source'] == 'Sub Agent' ){
-				$obj->agent_id	=	@$requestData['subagent'];
-			}
-			else{
-				$obj->agent_id	=	'';
-			}
+            $obj->married_partner = @$requestData['married_partner'];
+            $obj->total_points = @$requestData['total_points'];
+            $obj->comments_note = @$requestData['comments_note'];
+            $obj->type = @$requestData['type'];
+            $obj->source = @$requestData['source'];
+            if (isset($requestData['tagname'])) {
+                $obj->tagname = $this->normalizeTags($requestData['tagname']);
+            }
 
-			
-			// profile_img column removed from admins table
-		 //$obj->manual_email_phone_verified	=	@$requestData['manual_email_phone_verified'];
-		 
-		$saved							=	$obj->save();
-		
-		//////////////////////////////////////////////////////
-		//////////Code Start For Test Scores (client_testscore)/////////////////
-		//////////////////////////////////////////////////////
-		if (isset($requestData['test_type']) && !empty(trim((string)$requestData['test_type']))) {
-			$testType = $this->normalizeTestType($requestData['test_type']);
-			$testDate = null;
-			if (!empty($requestData['test_date'])) {
-				$testDate = date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date'])));
-			}
-			// Replace single test score for this client (match migrationmanager2 structure)
-			ClientTestScore::where('client_id', $obj->id)->delete();
-			ClientTestScore::create([
-				'admin_id' => Auth::id(),
-				'client_id' => $obj->id,
-				'test_type' => $testType,
-				'listening' => $requestData['listening'] ?? null,
-				'reading' => $requestData['reading'] ?? null,
-				'writing' => $requestData['writing'] ?? null,
-				'speaking' => $requestData['speaking'] ?? null,
-				'overall_score' => $requestData['overall'] ?? null,
-				'test_date' => $testDate,
-				'relevant_test' => 1,
-			]);
-		}
-		//////////////////////////////////////////////////////
-		//////////Code End For Test Scores///////////////////
-		//////////////////////////////////////////////////////
-          
-            //////////////////////////////////////////////////////
-            //////////Code Start For client phone////////////////
-            //////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////
-          
-          
-            //Update partner phone table
-            if(isset($requestData['rem_phone'])){
-                $rem_phone =  @$requestData['rem_phone'];
+            if (isset($requestData['naati_py']) && ! empty($requestData['naati_py'])) {
+                $obj->naati_py = implode(',', @$requestData['naati_py']);
+            } else {
+                $obj->naati_py = '';
+            }
+            if (@$requestData['source'] == 'Sub Agent') {
+                $obj->agent_id = @$requestData['subagent'];
+            } else {
+                $obj->agent_id = '';
+            }
+
+            // profile_img column removed from admins table
+            // $obj->manual_email_phone_verified	=	@$requestData['manual_email_phone_verified'];
+
+            $saved = $obj->save();
+
+            if ($saved
+                && strcasecmp((string) ($obj->type ?? ''), 'client') === 0
+                && $assigneeChanged
+                && $newAssigneeIds !== []) {
+                $this->syncApplicationsToPrimaryClientAssignee((int) $obj->id, $newAssigneeIds);
+            }
+
+            // ////////////////////////////////////////////////////
+            // ////////Code Start For Test Scores (client_testscore)/////////////////
+            // ////////////////////////////////////////////////////
+            if (isset($requestData['test_type']) && ! empty(trim((string) $requestData['test_type']))) {
+                $testType = $this->normalizeTestType($requestData['test_type']);
+                $testDate = null;
+                if (! empty($requestData['test_date'])) {
+                    $testDate = date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date'])));
+                }
+                // Replace single test score for this client (match migrationmanager2 structure)
+                ClientTestScore::where('client_id', $obj->id)->delete();
+                ClientTestScore::create([
+                    'admin_id' => Auth::id(),
+                    'client_id' => $obj->id,
+                    'test_type' => $testType,
+                    'listening' => $requestData['listening'] ?? null,
+                    'reading' => $requestData['reading'] ?? null,
+                    'writing' => $requestData['writing'] ?? null,
+                    'speaking' => $requestData['speaking'] ?? null,
+                    'overall_score' => $requestData['overall'] ?? null,
+                    'test_date' => $testDate,
+                    'relevant_test' => 1,
+                ]);
+            }
+            // ////////////////////////////////////////////////////
+            // ////////Code End For Test Scores///////////////////
+            // ////////////////////////////////////////////////////
+
+            // ////////////////////////////////////////////////////
+            // ////////Code Start For client phone////////////////
+            // ////////////////////////////////////////////////////
+            // ////////////////////////////////////////////////////
+
+            // Update partner phone table
+            if (isset($requestData['rem_phone'])) {
+                $rem_phone = @$requestData['rem_phone'];
                 $remPhoneCount = count($rem_phone);
-                for($irem_phone=0; $irem_phone< $remPhoneCount; $irem_phone++){
-                    if(\App\Models\ClientPhone::where('id', $rem_phone[$irem_phone])->exists()){
-                        \App\Models\ClientPhone::where('id', $rem_phone[$irem_phone])->delete();
+                for ($irem_phone = 0; $irem_phone < $remPhoneCount; $irem_phone++) {
+                    if (ClientPhone::where('id', $rem_phone[$irem_phone])->exists()) {
+                        ClientPhone::where('id', $rem_phone[$irem_phone])->delete();
                     }
                 }
             }
 
-            if(isset($requestData['contact_type'])){
-                $contact_type =  $requestData['contact_type'];
+            if (isset($requestData['contact_type'])) {
+                $contact_type = $requestData['contact_type'];
             } else {
-                $contact_type = array();
+                $contact_type = [];
             }
 
-            if(isset($requestData['client_country_code'])){
-                $client_country_code = array_map(function($code) {
+            if (isset($requestData['client_country_code'])) {
+                $client_country_code = array_map(function ($code) {
                     return PhoneHelper::normalizeCountryCode($code);
-                }, (array)$requestData['client_country_code']);
+                }, (array) $requestData['client_country_code']);
             } else {
-                $client_country_code = array();
+                $client_country_code = [];
             }
 
-            if(isset($requestData['client_phone'])){
-                $client_phone =  $requestData['client_phone'];
+            if (isset($requestData['client_phone'])) {
+                $client_phone = $requestData['client_phone'];
             } else {
-                $client_phone = array();
+                $client_phone = [];
             }
 
             $clientPhoneCount = count($client_phone);
-            if($clientPhoneCount >0){
-                for($iii=0; $iii< $clientPhoneCount; $iii++){
-                    if(\App\Models\ClientPhone::where('id', $requestData['clientphoneid'][$iii])->exists()){
-                        $os1 = \App\Models\ClientPhone::find($requestData['clientphoneid'][$iii]);
+            if ($clientPhoneCount > 0) {
+                for ($iii = 0; $iii < $clientPhoneCount; $iii++) {
+                    if (ClientPhone::where('id', $requestData['clientphoneid'][$iii])->exists()) {
+                        $os1 = ClientPhone::find($requestData['clientphoneid'][$iii]);
                         $os1->user_id = @Auth::user()->id;
                         $os1->client_id = @$obj->id;
                         $os1->contact_type = @$contact_type[$iii];
@@ -394,7 +417,7 @@ class ClientController extends Controller
                         $os1->updated_at = date('Y-m-d H:i:s');
                         $os1->save();
                     } else {
-                        $oe1 = new \App\Models\ClientPhone;
+                        $oe1 = new ClientPhone;
                         $oe1->user_id = @Auth::user()->id;
                         $oe1->client_id = @$obj->id;
                         $oe1->contact_type = @$contact_type[$iii];
@@ -405,22 +428,22 @@ class ClientController extends Controller
                         $oe1->save();
                     }
 
-                    if( isset($contact_type[$iii]) && $contact_type[$iii] == 'Personal'){
-                        //Update admin  table
+                    if (isset($contact_type[$iii]) && $contact_type[$iii] == 'Personal') {
+                        // Update admin  table
                         $adminInfo1 = Admin::find($obj->id); // Retrieve the record by ID
                         $lastContactType = $contact_type[$iii];
                         $lastPhoneCountryCode = $client_country_code[$iii];
                         $lastPhone = $client_phone[$iii];
-                        $adminInfo1->contact_type =  $lastContactType;
-                        $adminInfo1->country_code =  $lastPhoneCountryCode;
-                        $adminInfo1->phone =  $lastPhone;
+                        $adminInfo1->contact_type = $lastContactType;
+                        $adminInfo1->country_code = $lastPhoneCountryCode;
+                        $adminInfo1->phone = $lastPhone;
                         $adminInfo1->save(); // Save the changes
                     }
-                } //end for loop
+                } // end for loop
             }
-            //////////////////////////////////////////////////////
-            //////////Code End For client phone////////////////
-            //////////////////////////////////////////////////////
+            // ////////////////////////////////////////////////////
+            // ////////Code End For client phone////////////////
+            // ////////////////////////////////////////////////////
             // Sync client_emails
             $emails = $requestData['email'] ?? [];
             $emailTypes = $requestData['email_type'] ?? [];
@@ -428,7 +451,9 @@ class ClientController extends Controller
             $existingIds = [];
             foreach ($emails as $idx => $emailAddr) {
                 $emailAddr = trim($emailAddr ?? '');
-                if ($emailAddr === '') continue;
+                if ($emailAddr === '') {
+                    continue;
+                }
                 $emailType = $emailTypes[$idx] ?? 'Personal';
                 $ceId = $clientEmailIds[$idx] ?? '';
                 $ceId = (is_numeric($ceId) || $ceId === '') ? $ceId : null;
@@ -452,177 +477,159 @@ class ClientController extends Controller
             }
             // Remove client_emails that were deleted from the form
             ClientEmail::where('client_id', $obj->id)->whereNotIn('id', $existingIds)->delete();
-            //////////////////////////////////////////////////////
-          
-          
-			if($requestData['client_id'] == ''){
-		    	$objs							= 	Admin::find($obj->id);
-		    	$objs->client_id	=	strtoupper($first_name).date('ym').$objs->id;
-		    	$saveds				=	$objs->save();
-			}else{
-			    $objs							= 	Admin::find($obj->id);
-		    	$objs->client_id	=	$requestData['client_id'];
-		    	$saveds				=	$objs->save();
-			}
-			$route=$request->route;
-			if(strpos($request->route,'?')){
-				$position=strpos($request->route,'?');
-				if ($position !== false) {
-					$route = substr($request->route, 0, $position);
-				}
-			}
+            // ////////////////////////////////////////////////////
 
-			// dd($route);
-			if(!$saved)
-			{
-				return redirect()->back()->with('error', Config::get('constants.server_error'));
-			}
-             else  if($route==url('/action')){
-				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. Auth::user()->first_name;
-				$objs = new ActivitiesLog;
-				$objs->client_id = $request->id;
-				$objs->created_by = Auth::user()->id;
-				$objs->subject = $subject;
-				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
-				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-				$objs->save();
+            if ($requestData['client_id'] == '') {
+                $objs = Admin::find($obj->id);
+                $objs->client_id = strtoupper($first_name).date('ym').$objs->id;
+                $saveds = $objs->save();
+            } else {
+                $objs = Admin::find($obj->id);
+                $objs->client_id = $requestData['client_id'];
+                $saveds = $objs->save();
+            }
+            $route = $request->route;
+            if (strpos($request->route, '?')) {
+                $position = strpos($request->route, '?');
+                if ($position !== false) {
+                    $route = substr($request->route, 0, $position);
+                }
+            }
 
-				return redirect()->route('action.index')->with('success','Action updated successfully');
-			}
+            // dd($route);
+            if (! $saved) {
+                return redirect()->back()->with('error', Config::get('constants.server_error'));
+            } elseif ($route == url('/action')) {
+                $subject = 'Lead status has changed to '.@$requestData['status'].' from '.Auth::user()->first_name;
+                $objs = new ActivitiesLog;
+                $objs->client_id = $request->id;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = $subject;
+                $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+                $objs->save();
 
-			else
-			{
-              
-              //Code for addition of simiar related files in added users account  
-                    if($relatedClientIds !== [])
-                    {
-                        $relatedFilesCount = count($relatedClientIds);
-                        for($j=0; $j<$relatedFilesCount; $j++){
-                            if(Admin::where('id', '=', $relatedClientIds[$j])->exists())
-                            {
-                                $objsY = Admin::select('id', 'related_files')->where('id', $relatedClientIds[$j])->get();
-                                if(!empty($objsY)){
-                                    if($objsY[0]->related_files != ""){
-                                        $related_files_string = $objsY[0]->related_files;
-                                        $commaPosition = strpos($related_files_string, ',');
-                                        if ($commaPosition !== false) { //If comma is exist
-                                            $related_files_string_Arr = explode(",",$related_files_string);
-                                            array_push($related_files_string_Arr, $requestData['id']);
-                                            // Remove duplicate elements
-                                            $uniqueArray = array_unique($related_files_string_Arr);
+                return redirect()->route('action.index')->with('success', 'Action updated successfully');
+            } else {
 
-                                            // Reindex the array
-                                            $uniqueArray = array_values($uniqueArray);
+                // Code for addition of simiar related files in added users account
+                if ($relatedClientIds !== []) {
+                    $relatedFilesCount = count($relatedClientIds);
+                    for ($j = 0; $j < $relatedFilesCount; $j++) {
+                        if (Admin::where('id', '=', $relatedClientIds[$j])->exists()) {
+                            $objsY = Admin::select('id', 'related_files')->where('id', $relatedClientIds[$j])->get();
+                            if (! empty($objsY)) {
+                                if ($objsY[0]->related_files != '') {
+                                    $related_files_string = $objsY[0]->related_files;
+                                    $commaPosition = strpos($related_files_string, ',');
+                                    if ($commaPosition !== false) { // If comma is exist
+                                        $related_files_string_Arr = explode(',', $related_files_string);
+                                        array_push($related_files_string_Arr, $requestData['id']);
+                                        // Remove duplicate elements
+                                        $uniqueArray = array_unique($related_files_string_Arr);
 
-                                            $related_files_latest = implode(",",$uniqueArray);
-                                        } else { //If comma is not exist
-                                            $related_files_string_Arr = array($objsY[0]->related_files);
-                                            array_push($related_files_string_Arr, $requestData['id']);
-                                            // Remove duplicate elements
-                                             $uniqueArray = array_unique($related_files_string_Arr);
+                                        // Reindex the array
+                                        $uniqueArray = array_values($uniqueArray);
 
-                                             // Reindex the array
-                                             $uniqueArray = array_values($uniqueArray);
+                                        $related_files_latest = implode(',', $uniqueArray);
+                                    } else { // If comma is not exist
+                                        $related_files_string_Arr = [$objsY[0]->related_files];
+                                        array_push($related_files_string_Arr, $requestData['id']);
+                                        // Remove duplicate elements
+                                        $uniqueArray = array_unique($related_files_string_Arr);
 
-                                            $related_files_latest = implode(",",$uniqueArray);
-                                        }
-                                    } else {
-                                        $related_files_latest = $requestData['id'];
+                                        // Reindex the array
+                                        $uniqueArray = array_values($uniqueArray);
+
+                                        $related_files_latest = implode(',', $uniqueArray);
                                     }
-                                    Admin::where('id', $relatedClientIds[$j])->update(['related_files' => $related_files_latest]);
+                                } else {
+                                    $related_files_latest = $requestData['id'];
+                                }
+                                Admin::where('id', $relatedClientIds[$j])->update(['related_files' => $related_files_latest]);
+                            }
+                        }
+                    } // end foreach
+                }
+
+                // Code for removal of simiar related files in added users account
+                if (isset($requestData['related_files']) || ! isset($requestData['related_files'])) {
+
+                    $req_arr11 = $relatedClientIds;
+
+                    if (! empty($db_arr)) {
+                        $db_arr11 = $this->normalizeRelatedClientIds($db_arr[0]->related_files ?? null);
+
+                        // echo "<pre>db_arr11=";print_r($db_arr11);
+                        // echo "<pre>req_arr11=";print_r($req_arr11);
+                        $diff_arr = $this->normalizeRelatedClientIds(array_diff($db_arr11, $req_arr11));
+                        // echo "<pre>diff_arr=";print_r($diff_arr);
+                        // echo "<pre>diff_arr=";print_r($diff_arr);die;
+                    }
+
+                    if (isset($diff_arr) && ! empty($diff_arr)) {
+                        $diffArrCount = count($diff_arr);
+                        for ($k = 0; $k < $diffArrCount; $k++) {
+                            if (Admin::where('id', '=', $diff_arr[$k])->exists()) {
+                                $rel_data_arr = Admin::select('related_files')->where('id', $diff_arr[$k])->get();
+                                if (! empty($rel_data_arr)) {
+                                    $commaPosition1 = strpos($rel_data_arr[0]->related_files, ',');
+                                    if ($commaPosition1 !== false) { // If comma is exist
+                                        $rel_data_exploded_arr = explode(',', $rel_data_arr[0]->related_files);
+                                        $key_search = array_search($requestData['id'], $rel_data_exploded_arr);
+                                        if ($key_search !== false) {
+                                            unset($rel_data_exploded_arr[$key_search]);
+                                        }
+                                        $rel_data_exploded_arr = array_values($rel_data_exploded_arr);
+                                        // print_r($rel_data_exploded_arr);
+                                        $related_files_updated = implode(',', $rel_data_exploded_arr);
+
+                                        Admin::where('id', $diff_arr[$k])->update(['related_files' => $related_files_updated]);
+
+                                    } else { // If comma is not exist
+                                        if ($rel_data_arr[0]->related_files == $requestData['id']) {
+                                            $related_files_updated = '';
+                                            Admin::where('id', $diff_arr[$k])->update(['related_files' => $related_files_updated]);
+                                        }
+                                    }
                                 }
                             }
-                        } //end foreach
+                        }
+                    }
+                }
+
+                // Diary / Activities feed: staff client-edit saves previously updated Admin only.
+                $profileLog = new ActivitiesLog;
+                $profileLog->client_id = (int) ($requestData['id'] ?? $request->id);
+                $profileLog->created_by = Auth::user()->id;
+                $profileLog->subject = Auth::user()->first_name.' updated client profile details';
+                $profileLog->task_status = 0;
+                $profileLog->pin = 0;
+                $profileLog->save();
+
+                return redirect()->route('clients.detail', $this->encodeString(@$requestData['id']))->with('success', 'Clients Edited Successfully');
+            }
+        } else {
+            if (isset($id) && ! empty($id)) {
+
+                $id = $this->decodeString($id);
+                if (Admin::where('id', '=', $id)->exists()) {
+                    $fetchedData = Admin::with('office')->find($id);
+                    if (! $fetchedData) {
+                        return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
+                    }
+                    if (! $this->canEditClient($fetchedData)) {
+                        return $this->redirectWhenCannotViewClientRecord($fetchedData);
                     }
 
-              //Code for removal of simiar related files in added users account                  
-              if( isset($requestData['related_files'])  || !isset($requestData['related_files']) )
-              {
-
-                  $req_arr11 = $relatedClientIds;
-
-                  if( !empty($db_arr)  ){
-                      $db_arr11 = $this->normalizeRelatedClientIds($db_arr[0]->related_files ?? null);
-
-                      //echo "<pre>db_arr11=";print_r($db_arr11);
-                      //echo "<pre>req_arr11=";print_r($req_arr11);
-                      $diff_arr = $this->normalizeRelatedClientIds(array_diff($db_arr11, $req_arr11));
-                      //echo "<pre>diff_arr=";print_r($diff_arr);
-                      //echo "<pre>diff_arr=";print_r($diff_arr);die;
-                  }
-
-
-                  if( isset($diff_arr) && !empty($diff_arr))
-                  {
-                      $diffArrCount = count($diff_arr);
-                      for($k=0; $k<$diffArrCount; $k++)
-                      {
-                          if(Admin::where('id', '=', $diff_arr[$k])->exists())
-                          {
-                              $rel_data_arr = Admin::select('related_files')->where('id', $diff_arr[$k])->get();
-                              if( !empty($rel_data_arr) ){
-                                  $commaPosition1 = strpos($rel_data_arr[0]->related_files, ',');
-                                  if ($commaPosition1 !== false) { //If comma is exist
-                                      $rel_data_exploded_arr = explode(",",$rel_data_arr[0]->related_files);
-                                      $key_search = array_search($requestData['id'], $rel_data_exploded_arr);
-                                      if ($key_search !== false) {
-                                          unset($rel_data_exploded_arr[$key_search]);
-                                      }
-                                      $rel_data_exploded_arr = array_values($rel_data_exploded_arr);
-                                      //print_r($rel_data_exploded_arr);
-                                      $related_files_updated = implode(",",$rel_data_exploded_arr);
-
-                                      Admin::where('id', $diff_arr[$k])->update(['related_files' => $related_files_updated]);
-
-                                  } else { //If comma is not exist
-                                      if ($rel_data_arr[0]->related_files == $requestData['id']) {
-                                          $related_files_updated = "";
-                                          Admin::where('id', $diff_arr[$k])->update(['related_files' => $related_files_updated]);
-                                      }
-                                  }
-                              }
-                          }
-                      }
-                  }
-              }
-
-              // Diary / Activities feed: staff client-edit saves previously updated Admin only.
-              $profileLog = new ActivitiesLog;
-              $profileLog->client_id = (int) ($requestData['id'] ?? $request->id);
-              $profileLog->created_by = Auth::user()->id;
-              $profileLog->subject = Auth::user()->first_name.' updated client profile details';
-              $profileLog->task_status = 0;
-              $profileLog->pin = 0;
-              $profileLog->save();
-              
-              return redirect()->route('clients.detail', $this->encodeString(@$requestData['id']))->with('success', 'Clients Edited Successfully');
-			}
-		}
-
-		else
-		{
-			if(isset($id) && !empty($id))
-			{
-
-				$id = $this->decodeString($id);
-				if(Admin::where('id', '=', $id)->exists())
-				{
-					$fetchedData = Admin::with('office')->find($id);
-					if (! $fetchedData) {
-						return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
-					}
-					if (! $this->canEditClient($fetchedData)) {
-						return $this->redirectWhenCannotViewClientRecord($fetchedData);
-					}
-                  
-                    if(!empty($fetchedData) && $fetchedData->dob != ""){
+                    if (! empty($fetchedData) && $fetchedData->dob != '') {
                         $this->applyCalculatedAgeForDisplay($fetchedData);
                     }
-                  
-                     //Check phone record is exist in client phone table
-                    if( \App\Models\ClientPhone::where('client_id', $id)->doesntExist() ){
-                        if( $fetchedData->phone != "" ) {
-                            $oef1 = new \App\Models\ClientPhone;
+
+                    // Check phone record is exist in client phone table
+                    if (ClientPhone::where('client_id', $id)->doesntExist()) {
+                        if ($fetchedData->phone != '') {
+                            $oef1 = new ClientPhone;
                             $oef1->user_id = @Auth::user()->id;
                             $oef1->client_id = $id;
                             $oef1->contact_type = $fetchedData->contact_type ?? 'Personal';
@@ -633,9 +640,8 @@ class ClientController extends Controller
                             $oef1->save();
                         }
                     }
-                  
-                  
-                     //Show alert box is entry is updated before 1 month ago
+
+                    // Show alert box is entry is updated before 1 month ago
                     if ($fetchedData && $fetchedData->updated_at) {
                         $updatedAt = Carbon::parse($fetchedData->updated_at);
                         $fourWeeksAgo = Carbon::now()->subWeeks(4);
@@ -643,26 +649,25 @@ class ClientController extends Controller
                             $showAlert = true;
                         }
                     }
-                  
-					return view('Admin.clients.edit', compact(['fetchedData','showAlert']));
-				}
-				else
-				{
-					return redirect()->route('clients.index')->with('error', 'Clients Not Exist');
-				}
-			}
-			else
-			{
-				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
-			}
-		}
 
-	}
+                    $currentAssigneeIds = StaffAssigneeResolver::numericIdsFromAssigneeValue($fetchedData->assignee ?? null);
+                    $assignableStaff = LeadCreateAssignees::assignableStaffForEdit($currentAssigneeIds);
+
+                    return view('Admin.clients.edit', compact(['fetchedData', 'showAlert', 'assignableStaff']));
+                } else {
+                    return redirect()->route('clients.index')->with('error', 'Clients Not Exist');
+                }
+            } else {
+                return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+            }
+        }
+
+    }
 
     /**
      * Active consultants for the schedule-followup modal (empty collection if table is not migrated).
      */
-    protected function followupConsultantsForSchedule(): \Illuminate\Support\Collection
+    protected function followupConsultantsForSchedule(): Collection
     {
         if (! Schema::hasTable('followup_consultants')) {
             return collect();
@@ -707,40 +712,37 @@ class ClientController extends Controller
         );
     }
 
-    //Client detail page
-    public function clientdetail(Request $request, $id = NULL, $tab = NULL){ 
+    // Client detail page
+    public function clientdetail(Request $request, $id = null, $tab = null)
+    {
         $showAlert = false;
         $applicationId = $request->route('applicationId');
-        if (!empty($applicationId) && empty($tab)) {
+        if (! empty($applicationId) && empty($tab)) {
             $tab = 'application';
         }
         $forcedTab = $tab;
-        if(isset($request->t)){
-           if(\App\Models\Notification::where('id', $request->t)->exists()){
-              $ovv =  \App\Models\Notification::find($request->t);
-              $ovv->receiver_status = 1;
-              $ovv->save();
-           }
-       }
-       if(isset($id) && !empty($id))
-        {
+        if (isset($request->t)) {
+            if (Notification::where('id', $request->t)->exists()) {
+                $ovv = Notification::find($request->t);
+                $ovv->receiver_status = 1;
+                $ovv->save();
+            }
+        }
+        if (isset($id) && ! empty($id)) {
             $encodeId = $id;
             $originalId = $id;
-            $id = $this->decodeString($id); //dd($id);
-            
+            $id = $this->decodeString($id); // dd($id);
+
             // Check if decodeString returned false (invalid encoded string)
-            if($id === false || empty($id))
-            {
+            if ($id === false || empty($id)) {
                 return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Invalid Client ID');
             }
             // Otherwise check admins table (old clients/leads)
-            if(Admin::where('id', '=', $id)->exists())
-            {
+            if (Admin::where('id', '=', $id)->exists()) {
                 $fetchedData = Admin::with('office')->find($id);
-                
+
                 // Double check that fetchedData exists
-                if(empty($fetchedData))
-                {
+                if (empty($fetchedData)) {
                     return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client data not found');
                 }
 
@@ -763,12 +765,11 @@ class ClientController extends Controller
                     return $this->redirectWhenCannotViewClientRecord($fetchedData);
                 }
 
-                if(!empty($fetchedData) && $fetchedData->dob != ""){
+                if (! empty($fetchedData) && $fetchedData->dob != '') {
                     $this->applyCalculatedAgeForDisplay($fetchedData);
                 }
-                
-                
-                //Show alert box is entry is updated before 1 month ago
+
+                // Show alert box is entry is updated before 1 month ago
                 if ($fetchedData && $fetchedData->updated_at) {
                     $updatedAt = Carbon::parse($fetchedData->updated_at);
                     $fourWeeksAgo = Carbon::now()->subWeeks(4);
@@ -776,56 +777,52 @@ class ClientController extends Controller
                         $showAlert = true;
                     }
                 }
-                
+
                 $clientApplications = $this->clientApplicationsForActiveDetailTab($request, $forcedTab, (int) $fetchedData->id);
 
                 $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
 
                 $followupConsultants = $this->followupConsultantsForSchedule();
                 $canEditClient = $this->canEditClient($fetchedData);
+
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants','canEditClient'])
+                    compact(['fetchedData', 'encodeId', 'showAlert', 'applicationId', 'forcedTab', 'clientApplications', 'showGoogleReviewReminderModal', 'followupConsultants', 'canEditClient'])
                 );
-            }
-            else
-            {
+            } else {
                 return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client or Lead Not Found');
             }
-        }
-        else
-        {
+        } else {
             return Redirect::to($this->getClientRedirectUrl('index'))->with('error', Config::get('constants.unauthorized'));
         }
     }
 
-    //Lead detail page
-    public function leaddetail(Request $request, $id = NULL, $tab = NULL){ 
+    // Lead detail page
+    public function leaddetail(Request $request, $id = null, $tab = null)
+    {
         $showAlert = false;
         $applicationId = $request->route('applicationId');
-        if (!empty($applicationId) && empty($tab)) {
+        if (! empty($applicationId) && empty($tab)) {
             $tab = 'application';
         }
         $forcedTab = $tab;
-        if(isset($request->t)){
-           if(\App\Models\Notification::where('id', $request->t)->exists()){
-              $ovv =  \App\Models\Notification::find($request->t);
-              $ovv->receiver_status = 1;
-              $ovv->save();
-           }
+        if (isset($request->t)) {
+            if (Notification::where('id', $request->t)->exists()) {
+                $ovv = Notification::find($request->t);
+                $ovv->receiver_status = 1;
+                $ovv->save();
+            }
         }
-        if(isset($id) && !empty($id))
-        {
+        if (isset($id) && ! empty($id)) {
             $encodeId = $id;
             $originalId = $id;
             $id = $this->decodeString($id);
-            
+
             // Check if decodeString returned false (invalid encoded string)
-            if($id === false || empty($id))
-            {
+            if ($id === false || empty($id)) {
                 return redirect()->route('leads.index')->with('error', 'Invalid Lead ID');
             }
-            
+
             // Admin model: check by admins.id or lead_id (leads.id for migrated)
             $adminLead = Admin::where('id', '=', $id)->where('type', 'lead')->first()
                 ?? Admin::where('lead_id', '=', $id)->where('type', 'lead')->first();
@@ -840,9 +837,10 @@ class ClientController extends Controller
                 $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
                 $followupConsultants = $this->followupConsultantsForSchedule();
                 $canEditClient = $this->canEditClient($fetchedData);
+
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants','canEditClient'])
+                    compact(['fetchedData', 'encodeId', 'showAlert', 'applicationId', 'forcedTab', 'clientApplications', 'showGoogleReviewReminderModal', 'followupConsultants', 'canEditClient'])
                 );
             }
             // Fallback: existing admins row linked by legacy leads.id (read-only).
@@ -867,16 +865,16 @@ class ClientController extends Controller
                     $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
                     $followupConsultants = $this->followupConsultantsForSchedule();
                     $canEditClient = $this->canEditClient($fetchedData);
+
                     return view(
                         $this->getClientViewPath('clients.detail'),
-                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants','canEditClient'])
+                        compact(['fetchedData', 'encodeId', 'showAlert', 'applicationId', 'forcedTab', 'clientApplications', 'showGoogleReviewReminderModal', 'followupConsultants', 'canEditClient'])
                     );
                 }
             }
+
             return redirect()->route('leads.index')->with('error', 'Client or Lead Not Found');
-        }
-        else
-        {
+        } else {
             return redirect()->route('leads.index')->with('error', Config::get('constants.unauthorized'));
         }
     }
@@ -906,13 +904,13 @@ class ClientController extends Controller
         $record->age = $this->calculateAge($record->dob);
     }
 
-    //Calculate age
+    // Calculate age
     public function calculateAge(string|\DateTimeInterface $dob): string
     {
         // Convert the DOB string to a DateTime object
         $birthDate = new \DateTime($dob);
         // Get the current date
-        $today = new \DateTime();
+        $today = new \DateTime;
         // Calculate the difference between the current date and the birth date
         $diff = $today->diff($birthDate);
 
@@ -922,232 +920,244 @@ class ClientController extends Controller
 
         return "$ageYears years and $ageMonths months";
     }
-	
-	//Update session to be complete
-    public function updatesessioncompleted(Request $request,CheckinLog $checkinLog)
+
+    // Update session to be complete
+    public function updatesessioncompleted(Request $request, CheckinLog $checkinLog)
     {
-        $data = $request->all(); //dd($data['client_id']);
+        $data = $request->all(); // dd($data['client_id']);
         $cid = (int) ($data['client_id'] ?? 0);
         $clientRow = $cid > 0 ? Admin::find($cid) : null;
         if (! $clientRow || ! $this->canEditClient($clientRow)) {
             echo json_encode(['status' => false, 'message' => 'Unauthorized']);
+
             return;
         }
         $sessionExist = CheckinLog::where('client_id', $data['client_id'])
-        ->where('status', 2)
-        ->update(['status' => 1]);
-        if($sessionExist){
-            $response['status'] 	= 	true;
-            $response['message']	=	'Session completed successfully';
+            ->where('status', 2)
+            ->update(['status' => 1]);
+        if ($sessionExist) {
+            $response['status'] = true;
+            $response['message'] = 'Session completed successfully';
         } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'Please try again';
+            $response['status'] = false;
+            $response['message'] = 'Please try again';
         }
         echo json_encode($response);
     }
 
-	public function getallclients(Request $request){
-		// Validate input
-		$validated = $request->validate([
-			'q' => 'required|string|min:2|max:100',
-		]);
+    public function getallclients(Request $request)
+    {
+        // Validate input
+        $validated = $request->validate([
+            'q' => 'required|string|min:2|max:100',
+        ]);
 
-		$query = $validated['q'];
+        $query = $validated['q'];
 
-		// Use SearchService for optimized search
-		$searchService = new SearchService($query, 50, true);
-		$results = $searchService->search();
+        // Use SearchService for optimized search
+        $searchService = new SearchService($query, 50, true);
+        $results = $searchService->search();
 
-		return response()->json($results);
-	}
+        return response()->json($results);
+    }
 
-	public function getrecipients(Request $request){
-		$squery = trim($request->q ?? '');
-		if($squery === ''){
-			return response()->json(array('items'=>array()));
-		}
+    public function getrecipients(Request $request)
+    {
+        $squery = trim($request->q ?? '');
+        if ($squery === '') {
+            return response()->json(['items' => []]);
+        }
 
-		try {
-			$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
-			$clients = $this->buildRecipientsSearchQuery($squery, $operator);
-			$user = Auth::guard('admin')->user();
-			if ($user instanceof Staff) {
-				StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
-			}
-			$clients = $clients->get();
+        try {
+            $operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $clients = $this->buildRecipientsSearchQuery($squery, $operator);
+            $user = Auth::guard('admin')->user();
+            if ($user instanceof Staff) {
+                StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
+            }
+            $clients = $clients->get();
 
-			$items = array();
-			foreach($clients as $clint){
-				$fullName = trim(($clint->first_name ?? '') . ' ' . ($clint->last_name ?? ''));
-				$items[] = array(
-					'id' => $clint->id,
-					'text' => $fullName, // Required by Tom Select / AJAX recipient format
-					'name' => $fullName,
-					'email' => $clint->email ?? '',
-					'phone' => $this->formatRecipientPhone($clint),
-					'client_id' => $clint->client_id ?? '',
-					'status' => $clint->type ?? 'Client',
-					'cid' => base64_encode(convert_uuencode($clint->id))
-				);
-			}
+            $items = [];
+            foreach ($clients as $clint) {
+                $fullName = trim(($clint->first_name ?? '').' '.($clint->last_name ?? ''));
+                $items[] = [
+                    'id' => $clint->id,
+                    'text' => $fullName, // Required by Tom Select / AJAX recipient format
+                    'name' => $fullName,
+                    'email' => $clint->email ?? '',
+                    'phone' => $this->formatRecipientPhone($clint),
+                    'client_id' => $clint->client_id ?? '',
+                    'status' => $clint->type ?? 'Client',
+                    'cid' => base64_encode(convert_uuencode($clint->id)),
+                ];
+            }
 
-			return response()->json(array('items'=>$items));
-		} catch (\Exception $e) {
-			Log::error('getrecipients error: ' . $e->getMessage());
-			return response()->json(array('items'=>array(), 'error' => $e->getMessage()));
-		}
-	}
+            return response()->json(['items' => $items]);
+        } catch (\Exception $e) {
+            Log::error('getrecipients error: '.$e->getMessage());
 
-	public function getonlyclientrecipients(Request $request){
-		$squery = trim($request->q ?? '');
-		if($squery === ''){
-			echo json_encode(array('items'=>array()));
-			return;
-		}
+            return response()->json(['items' => [], 'error' => $e->getMessage()]);
+        }
+    }
 
-		$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
-		$clients = Admin::where('is_archived', '=', 0)
-			->where('type', 'client')
-			->where(function($query) use ($squery, $operator) {
-				return $query
-					->where('email', $operator, '%'.$squery.'%')
-					->orwhere('first_name', $operator, '%'.$squery.'%')
-					->orwhere('last_name', $operator, '%'.$squery.'%')
-					->orwhere('client_id', $operator, '%'.$squery.'%')
-					->orwhere('phone', $operator, '%'.$squery.'%')
-					->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, "%".$squery."%");
-			});
-		$user = Auth::guard('admin')->user();
-		if ($user instanceof Staff) {
-			StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
-		}
-		$clients = $clients->get();
+    public function getonlyclientrecipients(Request $request)
+    {
+        $squery = trim($request->q ?? '');
+        if ($squery === '') {
+            echo json_encode(['items' => []]);
 
-		$items = array();
-		foreach($clients as $clint){
-			$fullName = trim(($clint->first_name ?? '') . ' ' . ($clint->last_name ?? ''));
-			$items[] = array(
-				'text' => $fullName,
-				'name' => $fullName,
-				'email' => $clint->email,
-				'status' => $clint->type,
-				'id' => $clint->id,
-				'cid' => base64_encode(convert_uuencode(@$clint->id)),
-			);
-		}
+            return;
+        }
 
-		echo json_encode(array('items'=>$items));
-	}
+        $operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+        $clients = Admin::where('is_archived', '=', 0)
+            ->where('type', 'client')
+            ->where(function ($query) use ($squery, $operator) {
+                return $query
+                    ->where('email', $operator, '%'.$squery.'%')
+                    ->orwhere('first_name', $operator, '%'.$squery.'%')
+                    ->orwhere('last_name', $operator, '%'.$squery.'%')
+                    ->orwhere('client_id', $operator, '%'.$squery.'%')
+                    ->orwhere('phone', $operator, '%'.$squery.'%')
+                    ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, '%'.$squery.'%');
+            });
+        $user = Auth::guard('admin')->user();
+        if ($user instanceof Staff) {
+            StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
+        }
+        $clients = $clients->get();
 
-	public function save_tag(Request $request){
-		$id = $request->client_id;
+        $items = [];
+        foreach ($clients as $clint) {
+            $fullName = trim(($clint->first_name ?? '').' '.($clint->last_name ?? ''));
+            $items[] = [
+                'text' => $fullName,
+                'name' => $fullName,
+                'email' => $clint->email,
+                'status' => $clint->type,
+                'id' => $clint->id,
+                'cid' => base64_encode(convert_uuencode(@$clint->id)),
+            ];
+        }
 
-		if(Admin::where('id',$id)->exists()){
-			$rawTags = $request->input('tagname', '');
-			$obj = Admin::find($id);
-			if (! $obj || ! $this->canEditClient($obj)) {
-				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
-			}
-			$obj->tagname = $this->normalizeTags($rawTags);
-			$saved = $obj->save();
-			if($saved){
-				return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('success', 'Tags addes successfully');
-			}else{
-				return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('error', 'Please try again');
-			}
-		}else{
-			return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
-		}
-	}
+        echo json_encode(['items' => $items]);
+    }
 
-	public function change_assignee(Request $request){
-		$objs = Admin::find($request->id);
-		if (! $objs || ! $this->canEditClient($objs)) {
-			echo json_encode(['status' => false, 'message' => 'Unauthorized']);
-			return;
-		}
+    public function save_tag(Request $request)
+    {
+        $id = $request->client_id;
 
-		// Accept array, scalar id, empty clear, or comma-separated string; store format unchanged
-		$assigneeArr = [];
-		if ($request->exists('assignee') || $request->exists('assinee')) {
-			$assigneeInput = $request->input('assignee', $request->input('assinee'));
-			if (is_array($assigneeInput)) {
-				$assigneeArr = array_values(array_filter($assigneeInput, function ($v) {
-					return $v !== null && $v !== '';
-				}));
-			} elseif (is_string($assigneeInput)) {
-				$assigneeInput = trim($assigneeInput);
-				if ($assigneeInput !== '') {
-					$assigneeArr = str_contains($assigneeInput, ',')
-						? array_values(array_filter(array_map('trim', explode(',', $assigneeInput))))
-						: [$assigneeInput];
-				}
-			} elseif (is_numeric($assigneeInput)) {
-				$assigneeArr = [(string) $assigneeInput];
-			}
+        if (Admin::where('id', $id)->exists()) {
+            $rawTags = $request->input('tagname', '');
+            $obj = Admin::find($id);
+            if (! $obj || ! $this->canEditClient($obj)) {
+                return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+            }
+            $obj->tagname = $this->normalizeTags($rawTags);
+            $saved = $obj->save();
+            if ($saved) {
+                return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('success', 'Tags addes successfully');
+            } else {
+                return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('error', 'Please try again');
+            }
+        } else {
+            return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+        }
+    }
 
-			$assigneeCount = count($assigneeArr);
-			if ($assigneeCount < 1) {
-				$objs->assignee = "";
-			} elseif ($assigneeCount === 1) {
-				$objs->assignee = $assigneeArr[0];
-			} else {
-				$objs->assignee = implode(",", $assigneeArr);
-			}
-		}
+    public function change_assignee(Request $request)
+    {
+        $objs = Admin::find($request->id);
+        if (! $objs || ! $this->canEditClient($objs)) {
+            echo json_encode(['status' => false, 'message' => 'Unauthorized']);
 
-		$saved = $objs->save();
-		if($saved){
-			if (count($assigneeArr) >= 1) {
-				foreach($assigneeArr as $key=>$val) {
-					$o = new \App\Models\Notification;
-					$o->sender_id = Auth::user()->id;
-					$o->receiver_id = $val;
-					$o->module_id = $request->id;
-					$o->url = route('clients.detail', base64_encode(convert_uuencode(@$request->id)));
-					$o->notification_type = 'client';
-					$o->message = 'Client Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
-					$o->seen = 0;
-					$o->save();
-				}
-			}
-			$response['status'] 	= 	true;
-			$response['message']	=	'Updated successfully';
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-		echo json_encode($response);
-	}
+            return;
+        }
 
-	public function removetag(Request $request){
-		$objs = Admin::find($request->c);
-		if (! $objs || ! $this->canEditClient($objs)) {
-			return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
-		}
-		$itag = $request->rem_id;
+        // Accept array, scalar id, empty clear, or comma-separated string; store format unchanged
+        $assigneeArr = [];
+        if ($request->exists('assignee') || $request->exists('assinee')) {
+            $assigneeInput = $request->input('assignee', $request->input('assinee'));
+            if (is_array($assigneeInput)) {
+                $assigneeArr = array_values(array_filter($assigneeInput, function ($v) {
+                    return $v !== null && $v !== '';
+                }));
+            } elseif (is_string($assigneeInput)) {
+                $assigneeInput = trim($assigneeInput);
+                if ($assigneeInput !== '') {
+                    $assigneeArr = str_contains($assigneeInput, ',')
+                        ? array_values(array_filter(array_map('trim', explode(',', $assigneeInput))))
+                        : [$assigneeInput];
+                }
+            } elseif (is_numeric($assigneeInput)) {
+                $assigneeArr = [(string) $assigneeInput];
+            }
 
-		if($objs->tagname != ''){
-			$rs = explode(',', $objs->tagname);
-			unset($rs[$itag]);
-			$objs->tagname = 	implode(',',@$rs);
-			$objs->save();
-		}
-		return redirect()->route('clients.detail', ['id' => base64_encode(convert_uuencode(@$objs->id))])->with('success', 'Record Updated successfully');
-	}
+            $assigneeCount = count($assigneeArr);
+            if ($assigneeCount < 1) {
+                $objs->assignee = '';
+            } elseif ($assigneeCount === 1) {
+                $objs->assignee = $assigneeArr[0];
+            } else {
+                $objs->assignee = implode(',', $assigneeArr);
+            }
+        }
+
+        $saved = $objs->save();
+        if ($saved) {
+            if (count($assigneeArr) >= 1) {
+                foreach ($assigneeArr as $key => $val) {
+                    $o = new Notification;
+                    $o->sender_id = Auth::user()->id;
+                    $o->receiver_id = $val;
+                    $o->module_id = $request->id;
+                    $o->url = route('clients.detail', base64_encode(convert_uuencode(@$request->id)));
+                    $o->notification_type = 'client';
+                    $o->message = 'Client Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+                    $o->seen = 0;
+                    $o->save();
+                }
+            }
+            $response['status'] = true;
+            $response['message'] = 'Updated successfully';
+        } else {
+            $response['status'] = false;
+            $response['message'] = 'Please try again';
+        }
+        echo json_encode($response);
+    }
+
+    public function removetag(Request $request)
+    {
+        $objs = Admin::find($request->c);
+        if (! $objs || ! $this->canEditClient($objs)) {
+            return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+        }
+        $itag = $request->rem_id;
+
+        if ($objs->tagname != '') {
+            $rs = explode(',', $objs->tagname);
+            unset($rs[$itag]);
+            $objs->tagname = implode(',', @$rs);
+            $objs->save();
+        }
+
+        return redirect()->route('clients.detail', ['id' => base64_encode(convert_uuencode(@$objs->id))])->with('success', 'Record Updated successfully');
+    }
 
     /**
      * Check if client exists (AJAX validation)
      * Used for form validation to prevent duplicate clients
-     * 
-     * @param Request $request
+     *
      * @return int Returns 1 if exists, 0 if not
      */
-    public function checkclientexist(Request $request){
+    public function checkclientexist(Request $request)
+    {
         $type = (string) $request->input('type', 'phone');
         $vl = trim((string) $request->input('vl', ''));
         if ($vl === '') {
             echo 0;
+
             return;
         }
 
@@ -1167,12 +1177,11 @@ class ClientController extends Controller
     /**
      * Change client type (client/lead)
      */
-    public function changetype(Request $request,$id = Null, $slug = Null){
-        if(isset($id) && !empty($id))
-        {
+    public function changetype(Request $request, $id = null, $slug = null)
+    {
+        if (isset($id) && ! empty($id)) {
             $id = $this->decodeString($id);
-            if(Admin::where('id', '=', $id)->exists())
-            {
+            if (Admin::where('id', '=', $id)->exists()) {
                 $obj = Admin::find($id);
                 if (! $obj || ! $this->canEditClient($obj)) {
                     return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
@@ -1181,30 +1190,26 @@ class ClientController extends Controller
                 $saved = $obj->save();
 
                 return redirect()->route('clients.detail', ['id' => base64_encode(convert_uuencode(@$id))])->with('success', 'Record Updated successfully');
-            }
-            else
-            {
+            } else {
                 return redirect()->route('clients.index')->with('error', 'Clients Not Exist');
             }
-        }
-        else
-        {
+        } else {
             return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
         }
     }
 
     /**
      * Export client data to JSON file
-     * 
-     * @param int $id Client ID
-     * @return \Illuminate\Http\Response
+     *
+     * @param  int  $id  Client ID
+     * @return Response
      */
     public function export($id)
     {
         try {
             $client = Admin::where('id', $id)->first();
 
-            if (!$client) {
+            if (! $client) {
                 return redirect()->route('clients.index')
                     ->with('error', 'Client not found.');
             }
@@ -1216,20 +1221,20 @@ class ClientController extends Controller
             $exportService = app(ClientExportService::class);
             $exportData = $exportService->exportClient($id);
 
-            $filename = 'client_export_' . ($client->client_id ?? $id) . '_' . date('Y-m-d_His') . '.json';
+            $filename = 'client_export_'.($client->client_id ?? $id).'_'.date('Y-m-d_His').'.json';
 
             return response()->json($exportData, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
                 ->header('Content-Type', 'application/json')
-                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+                ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
 
         } catch (\Exception $e) {
-            Log::error('Client export error: ' . $e->getMessage(), [
+            Log::error('Client export error: '.$e->getMessage(), [
                 'client_id' => $id,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect()->route('clients.index')
-                ->with('error', 'Failed to export client data: ' . $e->getMessage());
+                ->with('error', 'Failed to export client data: '.$e->getMessage());
         }
     }
 
@@ -1476,7 +1481,7 @@ class ClientController extends Controller
 
         $query->where(function ($q) use ($squery, $operator, $phoneSubquery, $isNumericQuery) {
             if ($isNumericQuery) {
-                $q->where('admins.client_id', $operator, '%' . $squery . '%');
+                $q->where('admins.client_id', $operator, '%'.$squery.'%');
 
                 foreach ($this->recipientPhonePatterns($squery) as $pattern) {
                     $q->orWhere('admins.phone', $operator, $pattern);
@@ -1488,10 +1493,10 @@ class ClientController extends Controller
                 return;
             }
 
-            $q->where('admins.email', $operator, '%' . $squery . '%')
-                ->orWhere('admins.first_name', $operator, '%' . $squery . '%')
-                ->orWhere('admins.last_name', $operator, '%' . $squery . '%')
-                ->orWhere('admins.client_id', $operator, '%' . $squery . '%');
+            $q->where('admins.email', $operator, '%'.$squery.'%')
+                ->orWhere('admins.first_name', $operator, '%'.$squery.'%')
+                ->orWhere('admins.last_name', $operator, '%'.$squery.'%')
+                ->orWhere('admins.client_id', $operator, '%'.$squery.'%');
 
             foreach ($this->recipientPhonePatterns($squery) as $pattern) {
                 $q->orWhere('admins.phone', $operator, $pattern);
@@ -1504,13 +1509,13 @@ class ClientController extends Controller
                 $q->orWhere(
                     DB::raw("COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')"),
                     $operator,
-                    '%' . $squery . '%'
+                    '%'.$squery.'%'
                 );
             } else {
                 $q->orWhere(
                     DB::raw("CONCAT(COALESCE(admins.first_name, ''), ' ', COALESCE(admins.last_name, ''))"),
                     $operator,
-                    '%' . $squery . '%'
+                    '%'.$squery.'%'
                 );
             }
         });
@@ -1538,7 +1543,7 @@ class ClientController extends Controller
      */
     private function recipientPhonePatterns(string $squery): array
     {
-        $patterns = ['%' . $squery . '%'];
+        $patterns = ['%'.$squery.'%'];
         $digitsOnly = preg_replace('/[^\d]/', '', $squery);
 
         if ($digitsOnly === '' || strlen($digitsOnly) < 4) {
@@ -1554,14 +1559,14 @@ class ClientController extends Controller
 
         if (preg_match('/^4\d+$/', $core)) {
             return array_values(array_unique([
-                '%' . $core . '%',
-                '%0' . $core . '%',
-                '%61' . $core . '%',
-                '%' . $squery . '%',
+                '%'.$core.'%',
+                '%0'.$core.'%',
+                '%61'.$core.'%',
+                '%'.$squery.'%',
             ]));
         }
 
-        $patterns[] = '%' . $digitsOnly . '%';
+        $patterns[] = '%'.$digitsOnly.'%';
 
         return array_values(array_unique($patterns));
     }
@@ -1588,6 +1593,46 @@ class ClientController extends Controller
     }
 
     /**
+     * @param  list<int>  $previousIds
+     * @param  list<int>  $newIds
+     */
+    private function clientAssigneeIdsChanged(array $previousIds, array $newIds): bool
+    {
+        $previous = $previousIds;
+        $new = $newIds;
+        sort($previous);
+        sort($new);
+
+        return $previous !== $new;
+    }
+
+    /**
+     * Client edit stores multiple assignees on admins.assignee; each application keeps one user_id.
+     * When client assignees change, set every application for that client to the first selected staff id.
+     *
+     * @param  list<int>  $orderedAssigneeIds
+     */
+    private function syncApplicationsToPrimaryClientAssignee(int $clientId, array $orderedAssigneeIds): void
+    {
+        if ($clientId < 1 || $orderedAssigneeIds === []) {
+            return;
+        }
+
+        $primaryAssigneeId = (int) $orderedAssigneeIds[0];
+        if ($primaryAssigneeId < 1) {
+            return;
+        }
+
+        if (! Staff::query()->where('id', $primaryAssigneeId)->where('status', 1)->exists()) {
+            return;
+        }
+
+        Application::query()
+            ->where('client_id', $clientId)
+            ->update(['user_id' => $primaryAssigneeId]);
+    }
+
+    /**
      * Normalize test type to canonical value (match migrationmanager2 stored values).
      * Legacy and full names map to: IELTS, IELTS_A, PTE, TOEFL, CAE, OET, CELPIP, MET, LANGUAGECERT.
      */
@@ -1602,6 +1647,7 @@ class ClientController extends Controller
             'languagecert academic' => 'LANGUAGECERT', 'languagecert' => 'LANGUAGECERT',
         ];
         $lower = strtolower($v);
+
         return $map[$lower] ?? $v;
     }
 }

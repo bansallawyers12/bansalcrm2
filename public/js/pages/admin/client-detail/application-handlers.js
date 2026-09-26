@@ -417,6 +417,87 @@ jQuery(document).ready(function($){
     // ============================================================================
     // APPLICATION DETAIL - CHANGE ASSIGNEE (delegated so it works when detail is loaded via AJAX)
     // ============================================================================
+    function applyApplicationAssigneeUi(assigneeId, res) {
+        var name = (res && res.assignee_name ? res.assignee_name : '').trim();
+        var email = (res && res.assignee_email) ? res.assignee_email : '';
+        var idStr = assigneeId ? String(assigneeId) : '';
+
+        $('#application_assignee_name').text(name);
+        $('#application_assignee_initial').text(name ? name.charAt(0).toUpperCase() : '');
+        $('#application_assignee_email').text(email);
+        $('.application-change-assignee').data('assignee-id', assigneeId);
+
+        var $gridSelect = $('#application_grid_assignee_select');
+        if ($gridSelect.length) {
+            $gridSelect.val(idStr).data('current-assignee-id', idStr);
+        }
+    }
+
+    function saveApplicationAssignee(appId, assigneeId, options) {
+        var url = App.getUrl('changeApplicationAssignee') || (App.getUrl('siteUrl') || '') + '/application/change-assignee';
+        $.ajax({
+            url: url,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                _token: App.getCsrf() || $('meta[name="csrf-token"]').attr('content'),
+                application_id: parseInt(appId, 10) || appId,
+                assignee_id: parseInt(assigneeId, 10) || assigneeId
+            },
+            success: function(res) {
+                if (res && res.success) {
+                    applyApplicationAssigneeUi(assigneeId, res);
+                    if (options && typeof options.onSuccess === 'function') {
+                        options.onSuccess(res);
+                    }
+                } else {
+                    alert((res && res.message) || 'Failed to update assignee.');
+                    if (options && typeof options.onFailure === 'function') {
+                        options.onFailure(res);
+                    }
+                }
+            },
+            error: function(xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to update assignee.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                }
+                alert(msg);
+                if (options && typeof options.onFailure === 'function') {
+                    options.onFailure(xhr);
+                }
+            },
+            complete: function() {
+                if (options && typeof options.onComplete === 'function') {
+                    options.onComplete();
+                }
+            }
+        });
+    }
+
+    $(document).on('change', '#application_grid_assignee_select', function() {
+        var $select = $(this);
+        var assigneeId = $select.val();
+        var appId = $select.data('application-id');
+        var previousId = String($select.data('current-assignee-id') || '');
+        if (!assigneeId) {
+            $select.val(previousId);
+            return;
+        }
+        if (String(assigneeId) === previousId) {
+            return;
+        }
+        $select.prop('disabled', true);
+        saveApplicationAssignee(appId, assigneeId, {
+            onFailure: function() {
+                $select.val(previousId);
+            },
+            onComplete: function() {
+                $select.prop('disabled', false);
+            }
+        });
+    });
+
     $(document).on('click', '.application-change-assignee', function(e) {
         e.preventDefault();
         var appId = $(this).data('app-id');
@@ -448,42 +529,22 @@ jQuery(document).ready(function($){
             return;
         }
         var $btn = $(this).prop('disabled', true);
-        var url = App.getUrl('changeApplicationAssignee') || (App.getUrl('siteUrl') || '') + '/application/change-assignee';
-        $.ajax({
-            url: url,
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                _token: App.getCsrf() || $('meta[name="csrf-token"]').attr('content'),
-                application_id: parseInt(appId, 10) || appId,
-                assignee_id: parseInt(assigneeId, 10) || assigneeId
-            },
-            success: function(res) {
-                if (res && res.success) {
-                    var modalEl = document.getElementById('applicationChangeAssigneeModal');
-                    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                        var m = bootstrap.Modal.getInstance(modalEl);
-                        if (m) m.hide();
-                    } else if (modalEl) {
-                        $(modalEl).modal('hide');
+        saveApplicationAssignee(appId, assigneeId, {
+            onSuccess: function() {
+                var modalEl = document.getElementById('applicationChangeAssigneeModal');
+                if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var m = bootstrap.Modal.getInstance(modalEl);
+                    if (m) {
+                        m.hide();
                     }
-                    var name = (res.assignee_name || '').trim();
-                    $('#application_assignee_name').text(name);
-                    $('#application_assignee_initial').text(name ? name.charAt(0).toUpperCase() : '');
-                    $('#application_assignee_email').text(res.assignee_email || '');
-                    $('.application-change-assignee').data('assignee-id', assigneeId);
-                } else {
-                    alert((res && res.message) || 'Failed to update assignee.');
+                } else if (modalEl) {
+                    $(modalEl).modal('hide');
                 }
+                $('#application_assignee_select').val(assigneeId);
             },
-            error: function(xhr) {
-                var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to update assignee.';
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
-                }
-                alert(msg);
-            },
-            complete: function() { $btn.prop('disabled', false); }
+            onComplete: function() {
+                $btn.prop('disabled', false);
+            }
         });
     });
 
