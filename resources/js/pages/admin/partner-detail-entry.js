@@ -5,7 +5,23 @@
 'use strict';
 
 import '@legacy/common/config.js';
-import '@legacy/common/activity-handlers.js';
+import {
+    applyActivitiesFilters,
+    applyActivitiesResponse,
+    applyNotesResponse,
+    deleteactivitylog,
+    getallactivities,
+    getallnotes,
+} from '@legacy/common/activity-handlers.js';
+
+if (typeof window !== 'undefined') {
+    window.getallactivities = getallactivities;
+    window.getallnotes = getallnotes;
+    window.deleteactivitylog = deleteactivitylog;
+    window.applyActivitiesResponse = applyActivitiesResponse;
+    window.applyNotesResponse = applyNotesResponse;
+    window.applyActivitiesFilters = applyActivitiesFilters;
+}
 
 import '@legacy/pages/admin/partner-detail/archive-handlers.js';
 import '@legacy/pages/admin/partner-detail/notes-handlers.js';

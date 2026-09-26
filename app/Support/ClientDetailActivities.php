@@ -6,6 +6,8 @@ use App\Models\ActivitiesLog;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator as SimplePaginator;
+use Illuminate\Support\Collection;
 
 /**
  * Client/lead detail Activities tab: shared filters, order, and load-more pages.
@@ -43,12 +45,46 @@ final class ClientDetailActivities
     /**
      * @param  array{keyword?: string, activity_type?: string, date_from?: string, date_to?: string}  $filters
      */
+    public static function filtersAreActive(array $filters): bool
+    {
+        $activityType = (string) ($filters['activity_type'] ?? 'all');
+
+        return trim((string) ($filters['keyword'] ?? '')) !== ''
+            || ($activityType !== '' && $activityType !== 'all')
+            || self::parseFilterDate((string) ($filters['date_from'] ?? '')) !== null
+            || self::parseFilterDate((string) ($filters['date_to'] ?? '')) !== null;
+    }
+
+    /**
+     * @param  array{keyword?: string, activity_type?: string, date_from?: string, date_to?: string}  $filters
+     */
     public static function paginate(int $clientId, array $filters = [], int $page = 1): Paginator
     {
         $page = max(1, $page);
 
+        if (self::filtersAreActive($filters)) {
+            return self::paginateAllMatches($clientId, $filters, $page);
+        }
+
         return self::queryForClient($clientId, $filters)
             ->simplePaginate(self::PAGE_SIZE, ['*'], 'page', $page);
+    }
+
+    /**
+     * When filters are active, return every matching row on page 1 (no load-more slice).
+     *
+     * @param  array{keyword?: string, activity_type?: string, date_from?: string, date_to?: string}  $filters
+     */
+    private static function paginateAllMatches(int $clientId, array $filters, int $page): Paginator
+    {
+        if ($page > 1) {
+            return new SimplePaginator(new Collection, 1, $page);
+        }
+
+        $items = self::queryForClient($clientId, $filters)->get();
+        $perPage = max($items->count(), 1);
+
+        return new SimplePaginator($items, $perPage, $page);
     }
 
     /**

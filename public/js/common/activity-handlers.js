@@ -607,3 +607,12 @@ if (typeof jQuery !== 'undefined') {
         bindNotesLoadMore();
     });
 }
+
+export {
+    applyActivitiesFilters,
+    applyActivitiesResponse,
+    applyNotesResponse,
+    deleteactivitylog,
+    getallactivities,
+    getallnotes,
+};

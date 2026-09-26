@@ -7,7 +7,24 @@
 import '@legacy/common/config.js';
 import '@legacy/common/ajax-helpers.js';
 import '@legacy/common/crud-operations.js';
-import '@legacy/common/activity-handlers.js';
+import {
+    applyActivitiesFilters,
+    applyActivitiesResponse,
+    applyNotesResponse,
+    deleteactivitylog,
+    getallactivities,
+    getallnotes,
+} from '@legacy/common/activity-handlers.js';
+
+// Keep window globals for inline Blade scripts and legacy callers.
+if (typeof window !== 'undefined') {
+    window.getallactivities = getallactivities;
+    window.getallnotes = getallnotes;
+    window.deleteactivitylog = deleteactivitylog;
+    window.applyActivitiesResponse = applyActivitiesResponse;
+    window.applyNotesResponse = applyNotesResponse;
+    window.applyActivitiesFilters = applyActivitiesFilters;
+}
 import '@legacy/common/document-handlers.js';
 import '@legacy/pages/admin/client-detail/preview-file-scroll.js';
 import './client-detail/deep-link-highlight.js';
