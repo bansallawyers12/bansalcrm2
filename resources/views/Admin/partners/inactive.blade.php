@@ -12,7 +12,7 @@ a.dropdown-item {padding-top: 5px !important;}
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				@include('Elements.flash-message')
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -106,16 +106,7 @@ a.dropdown-item {padding-top: 5px !important;}
 										@if(@$totalData !== 0)
 										<?php $i=0; ?>
 										@foreach (@$lists as $list)
-										<?php
-											$partnertype = \App\Models\PartnerType::where('id', $list->partner_type)->first();
-											$workflow = \App\Models\Workflow::where('id', $list->service_workflow)->first();
-											$product = \App\Models\Product::where('partner', $list->id)->count();
-											
-                                            //Get partner latest notes
-                                            $latestnote = \App\Models\Note::select('title','description')->where('client_id',$list->id)->whereNull('assigned_to')->whereNull('task_group')->where('type','partner')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->first();
-
-
-										?>
+										@php $latestnote = $list->latestListNote; @endphp
 										<tr id="id_{{@$list->id}}">
 											<td style="white-space: initial;" class="text-center">
 												<div class="custom-checkbox custom-control">
@@ -204,7 +195,7 @@ a.dropdown-item {padding-top: 5px !important;}
 											<td style="white-space: initial;">{{--@$partnertype->name--}}</td>-->
 
 											<td style="white-space: initial;">{{ @$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...') }}<br/>{{ @$list->country == "" ? config('constants.empty') : str_limit(@$list->country, '50', '...') }}</td>
-											<td style="white-space: initial;">{{$product}}</td>
+											<td style="white-space: initial;">{{ $list->products_count }}</td>
 
 											<!--<td><span class="ag-label--circular" style="color: #6777ef" >In Progress</span></td>-->
 											<td>
