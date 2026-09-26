@@ -55,6 +55,7 @@ export default defineConfig({
         },
     },
     build: {
+        chunkSizeWarningLimit: 1600,
         rollupOptions: {
             output: {
                 manualChunks: undefined, // Let Vite handle chunking automatically
