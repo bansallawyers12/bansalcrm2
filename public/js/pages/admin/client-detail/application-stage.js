@@ -37,14 +37,6 @@
         });
     }
 
-    if (typeof window.waitForBootstrap === 'function') {
-        try {
-            await window.waitForBootstrap();
-        } catch (e) {
-            console.warn('[application-stage.js] Bootstrap not ready:', e);
-        }
-    }
-
 // ============================================================================
 // FEE MODAL HELPERS (Bootstrap 5 native API with jQuery fallback)
 // ============================================================================

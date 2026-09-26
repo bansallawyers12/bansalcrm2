@@ -106,89 +106,99 @@ function toastMsg(message, type) {
 
 // Initialize Bootstrap 5 dropdowns for Action buttons
 (function() {
+    var dropdownInitAttempts = 0;
+    var maxAttempts = 50; // 5 seconds max wait
+    
     function initDropdowns() {
-        if (typeof bootstrap === 'undefined' || !bootstrap.Dropdown) {
-            return;
-        }
-
-        // Initialize all dropdown toggles that aren't already initialized
-        var dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-        var initializedCount = 0;
-
-        dropdownToggles.forEach(function(element) {
-            if (!bootstrap.Dropdown.getInstance(element)) {
-                try {
-                    new bootstrap.Dropdown(element);
-                    initializedCount++;
-                } catch (e) {
-                    console.warn('Failed to initialize dropdown:', e, element);
+        dropdownInitAttempts++;
+        
+        // Check if Bootstrap is available
+        if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+            // Initialize all dropdown toggles that aren't already initialized
+            var dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            var initializedCount = 0;
+            
+            dropdownToggles.forEach(function(element) {
+                // Check if dropdown is already initialized
+                if (!bootstrap.Dropdown.getInstance(element)) {
+                    try {
+                        new bootstrap.Dropdown(element);
+                        initializedCount++;
+                    } catch (e) {
+                        console.warn('Failed to initialize dropdown:', e, element);
+                    }
                 }
+            });
+            
+            if (initializedCount > 0) {
+                console.log('Initialized ' + initializedCount + ' Bootstrap dropdown(s)');
             }
-        });
-
-        if (initializedCount > 0) {
-            console.log('Initialized ' + initializedCount + ' Bootstrap dropdown(s)');
-        }
-
-        // Setup mutation observer for dynamically added dropdowns
-        if (!window.dropdownObserverSetup) {
-            window.dropdownObserverSetup = true;
-
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length > 0) {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) {
-                                var dropdowns = node.querySelectorAll ? node.querySelectorAll('[data-bs-toggle="dropdown"]') : [];
-                                dropdowns.forEach(function(element) {
-                                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(element)) {
-                                        try {
-                                            new bootstrap.Dropdown(element);
-                                        } catch (e) {
-                                            console.warn('Failed to initialize dynamic dropdown:', e);
+            
+            // Setup mutation observer for dynamically added dropdowns
+            if (!window.dropdownObserverSetup) {
+                window.dropdownObserverSetup = true;
+                
+                var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length > 0) {
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) { // Element node
+                                    // Check for dropdown toggles in the added node
+                                    var dropdowns = node.querySelectorAll ? node.querySelectorAll('[data-bs-toggle="dropdown"]') : [];
+                                    dropdowns.forEach(function(element) {
+                                        if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(element)) {
+                                            try {
+                                                new bootstrap.Dropdown(element);
+                                            } catch (e) {
+                                                console.warn('Failed to initialize dynamic dropdown:', e);
+                                            }
                                         }
-                                    }
-                                });
-
-                                if (node.hasAttribute && node.hasAttribute('data-bs-toggle') && node.getAttribute('data-bs-toggle') === 'dropdown') {
-                                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(node)) {
-                                        try {
-                                            new bootstrap.Dropdown(node);
-                                        } catch (e) {
-                                            console.warn('Failed to initialize dynamic dropdown:', e);
+                                    });
+                                    
+                                    // Also check if the node itself is a dropdown toggle
+                                    if (node.hasAttribute && node.hasAttribute('data-bs-toggle') && node.getAttribute('data-bs-toggle') === 'dropdown') {
+                                        if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(node)) {
+                                            try {
+                                                new bootstrap.Dropdown(node);
+                                            } catch (e) {
+                                                console.warn('Failed to initialize dynamic dropdown:', e);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        });
-                    }
+                            });
+                        }
+                    });
                 });
-            });
-
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+                
+                // Observe the document body for changes
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        } else if (dropdownInitAttempts < maxAttempts) {
+            // Retry if Bootstrap isn't loaded yet
+            setTimeout(initDropdowns, 100);
+        } else {
+            console.error('Bootstrap Dropdown not available after ' + maxAttempts + ' attempts');
         }
     }
-
-    function startDropdownInit() {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDropdowns);
-        } else {
+    
+    // Start initialization when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDropdowns);
+    } else {
+        // DOM is already ready
+        initDropdowns();
+    }
+    
+    // Also try after window load as a fallback
+    window.addEventListener('load', function() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
             initDropdowns();
         }
-
-        window.addEventListener('load', initDropdowns);
-    }
-
-    if (typeof window.waitForBootstrap === 'function') {
-        window.waitForBootstrap().then(startDropdownInit).catch(function () {
-            console.error('Bootstrap Dropdown not available after waiting for bootstrapReady');
-        });
-    } else {
-        startDropdownInit();
-    }
+    });
 })();
 
 // ============================================================================
