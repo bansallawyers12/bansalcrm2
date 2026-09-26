@@ -2,10 +2,12 @@
 
 namespace Tests;
 
+use Illuminate\Foundation\Testing\TestCase as LaravelTestCase;
+
 /**
  * Base test case for HTTP and application tests.
  */
-abstract class TestCase extends \Illuminate\Foundation\Testing\TestCase
+abstract class TestCase extends LaravelTestCase
 {
     //
 }

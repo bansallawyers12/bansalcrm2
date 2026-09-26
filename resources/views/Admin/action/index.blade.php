@@ -32,7 +32,7 @@
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				@include('Elements.flash-message')
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -372,8 +372,10 @@ $(function () {
             url: "{{ route('action.list') }}",
             data: function (d) {
                 d.include_scheduled_followups = $('#include_scheduled_followups').is(':checked') ? 1 : 0;
+                d.task_group_filter = $('.filter-checkbox.active').data('val') || 'All';
             }
         },
+        order: [],
         columns: [
             {sWidth: '40px',className: "uniqueClassName", data: 'DT_RowIndex', name: 'DT_RowIndex'},
             {sWidth: '50px',className: "uniqueClassName", data: 'done_task', name: 'done_task',orderable: false,searchable: false},
@@ -425,18 +427,11 @@ $(function () {
         table.column(5).search(searchTerms.join('|'), true, false, true).draw();
     });*/
     
-    //filter record on bais of task group
+    //filter record on basis of task group (server-side)
     $('.filter-checkbox').on('click', function(e){
-        var searchTerms = []
-        if($(this).attr('data-val') == 'All'){
-            searchTerms = ["Call", "Checklist","Review","Query","Urgent","Personal Task","stage","partner"];
-        } else {
-            searchTerms.push("^" + $(this).attr('data-val') + "$")
-        }
         $(".filter-checkbox").removeClass("active");
         $(this).addClass("active");
-        //console.log(searchTerms);
-        table.column(5).search(searchTerms.join('|'), true, false, true).draw();
+        table.ajax.reload();
     });
 
 

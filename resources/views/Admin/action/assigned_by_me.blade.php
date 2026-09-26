@@ -10,13 +10,16 @@
 .popover .popover-body { overflow: visible !important; }
 .popover .ts-wrapper { z-index: 100001 !important; width: 100% !important; }
 .popover .ts-dropdown { z-index: 100001 !important; }
+.action-btns { display: flex; gap: 4px; flex-wrap: nowrap; align-items: center; }
+.action-btns .btn { flex-shrink: 0; }
+.table td { vertical-align: middle; }
 </style>
 <!-- Main Content -->
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				@include('Elements.flash-message')
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -79,45 +82,43 @@
                                                 <th>Note</th>
                                                 <th width="140px">Action</th>
                                             </tr>
+                                            @php
+                                                $assignableStaff = $assignableStaff ?? collect();
+                                            @endphp
                                             <?php
                                             if(count($assignees_notCompleted)>0){
                                             ?>
                                             @foreach ($assignees_notCompleted as $list)
-                                            <?php //echo "<pre>list==";print_r($list);
-                                                $admin = \App\Models\Staff::find($list->assigned_to);//dd($admin);
-                                                if($admin){
-                                                    $first_name = $admin->first_name ?? 'N/A';
-                                                    $last_name = $admin->last_name ?? 'N/A';
-                                                    $full_name = $first_name.' '.$last_name;
-                                                } else {
-                                                    $full_name = 'N/P';
-                                                }
-                                            ?>
+                                            @php
+                                                $assignee = $list->assigned_user;
+                                                $full_name = $assignee
+                                                    ? trim(($assignee->first_name ?? 'N/A').' '.($assignee->last_name ?? 'N/A'))
+                                                    : 'N/P';
+                                            @endphp
                                             <tr>
-                                                <?php
-                                                if($list->noteClient){
-                                                    $user_name=$list->noteClient->first_name.' '.$list->noteClient->last_name;
-                                                }else{
-                                                    $user_name='N/P';
-                                                } ?>
+                                                @php
+                                                    if ($list->noteClient) {
+                                                        $user_name = $list->noteClient->first_name.' '.$list->noteClient->last_name;
+                                                    } else {
+                                                        $user_name = 'N/P';
+                                                    }
+                                                @endphp
                                                 <td style="text-align: center;">{{ ++$i }}</td>
                                                 <td style="text-align: center;"><input type="radio" class="complete_task" data-bs-toggle="tooltip" title="Mark Complete!" data-id="{{ $list->id }}"></td>
-                                                <td>{{ $full_name??'N/P' }}</td>
+                                                <td>{{ $full_name }}</td>
                                                 <td>
                                                     {{ $user_name }}
                                                     <br>
-                                                    <?php
-                                                    if($list->noteClient)
-                                                    {
-                                                        $encodedRefId = base64_encode(convert_uuencode(@$list->client_id));
-                                                        $isLeadType = strtolower((string) ($list->noteClient->type ?? '')) === 'lead';
-                                                        $detailUrl = $isLeadType
-                                                            ? route('leads.detail', $encodedRefId)
-                                                            : route('clients.detail', $encodedRefId);
-                                                    ?>
-                                                        <a href="{{ $detailUrl }}" target="_blank" >{{ $list->noteClient->client_id }}</a>
-                                                    <?php
-                                                    } ?>
+                                                    @if($list->noteClient)
+                                                        @php
+                                                            $encodedRefId = base64_encode(convert_uuencode(@$list->client_id));
+                                                            $isLeadType = strtolower((string) ($list->noteClient->type ?? '')) === 'lead';
+                                                            $detailUrl = $isLeadType
+                                                                ? route('leads.detail', $encodedRefId)
+                                                                : route('clients.detail', $encodedRefId);
+                                                        @endphp
+                                                        <a href="{{ $detailUrl }}" target="_blank">{{ $list->noteClient->client_id }}</a>
+                                                    @endif
                                                 </td>
 
                                                 <td>
@@ -135,185 +136,154 @@
                                                         N/P
                                                     @endif
                                                 </td>
-                                                <td>{{ $list->task_group??'N/P' }}</td>
+                                                <td>{{ $list->task_group ?? 'N/P' }}</td>
                                                 <td>
-                                                    <?php
-                                                    // Escaped plain text only (list/popover XSS-safe). Edit prefills still use data-description.
-                                                    $plainDescription = trim(strip_tags((string) ($list->description ?? '')));
-                                                    if ($plainDescription !== '') {
-                                                        $safeHtml = \App\Support\Utf8Helper::sanitizeForHtml($plainDescription);
-                                                        if (mb_strlen($plainDescription) > 190) {
-                                                            $preview = \App\Support\Utf8Helper::sanitizeForHtml(mb_substr($plainDescription, 0, 190));
-                                                            $safeAttr = \App\Support\Utf8Helper::sanitizeForHtmlAttribute($plainDescription);
-                                                            echo $preview . ' <button type="button" class="btn btn-link" data-bs-toggle="popover" data-bs-html="false" data-html="false" title="" data-bs-content="'.$safeAttr.'" data-content="'.$safeAttr.'">Read more</button>';
-                                                        } else {
-                                                            echo $safeHtml;
-                                                        }
-                                                    } else {
-                                                        echo 'N/P';
-                                                    }
-                                                    echo "\n";
-                                                    ?>
+                                                    @php
+                                                        $plainDescription = trim(strip_tags((string) ($list->description ?? '')));
+                                                    @endphp
+                                                    @if ($plainDescription !== '')
+                                                        @php
+                                                            $safeHtml = \App\Support\Utf8Helper::sanitizeForHtml($plainDescription);
+                                                        @endphp
+                                                        @if (mb_strlen($plainDescription) > 190)
+                                                            @php
+                                                                $preview = \App\Support\Utf8Helper::sanitizeForHtml(mb_substr($plainDescription, 0, 190));
+                                                                $safeAttr = \App\Support\Utf8Helper::sanitizeForHtmlAttribute($plainDescription);
+                                                            @endphp
+                                                            {!! $preview !!} <button type="button" class="btn btn-link" data-bs-toggle="popover" data-bs-html="false" title="" data-bs-content="{{ $safeAttr }}">Read more</button>
+                                                        @else
+                                                            {!! $safeHtml !!}
+                                                        @endif
+                                                    @else
+                                                        N/P
+                                                    @endif
                                                 </td>
 
-
                                                 <td>
-                                                    {{-- @if($list->noteClient) --}}
-                                                    <form action="{{ route('action.destroy_by_me',$list->id) }}" method="POST">
-
-                                                        {{-- <a class="btn btn-info" href="{{ route('assignees.show',$list->id) }}">Show</a> --}}
-
-                                                        {{--<a class="btn btn-primary" href="{{ url('/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}">Edit</a>--}}
-
-                                                        <?php if($list->task_group != 'Personal Task'){?>
-                                                            <button type="button" data-assignedto="{{ $list->assigned_to }}" data-description="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" class="btn btn-primary btn-block update_task" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
-                                                                <h4 class=&quot;text-center&quot;>Update Task</h4>
-                                                                <div class=&quot;clearfix&quot;></div>
-                                                            <div class=&quot;box-header with-border&quot;>
-                                                                <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                    <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
-                                                                    <div class=&quot;col-sm-9&quot;>
-                                                                        <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
-                                                                            <option value=&quot;&quot; >Select</option>
-                                                                            {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
-                                                                            @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
-                                                                            <?php
-                                                                            $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                                            ?>
-                                                                            <option value=&quot;<?php echo $admin->id; ?>&quot; <?php if($admin->id == $list->assigned_to){ echo "selected";} ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                                    <form action="{{ route('action.destroy_by_me',$list->id) }}" method="POST" class="d-inline">
+                                                        <div class="action-btns">
+                                                        @if($list->task_group != 'Personal Task')
+                                                        <div id="popover-update-{{ $list->id }}" class="d-none">
+                                                            <h4 class="text-center">Update Task</h4>
+                                                            <div class="clearfix"></div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
+                                                                    <div class="col-sm-9">
+                                                                        <select class="assignee-tomselect tomselect form-control selec_reg rem_cat" name="rem_cat">
+                                                                            <option value="">Select</option>
+                                                                            @foreach($assignableStaff as $admin)
+                                                                            <option value="{{ $admin->id }}" {{ $admin->id == $list->assigned_to ? 'selected' : '' }}>{{ $admin->first_name.' '.$admin->last_name.' ('.($admin->office->office_name ?? '').')' }}</option>
                                                                             @endforeach
                                                                         </select>
                                                                     </div>
-                                                                    <div class=&quot;clearfix&quot;></div>
-                                                                </div>
-                                                            </div><div id=&quot;popover-content&quot;>
-                                                            <div class=&quot;box-header with-border&quot;>
-                                                                <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                    <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
-                                                                    <div class=&quot;col-sm-9&quot;>
-                                                                        <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple js-staff-mentions f13&quot; placeholder=&quot;Enter a note... (type @ to tag staff)&quot; type=&quot;text&quot;></textarea>
-                                                                    </div>
-                                                                    <div class=&quot;clearfix&quot;></div>
                                                                 </div>
                                                             </div>
-                                                            <div class=&quot;box-header with-border&quot;>
-                                                                <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                    <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
-                                                                    <div class=&quot;col-sm-9&quot;>
-                                                                        <input type=&quot;text&quot; class=&quot;form-control f13 flatpickr-date&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;<?php echo date('Y-m-d');?>&quot; name=&quot;popoverdate&quot; autocomplete=&quot;off&quot;>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Note</label>
+                                                                    <div class="col-sm-9">
+                                                                        <textarea class="form-control assignnote tinymce-simple js-staff-mentions f13" placeholder="Enter a note... (type @ to tag staff)" rows="3"></textarea>
                                                                     </div>
-                                                                    <div class=&quot;clearfix&quot;></div>
                                                                 </div>
                                                             </div>
-
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
-                                                                        <option value=&quot;&quot;>Select</option>
-                                                                        <option value=&quot;Call&quot;>Call</option>
-                                                                        <option value=&quot;Checklist&quot;>Checklist</option>
-                                                                        <option value=&quot;Review&quot;>Review</option>
-                                                                        <option value=&quot;Query&quot;>Query</option>
-                                                                        <option value=&quot;Urgent&quot;>Urgent</option>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">DateTime</label>
+                                                                    <div class="col-sm-9">
+                                                                        <input type="text" class="form-control f13 flatpickr-date popoverdatetime" placeholder="yyyy-mm-dd" value="{{ date('Y-m-d') }}" name="popoverdate" autocomplete="off">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row" style="margin-bottom:12px">
+                                                                <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
+                                                                <div class="col-sm-9">
+                                                                    <select class="assignee-tomselect tomselect form-control task_group" name="task_group">
+                                                                        <option value="">Select</option>
+                                                                        <option value="Call" {{ $list->task_group == 'Call' ? 'selected' : '' }}>Call</option>
+                                                                        <option value="Checklist" {{ $list->task_group == 'Checklist' ? 'selected' : '' }}>Checklist</option>
+                                                                        <option value="Review" {{ $list->task_group == 'Review' ? 'selected' : '' }}>Review</option>
+                                                                        <option value="Query" {{ $list->task_group == 'Query' ? 'selected' : '' }}>Query</option>
+                                                                        <option value="Urgent" {{ $list->task_group == 'Urgent' ? 'selected' : '' }}>Urgent</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
-
-                                                            <input id=&quot;assign_note_id&quot;  type=&quot;hidden&quot; value=&quot;&quot;>
-
-                                                            <input id=&quot;assign_client_id&quot;  type=&quot;hidden&quot; value=&quot;{{base64_encode(convert_uuencode(@$list->client_id))}}&quot;>
-                                                            <div class=&quot;box-footer&quot; style=&quot;padding:10px 0&quot;>
-                                                            <div class=&quot;row&quot;>
-                                                                <input type=&quot;hidden&quot; value=&quot;&quot; id=&quot;popoverrealdate&quot; name=&quot;popoverrealdate&quot; />
-                                                            </div>
-                                                            <div class=&quot;row text-center&quot;>
-                                                                <div class=&quot;col-md-12 text-center&quot;>
-                                                                <button  class=&quot;btn btn-info&quot; id=&quot;updateTask&quot;>Update Task</button>
+                                                            <input type="hidden" class="assign_note_id" value="">
+                                                            <input type="hidden" class="assign_client_id" value="{{ base64_encode(convert_uuencode(@$list->client_id)) }}">
+                                                            <div class="box-footer" style="padding:10px 0">
+                                                                <div class="row text-center">
+                                                                    <div class="col-md-12">
+                                                                        <button type="button" class="btn btn-info updateTask">Update Task</button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                    </div>" data-original-title="" title="" style="width: 40px;display: inline;">@icon('edit')</button>
-                                                    <?php } ?>
+                                                        </div>
+                                                        <button type="button" data-popover-target="popover-update-{{ $list->id }}" data-description="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm update_task" data-bs-toggle="tooltip" title="Update Task">@icon('edit')</button>
+                                                        @endif
 
-                                                        <?php if($list->task_group != 'Personal Task'){?>
-                                                        <button type="button" data-assignedto="{{ $list->assigned_to }}" data-description="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" class="btn btn-primary btn-block reassign_task" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" title="Reassign" data-content="<div id=&quot;popover-content&quot;>
-                                                            <h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
-                                                            <div class=&quot;clearfix&quot;></div>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
-                                                                        <option value=&quot;&quot; >Select</option>
-                                                                        @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
-                                                                        <?php
-                                                                        $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                                        ?>
-                                                                        <option value=&quot;<?php echo $admin->id; ?>&quot;><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                                                        @endforeach
+                                                        @if($list->task_group != 'Personal Task')
+                                                        <div id="popover-assign-{{ $list->id }}" class="d-none">
+                                                            <h4 class="text-center">Re-Assign Staff</h4>
+                                                            <div class="clearfix"></div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
+                                                                    <div class="col-sm-9">
+                                                                        <select class="assignee-tomselect tomselect form-control selec_reg rem_cat" name="rem_cat">
+                                                                            <option value="">Select</option>
+                                                                            @foreach($assignableStaff as $admin)
+                                                                            <option value="{{ $admin->id }}">{{ $admin->first_name.' '.$admin->last_name.' ('.($admin->office->office_name ?? '').')' }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Note</label>
+                                                                    <div class="col-sm-9">
+                                                                        <textarea class="form-control assignnote tinymce-simple js-staff-mentions f13" placeholder="Enter a note... (type @ to tag staff)" rows="3"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">DateTime</label>
+                                                                    <div class="col-sm-9">
+                                                                        <input type="text" class="form-control f13 flatpickr-date popoverdatetime" placeholder="yyyy-mm-dd" value="{{ date('Y-m-d') }}" name="popoverdate" autocomplete="off">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row" style="margin-bottom:12px">
+                                                                <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
+                                                                <div class="col-sm-9">
+                                                                    <select class="assignee-tomselect tomselect form-control task_group" name="task_group">
+                                                                        <option value="">Select</option>
+                                                                        <option value="Call">Call</option>
+                                                                        <option value="Checklist">Checklist</option>
+                                                                        <option value="Review">Review</option>
+                                                                        <option value="Query">Query</option>
+                                                                        <option value="Urgent">Urgent</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
-                                                        </div><div id=&quot;popover-content&quot;>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple js-staff-mentions f13&quot; placeholder=&quot;Enter a note... (type @ to tag staff)&quot; type=&quot;text&quot;></textarea>
+                                                            <input type="hidden" class="assign_note_id" value="">
+                                                            <input type="hidden" class="assign_client_id" value="{{ base64_encode(convert_uuencode(@$list->client_id)) }}">
+                                                            <div class="box-footer" style="padding:10px 0">
+                                                                <div class="row text-center">
+                                                                    <div class="col-md-12">
+                                                                        <button type="button" class="btn btn-info assignUser">Assign Staff</button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
                                                         </div>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <input type=&quot;text&quot; class=&quot;form-control f13 flatpickr-date&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;<?php echo date('Y-m-d');?>&quot; name=&quot;popoverdate&quot; autocomplete=&quot;off&quot;>
-                                                                </div>
-                                                                <div class=&quot;clearfix&quot;></div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                            <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
-                                                            <div class=&quot;col-sm-9&quot;>
-                                                                <select class=&quot;assignee-tomselect tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
-                                                                    <option value=&quot;&quot;>Select</option>
-                                                                    <option value=&quot;Call&quot;>Call</option>
-                                                                    <option value=&quot;Checklist&quot;>Checklist</option>
-                                                                    <option value=&quot;Review&quot;>Review</option>
-                                                                    <option value=&quot;Query&quot;>Query</option>
-                                                                    <option value=&quot;Urgent&quot;>Urgent</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class=&quot;clearfix&quot;></div>
-                                                        </div>
-
-                                                        <input id=&quot;assign_note_id&quot;  type=&quot;hidden&quot; value=&quot;&quot;>
-                                                        <input id=&quot;assign_client_id&quot;  type=&quot;hidden&quot; value=&quot;{{base64_encode(convert_uuencode(@$list->client_id))}}&quot;>
-                                                        <div class=&quot;box-footer&quot; style=&quot;padding:10px 0&quot;>
-                                                        <div class=&quot;row&quot;>
-                                                            <input type=&quot;hidden&quot; value=&quot;&quot; id=&quot;popoverrealdate&quot; name=&quot;popoverrealdate&quot; />
-                                                        </div>
-                                                        <div class=&quot;row text-center&quot;>
-                                                            <div class=&quot;col-md-12 text-center&quot;>
-                                                            <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign Staff</button>
-                                                            </div>
-                                                        </div>
-                                                </div>" data-original-title="" title="" style="width: 40px;display: inline;">@icon('tasks')</button>
-                                                        <?php } ?>
+                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-description="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign Staff">@icon('tasks')</button>
+                                                        @endif
 
                                                         @csrf
                                                         @method('DELETE')
-
-                                                        <!--<button type="submit" class="btn btn-danger" data-crm-confirm='Are you sure want to delete?'">@icon('trash')</button>-->
-
-
-
+                                                        </div>
                                                     </form>
-                                                    {{-- @endif --}}
                                                 </td>
                                             </tr>
 										    @endforeach
@@ -348,6 +318,19 @@
 	</section>
 </div>
 <!-- Assign Modal (legacy appointment detail — removed) -->
+
+<!-- Update Task / Assign Staff Modal (populated from template) -->
+<div class="modal fade" id="actionPopoverModal" tabindex="-1" aria-labelledby="actionPopoverModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="actionPopoverModalLabel"></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" id="actionPopoverModalBody"></div>
+		</div>
+	</div>
+</div>
 
 <!-- Complete Action Modal -->
 <div class="modal fade" id="completeActionModal" tabindex="-1" role="dialog" aria-labelledby="completeActionModalLabel" aria-hidden="true">
@@ -385,185 +368,120 @@
 @endpush
 
 <script>
-	jQuery(document).ready(function($){
-    /**
-     * Resolve the Bootstrap popover tip DOM for a given trigger.
-     * Never fall back to global $('#assignnote') etc. (duplicate ids across rows).
-     */
-    function getPopoverTipForTrigger(triggerEl) {
-        if (!triggerEl) {
-            return $();
-        }
-        try {
-            if (window.bootstrap && window.bootstrap.Popover) {
-                var inst = window.bootstrap.Popover.getInstance(triggerEl);
-                if (inst) {
-                    var tip = (typeof inst.getTipElement === 'function')
-                        ? inst.getTipElement()
-                        : (inst.tip || null);
-                    if (tip) {
-                        return $(tip);
-                    }
-                }
-            }
-        } catch (err) { /* ignore */ }
+jQuery(document).ready(function($){
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
-        var data = $(triggerEl).data('bs.popover');
-        if (data && data.tip) {
-            return $(data.tip);
-        }
-        return $();
-    }
-
-    /** Form root for submit buttons rendered inside the open popover tip. */
-    function getActionPopoverFormFromEvent($btn) {
-        var $form = $btn.closest('.popover');
-        if ($form.length) {
-            return $form;
-        }
-        // Fallback: tip of last known row trigger (not document-wide #ids)
-        if (window._assignedByMeActiveTrigger) {
-            $form = getPopoverTipForTrigger(window._assignedByMeActiveTrigger);
-            if ($form.length) {
-                return $form;
-            }
-        }
-        return $();
-    }
-
-    function loadAssigneeIntoPopover($popover, assignedto) {
-        if (!$popover || !$popover.length) {
-            return;
-        }
-        $.ajax({
-            type: 'post',
-            url: "{{URL::to('/')}}/action/assignee-list",
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            data: { assignedto: assignedto },
-            success: function(response) {
-                var obj = $.parseJSON(response);
-                var $select = $popover.find('#rem_cat').first();
-                if (!$select.length) {
-                    return;
-                }
-                if (window.ActionPopoverTomSelect) {
-                    ActionPopoverTomSelect.refreshAssigneeSelect($select[0], obj.message, $popover[0]);
-                } else {
-                    $select.html(obj.message);
-                }
-            }
-        });
-    }
-
-    /**
-     * Wait for this button's popover tip, then prefill only within that tip.
-     * Retries briefly; never writes document-global #id fields.
-     */
-    function fillActionPopoverWhenReady($btn, opts) {
-        var filled = false;
-        var attempts = 0;
-        var maxAttempts = 10;
-        var retryMs = 75;
-
-        var tryFill = function() {
-            if (filled) {
-                return;
-            }
-            var $popover = getPopoverTipForTrigger($btn[0]);
-            if (!$popover.length || !$popover.find('#assign_note_id, #assignnote').length) {
-                attempts += 1;
-                if (attempts < maxAttempts) {
-                    setTimeout(tryFill, retryMs);
-                    return;
-                }
-                if (typeof showToast === 'function') {
-                    showToast('Could not open form. Please try again.', 'warning');
-                }
-                return;
-            }
-
-            filled = true;
-            $popover.find('#assignnote').val(opts.note_description);
-            $popover.find('#assign_note_id').val(opts.task_id);
-            $popover.find('#task_group').val(opts.taskgroup_id);
-            $popover.find('#popoverdatetime').val(opts.finalDate);
-            loadAssigneeIntoPopover($popover, opts.assignedto);
-        };
-
-        $btn.one('shown.bs.popover', tryFill);
-        setTimeout(tryFill, retryMs);
-    }
-
-     $(document).delegate('.openassignee', 'click', function(){
+    $(document).delegate('.openassignee', 'click', function(){
         $('.assignee').show();
     });
+
 	$(document).delegate('.closeassignee', 'click', function(){
         $('.assignee').hide();
     });
 
+    function showActionPopoverModal(title, $clone, assignedTo) {
+        $('#actionPopoverModalLabel').text(title);
+        $('#actionPopoverModalBody').html($clone);
 
-    //reassign task
-    $(document).delegate('.reassign_task', 'click', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var $btn = $(this);
-        window._assignedByMeActiveTrigger = this;
-        var assignedto = $btn.attr('data-assignedto');
-        // Description text for textarea prefill (legacy data-noteid fallback if present)
-        var note_description = $btn.attr('data-description');
-        if (note_description === undefined) {
-            note_description = $btn.attr('data-noteid') || '';
+        if (assignedTo) {
+            $.ajax({
+                type: 'post',
+                url: "{{URL::to('/')}}/action/assignee-list",
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: { assignedto: assignedTo },
+                success: function(response) {
+                    var obj = $.parseJSON(response);
+                    if (!obj.message) {
+                        return;
+                    }
+                    var html = Array.isArray(obj.message) ? obj.message.join('') : obj.message;
+                    var $sel = $('#actionPopoverModalBody .rem_cat').first();
+                    if (window.ActionPopoverTomSelect) {
+                        ActionPopoverTomSelect.refreshAssigneeSelect($sel[0], html, $('#actionPopoverModalBody')[0]);
+                    } else {
+                        $sel.html(html);
+                    }
+                }
+            });
         }
-        var task_id = $btn.attr('data-taskid');
-        var taskgroup_id = $btn.attr('data-taskgroupid');
-        var followupdate_id = $btn.attr('data-followupdate');
-        var folowDateArr = (followupdate_id || '').split(" ");
-        var finalDate = folowDateArr[0] || '';
-        
-        // Popover is already initialized by popover.js on page load - do NOT re-initialize
-        // (Re-initializing causes "Bootstrap doesn't allow more than one instance per element" error)
-        $btn.popover('show');
 
-        fillActionPopoverWhenReady($btn, {
-            assignedto: assignedto,
-            note_description: note_description,
-            task_id: task_id,
-            taskgroup_id: taskgroup_id,
-            finalDate: finalDate
-        });
-    });
+        var modalEl = document.getElementById('actionPopoverModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        } else {
+            $(modalEl).modal('show');
+        }
+        if (typeof initModalFlatpickrDates === 'function') {
+            initModalFlatpickrDates('#actionPopoverModal');
+        } else if (typeof flatpickr !== 'undefined') {
+            document.querySelectorAll('#actionPopoverModal .flatpickr-date').forEach(function (el) {
+                if (el._flatpickr) {
+                    el._flatpickr.destroy();
+                }
+                flatpickr(el, { dateFormat: 'Y-m-d', allowInput: true });
+            });
+        }
+    }
 
-    //update task
     $(document).delegate('.update_task', 'click', function(e){
         e.preventDefault();
-        e.stopPropagation();
-        
         var $btn = $(this);
-        window._assignedByMeActiveTrigger = this;
-        var assignedto = $btn.attr('data-assignedto');
-        // Description text for textarea prefill (legacy data-noteid fallback if present)
-        var note_description = $btn.attr('data-description');
-        if (note_description === undefined) {
-            note_description = $btn.attr('data-noteid') || '';
+        var targetId = $btn.data('popover-target');
+        var $template = $('#' + targetId);
+        if (!$template.length) {
+            return;
         }
-        var task_id = $btn.attr('data-taskid');
-        var taskgroup_id = $btn.attr('data-taskgroupid');
-        var followupdate_id = $btn.attr('data-followupdate');
-        var folowDateArr = (followupdate_id || '').split(" ");
-        var finalDate = folowDateArr[0] || '';
-        
-        // Popover is already initialized by popover.js on page load - do NOT re-initialize
-        // (Re-initializing causes "Bootstrap doesn't allow more than one instance per element" error)
-        $btn.popover('show');
 
-        fillActionPopoverWhenReady($btn, {
-            assignedto: assignedto,
-            note_description: note_description,
-            task_id: task_id,
-            taskgroup_id: taskgroup_id,
-            finalDate: finalDate
-        });
+        var noteDescription = $btn.attr('data-description');
+        if (noteDescription === undefined) {
+            noteDescription = $btn.attr('data-noteid') || '';
+        }
+        var taskId = $btn.data('taskid');
+        var taskgroupId = $btn.data('taskgroupid');
+        var followupdate = ($btn.data('followupdate') || '').toString().split(' ')[0] || '{{ date("Y-m-d") }}';
+
+        var $clone = $template.clone().removeClass('d-none');
+        $clone.find('.assign_note_id').val(taskId);
+        $clone.find('.assignnote').val(noteDescription);
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue($clone.find('.task_group')[0], taskgroupId);
+        } else {
+            $clone.find('.task_group').val(taskgroupId);
+        }
+        $clone.find('.popoverdatetime').val(followupdate);
+
+        showActionPopoverModal('Update Task', $clone, $btn.data('assignedto'));
+    });
+
+    $(document).delegate('.reassign_task', 'click', function(e){
+        e.preventDefault();
+        var $btn = $(this);
+        var targetId = $btn.data('popover-target');
+        var $template = $('#' + targetId);
+        if (!$template.length) {
+            return;
+        }
+
+        var noteDescription = $btn.attr('data-description');
+        if (noteDescription === undefined) {
+            noteDescription = $btn.attr('data-noteid') || '';
+        }
+        var taskId = $btn.data('taskid');
+        var taskgroupId = $btn.data('taskgroupid');
+        var followupdate = ($btn.data('followupdate') || '').toString().split(' ')[0] || '{{ date("Y-m-d") }}';
+        var assignedTo = $btn.data('assignedto');
+
+        var $clone = $template.clone().removeClass('d-none');
+        $clone.find('.assign_note_id').val(taskId);
+        $clone.find('.assignnote').val(noteDescription);
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue($clone.find('.task_group')[0], taskgroupId);
+        } else {
+            $clone.find('.task_group').val(taskgroupId);
+        }
+        $clone.find('.popoverdatetime').val(followupdate);
+
+        showActionPopoverModal('Re-Assign Staff', $clone, assignedTo);
     });
 
     //Function is used for not complete the task
@@ -718,159 +636,136 @@
     });
 
 
-    //re-assign task or update task
-    $(document).delegate('#assignUser','click', function(){
+    $(document).delegate('#actionPopoverModalBody .assignUser','click', function(){
 		$(".popuploader").show();
+		var $modal = $('#actionPopoverModalBody');
 		var flag = true;
-		var error ="";
-		$(".custom-error").remove();
-
-		// Scope only to the open tip that contains this button — never document-wide #ids
-		var $form = getActionPopoverFormFromEvent($(this));
-		if (!$form.length) {
-			$('.popuploader').hide();
-			if (typeof showToast === 'function') {
-				showToast('Could not find the open form. Please reopen and try again.', 'warning');
-			}
-			return;
-		}
-		
-		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) === '' : $form.find('#rem_cat').val() == ''){
+		var error = "";
+		$modal.find(".custom-error").remove();
+		var $remCat = $modal.find('.rem_cat');
+		var $assignNote = $modal.find('.assignnote');
+		var $taskGroup = $modal.find('.task_group');
+		var $assignNoteId = $modal.find('.assign_note_id');
+		var $assignClientId = $modal.find('.assign_client_id');
+		var $popoverDateTime = $modal.find('.popoverdatetime');
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) === '' : $remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
-			$form.find('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-		if($form.find('#assignnote').val() == ''){
+		if($assignNote.val() == ''){
 			$('.popuploader').hide();
 			error="Note field is required.";
-			$form.find('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) === '' : $form.find('#task_group').val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) === '' : $taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
-			$form.find('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
 		if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/reassignaction/store",
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {
-					note_id: $form.find('#assign_note_id').val(),
-					note_type: 'action',
-					description: $form.find('#assignnote').val(),
-					client_id: $form.find('#assign_client_id').val(),
-					followup_datetime: $form.find('#popoverdatetime').val(),
-					assignee_name: typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel($form.find('#rem_cat')) : $form.find('#rem_cat :selected').text(),
-					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) : $form.find('#rem_cat option:selected').val(),
-					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) : $form.find('#task_group option:selected').val()
+				url:"{{URL::to('/')}}/clients/reassignaction/store",
+				headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+				data: {
+					note_id: $assignNoteId.val(),
+					note_type:'action',
+					description:$assignNote.val(),
+					client_id:$assignClientId.val(),
+					followup_datetime:$popoverDateTime.val(),
+					assignee_name:$remCat.find(':selected').text(),
+					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) : $remCat.val(),
+					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) : $taskGroup.val()
 				},
-                success: function(response){
-                    console.log(response);
-                    $('.popuploader').hide();
-                    var obj = $.parseJSON(response);
-                    if(obj.success){
-                        $("[data-role=popover]").each(function(){
-                            // Bootstrap 5: plain hide (no BS3 inState API)
-                            try {
-                                if (window.bootstrap && window.bootstrap.Popover) {
-                                    var inst = window.bootstrap.Popover.getInstance(this);
-                                    if (inst) { inst.hide(); return; }
-                                }
-                            } catch (e) {}
-                            try { $(this).popover('hide'); } catch (e2) {}
-                        });
-                        location.reload();
-                    } else{
-                        showToast(obj.message, 'error');
-                        location.reload();
-                    }
-                }
+				success: function(response){
+					$('.popuploader').hide();
+					var obj = $.parseJSON(response);
+					if(obj.success){
+						var modalEl = document.getElementById('actionPopoverModal');
+						if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+							var m = bootstrap.Modal.getInstance(modalEl);
+							if (m) m.hide();
+						} else {
+							$('#actionPopoverModal').modal('hide');
+						}
+						location.reload();
+					}else{
+						showToast(obj.message, 'error');
+					}
+				}
 			});
 		}else{
-			$("#loader").hide();
 			$('.popuploader').hide();
 		}
 	});
 
-
-    //update task
-    $(document).delegate('#updateTask','click', function(){
+	$(document).delegate('#actionPopoverModalBody .updateTask','click', function(){
 		$(".popuploader").show();
+		var $modal = $('#actionPopoverModalBody');
 		var flag = true;
-		var error ="";
-		$(".custom-error").remove();
-
-		// Scope only to the open tip that contains this button — never document-wide #ids
-		var $form = getActionPopoverFormFromEvent($(this));
-		if (!$form.length) {
-			$('.popuploader').hide();
-			if (typeof showToast === 'function') {
-				showToast('Could not find the open form. Please reopen and try again.', 'warning');
-			}
-			return;
-		}
-
-		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) === '' : $form.find('#rem_cat').val() == ''){
+		var error = "";
+		$modal.find(".custom-error").remove();
+		var $remCat = $modal.find('.rem_cat');
+		var $assignNote = $modal.find('.assignnote');
+		var $taskGroup = $modal.find('.task_group');
+		var $assignNoteId = $modal.find('.assign_note_id');
+		var $assignClientId = $modal.find('.assign_client_id');
+		var $popoverDateTime = $modal.find('.popoverdatetime');
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) === '' : $remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
-			$form.find('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-		if($form.find('#assignnote').val() == ''){
+		if($assignNote.val() == ''){
 			$('.popuploader').hide();
 			error="Note field is required.";
-			$form.find('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) === '' : $form.find('#task_group').val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) === '' : $taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
-			$form.find('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
 		if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/updateaction/store",
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {
-					note_id: $form.find('#assign_note_id').val(),
-					note_type: 'action',
-					description: $form.find('#assignnote').val(),
-					client_id: $form.find('#assign_client_id').val(),
-					followup_datetime: $form.find('#popoverdatetime').val(),
-					assignee_name: typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel($form.find('#rem_cat')) : $form.find('#rem_cat :selected').text(),
-					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) : $form.find('#rem_cat option:selected').val(),
-					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) : $form.find('#task_group option:selected').val()
+				url:"{{URL::to('/')}}/clients/updateaction/store",
+				headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+				data: {
+					note_id: $assignNoteId.val(),
+					note_type:'action',
+					description:$assignNote.val(),
+					client_id:$assignClientId.val(),
+					followup_datetime:$popoverDateTime.val(),
+					assignee_name:$remCat.find(':selected').text(),
+					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) : $remCat.val(),
+					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) : $taskGroup.val()
 				},
-                success: function(response){
-                    console.log(response);
-                    $('.popuploader').hide();
-                    var obj = $.parseJSON(response);
-                    if(obj.success){
-                        $("[data-role=popover]").each(function(){
-                            // Bootstrap 5: plain hide (no BS3 inState API)
-                            try {
-                                if (window.bootstrap && window.bootstrap.Popover) {
-                                    var inst = window.bootstrap.Popover.getInstance(this);
-                                    if (inst) { inst.hide(); return; }
-                                }
-                            } catch (e) {}
-                            try { $(this).popover('hide'); } catch (e2) {}
-                        });
-                        location.reload();
-                    } else{
-                        showToast(obj.message, 'error');
-                        location.reload();
-                    }
-                }
+				success: function(response){
+					$('.popuploader').hide();
+					var obj = $.parseJSON(response);
+					if(obj.success){
+						var modalEl = document.getElementById('actionPopoverModal');
+						if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+							var m = bootstrap.Modal.getInstance(modalEl);
+							if (m) m.hide();
+						} else {
+							$('#actionPopoverModal').modal('hide');
+						}
+						location.reload();
+					}else{
+						showToast(obj.message || 'Update failed', 'error');
+					}
+				}
 			});
 		}else{
-			$("#loader").hide();
 			$('.popuploader').hide();
 		}
 	});
