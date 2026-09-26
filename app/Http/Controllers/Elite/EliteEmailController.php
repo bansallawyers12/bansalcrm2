@@ -9,16 +9,19 @@ use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use App\Services\EducationEliteInboxService;
 use App\Services\EliteInboundAttachmentService;
-use Illuminate\Support\Facades\Artisan;
 use App\Support\EducationEliteMail;
 use App\Support\EliteEmailCidRewriter;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class EliteEmailController extends Controller
 {
@@ -95,7 +98,16 @@ class EliteEmailController extends Controller
     public function index()
     {
         $service = EducationEliteInboxService::make();
-        $items = $service->getInbox('', '', '', 'newest', 200, 'inbox', null);
+        $defaultRange = $this->defaultInboxDateRange();
+        $items = $service->getInbox(
+            '',
+            $defaultRange['date_from'],
+            $defaultRange['date_to'],
+            'newest',
+            200,
+            'inbox',
+            null
+        );
 
         $webhookUrl = $this->inboundWebhookUrl();
 
@@ -103,6 +115,7 @@ class EliteEmailController extends Controller
             'eliteInboxItems' => $items,
             'eliteInitialFolder' => 'inbox',
             'eliteInitialAccount' => 'all',
+            'eliteInitialInboxDateRange' => '30',
             'eliteMailboxes' => $service->listMailboxes(),
             'webhookUrl' => $webhookUrl,
             'sesInboundBucket' => config('filesystems.disks.s3_inbound.bucket'),
@@ -122,8 +135,9 @@ class EliteEmailController extends Controller
         }
 
         $search = trim((string) $request->get('search', ''));
-        $dateFrom = $request->get('date_from', '');
-        $dateTo = $request->get('date_to', '');
+        $dateRange = $this->resolveInboxDateRange($request);
+        $dateFrom = $dateRange['date_from'];
+        $dateTo = $dateRange['date_to'];
         $sort = $request->get('sort', 'newest');
         if (! in_array($sort, ['newest', 'oldest'], true)) {
             $sort = 'newest';
@@ -149,41 +163,45 @@ class EliteEmailController extends Controller
      */
     public function sent(Request $request): JsonResponse
     {
-        $domain   = ltrim(strtolower((string) config('crm.education_elite_sender_domain', 'educationelite.com.au')), '@');
-        $like     = '%@'.$domain;
-        $search   = trim((string) $request->get('search', ''));
+        $domain = ltrim(strtolower((string) config('crm.education_elite_sender_domain', 'educationelite.com.au')), '@');
+        $like = '%@'.$domain;
+        $search = trim((string) $request->get('search', ''));
         $dateFrom = (string) $request->get('date_from', '');
-        $dateTo   = (string) $request->get('date_to', '');
-        $sort     = in_array($request->get('sort', 'newest'), ['oldest'], true) ? 'asc' : 'desc';
+        $dateTo = (string) $request->get('date_to', '');
+        $sort = in_array($request->get('sort', 'newest'), ['oldest'], true) ? 'asc' : 'desc';
 
         $query = Email::query()
             ->where('mail_type', 1)
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_mail,\'\'))) LIKE ?', [strtolower($like)])
-                  ->orWhereRaw('LOWER(TRIM(COALESCE(to_mail,\'\'))) LIKE ?', [strtolower($like)]);
+                    ->orWhereRaw('LOWER(TRIM(COALESCE(to_mail,\'\'))) LIKE ?', [strtolower($like)]);
             });
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('from_mail', 'like', '%'.$search.'%')
-                  ->orWhere('to_mail', 'like', '%'.$search.'%')
-                  ->orWhere('subject', 'like', '%'.$search.'%');
+                    ->orWhere('to_mail', 'like', '%'.$search.'%')
+                    ->orWhere('subject', 'like', '%'.$search.'%');
             });
         }
-        if ($dateFrom !== '') $query->whereDate('created_at', '>=', $dateFrom);
-        if ($dateTo   !== '') $query->whereDate('created_at', '<=', $dateTo);
+        if ($dateFrom !== '') {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo !== '') {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
         $query->orderBy('created_at', $sort);
 
         $emails = [];
         foreach ($query->get() as $row) {
             $emails[] = [
-                'id'         => $row->id,
-                'from'       => $row->from_mail,
-                'to'         => $row->to_mail,
-                'cc'         => $row->cc,
-                'subject'    => $row->subject ?: '(No subject)',
-                'body'       => $row->message ?? '',
-                'date'       => $row->created_at->format('d/m/Y g:i A'),
+                'id' => $row->id,
+                'from' => $row->from_mail,
+                'to' => $row->to_mail,
+                'cc' => $row->cc,
+                'subject' => $row->subject ?: '(No subject)',
+                'body' => $row->message ?? '',
+                'date' => $row->created_at->format('d/m/Y g:i A'),
                 'date_short' => $row->created_at->format('g:i A'),
             ];
         }
@@ -199,9 +217,9 @@ class EliteEmailController extends Controller
         }
 
         return response()->json([
-            'emails'      => $emails,
+            'emails' => $emails,
             'sent_groups' => array_values($byFrom),
-            'message'     => count($emails) === 0
+            'message' => count($emails) === 0
                 ? 'No sent mail from @'.$domain.' yet.'
                 : '',
         ]);
@@ -213,7 +231,7 @@ class EliteEmailController extends Controller
     public function drafts(Request $request): JsonResponse
     {
         $domain = ltrim(strtolower((string) config('crm.education_elite_sender_domain', 'educationelite.com.au')), '@');
-        $like   = '%@'.$domain;
+        $like = '%@'.$domain;
         $search = trim((string) $request->get('search', ''));
 
         $adminId = Auth::guard('admin')->id();
@@ -228,33 +246,33 @@ class EliteEmailController extends Controller
             ->where('admin_id', $adminId)
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_email,\'\'))) LIKE ?', [strtolower($like)])
-                  ->orWhereRaw('LOWER(TRIM(COALESCE(to_email,\'\'))) LIKE ?', [strtolower($like)]);
+                    ->orWhereRaw('LOWER(TRIM(COALESCE(to_email,\'\'))) LIKE ?', [strtolower($like)]);
             })
             ->orderBy('updated_at', 'desc');
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('from_email', 'like', '%'.$search.'%')
-                  ->orWhere('to_email', 'like', '%'.$search.'%')
-                  ->orWhere('subject', 'like', '%'.$search.'%');
+                    ->orWhere('to_email', 'like', '%'.$search.'%')
+                    ->orWhere('subject', 'like', '%'.$search.'%');
             });
         }
 
         $drafts = [];
         foreach ($query->get() as $d) {
             $drafts[] = [
-                'id'      => $d->id,
-                'from'    => $d->from_email,
-                'to'      => $d->to_email,
-                'cc'      => $d->cc,
+                'id' => $d->id,
+                'from' => $d->from_email,
+                'to' => $d->to_email,
+                'cc' => $d->cc,
                 'subject' => $d->subject ?: '(No subject)',
-                'body'    => $d->body ?? '',
-                'date'    => $d->updated_at->format('d/m/Y g:i A'),
+                'body' => $d->body ?? '',
+                'date' => $d->updated_at->format('d/m/Y g:i A'),
             ];
         }
 
         return response()->json([
-            'emails'  => $drafts,
+            'emails' => $drafts,
             'message' => count($drafts) === 0 ? 'No drafts saved for @'.$domain.' yet.' : '',
         ]);
     }
@@ -291,7 +309,7 @@ class EliteEmailController extends Controller
 
             return $response;
         } catch (\Throwable $e) {
-            if (! $e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+            if (! $e instanceof HttpException) {
                 Log::error('elite.inbound.unhandled_exception', array_merge($this->inboundCorrelationContext($request), [
                     'message' => $e->getMessage(),
                     'exception' => $e::class,
@@ -300,6 +318,43 @@ class EliteEmailController extends Controller
             }
             throw $e;
         }
+    }
+
+    /**
+     * @return array{date_from: string, date_to: string}
+     */
+    private function defaultInboxDateRange(): array
+    {
+        return [
+            'date_from' => Carbon::today()->subDays(30)->toDateString(),
+            'date_to' => Carbon::today()->toDateString(),
+        ];
+    }
+
+    /**
+     * @return array{date_from: string, date_to: string}
+     */
+    private function resolveInboxDateRange(Request $request): array
+    {
+        $dateFrom = trim((string) $request->get('date_from', ''));
+        $dateTo = trim((string) $request->get('date_to', ''));
+        $dateRange = strtolower(trim((string) $request->get('date_range', '')));
+
+        if ($dateFrom !== '' || $dateTo !== '') {
+            return [
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+            ];
+        }
+
+        if ($dateRange === 'all') {
+            return [
+                'date_from' => '',
+                'date_to' => '',
+            ];
+        }
+
+        return $this->defaultInboxDateRange();
     }
 
     private function inboundDebugLogging(): bool
@@ -759,8 +814,9 @@ class EliteEmailController extends Controller
             if (! is_string($key)) {
                 continue;
             }
-            if ($payload[$key] instanceof \Illuminate\Http\UploadedFile) {
+            if ($payload[$key] instanceof UploadedFile) {
                 unset($payload[$key]);
+
                 continue;
             }
             if ($key === 'attachment' || preg_match('/^attachment\d+$/i', $key)) {

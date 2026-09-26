@@ -471,10 +471,10 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                             <input type="text" class="folder-search" placeholder="Search mail...">
                         </div>
                         <select class="filter-select filter-date-range">
-                            <option value="" selected>All time</option>
+                            <option value="">All time</option>
                             <option value="today">Today</option>
                             <option value="7">Last 7 days</option>
-                            <option value="30">Last 30 days</option>
+                            <option value="30" @selected(($eliteInitialInboxDateRange ?? '') === '30')>Last 30 days</option>
                             <option value="custom">Custom range</option>
                         </select>
                         <span class="filter-custom-dates" style="display:none;">
@@ -804,17 +804,19 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var customSpan = toolbar.querySelector('.filter-custom-dates');
         var fromInput  = toolbar.querySelector('.filter-date-from');
         var toInput    = toolbar.querySelector('.filter-date-to');
-        if (!rangeSel) return { date_from: '', date_to: '' };
+        if (!rangeSel) return { date_from: '', date_to: '', date_range: 'all' };
         var val = rangeSel.value;
         var today = new Date(); today.setHours(0,0,0,0);
         var todayStr = today.toISOString().slice(0,10);
-        if (val === 'custom' && fromInput && toInput) return { date_from: fromInput.value||'', date_to: toInput.value||'' };
-        if (val === 'today') return { date_from: todayStr, date_to: todayStr };
+        if (val === 'custom' && fromInput && toInput) {
+            return { date_from: fromInput.value||'', date_to: toInput.value||'', date_range: '' };
+        }
+        if (val === 'today') return { date_from: todayStr, date_to: todayStr, date_range: '' };
         if (val === '7' || val === '30') {
             var f = new Date(today); f.setDate(f.getDate() - parseInt(val,10));
-            return { date_from: f.toISOString().slice(0,10), date_to: todayStr };
+            return { date_from: f.toISOString().slice(0,10), date_to: todayStr, date_range: '' };
         }
-        return { date_from: '', date_to: '' };
+        return { date_from: '', date_to: '', date_range: 'all' };
     }
     document.querySelectorAll('.filter-date-range').forEach(function (sel) {
         sel.addEventListener('change', function () {
@@ -1206,6 +1208,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         if (search)       params.push('search=' + encodeURIComponent(search));
         if (dr.date_from) params.push('date_from=' + encodeURIComponent(dr.date_from));
         if (dr.date_to)   params.push('date_to='   + encodeURIComponent(dr.date_to));
+        if (dr.date_range === 'all') params.push('date_range=all');
         params.push('sort=' + sort, 'account=' + encodeURIComponent(activeAccount||'all'));
         if (!silent) params.push('sync=1');
 

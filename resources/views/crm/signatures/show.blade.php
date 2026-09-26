@@ -805,11 +805,16 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="entity_id">Select Client</label>
-                        <select class="form-control tomselect" id="entity_id" name="entity_id" required>
-                            <option value="">-- Select Client --</option>
-                            @foreach($clients ?? [] as $client)
-                                <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }} ({{ $client->email }})</option>
-                            @endforeach
+                        <select class="form-control tomselect js-signature-client-search" id="entity_id" name="entity_id" required>
+                            <option value="">-- Search for a client --</option>
+                            @if($document->documentable_type === \App\Models\Admin::class && $document->documentable)
+                                <option value="{{ $document->documentable_id }}" selected>
+                                    {{ trim($document->documentable->first_name.' '.$document->documentable->last_name) }}
+                                    @if($document->documentable->email)
+                                        ({{ $document->documentable->email }})
+                                    @endif
+                                </option>
+                            @endif
                         </select>
                     </div>
                     <div class="form-group">
@@ -848,16 +853,36 @@ function copySigningLink(url) {
 }
 
 $(document).ready(function() {
-    if ($('#entity_id').length && typeof whenTomSelectReady === 'function') {
-        whenTomSelectReady(function () {
-            initTomSelectPreserveValue('#entity_id', {
-                width: '100%',
-                placeholder: 'Search for a client...',
-                allowClear: true,
-                dropdownParent: document.querySelector('#associateModal .modal-content') || '#associateModal'
+    var clientSearchUrl = '{{ url('/clients/get-onlyclientrecipients') }}';
+    var initAssociateClientSelect = function () {
+        if (!$('#entity_id').length) {
+            return;
+        }
+        if (typeof RecipientSelect !== 'undefined' && typeof RecipientSelect.init === 'function') {
+            RecipientSelect.init('#entity_id', {
+                url: clientSearchUrl,
+                dropdownParent: '#associateModal',
+                multiple: false,
+                minimumInputLength: 1,
+                closeOnSelect: true,
+                placeholder: 'Type name, email, or client ID...'
             });
-        });
-    }
+            return;
+        }
+        if (typeof whenTomSelectReady === 'function') {
+            whenTomSelectReady(function () {
+                initTomSelectPreserveValue('#entity_id', {
+                    width: '100%',
+                    placeholder: 'Search for a client...',
+                    allowClear: true,
+                    dropdownParent: document.querySelector('#associateModal .modal-content') || '#associateModal'
+                });
+            });
+        }
+    };
+
+    initAssociateClientSelect();
+    $('#associateModal').on('shown.bs.modal', initAssociateClientSelect);
 });
 </script>
 @endpush
