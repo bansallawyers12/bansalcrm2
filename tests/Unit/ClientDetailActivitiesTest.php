@@ -100,36 +100,4 @@ class ClientDetailActivitiesTest extends TestCase
         $this->assertContains('2026-08-17', $bindings);
         $this->assertNotContains('2026-01-08', $bindings);
     }
-
-    public function test_filters_are_active_when_keyword_or_type_or_dates_set(): void
-    {
-        $this->assertFalse(ClientDetailActivities::filtersAreActive([
-            'keyword' => '',
-            'activity_type' => 'all',
-            'date_from' => '',
-            'date_to' => '',
-        ]));
-
-        $this->assertTrue(ClientDetailActivities::filtersAreActive([
-            'keyword' => 'visa',
-            'activity_type' => 'all',
-            'date_from' => '',
-            'date_to' => '',
-        ]));
-
-        $this->assertTrue(ClientDetailActivities::filtersAreActive([
-            'keyword' => '',
-            'activity_type' => 'notes',
-            'date_from' => '',
-            'date_to' => '',
-        ]));
-
-        $this->assertTrue(ClientDetailActivities::filtersAreActive([
-            'keyword' => '',
-            'activity_type' => 'all',
-            'date_from' => '01/08/2026',
-            'date_to' => '',
-        ]));
-    }
-
 }

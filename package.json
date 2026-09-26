@@ -1,9 +1,6 @@
 {
     "private": true,
     "type": "module",
-    "sideEffects": [
-        "public/js/**/*.js"
-    ],
     "engines": {
         "node": ">=22.0.0",
         "npm": ">=11.0.0"
