@@ -10,6 +10,8 @@ use App\Models\Application;
 use App\Models\ApplicationActivitiesLog;
 use App\Models\Note;
 use App\Models\Staff;
+use App\Support\ClientDetailEagerLoads;
+use App\Support\ClientDetailNotes;
 use App\Support\TinymceImageS3Migrator;
 use App\Traits\ClientAuthorization;
 use Illuminate\Http\Request;
@@ -40,7 +42,7 @@ class ClientNoteController extends Controller
     /**
      * JSON helpers: null when client missing or staff not allowed.
      */
-    private function resolveAccessibleNoteClient($clientId, bool $forEdit = false): ?Admin
+    private function resolveAccessibleNoteClient(mixed $clientId, bool $forEdit = false): ?Admin
     {
         if ($clientId === null || $clientId === '' || ! is_numeric($clientId)) {
             return null;
@@ -146,7 +148,7 @@ class ClientNoteController extends Controller
     {
         $note_id = $request->note_id;
         if (Note::where('id', $note_id)->exists()) {
-            $data = Note::select('title', 'description', 'client_id')->where('id', $note_id)->first();
+            $data = Note::select(['title', 'description', 'client_id'])->where('id', $note_id)->first();
             if (! $this->resolveAccessibleNoteClient($data->client_id ?? null, false)) {
                 $this->unauthorizedJsonResponse();
 
@@ -166,7 +168,7 @@ class ClientNoteController extends Controller
     {
         $note_id = $request->note_id;
         if (Note::where('id', $note_id)->exists()) {
-            $data = Note::select('title', 'description', 'user_id', 'updated_at', 'client_id')->where('id', $note_id)->first();
+            $data = Note::select(['title', 'description', 'user_id', 'updated_at', 'client_id'])->where('id', $note_id)->first();
             if (! $this->resolveAccessibleNoteClient($data->client_id ?? null, false)) {
                 $this->unauthorizedJsonResponse();
 
@@ -217,21 +219,42 @@ class ClientNoteController extends Controller
     public function getnotes(Request $request)
     {
         $client_id = $request->clientid;
-        $type = $request->type;
+        $type = (string) ($request->type ?? 'client');
 
         if (! $this->resolveAccessibleNoteClient($client_id, false)) {
+            if ($request->boolean('paginated')) {
+                return response()->json([
+                    'status' => true,
+                    'html' => view('Admin.partials.notes-list', ['notelist' => collect()])->render(),
+                    'hasMore' => false,
+                    'nextPage' => 1,
+                    'page' => 1,
+                ]);
+            }
+
             $notelist = collect();
 
             return view('Admin.partials.notes-list', compact('notelist'))->render();
         }
 
-        $notelist = Note::where('client_id', $client_id)
-            ->whereNull('assigned_to')
-            ->whereNull('task_group')
-            ->where('type', $type)
-            ->orderby('pin', 'DESC')
-            ->orderByRaw('created_at DESC NULLS LAST')
-            ->get();
+        $clientId = (int) $client_id;
+
+        if ($request->boolean('paginated')) {
+            $page = max(1, $request->integer('page', 1));
+            $paginator = ClientDetailNotes::paginate($clientId, $type, $page);
+            $notelist = collect($paginator->items());
+            $staffMap = ClientDetailEagerLoads::staffByIds($notelist->pluck('user_id'));
+
+            return response()->json([
+                'status' => true,
+                'html' => view('Admin.partials.notes-list', compact('notelist', 'staffMap'))->render(),
+                'hasMore' => $paginator->hasMorePages(),
+                'nextPage' => $paginator->currentPage() + 1,
+                'page' => $page,
+            ]);
+        }
+
+        $notelist = ClientDetailNotes::queryForClient($clientId, $type)->get();
 
         return view('Admin.partials.notes-list', compact('notelist'))->render();
     }
@@ -240,7 +263,7 @@ class ClientNoteController extends Controller
     {
         $note_id = $request->note_id;
         if (Note::where('id', $note_id)->exists()) {
-            $data = Note::select('client_id', 'title', 'description', 'type')->where('id', $note_id)->first();
+            $data = Note::select(['client_id', 'title', 'description', 'type'])->where('id', $note_id)->first();
             if (! $this->resolveAccessibleNoteClient($data->client_id ?? null, true)) {
                 $this->unauthorizedJsonResponse();
 

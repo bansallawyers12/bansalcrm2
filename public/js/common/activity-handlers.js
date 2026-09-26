@@ -328,31 +328,192 @@ function getallactivities(onSuccess, options) {
     });
 }
 
+var notesLoadMoreInFlight = false;
+var notesLoadMoreObserver = null;
+var notesRequestSeq = 0;
+var notesUserHasScrolled = false;
+
+function notesLoadMoreEl() {
+    return document.querySelector('.notes-load-more');
+}
+
+function notesScrollRoot() {
+    var el = notesLoadMoreEl();
+    if (!el) {
+        return null;
+    }
+    var node = el.parentElement;
+    while (node && node !== document.body && node !== document.documentElement) {
+        var style = window.getComputedStyle(node);
+        var overflowY = style.overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight + 1) {
+            return node;
+        }
+        node = node.parentElement;
+    }
+    return null;
+}
+
+function isNotesLoadMoreVisible() {
+    var el = notesLoadMoreEl();
+    if (!el || el.style.display === 'none' || el.offsetParent === null) {
+        return false;
+    }
+    var root = notesScrollRoot();
+    var elRect = el.getBoundingClientRect();
+    if (root) {
+        var rootRect = root.getBoundingClientRect();
+        return elRect.top < rootRect.bottom && elRect.bottom > rootRect.top;
+    }
+    return elRect.top < (window.innerHeight || document.documentElement.clientHeight) && elRect.bottom > 0;
+}
+
+function requestNotesNextPage() {
+    var $el = $('.notes-load-more');
+    if (!$el.length || notesLoadMoreInFlight || $el.is(':hidden')) {
+        return;
+    }
+    var nextPage = parseInt($el.attr('data-next-page'), 10);
+    if (!nextPage) {
+        return;
+    }
+    notesLoadMoreInFlight = true;
+    $el.addClass('is-loading').prop('disabled', true);
+    getallnotes(null, { page: nextPage, append: true });
+}
+
+function maybeLoadMoreNotesIfVisible() {
+    if (!notesUserHasScrolled || !isNotesLoadMoreVisible()) {
+        return;
+    }
+    requestNotesNextPage();
+}
+
+function observeNotesLoadMore() {
+    var el = notesLoadMoreEl();
+    if (notesLoadMoreObserver) {
+        notesLoadMoreObserver.disconnect();
+        notesLoadMoreObserver = null;
+    }
+    if (!el || typeof IntersectionObserver === 'undefined') {
+        return;
+    }
+    notesLoadMoreObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting && notesUserHasScrolled) {
+                requestNotesNextPage();
+            }
+        });
+    }, { root: notesScrollRoot(), rootMargin: '0px 0px 80px 0px', threshold: 0 });
+    notesLoadMoreObserver.observe(el);
+}
+
+function syncNotesLoadMore(ress) {
+    var $el = $('.notes-load-more');
+    if (!$el.length) {
+        return;
+    }
+    notesLoadMoreInFlight = false;
+    $el.prop('disabled', false).removeClass('is-loading').text('...');
+    if (ress && ress.hasMore) {
+        $el.attr('data-next-page', ress.nextPage).show();
+        observeNotesLoadMore();
+    } else {
+        $el.removeAttr('data-next-page').hide();
+        if (notesLoadMoreObserver) {
+            notesLoadMoreObserver.disconnect();
+            notesLoadMoreObserver = null;
+        }
+    }
+}
+
+function applyNotesResponse(response, options) {
+    var ress = typeof response === 'string' ? JSON.parse(response) : response;
+    var html = '';
+    var append = !!(options && options.append);
+
+    if (ress && Object.prototype.hasOwnProperty.call(ress, 'html') && ress.html != null) {
+        html = ress.html;
+    } else if (typeof response === 'string') {
+        html = response;
+    }
+
+    if (!append && !String(html).trim()) {
+        html = '<h4>No Record Found</h4>';
+    }
+
+    if ($('.note_term_list').length) {
+        if (append) {
+            $('.note_term_list').append(html);
+        } else {
+            $('.note_term_list').html(html);
+        }
+    }
+
+    if (ress && Object.prototype.hasOwnProperty.call(ress, 'hasMore')) {
+        syncNotesLoadMore(ress);
+    }
+}
+
 /**
  * Get all notes for the current page
+ * @param {function} [onSuccess]
+ * @param {{page?: number, append?: boolean}} [options]
  */
-function getallnotes() {
+function getallnotes(onSuccess, options) {
     var clientId = App.getPageConfig('clientId');
     var type = App.getPageConfig('clientType') || 'client';
     
     if (!clientId) {
         console.warn('Client ID not found in PageConfig');
+        if (typeof onSuccess === 'function') {
+            onSuccess();
+        }
         return;
     }
     
     var url = App.getUrl('getNotes') || App.getUrl('siteUrl') + '/get-notes';
     if (!url) {
         console.error('getNotes URL not configured');
+        if (typeof onSuccess === 'function') {
+            onSuccess();
+        }
         return;
     }
+
+    options = options || {};
+    var page = parseInt(options.page, 10) || 1;
+    var append = !!options.append;
+    if (!append) {
+        notesUserHasScrolled = false;
+    }
+    var requestSeq = ++notesRequestSeq;
     
     $.ajax({
         url: url,
         type: 'GET',
-        data: { clientid: clientId, type: type },
+        dataType: 'json',
+        data: { clientid: clientId, type: type, paginated: 1, page: page },
         success: function(responses) {
+            if (requestSeq !== notesRequestSeq) {
+                return;
+            }
             $('.popuploader').hide();
-            $('.note_term_list').html(responses);
+            applyNotesResponse(responses, { append: append });
+            if (typeof onSuccess === 'function') {
+                onSuccess();
+            }
+            maybeLoadMoreNotesIfVisible();
+        },
+        error: function() {
+            if (requestSeq !== notesRequestSeq) {
+                return;
+            }
+            notesLoadMoreInFlight = false;
+            $('.notes-load-more').prop('disabled', false).removeClass('is-loading');
+            if (typeof onSuccess === 'function') {
+                onSuccess();
+            }
         }
     });
 }
@@ -399,6 +560,7 @@ if (typeof window !== 'undefined') {
     window.getallnotes = getallnotes;
     window.deleteactivitylog = deleteactivitylog;
     window.applyActivitiesResponse = applyActivitiesResponse;
+    window.applyNotesResponse = applyNotesResponse;
     window.applyActivitiesFilters = applyActivitiesFilters;
 }
 
@@ -419,8 +581,29 @@ function bindActivitiesLoadMore() {
     observeActivitiesLoadMore();
 }
 
+function bindNotesLoadMore() {
+    if (typeof jQuery === 'undefined') {
+        return;
+    }
+    jQuery(document).off('click.notesLoadMore', '.notes-load-more').on('click.notesLoadMore', '.notes-load-more', function () {
+        requestNotesNextPage();
+    });
+    if (!window._notesLoadMoreScrollBound) {
+        window._notesLoadMoreScrollBound = true;
+        document.addEventListener('scroll', function () {
+            notesUserHasScrolled = true;
+            maybeLoadMoreNotesIfVisible();
+        }, { passive: true, capture: true });
+    }
+    observeNotesLoadMore();
+}
+
 if (typeof jQuery !== 'undefined') {
     bindActivitiesLoadMore();
+    bindNotesLoadMore();
 } else if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', bindActivitiesLoadMore);
+    document.addEventListener('DOMContentLoaded', function () {
+        bindActivitiesLoadMore();
+        bindNotesLoadMore();
+    });
 }

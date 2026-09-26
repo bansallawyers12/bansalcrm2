@@ -1327,11 +1327,14 @@ use App\Http\Controllers\Controller;
 									<div class="note_term_list">
 									@if($activeTab === 'noteterm')
 									@php
-									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->whereNull('assigned_to')->whereNull('task_group')->where('type', 'client')->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
+									$notesPage = \App\Support\ClientDetailNotes::paginate((int) $fetchedData->id, 'client', 1);
+									$notesList = collect($notesPage->items());
+									$notesStaffMap = \App\Support\ClientDetailEagerLoads::staffByIds($notesList->pluck('user_id'));
 									@endphp
-									@include('Admin.partials.notes-list', ['notelist' => $notelist])
+									@include('Admin.partials.notes-list', ['notelist' => $notesList, 'staffMap' => $notesStaffMap])
 									@endif
 									</div>
+									<button type="button" class="btn btn-sm mt-2 notes-load-more" data-next-page="{{ ($activeTab === 'noteterm' && isset($notesPage) && $notesPage->hasMorePages()) ? 2 : '' }}" style="{{ ($activeTab === 'noteterm' && isset($notesPage) && $notesPage->hasMorePages()) ? '' : 'display:none;' }}" aria-label="More notes">...</button>
 									<div class="clearfix"></div>
 								</div>
 								<div class="tab-pane fade {{ $activeTab === 'accounts' ? 'show active' : '' }}" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
@@ -1490,12 +1493,15 @@ use App\Http\Controllers\Controller;
 													->orderby('created_at','DESC')
 													->get();
 												$invoiceApplicationIds = $invoicelists->pluck('application_id')->filter()->unique()->values();
-												$workflowsByApplicationId = $invoiceApplicationIds->isEmpty()
-													? collect()
-													: \App\Models\Workflow::whereIn('id', $invoiceApplicationIds)->get()->keyBy(fn ($row) => (int) $row->id);
 												$applicationsById = $invoiceApplicationIds->isEmpty()
 													? collect()
 													: \App\Models\Application::whereIn('id', $invoiceApplicationIds)->get()->keyBy(fn ($row) => (int) $row->id);
+												$workflowIds = $applicationsById->pluck('workflow')->filter()->unique()->values();
+												$generalWorkflowIds = $invoicelists->where('type', 3)->pluck('application_id')->filter()->unique()->values();
+												$allWorkflowIds = $workflowIds->merge($generalWorkflowIds)->unique()->values();
+												$workflowsById = $allWorkflowIds->isEmpty()
+													? collect()
+													: \App\Models\Workflow::whereIn('id', $allWorkflowIds)->get()->keyBy(fn ($row) => (int) $row->id);
 												$partnerIds = $applicationsById->pluck('partner_id')->filter()->unique()->values();
 												$partnersById = $partnerIds->isEmpty()
 													? collect()
@@ -1503,10 +1509,11 @@ use App\Http\Controllers\Controller;
 												foreach($invoicelists as $invoicelist){
 													$invoiceApplicationKey = is_numeric($invoicelist->application_id) ? (int) $invoicelist->application_id : null;
 													if($invoicelist->type == 3){
-														$workflowdaa = $invoiceApplicationKey !== null ? $workflowsByApplicationId->get($invoiceApplicationKey) : null;
+														$workflowdaa = $invoiceApplicationKey !== null ? $workflowsById->get($invoiceApplicationKey) : null;
 													}else{
 														$applicationdata = $invoiceApplicationKey !== null ? $applicationsById->get($invoiceApplicationKey) : null;
-														$workflowdaa = $invoiceApplicationKey !== null ? $workflowsByApplicationId->get($invoiceApplicationKey) : null;
+														$workflowId = $applicationdata->workflow ?? null;
+														$workflowdaa = is_numeric($workflowId) ? $workflowsById->get((int) $workflowId) : null;
 														$rawPartnerId = $applicationdata->partner_id ?? null;
 														$partnerdata = is_numeric($rawPartnerId) ? $partnersById->get((int) $rawPartnerId) : null;
 													}
