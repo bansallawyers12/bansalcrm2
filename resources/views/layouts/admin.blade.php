@@ -487,6 +487,7 @@ i[style*="color:rgba"] {
 		var markSeenUrl = '{{ url("/mark-notification-seen") }}';
 		var updateStatusUrl = '{{ url("/update-checkin-status") }}';
 		var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
+		var officeVisitPollingEnabled = @json(config('crm.office_visit_polling_enabled'));
 		var pollIntervalMs = 4000;
 		var defaultDetailsUrl = (baseUrl || '') + '/office-visits/waiting';
 
@@ -577,7 +578,7 @@ i[style*="color:rgba"] {
 				});
 			}
 
-			if (notification.checkin_id && checkStatusUrl) {
+			if (officeVisitPollingEnabled && notification.checkin_id && checkStatusUrl) {
 				var statusCheckInterval = setInterval(function() {
 					fetch(checkStatusUrl + '?checkin_id=' + encodeURIComponent(notification.checkin_id), {
 						headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -670,11 +671,13 @@ i[style*="color:rgba"] {
 				});
 		}
 
-		loadOfficeVisitNotifications();
-		setInterval(pollOfficeVisitNotifications, pollIntervalMs);
-		document.addEventListener('visibilitychange', function() {
-			if (document.visibilityState === 'visible') pollOfficeVisitNotifications();
-		});
+		if (officeVisitPollingEnabled) {
+			loadOfficeVisitNotifications();
+			setInterval(pollOfficeVisitNotifications, pollIntervalMs);
+			document.addEventListener('visibilitychange', function() {
+				if (document.visibilityState === 'visible') pollOfficeVisitNotifications();
+			});
+		}
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', setupOfficeVisitRealtimeNotifications);
 		} else {

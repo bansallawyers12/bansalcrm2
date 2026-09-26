@@ -37,6 +37,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Office visit HTTP polling (admin layout popups)
+    |--------------------------------------------------------------------------
+    |
+    | When false, no background fetch to /fetch-office-visit-notifications or
+    | /check-checkin-status. Popup UI, button actions, routes, and Echo/Reverb
+    | delivery (when enabled) are unchanged. Set CRM_OFFICE_VISIT_POLLING_ENABLED=true
+    | to restore polling fallback (e.g. while Reverb is not yet live).
+    |
+    */
+    'office_visit_polling_enabled' => filter_var(
+        env('CRM_OFFICE_VISIT_POLLING_ENABLED', false),
+        FILTER_VALIDATE_BOOLEAN
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
     | Education Elite inbound email (/elite/emails)
     |--------------------------------------------------------------------------
     |
