@@ -35,6 +35,7 @@ use App\Services\CrmSentEmailS3Service;
 use App\Services\DashboardService;
 use App\Services\EmailService;
 use App\Services\StaffWorkloadService;
+use App\Support\DashboardMyDaySummaryCache;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -146,7 +147,10 @@ class AdminController extends Controller
         }
 
         try {
-            return $this->staffWorkloadService->getDaySummary((int) $user->id);
+            return DashboardMyDaySummaryCache::remember(
+                (int) $user->id,
+                fn () => $this->staffWorkloadService->getDaySummary((int) $user->id)
+            );
         } catch (\Throwable $e) {
             Log::warning('Dashboard My Day summary failed: '.$e->getMessage(), ['staff_id' => $user->id]);
 

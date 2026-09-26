@@ -16,6 +16,7 @@ use App\Services\StaffDaySummaryService;
 use App\Services\StaffFileSessionService;
 use App\Services\StaffFileTimeService;
 use App\Services\StaffWorkloadService;
+use App\Support\DashboardMyDaySummaryCache;
 use App\Support\StaffClientVisibility;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -95,6 +96,7 @@ class DashboardMyDayDiaryController extends Controller
         }
 
         $entry = $this->fileTime->logCompleted((int) $staff->id, $data);
+        DashboardMyDaySummaryCache::forget((int) $staff->id);
 
         return response()->json([
             'success' => true,

@@ -841,11 +841,17 @@ class StaffWorkloadService
             return collect();
         }
 
+        $ids = $studentIds->map(fn ($id) => (int) $id)->filter()->unique()->values()->all();
+        if ($ids === []) {
+            return collect();
+        }
+
         $last = collect();
 
         $noteRows = Note::query()
             ->select('client_id', DB::raw('MAX(created_at) as last_at'))
             ->where('user_id', $staffId)
+            ->whereIn('client_id', $ids)
             ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
@@ -860,6 +866,7 @@ class StaffWorkloadService
                     ->forStudentRecords()
                     ->select('client_id', DB::raw('MAX(created_at) as last_at'))
                     ->where('created_by', $staffId)
+                    ->whereIn('client_id', $ids)
                     ->whereNotNull('client_id')
             )
         )
@@ -873,6 +880,7 @@ class StaffWorkloadService
         $emailRows = Email::query()
             ->select('client_id', DB::raw('MAX(created_at) as last_at'))
             ->where('user_id', $staffId)
+            ->whereIn('client_id', $ids)
             ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
@@ -884,6 +892,7 @@ class StaffWorkloadService
         $smsRows = SmsLog::query()
             ->select('client_id', DB::raw('MAX(created_at) as last_at'))
             ->where('sender_id', $staffId)
+            ->whereIn('client_id', $ids)
             ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();
@@ -897,6 +906,7 @@ class StaffWorkloadService
             ->where(function (Builder $q) use ($staffId) {
                 $q->where('created_by', $staffId)->orWhere('user_id', $staffId);
             })
+            ->whereIn('client_id', $ids)
             ->whereNotNull('client_id')
             ->groupBy('client_id')
             ->get();

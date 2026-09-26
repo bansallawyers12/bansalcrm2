@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Models\ActivitiesLog;
 use App\Services\StaffWorkloadService;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use ReflectionMethod;
@@ -201,5 +202,65 @@ class StaffWorkloadServiceTest extends TestCase
 
         $this->assertStringContainsString('task_group', $sql);
         $this->assertContains(ActivitiesLog::TASK_GROUP_PARTNER, $query->getBindings());
+    }
+
+    public function test_last_work_by_student_only_considers_allocated_client_ids(): void
+    {
+        foreach (['notes', 'activities_logs', 'emails', 'sms_logs', 'documents'] as $table) {
+            Schema::dropIfExists($table);
+        }
+
+        Schema::create('notes', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('client_id')->nullable();
+            $table->timestamp('created_at')->nullable();
+        });
+        Schema::create('activities_logs', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('created_by')->nullable();
+            $table->unsignedInteger('client_id')->nullable();
+            $table->string('subject')->nullable();
+            $table->string('activity_type')->nullable();
+            $table->string('task_group')->nullable();
+            $table->timestamp('created_at')->nullable();
+        });
+        Schema::create('emails', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('client_id')->nullable();
+            $table->timestamp('created_at')->nullable();
+        });
+        Schema::create('sms_logs', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('sender_id');
+            $table->unsignedInteger('client_id')->nullable();
+            $table->timestamp('created_at')->nullable();
+        });
+        Schema::create('documents', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedInteger('created_by')->nullable();
+            $table->unsignedInteger('client_id')->nullable();
+            $table->timestamp('created_at')->nullable();
+        });
+
+        $recent = Carbon::parse('2026-09-20 10:00:00');
+        $older = Carbon::parse('2026-09-01 10:00:00');
+
+        DB::table('notes')->insert([
+            ['id' => 1, 'user_id' => 5, 'client_id' => 100, 'created_at' => $recent],
+            ['id' => 2, 'user_id' => 5, 'client_id' => 200, 'created_at' => $older],
+        ]);
+
+        $method = new ReflectionMethod(StaffWorkloadService::class, 'lastWorkByStudent');
+        $method->setAccessible(true);
+
+        $last = $method->invoke($this->service(), 5, collect([100]));
+
+        $this->assertInstanceOf(Collection::class, $last);
+        $this->assertTrue($last->has(100));
+        $this->assertFalse($last->has(200));
+        $this->assertSame($recent->toDateTimeString(), $last->get(100)->toDateTimeString());
     }
 }
