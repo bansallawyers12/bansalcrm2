@@ -2,9 +2,10 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-
-abstract class TestCase extends BaseTestCase
+/**
+ * Base test case for HTTP and application tests.
+ */
+abstract class TestCase extends \Illuminate\Foundation\Testing\TestCase
 {
     //
 }

@@ -15,7 +15,7 @@
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				@include('Elements.flash-message')
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -37,32 +37,6 @@
 		</div>
 	</section>
 </div>
-<?php
- $sched_res = [];
-// Query to get admins with valid visa expiry dates (not NULL and not empty string)
-$visaexpires = \App\Models\Admin::select('id','visaexpiry','first_name','last_name')
-    ->whereNotNull('visaexpiry')
-    ->whereRaw("CAST(visaexpiry AS TEXT) != ''")  // Filter out empty date strings
-    ->get();
-
-foreach($visaexpires as $visaexpire){
-    // Skip if visaexpiry is invalid or can't be parsed
-    if(empty($visaexpire->visaExpiry) || !strtotime($visaexpire->visaExpiry)) {
-        continue;
-    }
-    
-    $visaexpireArray = [
-        'id' => $visaexpire->id,
-        'stitle' => htmlspecialchars($visaexpire->first_name, ENT_QUOTES, 'UTF-8'),
-        'startdate' => date("Y-m-d",strtotime($visaexpire->visaExpiry)),
-        'end' => date("Y-m-d",strtotime($visaexpire->visaExpiry)),
-        'displayDate' => date("F d, Y",strtotime($visaexpire->visaExpiry)),
-        'url' => URL::to('/clients/detail/'.base64_encode(convert_uuencode($visaexpire->id)))
-    ];
-    $sched_res[$visaexpire->id] = $visaexpireArray;
-}
-
-?>
 @endsection
 @section('scripts')
 <script>
@@ -72,25 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('FullCalendar v6 not loaded');
         return;
     }
-
-    var events = [];
-    var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
-    
-    // Debug logging
-    console.log('FullCalendar v6 Debug:');
-    console.log('scheds data:', scheds);
-    console.log('scheds type:', typeof scheds);
-    console.log('scheds keys:', Object.keys(scheds));
-    
-    if (!!scheds && typeof scheds === 'object') {
-        Object.keys(scheds).map(k => {
-            var row = scheds[k]
-            events.push({ id: row.id, title: row.stitle, start: row.startdate, end: row.end, url: row.url });
-        });
-    }
-    
-    console.log('Events array:', events);
-    console.log('Events count:', events.length);
 
     var calendarEl = document.getElementById('myEvent');
     if (!calendarEl) {
@@ -116,31 +71,27 @@ document.addEventListener('DOMContentLoaded', function() {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
         },
-        events: events,
+        events: @json($visaExpiresEventsUrl),
         eventClick: function(info) {
             console.log(info);
-            
+
             // Prevent default FullCalendar behavior
             info.jsEvent.preventDefault();
-            
-            var id = info.event.id;
 
-            if (!!scheds[id]) {
-                // Populate modal if it exists (preserves existing functionality)
-                var details = document.getElementById('event-details-modal');
-                if (details) {
-                    var titleEl = details.querySelector('#title');
-                    var startEl = details.querySelector('#start');
-                    if (titleEl) titleEl.textContent = scheds[id].stitle;
-                    if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
-                }
-                
-                // Always open URL in new tab
-                if (scheds[id].url) {
-                    window.open(scheds[id].url, "_blank", "noopener,noreferrer");
-                }
-            } else {
-                alert("Event is undefined");
+            var displayDate = (info.event.extendedProps && info.event.extendedProps.displayDate)
+                ? info.event.extendedProps.displayDate
+                : info.event.startStr;
+
+            var details = document.getElementById('event-details-modal');
+            if (details) {
+                var titleEl = details.querySelector('#title');
+                var startEl = details.querySelector('#start');
+                if (titleEl) titleEl.textContent = info.event.title;
+                if (startEl) startEl.textContent = displayDate;
+            }
+
+            if (info.event.url) {
+                window.open(info.event.url, "_blank", "noopener,noreferrer");
             }
         }
     });

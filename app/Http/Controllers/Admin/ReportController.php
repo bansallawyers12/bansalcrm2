@@ -13,10 +13,10 @@ use App\Models\Application;
 use App\Models\CheckinLog;
 use App\Models\Invoice;
 use App\Models\StaffRole;
+use App\Support\VisaExpiryCalendar;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 // use App\Models\Task; // Task system removed - December 2025
- 
-use Auth; 
-use Config;
 
 class ReportController extends Controller
 {
@@ -75,13 +75,11 @@ class ReportController extends Controller
 		// Sidebar: Reports (role 1|12) + module 64
 		$this->ensureReportsModuleAccess('64');
 
-		$query 		= CheckinLog::query();  	  
+		$query 		= CheckinLog::query()->with(['client', 'assignee', 'office']);
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
-		return view('Admin.reports.office-task-report', compact(['lists', 'totalData']));
-		// return view('Admin.reports.office-visit', compact(['lists', 'totalData']));
-		//return view('Admin.reports.office-visit');
+		return view('Admin.reports.office-visit', compact(['lists', 'totalData']));
 	}
 	public function saleforecast_application(Request $request)  
 	{	
@@ -122,7 +120,19 @@ class ReportController extends Controller
 	{	
 		// Match Reports menu (left-side-bar): super admin (1) or admin (12) only
 		$this->ensureReportsRoleAccess();
-		return view('Admin.reports.visaexpires');
+		return view('Admin.reports.visaexpires', [
+			'visaExpiresEventsUrl' => route('reports.visaexpires.events'),
+		]);
+	}
+
+	public function visaexpiresEvents(Request $request): JsonResponse
+	{
+		$this->ensureReportsRoleAccess();
+
+		return response()->json(VisaExpiryCalendar::events(
+			$request->query('start'),
+			$request->query('end'),
+		));
 	}
 	public function actionCalendar(Request $request)  
 	{	

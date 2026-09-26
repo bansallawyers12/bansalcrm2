@@ -78,17 +78,16 @@ class ClientController extends Controller
 		
 		// Base + filters (default type=client when Type filter empty — C-13)
 		$query = $this->applyClientFilters($this->getBaseClientQuery(), $request);
-		$totalData = $query->count();
 
-		// Eager-load count of applications that are in progress (status = 0) and office/branch
-		$query->withCount(['applications as in_progress_applications_count' => function ($q) {
-			$q->where('status', 0);
-		}])->with('office');
-		
-		// Paginate results
-		$lists = $query->sortable(['id' => 'desc'])->paginate(20);
-		
-		// Return appropriate view based on context
+		// Paginate first so COUNT stays a simple list scan; then load the Applications column for this page only.
+		$lists = $query->with('office')->sortable(['id' => 'desc'])->paginate(20);
+		$lists->getCollection()->loadCount([
+			'applications as in_progress_applications_count' => function ($q) {
+				$q->where('status', 0);
+			},
+		]);
+		$totalData = $lists->total();
+
 		return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
 	}
 
@@ -117,8 +116,8 @@ class ClientController extends Controller
 		// Apply search and filters
 		$query = $this->applyArchivedFilters($query, $request);
 		
-		$totalData = $query->count();
 		$lists = $query->sortable(['id' => 'desc'])->paginate(20)->appends($request->except('page'));
+		$totalData = $lists->total();
 		
 		// Assignees for filter dropdown (staff)
 		$assignees = \App\Models\Staff::select('id', 'first_name', 'last_name')
@@ -885,7 +884,7 @@ class ClientController extends Controller
     /**
      * Applications tab data only — other tabs lazy-load this via /get-application-lists.
      */
-    protected function clientApplicationsForActiveDetailTab(Request $request, $forcedTab, int $clientId)
+    protected function clientApplicationsForActiveDetailTab(Request $request, ?string $forcedTab, int $clientId)
     {
         $tab = ClientDetailTab::resolve($forcedTab, $request->route('tab'), $request->get('tab'))['tab'];
         if ($tab !== 'application') {
@@ -908,7 +907,8 @@ class ClientController extends Controller
     }
 
     //Calculate age
-    function calculateAge($dob) {
+    public function calculateAge(string|\DateTimeInterface $dob): string
+    {
         // Convert the DOB string to a DateTime object
         $birthDate = new \DateTime($dob);
         // Get the current date
@@ -1566,7 +1566,7 @@ class ClientController extends Controller
         return array_values(array_unique($patterns));
     }
 
-    private function formatRecipientPhone($client): string
+    private function formatRecipientPhone(Admin $client): string
     {
         $parts = [];
         $primary = trim((string) ($client->phone ?? ''));

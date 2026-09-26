@@ -562,7 +562,8 @@ Route::get('/report/sale-forecast/application', [ReportController::class, 'salef
 // Task system reports removed - December 2025
 // Route::get('/report/task/personal-task-report', [ReportController::class, 'personal_task'])->name('reports.personal-task-report');
 // Route::get('/report/task/office-task-report', [ReportController::class, 'office_task'])->name('reports.office-task-report');
-Route::get('/reports/visaexpires', [ReportController::class, 'visaexpires']);
+Route::get('/reports/visaexpires', [ReportController::class, 'visaexpires'])->name('reports.visaexpires');
+Route::get('/reports/visaexpires/events', [ReportController::class, 'visaexpiresEvents'])->name('reports.visaexpires.events');
 Route::get('/action-calendar', [ReportController::class, 'actionCalendar']);
 Route::get('/reports/agreementexpires', [ReportController::class, 'agreementexpires']);
 Route::get('/report/noofpersonofficevisit', [ReportController::class, 'noofpersonofficevisit'])->name('reports.noofpersonofficevisit');

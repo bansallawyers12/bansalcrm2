@@ -17,6 +17,7 @@ use App\Services\ClientLeadListExportService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use App\Helpers\PhoneHelper;
 
 class LeadController extends Controller
@@ -56,14 +57,9 @@ class LeadController extends Controller
 			StaffClientVisibility::restrictAdminsQueryForStaff($baseQuery, $user);
 		}
 
-		$totalData = (clone $baseQuery)->count();
 		$query = $this->buildLeadListQuery($request, $baseQuery);
-
-		if ($request->has('id') || $request->has('email') || $request->has('name') || $request->has('phone') || $request->has('status') || $request->has('from') || $request->has('to'))
-		{
-			$totalData = $query->count();
-		}
 		$lists = $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
+		$totalData = $lists->total();
 		$cur_url = $request->fullUrl();
 		return view('Admin.leads.index', compact(['lists', 'totalData', 'cur_url']));
 
@@ -545,7 +541,7 @@ class LeadController extends Controller
                 ->withErrors(['import_file' => $firstError])
                 ->withInput();
         } catch (\Exception $e) {
-            \Log::error('Lead import error: ' . $e->getMessage(), [
+            Log::error('Lead import error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'file' => $request->file('import_file') ? $request->file('import_file')->getClientOriginalName() : 'unknown'
             ]);
