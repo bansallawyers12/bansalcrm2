@@ -4,6 +4,7 @@
  */
 'use strict';
 
+import '@legacy/common/bootstrap-ready.js';
 import '@legacy/common/config.js';
 import '@legacy/common/ajax-helpers.js';
 import '@legacy/common/crud-operations.js';

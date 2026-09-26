@@ -4,6 +4,7 @@
  */
 'use strict';
 
+import '@legacy/common/bootstrap-ready.js';
 import '@legacy/common/config.js';
 import {
     applyActivitiesFilters,

@@ -3,4 +3,5 @@
  */
 'use strict';
 
+import '@legacy/common/bootstrap-ready.js';
 import '@legacy/popover.js';

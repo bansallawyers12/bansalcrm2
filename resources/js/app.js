@@ -4,4 +4,5 @@
  */
 
 // Bootstrap CSS is loaded via @vite(['resources/sass/app.scss']) in layout <head>.
+import '@legacy/common/bootstrap-ready.js';
 import './bootstrap';

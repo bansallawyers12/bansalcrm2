@@ -3,6 +3,8 @@
  * Phase 2a: single source — not bundled via Vite (required before head CDN plugins).
  */
 
+import { markBootstrapReady } from '@legacy/common/bootstrap-ready.js';
+
 import _ from 'lodash';
 import * as Popper from '@popperjs/core';
 // Bootstrap 5 from Vite (app.js entry)
@@ -195,6 +197,8 @@ if (typeof window.$ !== 'undefined' && window.bootstrap && window.bootstrap.Moda
         console.log('Bootstrap 5 jQuery bridge for Modals initialized');
     }
 }
+
+markBootstrapReady();
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

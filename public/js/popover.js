@@ -541,63 +541,80 @@ console.log(timestring);
         return false;
     }
 
-    $("body").on('click', function (e) {
-        if (isWithinPopoverFlatpickrGuard()) {
+    function bindPopoverDismissHandler() {
+        $("body").on('click', function (e) {
+            if (isWithinPopoverFlatpickrGuard()) {
+                return;
+            }
+            if (typeof $.fn.popover !== 'function') {
+                return;
+            }
+            // Support both legacy and Bootstrap 5 popovers
+            $("[data-role=popover], [data-bs-toggle=popover]").each(function(){
+                var $el = $(this);
+                if (!$el.is(e.target) && $el.has(e.target).length === 0 && !isPopoverInsideClick(e.target)) {
+                    // Hide popover using jQuery bridge (works with both Bootstrap 4 and 5)
+                    $el.popover('hide');
+                }
+            });
+        });
+    }
+
+    function initPopoversOnReady() {
+        // Check if Bootstrap 5 is available
+        if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Popover) {
+            // Bootstrap 5 is loaded - jQuery bridge should be available from bootstrap.js
+            console.log('Bootstrap 5 Popover detected');
+        } else if (typeof $ !== 'undefined' && $.fn.popover && $.fn.popover.Constructor) {
+            // Bootstrap 4 or jQuery bridge available
+            var showPopover = $.fn.popover.Constructor.prototype.show;
+            $.fn.popover.Constructor.prototype.show = function () {
+                showPopover.call(this);
+                if (this.options && this.options.showCallback) {
+                    this.options.showCallback.call(this);
+                }
+            };
+        } else {
+            console.warn('Bootstrap Popover not available. Ensure Bootstrap bundle is loaded before popover.js');
             return;
         }
-        // Support both legacy and Bootstrap 5 popovers
-        $("[data-role=popover], [data-bs-toggle=popover]").each(function(){
+
+        // Only initialize popovers that aren't already initialized
+        $("[data-role=popover], [data-bs-toggle=popover]").each(function() {
             var $el = $(this);
-            if (!$el.is(e.target) && $el.has(e.target).length === 0 && !isPopoverInsideClick(e.target)) {
-                // Hide popover using jQuery bridge (works with both Bootstrap 4 and 5)
-                $el.popover('hide');
+            // Row action buttons on /action are initialized after DataTable draw (manual trigger)
+            if ($el.closest('.yajra-datatable').length && ($el.hasClass('update_task') || $el.hasClass('reassign_task'))) {
+                return;
+            }
+            // Check for Bootstrap 5 instance or jQuery data
+            var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
+            var jqData = $el.data('bs.popover');
+            var isManualRow = $el.hasClass('update_task') || $el.hasClass('reassign_task');
+
+            if (!bsInstance && !jqData) {
+                $el.popover({
+                    sanitize: false,
+                    html: true,
+                    trigger: isManualRow ? 'manual' : 'click',
+                    placement: $el.attr('data-placement') || $el.attr('data-bs-placement') || 'auto',
+                    container: $el.attr('data-bs-container') || $el.attr('data-container') || (isManualRow ? 'body' : false)
+                });
             }
         });
-    });
-	
-	
-	$(document).ready(function(){ 
-		// Check if Bootstrap 5 is available
-		if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Popover) {
-			// Bootstrap 5 is loaded - jQuery bridge should be available from bootstrap.js
-			console.log('Bootstrap 5 Popover detected');
-		} else if (typeof $ !== 'undefined' && $.fn.popover && $.fn.popover.Constructor) {
-			// Bootstrap 4 or jQuery bridge available
-			var showPopover = $.fn.popover.Constructor.prototype.show;
-			$.fn.popover.Constructor.prototype.show = function () {
-				showPopover.call(this);
-				if (this.options && this.options.showCallback) {
-					this.options.showCallback.call(this); 
-				}
-			}
-		} else {
-			console.warn('Bootstrap Popover not available. Ensure Bootstrap bundle is loaded before popover.js');
-		} 
+    }
 
-		// Only initialize popovers that aren't already initialized
-		$("[data-role=popover], [data-bs-toggle=popover]").each(function() {
-			var $el = $(this);
-			// Row action buttons on /action are initialized after DataTable draw (manual trigger)
-			if ($el.closest('.yajra-datatable').length && ($el.hasClass('update_task') || $el.hasClass('reassign_task'))) {
-				return;
-			}
-			// Check for Bootstrap 5 instance or jQuery data
-			var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
-			var jqData = $el.data('bs.popover');
-			var isManualRow = $el.hasClass('update_task') || $el.hasClass('reassign_task');
+    function startPopoverUi() {
+        bindPopoverDismissHandler();
+        $(document).ready(initPopoversOnReady);
+    }
 
-			if (!bsInstance && !jqData) {
-				$el.popover({
-					sanitize: false,
-					html: true,
-					trigger: isManualRow ? 'manual' : 'click',
-					placement: $el.attr('data-placement') || $el.attr('data-bs-placement') || 'auto',
-					container: $el.attr('data-bs-container') || $el.attr('data-container') || (isManualRow ? 'body' : false)
-				});
-			}
-		});
-		
-	});		
+    if (typeof window.waitForBootstrap === 'function') {
+        window.waitForBootstrap().then(startPopoverUi).catch(function () {
+            console.warn('Bootstrap Popover not available. Ensure Bootstrap bundle is loaded before popover.js');
+        });
+    } else {
+        startPopoverUi();
+    }
 	
 	
 	

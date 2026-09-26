@@ -11,6 +11,10 @@
     "file": "assets/agent-custom-form-validation-pWbAPGse.js",
     "name": "agent-custom-form-validation"
   },
+  "_bootstrap-ready-B6ipIyCh.js": {
+    "file": "assets/bootstrap-ready-B6ipIyCh.js",
+    "name": "bootstrap-ready"
+  },
   "_config-CKd4b1m8.js": {
     "file": "assets/config-CKd4b1m8.js",
     "name": "config",
@@ -42,8 +46,8 @@
     "file": "assets/inactivity-logout-CEuOWgWw.js",
     "name": "inactivity-logout"
   },
-  "_popover-CIzRiL3b.js": {
-    "file": "assets/popover-CIzRiL3b.js",
+  "_popover-fGcvNJFJ.js": {
+    "file": "assets/popover-fGcvNJFJ.js",
     "name": "popover"
   },
   "_preload-helper-B6JZccWF.js": {
@@ -374,12 +378,13 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-B5Fil7P3.js",
+    "file": "assets/app-B8NFPwa-.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-CbXtAM7H.js"
+      "_rolldown-runtime-CbXtAM7H.js",
+      "_bootstrap-ready-B6ipIyCh.js"
     ]
   },
   "resources/js/datatables-buttons-init.js": {
@@ -456,15 +461,16 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-BfeoHtGu.js",
+    "file": "assets/client-detail-entry-CQTK4fM1.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
     "imports": [
+      "_bootstrap-ready-B6ipIyCh.js",
       "_config-CKd4b1m8.js",
       "_ui-components-dkkS2R2k.js",
       "_document-context-menu-DAMRTYx3.js",
-      "_popover-CIzRiL3b.js"
+      "_popover-fGcvNJFJ.js"
     ]
   },
   "resources/js/pages/admin/client-edit-entry.js": {
@@ -491,12 +497,13 @@
     "isEntry": true
   },
   "resources/js/pages/admin/partner-detail-entry.js": {
-    "file": "assets/partner-detail-entry-Bj_GJZKt.js",
+    "file": "assets/partner-detail-entry-BXr-U6Yc.js",
     "name": "partner-detail-entry",
     "src": "resources/js/pages/admin/partner-detail-entry.js",
     "isEntry": true,
     "imports": [
       "_preload-helper-B6JZccWF.js",
+      "_bootstrap-ready-B6ipIyCh.js",
       "_config-CKd4b1m8.js",
       "_document-context-menu-DAMRTYx3.js"
     ],
@@ -505,12 +512,13 @@
     ]
   },
   "resources/js/pages/admin/popover-entry.js": {
-    "file": "assets/popover-entry-x8FB_0n4.js",
+    "file": "assets/popover-entry-Cgidzn4Z.js",
     "name": "popover-entry",
     "src": "resources/js/pages/admin/popover-entry.js",
     "isEntry": true,
     "imports": [
-      "_popover-CIzRiL3b.js"
+      "_bootstrap-ready-B6ipIyCh.js",
+      "_popover-fGcvNJFJ.js"
     ]
   },
   "resources/js/signature-pad-init.js": {
