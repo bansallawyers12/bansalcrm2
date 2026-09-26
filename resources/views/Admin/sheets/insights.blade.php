@@ -239,6 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function renderInsightsCharts() {
     // Chart: Conversions by Assignee
     var convLabels = @json($chartConversionsByAssignee['labels']);
     var convValues = @json($chartConversionsByAssignee['values']);
@@ -296,6 +297,33 @@ document.addEventListener('DOMContentLoaded', function() {
             legend: { position: 'top' },
         }).render();
     }
+    }
+
+    function startInsightsCharts() {
+        if (typeof whenApexChartsReady === 'function') {
+            whenApexChartsReady().then(renderInsightsCharts);
+            return;
+        }
+
+        if (typeof ApexCharts !== 'undefined') {
+            renderInsightsCharts();
+            return;
+        }
+
+        var apexAttempts = 0;
+        var apexPoll = setInterval(function () {
+            apexAttempts++;
+            if (typeof ApexCharts !== 'undefined') {
+                clearInterval(apexPoll);
+                renderInsightsCharts();
+            } else if (apexAttempts >= 100) {
+                clearInterval(apexPoll);
+                console.warn('ApexCharts not loaded — insights charts skipped');
+            }
+        }, 50);
+    }
+
+    startInsightsCharts();
 
     // DataTable for assignee table (optional)
     if ($ && $.fn.DataTable && $('#insightsAssigneeTable tbody tr td').length && !$('#insightsAssigneeTable tbody tr td').first().text().includes('No data')) {

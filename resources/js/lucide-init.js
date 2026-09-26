@@ -3,8 +3,6 @@
  */
 'use strict';
 
-import { createIcons, icons } from 'lucide';
-
 const SORT_ICON_MAP = {
     'sort-default': 'arrow-up-down',
     'sort-alpha': 'arrow-up-down',
@@ -19,6 +17,8 @@ const SORT_ICON_MAP = {
 };
 
 let refreshTimer = null;
+let lucideLoadPromise = null;
+let lucideRefreshChain = Promise.resolve();
 
 /** Repair stale/corrupt data-lucide values from cached HTML or unmapped FA slugs. */
 const STALE_LUCIDE_FIXES = {
@@ -34,11 +34,19 @@ const STALE_LUCIDE_FIXES = {
     'ile-image': 'file-image',
     'ile-signature': 'signature',
     'rchive': 'archive',
-    'ticket-alt': 'ticket',
+    'icket-alt': 'ticket',
     'mobile': 'smartphone',
     'refresh': 'refresh-cw',
     'bag': 'shopping-bag',
 };
+
+function loadLucide() {
+    if (!lucideLoadPromise) {
+        lucideLoadPromise = import('lucide');
+    }
+
+    return lucideLoadPromise;
+}
 
 function normalizeDataLucideAttributes(root) {
     const scope = root || document;
@@ -98,7 +106,9 @@ function nodeNeedsIconHydration(node) {
     return !!(node.querySelector && node.querySelector('[data-lucide], th i[class*="sort-"]'));
 }
 
-export function refreshCrmIcons(root) {
+async function refreshCrmIconsAsync(root) {
+    const { createIcons, icons } = await loadLucide();
+
     hydrateSortIcons(root);
     normalizeDataLucideAttributes(root);
     createIcons({
@@ -108,6 +118,18 @@ export function refreshCrmIcons(root) {
         },
         root: root || document,
     });
+}
+
+export function refreshCrmIcons(root) {
+    lucideRefreshChain = lucideRefreshChain
+        .then(function () {
+            return refreshCrmIconsAsync(root);
+        })
+        .catch(function (error) {
+            console.error('Failed to refresh CRM icons', error);
+        });
+
+    return lucideRefreshChain;
 }
 
 function scheduleRefreshCrmIcons(root) {
@@ -143,6 +165,7 @@ function setupDynamicIconObserver() {
 
 if (typeof window !== 'undefined') {
     window.refreshCrmIcons = refreshCrmIcons;
+    loadLucide();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {

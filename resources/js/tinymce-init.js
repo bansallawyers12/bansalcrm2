@@ -4,40 +4,7 @@
  */
 'use strict';
 
-import tinymce from 'tinymce';
-
-import 'tinymce/icons/default/icons.min.js';
-import 'tinymce/themes/silver/theme.min.js';
-import 'tinymce/models/dom/model.min.js';
-
-import 'tinymce/skins/ui/oxide/skin.js';
-import 'tinymce/skins/ui/oxide/content.js';
-import 'tinymce/skins/content/default/content.js';
-
-import 'tinymce/plugins/advlist';
-import 'tinymce/plugins/autolink';
-import 'tinymce/plugins/lists';
-import 'tinymce/plugins/link';
-import 'tinymce/plugins/image';
-import 'tinymce/plugins/charmap';
-import 'tinymce/plugins/preview';
-import 'tinymce/plugins/anchor';
-import 'tinymce/plugins/searchreplace';
-import 'tinymce/plugins/visualblocks';
-import 'tinymce/plugins/code';
-import 'tinymce/plugins/fullscreen';
-import 'tinymce/plugins/insertdatetime';
-import 'tinymce/plugins/media';
-import 'tinymce/plugins/table';
-import 'tinymce/plugins/wordcount';
-import 'tinymce/plugins/emoticons';
-import 'tinymce/plugins/emoticons/js/emojis';
-import 'tinymce/plugins/directionality';
-import 'tinymce/plugins/pagebreak';
-import 'tinymce/plugins/nonbreaking';
-import 'tinymce/plugins/save';
-
-window.tinymce = tinymce;
+let tinymceLoadPromise = null;
 
 const SIMPLE_PLUGINS = [
     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
@@ -62,6 +29,54 @@ const EDITOR_URL_OPTIONS = {
 };
 
 const TINYMCE_IMAGE_FILE = '([a-f0-9-]{36}\\.(?:png|jpe?g|gif|webp))';
+
+export function whenTinyMceReady() {
+    if (!tinymceLoadPromise) {
+        tinymceLoadPromise = loadTinyMceModules();
+    }
+
+    return tinymceLoadPromise;
+}
+
+async function loadTinyMceModules() {
+    const tinymceModule = await import('tinymce');
+    const tinymce = tinymceModule.default;
+
+    await Promise.all([
+        import('tinymce/icons/default/icons.min.js'),
+        import('tinymce/themes/silver/theme.min.js'),
+        import('tinymce/models/dom/model.min.js'),
+        import('tinymce/skins/ui/oxide/skin.js'),
+        import('tinymce/skins/ui/oxide/content.js'),
+        import('tinymce/skins/content/default/content.js'),
+        import('tinymce/plugins/advlist'),
+        import('tinymce/plugins/autolink'),
+        import('tinymce/plugins/lists'),
+        import('tinymce/plugins/link'),
+        import('tinymce/plugins/image'),
+        import('tinymce/plugins/charmap'),
+        import('tinymce/plugins/preview'),
+        import('tinymce/plugins/anchor'),
+        import('tinymce/plugins/searchreplace'),
+        import('tinymce/plugins/visualblocks'),
+        import('tinymce/plugins/code'),
+        import('tinymce/plugins/fullscreen'),
+        import('tinymce/plugins/insertdatetime'),
+        import('tinymce/plugins/media'),
+        import('tinymce/plugins/table'),
+        import('tinymce/plugins/wordcount'),
+        import('tinymce/plugins/emoticons'),
+        import('tinymce/plugins/emoticons/js/emojis'),
+        import('tinymce/plugins/directionality'),
+        import('tinymce/plugins/pagebreak'),
+        import('tinymce/plugins/nonbreaking'),
+        import('tinymce/plugins/save'),
+    ]);
+
+    window.tinymce = tinymce;
+
+    return tinymce;
+}
 
 function canonicalizeTinymceImageUrls(html) {
     if (!html) {
@@ -164,7 +179,7 @@ function ensureTextareaIds(selector) {
     });
 }
 
-function initTinyMCE() {
+function initTinyMCE(tinymce) {
     ensureTextareaIds('.tinymce-simple');
     ensureTextareaIds('.tinymce-full');
 
@@ -249,97 +264,98 @@ function initTinyMCE() {
     });
 }
 
-window.TinyMCEHelpers = {
-    getContent: function (selector) {
-        var editor = tinymce.get(selector);
-        if (editor) {
-            return canonicalizeTinymceImageUrls(editor.getContent());
-        }
-        if (selector.startsWith('#')) {
-            editor = tinymce.get(selector.substring(1));
+function setupTinyMceHelpers(tinymce) {
+    window.TinyMCEHelpers = {
+        getContent: function (selector) {
+            var editor = tinymce.get(selector);
             if (editor) {
                 return canonicalizeTinymceImageUrls(editor.getContent());
             }
-        }
-        var $ = window.jQuery || window.$;
-        var $el = $ ? $(selector) : null;
-        if ($el && $el.length) {
-            return $el.val();
-        }
-        return '';
-    },
+            if (selector.startsWith('#')) {
+                editor = tinymce.get(selector.substring(1));
+                if (editor) {
+                    return canonicalizeTinymceImageUrls(editor.getContent());
+                }
+            }
+            var $ = window.jQuery || window.$;
+            var $el = $ ? $(selector) : null;
+            if ($el && $el.length) {
+                return $el.val();
+            }
+            return '';
+        },
 
-    setContent: function (selector, content) {
-        var editor = tinymce.get(selector);
-        if (editor) {
-            editor.setContent(editorDisplayImageUrls(content || ''));
-            return;
-        }
-        if (selector.startsWith('#')) {
-            editor = tinymce.get(selector.substring(1));
+        setContent: function (selector, content) {
+            var editor = tinymce.get(selector);
             if (editor) {
                 editor.setContent(editorDisplayImageUrls(content || ''));
                 return;
             }
-        }
-        var $ = window.jQuery || window.$;
-        var $el = $ ? $(selector) : null;
-        if ($el && $el.length) {
+            if (selector.startsWith('#')) {
+                editor = tinymce.get(selector.substring(1));
+                if (editor) {
+                    editor.setContent(editorDisplayImageUrls(content || ''));
+                    return;
+                }
+            }
+            var $ = window.jQuery || window.$;
+            var $el = $ ? $(selector) : null;
+            if ($el && $el.length) {
+                $el.val(content || '');
+            }
+        },
+
+        reset: function (selector) {
+            this.setContent(selector, '');
+        },
+
+        getContentBySelector: function (selector) {
+            var $ = window.jQuery || window.$;
+            var $el = $ ? $(selector).first() : null;
+            if (!$el || !$el.length) {
+                return '';
+            }
+            var id = $el.attr('id');
+            if (id) {
+                return this.getContent('#' + id);
+            }
+            return $el.val() || '';
+        },
+
+        setContentBySelector: function (selector, content) {
+            var $ = window.jQuery || window.$;
+            var $el = $ ? $(selector).first() : null;
+            if (!$el || !$el.length) {
+                return;
+            }
+            var id = $el.attr('id');
+            if (id) {
+                this.setContent('#' + id, content);
+            }
             $el.val(content || '');
-        }
-    },
+        },
 
-    reset: function (selector) {
-        this.setContent(selector, '');
-    },
+        resetBySelector: function (selector) {
+            this.setContentBySelector(selector, '');
+        },
 
-    getContentBySelector: function (selector) {
-        var $ = window.jQuery || window.$;
-        var $el = $ ? $(selector).first() : null;
-        if (!$el || !$el.length) {
-            return '';
-        }
-        var id = $el.attr('id');
-        if (id) {
-            return this.getContent('#' + id);
-        }
-        return $el.val() || '';
-    },
-
-    setContentBySelector: function (selector, content) {
-        var $ = window.jQuery || window.$;
-        var $el = $ ? $(selector).first() : null;
-        if (!$el || !$el.length) {
-            return;
-        }
-        var id = $el.attr('id');
-        if (id) {
-            this.setContent('#' + id, content);
-        }
-        $el.val(content || '');
-    },
-
-    resetBySelector: function (selector) {
-        this.setContentBySelector(selector, '');
-    },
-
-    insertHtml: function (selector, html) {
-        var editor = tinymce.get(selector);
-        if (editor) {
-            editor.insertContent(html);
-            return;
-        }
-        if (selector.startsWith('#')) {
-            editor = tinymce.get(selector.substring(1));
+        insertHtml: function (selector, html) {
+            var editor = tinymce.get(selector);
             if (editor) {
                 editor.insertContent(html);
+                return;
             }
-        }
-    },
-};
+            if (selector.startsWith('#')) {
+                editor = tinymce.get(selector.substring(1));
+                if (editor) {
+                    editor.insertContent(html);
+                }
+            }
+        },
+    };
+}
 
-function bootTinyMCE() {
-    initTinyMCE();
+function bindModalResizeHandlers(tinymce) {
     var $ = window.jQuery || window.$;
     if ($ && !window.__tinymceModalResizeBound) {
         window.__tinymceModalResizeBound = true;
@@ -353,6 +369,30 @@ function bootTinyMCE() {
             });
         });
     }
+}
+
+function pageNeedsTinyMce() {
+    return !!document.querySelector('.tinymce-simple, .tinymce-full, #editor1');
+}
+
+async function bootTinyMCE() {
+    if (!pageNeedsTinyMce()) {
+        return;
+    }
+
+    try {
+        const tinymce = await whenTinyMceReady();
+        setupTinyMceHelpers(tinymce);
+        initTinyMCE(tinymce);
+        bindModalResizeHandlers(tinymce);
+    } catch (error) {
+        console.error('TinyMCE failed to load', error);
+    }
+}
+
+if (typeof window !== 'undefined') {
+    window.whenTinyMceReady = whenTinyMceReady;
+    whenTinyMceReady();
 }
 
 if (document.readyState === 'loading') {

@@ -410,7 +410,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     }
 
-    if (typeof ApexCharts !== 'undefined') {
+    if (typeof whenApexChartsReady === 'function') {
+        whenApexChartsReady().then(renderAuditCharts);
+    } else if (typeof ApexCharts !== 'undefined') {
         renderAuditCharts();
     } else {
         var apexAttempts = 0;

@@ -34,17 +34,31 @@
     "file": "assets/dataTables.bootstrap5-CNLCP4Lp.js",
     "name": "dataTables.bootstrap5"
   },
-  "_document-context-menu-DfodRBtQ.js": {
-    "file": "assets/document-context-menu-DfodRBtQ.js",
+  "_document-context-menu-C4Xm_lxz.js": {
+    "file": "assets/document-context-menu-C4Xm_lxz.js",
     "name": "document-context-menu"
   },
   "_inactivity-logout-CEuOWgWw.js": {
     "file": "assets/inactivity-logout-CEuOWgWw.js",
     "name": "inactivity-logout"
   },
+  "_lucide-init-Bg-PcyC9.js": {
+    "file": "assets/lucide-init-Bg-PcyC9.js",
+    "name": "lucide-init",
+    "imports": [
+      "_preload-helper-B6JZccWF.js"
+    ],
+    "dynamicImports": [
+      "node_modules/lucide/dist/esm/lucide.mjs"
+    ]
+  },
   "_popover-CIzRiL3b.js": {
     "file": "assets/popover-CIzRiL3b.js",
     "name": "popover"
+  },
+  "_preload-helper-B6JZccWF.js": {
+    "file": "assets/preload-helper-B6JZccWF.js",
+    "name": "preload-helper"
   },
   "_rolldown-runtime-hePW80VL.js": {
     "file": "assets/rolldown-runtime-hePW80VL.js",
@@ -57,15 +71,272 @@
       "_rolldown-runtime-hePW80VL.js"
     ]
   },
+  "node_modules/apexcharts/dist/apexcharts.common.js": {
+    "file": "assets/apexcharts.common-CTkWxfas.js",
+    "name": "apexcharts.common",
+    "src": "node_modules/apexcharts/dist/apexcharts.common.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/lucide/dist/esm/lucide.mjs": {
+    "file": "assets/lucide-BnIvO3u7.js",
+    "name": "lucide",
+    "src": "node_modules/lucide/dist/esm/lucide.mjs",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/icons/default/icons.min.js": {
+    "file": "assets/icons.min-BnYfiZRS.js",
+    "name": "icons.min",
+    "src": "node_modules/tinymce/icons/default/icons.min.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/models/dom/model.min.js": {
+    "file": "assets/model.min-DbExCTcN.js",
+    "name": "model.min",
+    "src": "node_modules/tinymce/models/dom/model.min.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/plugins/advlist/index.js": {
+    "file": "assets/advlist-CbVCGm1E.js",
+    "name": "advlist",
+    "src": "node_modules/tinymce/plugins/advlist/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/anchor/index.js": {
+    "file": "assets/anchor-zAiKIynq.js",
+    "name": "anchor",
+    "src": "node_modules/tinymce/plugins/anchor/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/autolink/index.js": {
+    "file": "assets/autolink-CMk9mrh1.js",
+    "name": "autolink",
+    "src": "node_modules/tinymce/plugins/autolink/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/charmap/index.js": {
+    "file": "assets/charmap-CqJkNW8s.js",
+    "name": "charmap",
+    "src": "node_modules/tinymce/plugins/charmap/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/code/index.js": {
+    "file": "assets/code-CaVl8hdk.js",
+    "name": "code",
+    "src": "node_modules/tinymce/plugins/code/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/directionality/index.js": {
+    "file": "assets/directionality-DdXdbWrb.js",
+    "name": "directionality",
+    "src": "node_modules/tinymce/plugins/directionality/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/emoticons/index.js": {
+    "file": "assets/emoticons-BSx6NBUo.js",
+    "name": "emoticons",
+    "src": "node_modules/tinymce/plugins/emoticons/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/emoticons/js/emojis.js": {
+    "file": "assets/emojis-DWVyE9-v.js",
+    "name": "emojis",
+    "src": "node_modules/tinymce/plugins/emoticons/js/emojis.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/plugins/fullscreen/index.js": {
+    "file": "assets/fullscreen-CywRsZiB.js",
+    "name": "fullscreen",
+    "src": "node_modules/tinymce/plugins/fullscreen/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/image/index.js": {
+    "file": "assets/image-D0pKr338.js",
+    "name": "image",
+    "src": "node_modules/tinymce/plugins/image/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/insertdatetime/index.js": {
+    "file": "assets/insertdatetime-csRdcsdm.js",
+    "name": "insertdatetime",
+    "src": "node_modules/tinymce/plugins/insertdatetime/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/link/index.js": {
+    "file": "assets/link-5m81-b0W.js",
+    "name": "link",
+    "src": "node_modules/tinymce/plugins/link/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/lists/index.js": {
+    "file": "assets/lists-D-y4JBij.js",
+    "name": "lists",
+    "src": "node_modules/tinymce/plugins/lists/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/media/index.js": {
+    "file": "assets/media-CcF6_O6H.js",
+    "name": "media",
+    "src": "node_modules/tinymce/plugins/media/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/nonbreaking/index.js": {
+    "file": "assets/nonbreaking-DvDJMxYR.js",
+    "name": "nonbreaking",
+    "src": "node_modules/tinymce/plugins/nonbreaking/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/pagebreak/index.js": {
+    "file": "assets/pagebreak-B41Qiadn.js",
+    "name": "pagebreak",
+    "src": "node_modules/tinymce/plugins/pagebreak/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/preview/index.js": {
+    "file": "assets/preview-CsqluiKa.js",
+    "name": "preview",
+    "src": "node_modules/tinymce/plugins/preview/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/save/index.js": {
+    "file": "assets/save-DK35gsPr.js",
+    "name": "save",
+    "src": "node_modules/tinymce/plugins/save/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/searchreplace/index.js": {
+    "file": "assets/searchreplace-CEADS3Ux.js",
+    "name": "searchreplace",
+    "src": "node_modules/tinymce/plugins/searchreplace/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/table/index.js": {
+    "file": "assets/table-BaqnH8jf.js",
+    "name": "table",
+    "src": "node_modules/tinymce/plugins/table/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/visualblocks/index.js": {
+    "file": "assets/visualblocks-BeRkBWcj.js",
+    "name": "visualblocks",
+    "src": "node_modules/tinymce/plugins/visualblocks/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/plugins/wordcount/index.js": {
+    "file": "assets/wordcount-Vn8MkWFd.js",
+    "name": "wordcount",
+    "src": "node_modules/tinymce/plugins/wordcount/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
+  "node_modules/tinymce/skins/content/default/content.js": {
+    "file": "assets/content-BI1hfN_1.js",
+    "name": "content",
+    "src": "node_modules/tinymce/skins/content/default/content.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/skins/ui/oxide/content.js": {
+    "file": "assets/content-0VBKQw6j.js",
+    "name": "content",
+    "src": "node_modules/tinymce/skins/ui/oxide/content.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/skins/ui/oxide/skin.js": {
+    "file": "assets/skin-Cj8Gx-Tj.js",
+    "name": "skin",
+    "src": "node_modules/tinymce/skins/ui/oxide/skin.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/themes/silver/theme.min.js": {
+    "file": "assets/theme.min-Dtcz8vJA.js",
+    "name": "theme.min",
+    "src": "node_modules/tinymce/themes/silver/theme.min.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/tinymce/tinymce.js": {
+    "file": "assets/tinymce-BTuJdOrl.js",
+    "name": "tinymce",
+    "src": "node_modules/tinymce/tinymce.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-hePW80VL.js"
+    ]
+  },
   "resources/js/admin-layout-scripts.js": {
-    "file": "assets/admin-layout-scripts-BT1duudK.js",
+    "file": "assets/admin-layout-scripts-DwWFmXMP.js",
     "name": "admin-layout-scripts",
     "src": "resources/js/admin-layout-scripts.js",
     "isEntry": true,
     "imports": [
       "_crm-icon-DrO8lU2z.js",
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_custom-fV7bLyI1.js",
       "_inactivity-logout-CEuOWgWw.js",
       "_action-popover-tomselect-BkhOUYTK.js",
@@ -73,42 +344,39 @@
     ]
   },
   "resources/js/adminconsole-layout-scripts.js": {
-    "file": "assets/adminconsole-layout-scripts-BLPJNdOF.js",
+    "file": "assets/adminconsole-layout-scripts-WBPeenv7.js",
     "name": "adminconsole-layout-scripts",
     "src": "resources/js/adminconsole-layout-scripts.js",
     "isEntry": true,
     "imports": [
       "_crm-icon-DrO8lU2z.js",
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_custom-fV7bLyI1.js",
       "_inactivity-logout-CEuOWgWw.js",
       "_custom-form-validation-CWYt11ej.js"
     ]
   },
   "resources/js/agent-adminconsole-layout-scripts.js": {
-    "file": "assets/agent-adminconsole-layout-scripts-DBzaqM1j.js",
+    "file": "assets/agent-adminconsole-layout-scripts-Cgtknelm.js",
     "name": "agent-adminconsole-layout-scripts",
     "src": "resources/js/agent-adminconsole-layout-scripts.js",
     "isEntry": true,
     "imports": [
       "_crm-icon-DrO8lU2z.js",
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_custom-fV7bLyI1.js",
       "_inactivity-logout-CEuOWgWw.js",
       "_agent-custom-form-validation-pWbAPGse.js"
     ]
   },
   "resources/js/agent-layout-scripts.js": {
-    "file": "assets/agent-layout-scripts-rAouD9Ax.js",
+    "file": "assets/agent-layout-scripts-Co1RvrNY.js",
     "name": "agent-layout-scripts",
     "src": "resources/js/agent-layout-scripts.js",
     "isEntry": true,
     "imports": [
       "_crm-icon-DrO8lU2z.js",
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_custom-fV7bLyI1.js",
       "_inactivity-logout-CEuOWgWw.js",
       "_action-popover-tomselect-BkhOUYTK.js",
@@ -116,12 +384,16 @@
     ]
   },
   "resources/js/apexcharts-init.js": {
-    "file": "assets/apexcharts-init-DZZCrEkX.js",
+    "file": "assets/apexcharts-init-CcRPEHDj.js",
     "name": "apexcharts-init",
     "src": "resources/js/apexcharts-init.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-hePW80VL.js"
+      "_rolldown-runtime-hePW80VL.js",
+      "_preload-helper-B6JZccWF.js"
+    ],
+    "dynamicImports": [
+      "node_modules/apexcharts/dist/apexcharts.common.js"
     ]
   },
   "resources/js/app.js": {
@@ -146,34 +418,31 @@
     ]
   },
   "resources/js/document-pages-icons.js": {
-    "file": "assets/document-pages-icons-B1jwc9WV.js",
+    "file": "assets/document-pages-icons-Dvabycg5.js",
     "name": "document-pages-icons",
     "src": "resources/js/document-pages-icons.js",
     "isEntry": true,
     "imports": [
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js"
+      "_lucide-init-Bg-PcyC9.js"
     ]
   },
   "resources/js/exception-agent-entry.js": {
-    "file": "assets/exception-agent-entry-Bk6NthRj.js",
+    "file": "assets/exception-agent-entry-CZV9HlPe.js",
     "name": "exception-agent-entry",
     "src": "resources/js/exception-agent-entry.js",
     "isEntry": true,
     "imports": [
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_agent-custom-form-validation-pWbAPGse.js"
     ]
   },
   "resources/js/exception-entry.js": {
-    "file": "assets/exception-entry-BPMYEL2i.js",
+    "file": "assets/exception-entry-WVBnfphW.js",
     "name": "exception-entry",
     "src": "resources/js/exception-entry.js",
     "isEntry": true,
     "imports": [
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_custom-form-validation-CWYt11ej.js"
     ]
   },
@@ -189,24 +458,14 @@
     "src": "resources/js/legacy-init.js",
     "isEntry": true
   },
-  "resources/js/lucide-init.js": {
-    "file": "assets/lucide-init-DZMkMr8z.js",
-    "name": "lucide-init",
-    "src": "resources/js/lucide-init.js",
-    "isEntry": true,
-    "imports": [
-      "_rolldown-runtime-hePW80VL.js"
-    ]
-  },
   "resources/js/minimal-layout-scripts.js": {
-    "file": "assets/minimal-layout-scripts-CQoYBLXg.js",
+    "file": "assets/minimal-layout-scripts-CS0cz8CL.js",
     "name": "minimal-layout-scripts",
     "src": "resources/js/minimal-layout-scripts.js",
     "isEntry": true,
     "imports": [
       "_crm-icon-DrO8lU2z.js",
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js",
+      "_lucide-init-Bg-PcyC9.js",
       "_custom-fV7bLyI1.js"
     ]
   },
@@ -226,14 +485,14 @@
     ]
   },
   "resources/js/pages/admin/client-detail-entry.js": {
-    "file": "assets/client-detail-entry-DYFsk-5T.js",
+    "file": "assets/client-detail-entry-Dz5rT26R.js",
     "name": "client-detail-entry",
     "src": "resources/js/pages/admin/client-detail-entry.js",
     "isEntry": true,
     "imports": [
       "_config-DbVxxNBO.js",
       "_ui-components-DxJ4OnEh.js",
-      "_document-context-menu-DfodRBtQ.js",
+      "_document-context-menu-C4Xm_lxz.js",
       "_popover-CIzRiL3b.js"
     ]
   },
@@ -261,13 +520,14 @@
     "isEntry": true
   },
   "resources/js/pages/admin/partner-detail-entry.js": {
-    "file": "assets/partner-detail-entry-2sxkJJug.js",
+    "file": "assets/partner-detail-entry-Cti7J6jQ.js",
     "name": "partner-detail-entry",
     "src": "resources/js/pages/admin/partner-detail-entry.js",
     "isEntry": true,
     "imports": [
+      "_preload-helper-B6JZccWF.js",
       "_config-DbVxxNBO.js",
-      "_document-context-menu-DfodRBtQ.js"
+      "_document-context-menu-C4Xm_lxz.js"
     ],
     "dynamicImports": [
       "resources/js/datatables-buttons-init.js"
@@ -283,23 +543,54 @@
     ]
   },
   "resources/js/signature-pad-init.js": {
-    "file": "assets/signature-pad-init-B5GW8s2L.js",
+    "file": "assets/signature-pad-init-f1xREMY7.js",
     "name": "signature-pad-init",
     "src": "resources/js/signature-pad-init.js",
     "isEntry": true,
     "imports": [
       "_crm-icon-DrO8lU2z.js",
-      "resources/js/lucide-init.js",
-      "resources/js/lucide-init.js"
+      "_lucide-init-Bg-PcyC9.js"
     ]
   },
   "resources/js/tinymce-init.js": {
-    "file": "assets/tinymce-init-B6q1Vt78.js",
+    "file": "assets/tinymce-init-Cwociwoq.js",
     "name": "tinymce-init",
     "src": "resources/js/tinymce-init.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-hePW80VL.js"
+      "_rolldown-runtime-hePW80VL.js",
+      "_preload-helper-B6JZccWF.js"
+    ],
+    "dynamicImports": [
+      "node_modules/tinymce/tinymce.js",
+      "node_modules/tinymce/icons/default/icons.min.js",
+      "node_modules/tinymce/themes/silver/theme.min.js",
+      "node_modules/tinymce/models/dom/model.min.js",
+      "node_modules/tinymce/skins/ui/oxide/skin.js",
+      "node_modules/tinymce/skins/ui/oxide/content.js",
+      "node_modules/tinymce/skins/content/default/content.js",
+      "node_modules/tinymce/plugins/advlist/index.js",
+      "node_modules/tinymce/plugins/autolink/index.js",
+      "node_modules/tinymce/plugins/lists/index.js",
+      "node_modules/tinymce/plugins/link/index.js",
+      "node_modules/tinymce/plugins/image/index.js",
+      "node_modules/tinymce/plugins/charmap/index.js",
+      "node_modules/tinymce/plugins/preview/index.js",
+      "node_modules/tinymce/plugins/anchor/index.js",
+      "node_modules/tinymce/plugins/searchreplace/index.js",
+      "node_modules/tinymce/plugins/visualblocks/index.js",
+      "node_modules/tinymce/plugins/code/index.js",
+      "node_modules/tinymce/plugins/fullscreen/index.js",
+      "node_modules/tinymce/plugins/insertdatetime/index.js",
+      "node_modules/tinymce/plugins/media/index.js",
+      "node_modules/tinymce/plugins/table/index.js",
+      "node_modules/tinymce/plugins/wordcount/index.js",
+      "node_modules/tinymce/plugins/emoticons/index.js",
+      "node_modules/tinymce/plugins/emoticons/js/emojis.js",
+      "node_modules/tinymce/plugins/directionality/index.js",
+      "node_modules/tinymce/plugins/pagebreak/index.js",
+      "node_modules/tinymce/plugins/nonbreaking/index.js",
+      "node_modules/tinymce/plugins/save/index.js"
     ]
   },
   "resources/js/vendor-libs.js": {
