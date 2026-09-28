@@ -58,4 +58,34 @@ class EliteInboxDateRangeTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('folder', 'inbox');
     }
+
+    public function test_elite_inbox_light_poll_omits_mailbox_metadata(): void
+    {
+        $this->actingAsStaff();
+
+        $response = $this->getJson(route('elite.emails.inbox', ['light' => 1]));
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'emails',
+            'folder',
+            'account',
+        ]);
+        $response->assertJsonMissingPath('accounts');
+        $response->assertJsonMissingPath('message');
+    }
+
+    public function test_elite_inbox_accepts_since_ts_for_incremental_poll(): void
+    {
+        $this->actingAsStaff();
+
+        $response = $this->getJson(route('elite.emails.inbox', [
+            'since_ts' => time() - 3600,
+            'light' => 1,
+        ]));
+
+        $response->assertOk();
+        $response->assertJsonPath('folder', 'inbox');
+        $response->assertJsonStructure(['emails']);
+    }
 }

@@ -53,6 +53,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Elite inbox browser polling (/emails/elite)
+    |--------------------------------------------------------------------------
+    |
+    | Auto poll runs only while the inbox panel is visible. Burst poll runs after
+    | send for burst_duration_ms (pauses when the tab is hidden). Silent polls may
+    | pass since_ts + light=1 for a smaller JSON payload.
+    |
+    */
+    'elite_inbox_auto_poll_ms' => max(5000, (int) env('CRM_ELITE_INBOX_AUTO_POLL_MS', 25000)),
+
+    'elite_inbox_burst_poll_ms' => max(5000, (int) env('CRM_ELITE_INBOX_BURST_POLL_MS', 10000)),
+
+    'elite_inbox_burst_duration_ms' => max(60000, (int) env('CRM_ELITE_INBOX_BURST_DURATION_MS', 300000)),
+
+    /*
+    |--------------------------------------------------------------------------
     | Education Elite inbound email (/elite/emails)
     |--------------------------------------------------------------------------
     |

@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\EliteEmailAttachment;
-use App\Support\EliteEmailCidRewriter;
 use App\Support\EducationEliteMail;
+use App\Support\EliteEmailCidRewriter;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Config;
@@ -168,7 +168,8 @@ class EducationEliteInboxService
         string $sort,
         int $limit,
         ?string $folder = null,
-        ?string $account = null
+        ?string $account = null,
+        ?int $sinceTs = null
     ): array {
         // elite_emails only stores inbound; sent folder is always empty
         if ($folder === 'sent') {
@@ -181,7 +182,7 @@ class EducationEliteInboxService
 
         $out = [];
         if (Schema::hasTable('elite_emails')) {
-            $q = $this->buildEliteQuery($search, $dateFrom, $dateTo);
+            $q = $this->buildEliteQuery($search, $dateFrom, $dateTo, $sinceTs);
             if ($acc !== null) {
                 $accLike = '%'.$acc.'%';
                 $q->whereRaw('LOWER(COALESCE(e.to_address, \'\')) LIKE ?', [strtolower($accLike)]);
@@ -193,7 +194,7 @@ class EducationEliteInboxService
         }
 
         if ($this->shouldMergeCrm() && Schema::hasTable('emails')) {
-            $crm = $this->fetchCrmInboxAsItems($search, $dateFrom, $dateTo, $acc);
+            $crm = $this->fetchCrmInboxAsItems($search, $dateFrom, $dateTo, $acc, $sinceTs);
             $out = array_merge($out, $crm);
         }
 
@@ -330,7 +331,7 @@ class EducationEliteInboxService
         return "CASE WHEN {$alias}.body_html_s3_key IS NOT NULL AND TRIM(COALESCE({$alias}.body_html_s3_key, '')) != '' THEN NULL ELSE COALESCE({$alias}.body_html, {$alias}.body_text) END";
     }
 
-    private function buildEliteQuery(string $search, string $dateFrom, string $dateTo): Builder
+    private function buildEliteQuery(string $search, string $dateFrom, string $dateTo, ?int $sinceTs = null): Builder
     {
         $select = [
             'e.id',
@@ -353,13 +354,17 @@ class EducationEliteInboxService
 
         // Exclude automated no-reply addresses — they are system notifications, not real mail
         $q->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['noreply@%'])
-          ->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['no-reply@%']);
+            ->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['no-reply@%']);
 
         $this->whereSearchOr($q, $search, [
             'e.from_address', 'e.to_address', 'e.subject', 'e.body_text', 'e.body_html',
         ]);
 
         $this->whereDateOnColumn($q, 'e.created_at', $dateFrom, $dateTo);
+
+        if ($sinceTs !== null && $sinceTs > 0) {
+            $q->where('e.created_at', '>', Carbon::createFromTimestamp($sinceTs));
+        }
 
         return $q;
     }
@@ -391,7 +396,8 @@ class EducationEliteInboxService
         string $search,
         string $dateFrom,
         string $dateTo,
-        ?string $accNormalized
+        ?string $accNormalized,
+        ?int $sinceTs = null
     ): array {
         $bodyExpr = $this->crmBodySelectExpr('c');
         $q = DB::table('emails as c')->select([
@@ -402,8 +408,8 @@ class EducationEliteInboxService
             DB::raw("{$bodyExpr} as body"),
             'c.created_at as received_at',
         ])->where('c.mail_type', 0)
-          ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['noreply@%'])
-          ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['no-reply@%']);
+            ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['noreply@%'])
+            ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['no-reply@%']);
 
         $q->where(function (Builder $outer) {
             $outer->where(function (Builder $w) {
@@ -428,6 +434,10 @@ class EducationEliteInboxService
         $this->whereSearchOr($q, $search, $searchCols);
 
         $this->whereDateOnColumn($q, 'c.created_at', $dateFrom, $dateTo);
+
+        if ($sinceTs !== null && $sinceTs > 0) {
+            $q->where('c.created_at', '>', Carbon::createFromTimestamp($sinceTs));
+        }
 
         $out = [];
         foreach ($q->get() as $row) {
@@ -492,6 +502,7 @@ class EducationEliteInboxService
             'body' => $bodyRaw,
             'snippet' => $snippet,
             'date' => $dateStr,
+            'received_ts' => (int) $ts,
             'direction' => 'inbound',
             'direction_label' => $this->inboundDirectionLabel($row),
             'has_attachments' => $hasAttachments,
@@ -533,6 +544,7 @@ class EducationEliteInboxService
             'body' => $bodyRaw,
             'snippet' => $snippet,
             'date' => $dateStr,
+            'received_ts' => (int) $ts,
             'direction' => 'inbound',
             'direction_label' => 'Inbound (CRM)',
             'has_attachments' => false,

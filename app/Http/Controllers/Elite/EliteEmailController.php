@@ -144,10 +144,30 @@ class EliteEmailController extends Controller
         }
         $accountRaw = (string) $request->get('account', 'all');
         $account = ($accountRaw === 'all' || $accountRaw === '') ? null : $accountRaw;
+        $sinceTs = max(0, (int) $request->query('since_ts', 0));
+        $light = $request->boolean('light');
+        $limit = ($sinceTs > 0 || $light) ? 50 : 500;
 
         $service = EducationEliteInboxService::make();
-        $emails = $service->getInbox($search, $dateFrom, $dateTo, $sort, 500, 'inbox', $account);
+        $emails = $service->getInbox(
+            $search,
+            $dateFrom,
+            $dateTo,
+            $sort,
+            $limit,
+            'inbox',
+            $account,
+            $sinceTs > 0 ? $sinceTs : null
+        );
         $normalized = $service->normalizeAccountFilter($account);
+
+        if ($light) {
+            return response()->json([
+                'emails' => $emails,
+                'folder' => 'inbox',
+                'account' => $normalized ?? 'all',
+            ]);
+        }
 
         return response()->json([
             'emails' => $emails,

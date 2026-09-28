@@ -766,6 +766,11 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     var INBOX_URL  = @json(route('elite.emails.inbox'));
     var SENT_URL   = @json(route('elite.emails.sent'));
     var DRAFTS_URL = @json(route('elite.emails.drafts'));
+    var ELITE_INBOX_POLL = {!! json_encode([
+        'autoMs' => (int) config('crm.elite_inbox_auto_poll_ms'),
+        'burstMs' => (int) config('crm.elite_inbox_burst_poll_ms'),
+        'burstDurationMs' => (int) config('crm.elite_inbox_burst_duration_ms'),
+    ], JSON_THROW_ON_ERROR) !!};
 
     var main         = document.getElementById('eliteMain');
     var tokenMeta    = document.querySelector('meta[name="csrf-token"]');
@@ -1167,32 +1172,51 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     /* ── Inbox fetch (shared by button + auto-poll) ───────────────────────── */
     var autoPolling = false;
     var autoPollTimer = null;
-    var AUTO_POLL_MS = 10000; // 10 seconds
+    var AUTO_POLL_MS = (ELITE_INBOX_POLL && ELITE_INBOX_POLL.autoMs) ? ELITE_INBOX_POLL.autoMs : 25000;
 
-    /* ── Burst-poll after send: polls every 5 s for 5 minutes ───────────────
-       Uses a deadline timestamp so hidden-tab skips don't consume the budget.
-       On tab-focus, checks immediately if deadline hasn't passed.            */
+    /* ── Burst-poll after send (pauses when tab hidden; resumes on focus) ─── */
     var burstPollTimer    = null;
-    var burstDeadlineMs   = 0;          // epoch ms when burst mode expires
-    var BURST_POLL_MS     = 5000;       // check every 5 s while burst active
-    var BURST_DURATION_MS = 5 * 60000; // 5 minutes
+    var burstDeadlineMs   = 0;
+    var BURST_POLL_MS     = (ELITE_INBOX_POLL && ELITE_INBOX_POLL.burstMs) ? ELITE_INBOX_POLL.burstMs : 10000;
+    var BURST_DURATION_MS = (ELITE_INBOX_POLL && ELITE_INBOX_POLL.burstDurationMs) ? ELITE_INBOX_POLL.burstDurationMs : (5 * 60000);
 
     function isBurstActive() { return Date.now() < burstDeadlineMs; }
 
+    function stopBurstPoll() {
+        if (burstPollTimer) {
+            clearInterval(burstPollTimer);
+            burstPollTimer = null;
+        }
+    }
+
     function startBurstPoll() {
         burstDeadlineMs = Date.now() + BURST_DURATION_MS;
-        if (burstPollTimer) clearInterval(burstPollTimer);
+        stopBurstPoll();
         burstPollTimer = setInterval(function () {
-            if (!isBurstActive()) {
-                clearInterval(burstPollTimer);
-                burstPollTimer = null;
+            if (document.hidden) {
                 return;
             }
-            doFetchInbox(true); // always fetch — even while tab is hidden (no DOM ops in silent mode)
+            if (!isBurstActive()) {
+                stopBurstPoll();
+                return;
+            }
+            doFetchInbox(true);
         }, BURST_POLL_MS);
     }
 
     var inboxFetchInFlight = false;
+
+    function maxKnownReceivedTs() {
+        var max = 0;
+        Object.keys(initialMap).forEach(function (id) {
+            var row = initialMap[id];
+            var ts = row && row.received_ts ? parseInt(row.received_ts, 10) : 0;
+            if (!isNaN(ts) && ts > max) {
+                max = ts;
+            }
+        });
+        return max;
+    }
 
     function doFetchInbox(silent) {
         /* Prevent overlapping concurrent fetches for silent (poll) calls */
@@ -1210,7 +1234,15 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         if (dr.date_to)   params.push('date_to='   + encodeURIComponent(dr.date_to));
         if (dr.date_range === 'all') params.push('date_range=all');
         params.push('sort=' + sort, 'account=' + encodeURIComponent(activeAccount||'all'));
-        if (!silent) params.push('sync=1');
+        if (!silent) {
+            params.push('sync=1');
+        } else {
+            var sinceTs = maxKnownReceivedTs();
+            if (sinceTs > 0) {
+                params.push('since_ts=' + encodeURIComponent(sinceTs));
+            }
+            params.push('light=1');
+        }
 
         if (!silent && btn) { btn.disabled = true; btn.innerHTML = crmIconSpinner(' Syncing...'); }
         if (silent) inboxFetchInFlight = true;
@@ -1313,10 +1345,13 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             stopAutoPoll();
+            stopBurstPoll();
         } else {
-            doFetchInbox(true); // check right away when user returns to tab
+            doFetchInbox(true);
             startAutoPoll();
-            if (isBurstActive() && !burstPollTimer) startBurstPoll(); // resume burst
+            if (isBurstActive() && !burstPollTimer) {
+                startBurstPoll();
+            }
         }
     });
 
