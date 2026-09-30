@@ -82,4 +82,20 @@ class Phase5PartnersTest extends TestCase
         $this->assertStringContainsString('partners_status_created_at_idx', $migration);
         $this->assertStringContainsString('notes_partner_list_note_idx', $migration);
     }
+
+    public function test_partner_student_tab_search_covers_display_columns_and_full_name(): void
+    {
+        $controller = file_get_contents(app_path('Http/Controllers/Admin/PartnersController.php'));
+
+        $this->assertIsString($controller);
+        $this->assertStringContainsString('partnerStudentTabSearchFullNameSql', $controller);
+        $this->assertStringContainsString('partnerStudentTabOptionKeysMatchingSearch', $controller);
+        $this->assertStringContainsString('partnerStudentTabStatusIdsMatchingSearch', $controller);
+        $this->assertStringContainsString("->orWhere('applications.enrolment_type',", $controller);
+        $this->assertStringContainsString("->orWhere('applications.company_name',", $controller);
+        $this->assertStringContainsString("->orWhere('applications.student_add_notes',", $controller);
+        $this->assertStringContainsString("->orWhere('applications.start_date',", $controller);
+        $this->assertStringContainsString("->where('partners.partner_name',", $controller);
+        $this->assertStringContainsString('application_fee_options as afo', $controller);
+    }
 }

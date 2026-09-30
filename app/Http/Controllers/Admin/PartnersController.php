@@ -1637,6 +1637,77 @@ class PartnersController extends Controller
         return sprintf('%04d-%02d-%02d', $year, $month, $day);
     }
 
+    private function partnerStudentTabSearchFullNameSql(): string
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            return "TRIM(COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, ''))";
+        }
+
+        return "TRIM(CONCAT(COALESCE(admins.first_name, ''), ' ', COALESCE(admins.last_name, '')))";
+    }
+
+    /**
+     * @param  array<string, string>  $options
+     * @return list<string>
+     */
+    private function partnerStudentTabOptionKeysMatchingSearch(array $options, string $searchValue): array
+    {
+        $needle = strtolower(trim($searchValue));
+        if ($needle === '') {
+            return [];
+        }
+
+        $keys = [];
+        foreach ($options as $key => $label) {
+            if (
+                str_contains(strtolower((string) $key), $needle)
+                || str_contains(strtolower((string) $label), $needle)
+            ) {
+                $keys[] = (string) $key;
+            }
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function partnerStudentTabStatusIdsMatchingSearch(string $searchValue): array
+    {
+        $needle = strtolower(trim($searchValue));
+        if ($needle === '') {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($this->partnerStudentStatusMap() as $statusId => $statusLabel) {
+            if (str_contains(strtolower($statusLabel), $needle)) {
+                $ids[] = (int) $statusId;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    private function partnerStudentTabCastAsTextSql(string $sqlExpression): string
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            return "CAST({$sqlExpression} AS TEXT)";
+        }
+
+        return "CAST({$sqlExpression} AS CHAR)";
+    }
+
+    private function partnerStudentTabLatestFeeRowConstraintSql(): string
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            return 'afo.id = (SELECT MAX(afo2.id) FROM application_fee_options afo2 WHERE afo2.app_id = applications.id)';
+        }
+
+        return 'afo.id = (SELECT MAX(afo2.id) FROM application_fee_options afo2 WHERE afo2.app_id = applications.id LIMIT 1)';
+    }
+
     /**
      * @param  QueryBuilder  $query
      * @return QueryBuilder
@@ -1649,30 +1720,95 @@ class PartnersController extends Controller
 
         $like = '%'.addcslashes($searchValue, '%_\\').'%';
         $likeOp = $this->partnerStudentTabLikeOperator();
-        $dobDb = $this->parsePartnerStudentTabDobSearch($searchValue);
+        $parsedDate = $this->parsePartnerStudentTabDobSearch($searchValue);
+        $fullNameSql = $this->partnerStudentTabSearchFullNameSql();
+        $enrolmentTypeKeys = $this->partnerStudentTabOptionKeysMatchingSearch(
+            Application::enrolmentTypeOptions(),
+            $searchValue
+        );
+        $companyNameKeys = $this->partnerStudentTabOptionKeysMatchingSearch(
+            Application::companyNameOptions(),
+            $searchValue
+        );
+        $statusIds = $this->partnerStudentTabStatusIdsMatchingSearch($searchValue);
+        $latestFeeConstraint = $this->partnerStudentTabLatestFeeRowConstraintSql();
+        $feeColumns = array_values($this->partnerStudentTabFeeOrderColumns());
 
-        return $query->where(function ($q) use ($like, $likeOp, $dobDb) {
+        return $query->where(function ($q) use (
+            $like,
+            $likeOp,
+            $parsedDate,
+            $fullNameSql,
+            $enrolmentTypeKeys,
+            $companyNameKeys,
+            $statusIds,
+            $latestFeeConstraint,
+            $feeColumns
+        ) {
             $q->where('applications.student_id', $likeOp, $like)
                 ->orWhere('applications.stage', $likeOp, $like)
-                ->orWhere('applications.student_add_notes', $likeOp, $like)
-                ->orWhereExists(function ($sub) use ($like, $likeOp, $dobDb) {
-                    $sub->select(DB::raw('1'))
-                        ->from('admins')
-                        ->whereColumn('admins.id', 'applications.client_id')
-                        ->where(function ($a) use ($like, $likeOp, $dobDb) {
-                            $a->where('admins.first_name', $likeOp, $like)
-                                ->orWhere('admins.last_name', $likeOp, $like)
-                                ->orWhere('admins.client_id', $likeOp, $like);
-                            if ($dobDb !== null) {
-                                $a->orWhere('admins.dob', '=', $dobDb);
-                            }
-                        });
-                })
+                ->orWhere('applications.student_add_notes', $likeOp, $like);
+
+            if ($parsedDate !== null) {
+                $q->orWhere('applications.start_date', '=', $parsedDate)
+                    ->orWhere('applications.end_date', '=', $parsedDate);
+            }
+
+            if ($statusIds !== []) {
+                $q->orWhereIn('applications.status', $statusIds);
+            }
+
+            if (Schema::hasColumn('applications', 'enrolment_type')) {
+                $q->orWhere('applications.enrolment_type', $likeOp, $like);
+                if ($enrolmentTypeKeys !== []) {
+                    $q->orWhereIn('applications.enrolment_type', $enrolmentTypeKeys);
+                }
+            }
+
+            if (Schema::hasColumn('applications', 'company_name')) {
+                $q->orWhere('applications.company_name', $likeOp, $like);
+                if ($companyNameKeys !== []) {
+                    $q->orWhereIn('applications.company_name', $companyNameKeys);
+                }
+            }
+
+            $q->orWhereExists(function ($sub) use ($like, $likeOp, $parsedDate, $fullNameSql) {
+                $sub->select(DB::raw('1'))
+                    ->from('admins')
+                    ->whereColumn('admins.id', 'applications.client_id')
+                    ->where(function ($a) use ($like, $likeOp, $parsedDate, $fullNameSql) {
+                        $a->where('admins.first_name', $likeOp, $like)
+                            ->orWhere('admins.last_name', $likeOp, $like)
+                            ->orWhereRaw($fullNameSql.' '.$likeOp.' ?', [$like])
+                            ->orWhere('admins.client_id', $likeOp, $like);
+                        if ($parsedDate !== null) {
+                            $a->orWhere('admins.dob', '=', $parsedDate);
+                        }
+                    });
+            })
                 ->orWhereExists(function ($sub) use ($like, $likeOp) {
                     $sub->select(DB::raw('1'))
                         ->from('products')
                         ->whereColumn('products.id', 'applications.product_id')
                         ->where('products.name', $likeOp, $like);
+                })
+                ->orWhereExists(function ($sub) use ($like, $likeOp) {
+                    $sub->select(DB::raw('1'))
+                        ->from('partners')
+                        ->whereColumn('partners.id', 'applications.partner_id')
+                        ->where('partners.partner_name', $likeOp, $like);
+                })
+                ->orWhereExists(function ($sub) use ($like, $likeOp, $latestFeeConstraint, $feeColumns) {
+                    $sub->select(DB::raw('1'))
+                        ->from('application_fee_options as afo')
+                        ->whereColumn('afo.app_id', 'applications.id')
+                        ->whereRaw($latestFeeConstraint)
+                        ->where(function ($feeQ) use ($like, $likeOp, $feeColumns) {
+                            foreach ($feeColumns as $feeColumn) {
+                                $castExpr = $this->partnerStudentTabCastAsTextSql('afo.'.$feeColumn);
+                                $feeQ->orWhere(DB::raw($castExpr), $likeOp, $like);
+                            }
+                        });
                 });
         });
     }
