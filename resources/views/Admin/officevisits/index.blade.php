@@ -86,9 +86,12 @@
 														<?php
 														$client = \App\Models\Admin::where('id', '=', $list->client_id)->first();
 														?>
-														<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
-													
-													<br>{{@$client->email}}
+														@if($client)
+														<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode($client->id)))}}">{{ $client->first_name }} {{ $client->last_name }}</a>
+														<br>{{ $client->email }}
+														@else
+														-
+														@endif
 													</td>
 													<td style="white-space: initial;">{{$list->contact_type}}</td>
 													<td style="white-space: initial;">{{$list->visit_purpose}}</td>
@@ -96,7 +99,11 @@
 													<?php
 													$admin = \App\Models\Staff::find($list->user_id);
 													?>
-													<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ @$admin->first_name }} {{ @$admin->last_name }}</a><br>{{@$admin->email}}
+													@if($admin)
+													<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ $admin->first_name }} {{ $admin->last_name }}</a><br>{{ $admin->email }}
+													@else
+													-
+													@endif
 													</td>
 													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else if($list->status == 1){ echo '<span>'.($list->wait_time ?? '-').'</span>'; }else{ echo '<span>-</span>'; } ?></td>
 													<td style="white-space: initial;">
