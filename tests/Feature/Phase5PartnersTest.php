@@ -83,6 +83,17 @@ class Phase5PartnersTest extends TestCase
         $this->assertStringContainsString('notes_partner_list_note_idx', $migration);
     }
 
+    public function test_partner_invoice_delete_uses_reliable_confirm_not_crm_confirm(): void
+    {
+        $invoiceHandlers = file_get_contents(public_path('js/pages/admin/partner-detail/invoice-handlers.js'));
+
+        $this->assertIsString($invoiceHandlers);
+        $this->assertStringContainsString('confirmPartnerInvoiceDelete', $invoiceHandlers);
+        $this->assertStringContainsString('postPartnerInvoiceDelete', $invoiceHandlers);
+        $this->assertStringContainsString('.deletestudentrecordinvoice', $invoiceHandlers);
+        $this->assertStringNotContainsString("crmConfirm('Are you sure you want to delete this record invoice?')", $invoiceHandlers);
+    }
+
     public function test_partner_student_tab_search_covers_display_columns_and_full_name(): void
     {
         $controller = file_get_contents(app_path('Http/Controllers/Admin/PartnersController.php'));

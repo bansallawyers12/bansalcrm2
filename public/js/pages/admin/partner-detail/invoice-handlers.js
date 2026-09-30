@@ -52,6 +52,85 @@ jQuery(document).ready(function($){
         }
     });
 
+    /**
+     * Partner Invoice tab deletes: avoid crmConfirm here — it stacks behind page modals/backdrops.
+     * Swal (or native confirm) stays on top. Scoped to invoice-handlers only.
+     */
+    function confirmPartnerInvoiceDelete(message) {
+        if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+            return Swal.fire({
+                title: 'Please confirm',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545'
+            }).then(function (result) {
+                return !!(result && result.isConfirmed);
+            });
+        }
+
+        return Promise.resolve(window.confirm(message));
+    }
+
+    function parseInvoiceAjaxResponse(response) {
+        return typeof response === 'object' ? response : $.parseJSON(response);
+    }
+
+    function showInvoiceHandlerMessage(message, type) {
+        if (typeof iziToast !== 'undefined') {
+            var toastFn = type === 'success' ? iziToast.success : iziToast.error;
+            toastFn({
+                title: type === 'success' ? 'Success' : 'Error',
+                message: message,
+                position: 'topRight'
+            });
+            return;
+        }
+
+        if (typeof window.toastMsg === 'function') {
+            window.toastMsg(message, type === 'success' ? 'success' : 'error');
+            return;
+        }
+
+        alert(message);
+    }
+
+    function postPartnerInvoiceDelete(options) {
+        $.ajax({
+            type: 'post',
+            url: options.url,
+            data: $.extend({ _token: csrfToken }, options.data),
+            success: function (response) {
+                try {
+                    var obj = parseInvoiceAjaxResponse(response);
+                    if (obj.status) {
+                        if (typeof options.onSuccess === 'function') {
+                            options.onSuccess(obj);
+                        }
+                        return;
+                    }
+                    showInvoiceHandlerMessage(obj.message || 'Unable to delete. Please try again.', 'error');
+                } catch (parseError) {
+                    showInvoiceHandlerMessage('Unexpected response from server. Please refresh and try again.', 'error');
+                }
+            },
+            error: function () {
+                showInvoiceHandlerMessage('Request failed. Please try again.', 'error');
+            }
+        });
+    }
+
+    function readInvoiceDeleteData($trigger) {
+        return {
+            id: $trigger.attr('data-uniqueid') || $trigger.data('uniqueid'),
+            invoiceid: $trigger.attr('data-invoiceid') || $trigger.data('invoiceid'),
+            invoicetype: $trigger.attr('data-invoicetype') || $trigger.data('invoicetype'),
+            partnerid: $trigger.attr('data-partnerid') || $trigger.data('partnerid')
+        };
+    }
+
     // ============================================================================
     // CREATE STUDENT INVOICE
     // ============================================================================
@@ -455,28 +534,30 @@ jQuery(document).ready(function($){
         });
     }
 
-    $(document).delegate('.deletestudentinvoice', 'click', function(){
-        var invoiceid = $(this).data('invoiceid');
-        var invoicetype = $(this).data('invoicetype');
-        var partnerid = $(this).data('partnerid');
-        if (!invoiceid) {
+    $(document).delegate('.deletestudentinvoice', 'click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var data = readInvoiceDeleteData($(this));
+        if (!data.invoiceid) {
             return;
         }
-        crmConfirm('Are you sure you want to delete this invoice?').then(function (ok) {
+
+        confirmPartnerInvoiceDelete('Are you sure you want to delete this invoice?').then(function (ok) {
             if (!ok) {
                 return;
             }
-            $.ajax({
-                type:'post',
+
+            postPartnerInvoiceDelete({
                 url: App.getUrl('partnersDeleteStudentRecordByInvoiceId'),
-                sync:true,
-                data: {invoiceid:invoiceid,invoicetype:invoicetype,partnerid:partnerid},
-                success: function(response){
-                    var obj = $.parseJSON(response);
-                    if(obj.status){
-                        $('#TrRow_'+obj.invoiceid).remove();
-                        $('.totDepoAmTillNow').html("$"+obj.sum);
-                    }
+                data: {
+                    invoiceid: data.invoiceid,
+                    invoicetype: data.invoicetype,
+                    partnerid: data.partnerid
+                },
+                onSuccess: function (obj) {
+                    $('#TrRow_' + obj.invoiceid).remove();
+                    $('.totDepoAmTillNow').html('$' + obj.sum);
                 }
             });
         });
@@ -573,28 +654,34 @@ jQuery(document).ready(function($){
         $('.modal-dialog').css('max-width', '80%');
     });
 
-    $(document).delegate('.deletestudentrecordinvoice', 'click', function(){
-        var id = $(this).data('uniqueid');
-        var invoicetype = $(this).data('invoicetype');
-        var partnerid = $(this).data('partnerid');
-        if (!id) {
+    $(document).delegate('.deletestudentrecordinvoice', 'click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var data = readInvoiceDeleteData($(this));
+        if (!data.id) {
             return;
         }
-        crmConfirm('Are you sure you want to delete this record invoice?').then(function (ok) {
+
+        confirmPartnerInvoiceDelete('Are you sure you want to delete this record invoice?').then(function (ok) {
             if (!ok) {
                 return;
             }
-            $.ajax({
-                type:'post',
+
+            postPartnerInvoiceDelete({
                 url: App.getUrl('partnersDeleteStudentRecordInvoiceByInvoiceId'),
-                sync:true,
-                data: {id:id,invoicetype:invoicetype,partnerid:partnerid},
-                success: function(response){
-                    var obj = $.parseJSON(response);
-                    if(obj.status && obj.invoicetype == 2){
-                        $('#TrRecordRow_'+obj.id).remove();
-                        $('.totDepoAmTillNow_invoice').html("$"+obj.sum);
+                data: {
+                    id: data.id,
+                    invoicetype: data.invoicetype,
+                    partnerid: data.partnerid
+                },
+                onSuccess: function (obj) {
+                    if (String(obj.invoicetype) !== '2') {
+                        showInvoiceHandlerMessage('Record deleted but the page could not be updated. Please refresh.', 'error');
+                        return;
                     }
+                    $('#TrRecordRow_' + obj.id).remove();
+                    $('.totDepoAmTillNow_invoice').html('$' + obj.sum);
                 }
             });
         });
@@ -691,28 +778,34 @@ jQuery(document).ready(function($){
         $('.modal-dialog').css('max-width', '80%');
     });
 
-    $(document).delegate('.deletestudentpaymentinvoice', 'click', function(){
-        var id = $(this).data('uniqueid');
-        var invoicetype = $(this).data('invoicetype');
-        var partnerid = $(this).data('partnerid');
-        if (!id) {
+    $(document).delegate('.deletestudentpaymentinvoice', 'click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var data = readInvoiceDeleteData($(this));
+        if (!data.id) {
             return;
         }
-        crmConfirm('Are you sure you want to delete this payment invoice?').then(function (ok) {
+
+        confirmPartnerInvoiceDelete('Are you sure you want to delete this payment invoice?').then(function (ok) {
             if (!ok) {
                 return;
             }
-            $.ajax({
-                type:'post',
+
+            postPartnerInvoiceDelete({
                 url: App.getUrl('partnersDeleteStudentPaymentInvoiceByInvoiceId'),
-                sync:true,
-                data: {id:id,invoicetype:invoicetype,partnerid:partnerid},
-                success: function(response){
-                    var obj = $.parseJSON(response);
-                    if(obj.status && obj.invoicetype == 3){
-                        $('#TrPaymentRow_'+obj.id).remove();
-                        $('.totDepoAmTillNow_payment').html("$"+obj.sum);
+                data: {
+                    id: data.id,
+                    invoicetype: data.invoicetype,
+                    partnerid: data.partnerid
+                },
+                onSuccess: function (obj) {
+                    if (String(obj.invoicetype) !== '3') {
+                        showInvoiceHandlerMessage('Record deleted but the page could not be updated. Please refresh.', 'error');
+                        return;
                     }
+                    $('#TrPaymentRow_' + obj.id).remove();
+                    $('.totDepoAmTillNow_payment').html('$' + obj.sum);
                 }
             });
         });
