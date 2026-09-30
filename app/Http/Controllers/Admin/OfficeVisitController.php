@@ -360,13 +360,20 @@ class OfficeVisitController extends Controller
 						<div class="assignee" style="display:none;">
 						    <div class="row">
 						        <div class="col-md-8">
-						            <select class="form-control tomselect" id="changeassignee" name="changeassignee">
+						            <select class="form-control checkin-assignee-tomselect tomselect" id="changeassignee" name="changeassignee">
 						                 <?php
                                 foreach (Staff::with('office')->orderby('first_name', 'ASC')->get() as $admin) {
                                     $officeName = $admin->office ? $admin->office->office_name : '';
                                     $isSelected = (int) $CheckinLog->user_id === (int) $admin->id;
+                                    $assigneeLabel = trim($admin->first_name.' '.$admin->last_name);
+                                    if ($officeName !== '') {
+                                        $assigneeLabel .= ' ('.$officeName.')';
+                                    }
+                                    if (! empty($admin->email)) {
+                                        $assigneeLabel .= ' — '.$admin->email;
+                                    }
                                     ?>
-												<option value="<?php echo $admin->id; ?>"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.$officeName.')'; ?></option>
+												<option value="<?php echo (int) $admin->id; ?>"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo e($assigneeLabel); ?></option>
 										<?php } ?>
 									</select>
 								</div>

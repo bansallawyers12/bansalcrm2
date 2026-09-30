@@ -234,7 +234,31 @@ jQuery(document).ready(function($){
 	});
 	
 	$(document).delegate('.openassignee', 'click', function(){
-		$('.assignee').show();
+		var $modal = $('#checkindetailmodal');
+		$modal.find('.assignee').show();
+		var container = $modal.find('.showchecindetail')[0];
+		function refreshAssigneeSelect() {
+			var assigneeSelect = container ? container.querySelector('#changeassignee') : null;
+			if (assigneeSelect && assigneeSelect.tomselect) {
+				if (typeof destroyTomSelect === 'function') {
+					destroyTomSelect(assigneeSelect);
+				} else {
+					assigneeSelect.tomselect.destroy();
+				}
+			}
+			if (window.ActionPopoverTomSelect && typeof window.ActionPopoverTomSelect.initContainer === 'function') {
+				window.ActionPopoverTomSelect.initContainer(container);
+				return;
+			}
+			if (typeof refreshChangeAssigneeTomSelect === 'function') {
+				refreshChangeAssigneeTomSelect(container);
+			}
+		}
+		if (typeof whenTomSelectReady === 'function') {
+			whenTomSelectReady(refreshAssigneeSelect);
+		} else {
+			refreshAssigneeSelect();
+		}
 	});
 	$(document).delegate('.closeassignee', 'click', function(){
 		$('.assignee').hide();

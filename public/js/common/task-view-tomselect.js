@@ -17,6 +17,9 @@
         }
         var modal = element.closest('.modal');
         if (modal) {
+            if (modal.id === 'checkindetailmodal') {
+                return null;
+            }
             return modal.querySelector('.modal-content') || modal;
         }
         return 'body';
@@ -40,18 +43,63 @@
         if (el.tomselect) {
             return el.tomselect;
         }
-        return initTomSelect(el, {
+        var singleOpts = {
             width: '100%',
             placeholder: 'Select',
             allowClear: true,
-            dropdownParent: resolveDropdownParent(el),
             maxOptions: null
-        });
+        };
+        var dropdownParent = resolveDropdownParent(el);
+        if (dropdownParent) {
+            singleOpts.dropdownParent = dropdownParent;
+        }
+        return initTomSelect(el, singleOpts);
     }
 
     function initChangeAssigneeTomSelect(container) {
         var root = container && container.nodeType === 1 ? container : document;
         var el = root.querySelector ? root.querySelector('#changeassignee') : null;
+        return initSingleChangeAssignee(el);
+    }
+
+    function changeAssigneeTomSelectOptions(el) {
+        var opts = {
+            width: '100%',
+            placeholder: 'Select assignee',
+            allowClear: true,
+            maxOptions: null,
+            openOnFocus: true
+        };
+        var dropdownParent = resolveDropdownParent(el);
+        if (dropdownParent) {
+            opts.dropdownParent = dropdownParent;
+        }
+        return opts;
+    }
+
+    /**
+     * Re-init #changeassignee after the In Person assignee row is shown. Tom Select
+     * can mis-render when first initialized inside display:none.
+     */
+    function refreshChangeAssigneeTomSelect(container) {
+        var root = container && container.nodeType === 1 ? container : document;
+        var el = root.querySelector ? root.querySelector('#changeassignee') : null;
+        if (!el) {
+            return null;
+        }
+
+        if (el.tomselect) {
+            if (typeof destroyTomSelect === 'function') {
+                destroyTomSelect(el);
+            } else {
+                el.tomselect.destroy();
+            }
+        }
+
+        if (typeof initTomSelectPreserveValue === 'function') {
+            return initTomSelectPreserveValue(el, changeAssigneeTomSelectOptions(el));
+        }
+
         return initSingleChangeAssignee(el);
     }
 
@@ -102,9 +150,14 @@
         }
 
         document.querySelectorAll('.taskview, .showchecindetail').forEach(function (block) {
-            if (block.querySelector('#changeassignee')) {
-                initTaskViewTomSelects(block);
+            if (!block.querySelector('#changeassignee')) {
+                return;
             }
+            // In Person Details assignee: init on pencil click only (hidden until then).
+            if (block.classList.contains('showchecindetail')) {
+                return;
+            }
+            initTaskViewTomSelects(block);
         });
     }
 
@@ -131,4 +184,5 @@
 
     window.initTaskViewTomSelects = initTaskViewTomSelects;
     window.initChangeAssigneeTomSelect = initChangeAssigneeTomSelect;
+    window.refreshChangeAssigneeTomSelect = refreshChangeAssigneeTomSelect;
 })(window);
