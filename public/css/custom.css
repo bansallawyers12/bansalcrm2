@@ -440,6 +440,39 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 	pointer-events:none;
 	flex-shrink:0;
 }
+/* Partner detail — Invoice tab edit/delete icon links (Lucide hit target) */
+.invoices_tabs a.deletestudentrecordinvoice,
+.invoices_tabs a.deletestudentinvoice,
+.invoices_tabs a.deletestudentpaymentinvoice,
+.invoices_tabs a.updatedraftstudentinvoice{
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	min-width:28px;
+	min-height:28px;
+	margin-left:4px;
+	padding:4px;
+	vertical-align:middle;
+	cursor:pointer;
+	position:relative;
+	z-index:2;
+	text-decoration:none;
+}
+.invoices_tabs a.deletestudentrecordinvoice .crm-icon,
+.invoices_tabs a.deletestudentrecordinvoice svg.lucide,
+.invoices_tabs a.deletestudentinvoice .crm-icon,
+.invoices_tabs a.deletestudentinvoice svg.lucide,
+.invoices_tabs a.deletestudentpaymentinvoice .crm-icon,
+.invoices_tabs a.deletestudentpaymentinvoice svg.lucide,
+.invoices_tabs a.updatedraftstudentinvoice .crm-icon,
+.invoices_tabs a.updatedraftstudentinvoice svg.lucide{
+	pointer-events:none;
+	flex-shrink:0;
+}
+.invoices_tabs #record_invoice table td:last-child,
+.invoices_tabs #record_payment table td:last-child{
+	white-space:nowrap;
+}
 .serv_status_added{}
 .serv_status_added p{display:inline-block;margin-right:10px;}
 .serv_status_added p span{display: block;}
