@@ -274,6 +274,31 @@
     margin-top: 0.25rem;
 }
 
+/* In Person Details modal (#checkindetailmodal) — assignee Tom Select */
+#checkindetailmodal .assignee .ts-wrapper {
+    position: relative;
+}
+
+#checkindetailmodal .ts-wrapper,
+#checkindetailmodal .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#checkindetailmodal .ts-wrapper.focus,
+#checkindetailmodal .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
+#checkindetailmodal .modal-body,
+#checkindetailmodal .modal-content {
+    overflow: visible !important;
+}
+
+#checkindetailmodal .ts-dropdown-content {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
 #checkinmodal .checkin-modal-actions .btn {
     width: auto;
     min-width: 5.5rem;
