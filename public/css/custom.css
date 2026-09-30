@@ -418,6 +418,28 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 	pointer-events:none;
 	flex-shrink:0;
 }
+/* In Person Details modal — assignee edit/close icon links (Lucide hit target) */
+#checkindetailmodal a.openassignee,
+#checkindetailmodal a.closeassignee{
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	min-width:28px;
+	min-height:28px;
+	padding:4px;
+	cursor:pointer;
+	position:relative;
+	z-index:2;
+	text-decoration:none;
+	vertical-align:middle;
+}
+#checkindetailmodal a.openassignee .crm-icon,
+#checkindetailmodal a.openassignee svg.lucide,
+#checkindetailmodal a.closeassignee .crm-icon,
+#checkindetailmodal a.closeassignee svg.lucide{
+	pointer-events:none;
+	flex-shrink:0;
+}
 .serv_status_added{}
 .serv_status_added p{display:inline-block;margin-right:10px;}
 .serv_status_added p span{display: block;}
