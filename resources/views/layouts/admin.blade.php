@@ -307,13 +307,13 @@ i[style*="color:rgba"] {
 		<div class="main-wrapper main-wrapper-1">
 			<div class="navbar-bg"></div>
 			<!--Header-->
-			@include('../Elements/Admin/header')
+			@include('Elements.Admin.header')
 			<!--Left Side Bar-->
-			@include('../Elements/Admin/left-side-bar')
+			@include('Elements.Admin.left-side-bar')
 
 			@yield('content')
 				
-			@include('../Elements/AdminConsole/footer')
+			@include('Elements.AdminConsole.footer')
 		</div>
 	</div>
 
@@ -412,7 +412,7 @@ i[style*="color:rgba"] {
 							<div class="form-group">
 								<label for="message">Select In Person Assignee <span class="span_req">*</span></label>
 								<?php
-								$assignee = \App\Models\Staff::all();
+								$assignee = \App\Models\Staff::active()->orderBy('first_name')->get();
 								?>
 								<select class="form-control checkin-assignee-tomselect tomselect" name="assignee">
 								@foreach($assignee as $assigne)

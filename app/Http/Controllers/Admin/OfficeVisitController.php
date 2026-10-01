@@ -104,10 +104,10 @@ class OfficeVisitController extends Controller
                 return redirect()->back()->with('error', 'Selected contact does not exist.');
             }
 
-            // Verify assignee exists
-            $assigneeExists = Staff::where('id', $assigneeId)->exists();
+            // Verify assignee exists and is active
+            $assigneeExists = Staff::query()->where('id', $assigneeId)->where('status', 1)->exists();
             if (! $assigneeExists) {
-                return redirect()->back()->with('error', 'Selected assignee does not exist.');
+                return redirect()->back()->with('error', 'Selected assignee is not active or does not exist.');
             }
 
             // Verify office exists
@@ -362,7 +362,7 @@ class OfficeVisitController extends Controller
 						        <div class="col-md-8">
 						            <select class="form-control checkin-assignee-tomselect tomselect" id="changeassignee" name="changeassignee">
 						                 <?php
-                                foreach (Staff::with('office')->orderby('first_name', 'ASC')->get() as $admin) {
+                                foreach (Staff::with('office')->active()->orderBy('first_name', 'ASC')->get() as $admin) {
                                     $officeName = $admin->office ? $admin->office->office_name : '';
                                     $isSelected = (int) $CheckinLog->user_id === (int) $admin->id;
                                     $assigneeLabel = trim($admin->first_name.' '.$admin->last_name);
@@ -529,7 +529,21 @@ class OfficeVisitController extends Controller
     public function change_assignee(Request $request)
     {
         $objs = CheckinLog::find($request->id);
-        $objs->user_id = $request->assinee;
+        if (! $objs) {
+            echo json_encode(['status' => false, 'message' => 'Office visit not found.']);
+
+            return;
+        }
+
+        $assigneeId = (int) $request->assinee;
+        $assignee = Staff::query()->where('id', $assigneeId)->where('status', 1)->first();
+        if (! $assignee) {
+            echo json_encode(['status' => false, 'message' => 'Please select a valid active assignee.']);
+
+            return;
+        }
+
+        $objs->user_id = $assigneeId;
 
         $saved = $objs->save();
         if ($objs->status == 2) {
@@ -542,7 +556,7 @@ class OfficeVisitController extends Controller
         if ($saved) {
             $o = new Notification;
             $o->sender_id = Auth::user()->id;
-            $o->receiver_id = $request->assinee;
+            $o->receiver_id = $assigneeId;
             $o->module_id = $request->id;
             $o->url = URL::to('/office-visits/'.$t);
             $o->notification_type = 'officevisit';
@@ -1065,6 +1079,6 @@ class OfficeVisitController extends Controller
 
     public function create(Request $request)
     {
-        return view('Admin.officevisits.create');
+        return redirect()->route('officevisits.waiting');
     }
 }
