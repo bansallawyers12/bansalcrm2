@@ -134,7 +134,7 @@
 													<td>AUD <?php echo $invoicelist->net_fee_rec; ?></td>
 													<td><?php echo $totaldue; ?></td>
 													<td>{{date('d/m/Y', strtotime($invoicelist->due_date))}} <?php //echo $invoicelist->due_date; ?></td>
-													<td>
+													<td class="invoice-list-actions">
 													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>">@icon('eye')</a>
 													<a class="clientemail" data-id="{{$invoicelist->id}}" data-rec-name="invoice_{{$invoicelist->id}}.pdf" data-href="{{URL::to('invoice/preview/')}}/{{@$invoicelist->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" href="javascript:;">@icon('envelope')</a>
 													<a href="{{URL::to('invoice/edit/')}}/<?php echo $invoicelist->id; ?>">@icon('edit')</a>

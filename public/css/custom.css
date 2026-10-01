@@ -473,6 +473,38 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 .invoices_tabs #record_payment table td:last-child{
 	white-space:nowrap;
 }
+/* Invoice list (unpaid/paid) — action icon links (Lucide hit target) */
+.common_table table tbody td.invoice-list-actions{
+	min-width:160px;
+	text-align:center;
+	white-space:nowrap;
+	vertical-align:middle;
+}
+.common_table table tbody td.invoice-list-actions a{
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	min-width:28px;
+	min-height:28px;
+	margin-left:4px;
+	padding:4px;
+	vertical-align:middle;
+	cursor:pointer;
+	position:relative;
+	z-index:2;
+	text-decoration:none;
+	font-size:16px;
+	line-height:21px;
+}
+.common_table table tbody td.invoice-list-actions a:first-child{
+	margin-left:0;
+}
+.common_table table tbody td.invoice-list-actions a .crm-icon,
+.common_table table tbody td.invoice-list-actions a svg.lucide,
+.common_table table tbody td.invoice-list-actions a i[data-lucide]{
+	pointer-events:none;
+	flex-shrink:0;
+}
 .serv_status_added{}
 .serv_status_added p{display:inline-block;margin-right:10px;}
 .serv_status_added p span{display: block;}

@@ -186,7 +186,7 @@
 													<td style="white-space: initial;">{{@$clientdata->client_id ?? 'N/A'}}</td>
 													<td style="white-space: initial;">{{@$assignedTo ? trim($assignedTo->first_name.' '.$assignedTo->last_name) : 'N/A'}}</td>
 													
-													<td>
+													<td class="invoice-list-actions">
 													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>">@icon('eye')</a>
 												<!--	<a href="">@icon('envelope')</a>-->
 													

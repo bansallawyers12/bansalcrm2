@@ -142,6 +142,7 @@
 										$total_fee = 0;
 										$netamount = 0;
 										$tax_amt = 0;
+										$bonus_amt = 0;
 									?>
 										<thead> 
 											<tr>
@@ -164,6 +165,7 @@
 											$total_fee += $invoiceitemdetail->total_fee;
 											$netamount += $invoiceitemdetail->netamount;
 											$tax_amt += $invoiceitemdetail->tax_amount;
+											$bonus_amt += $invoiceitemdetail->bonus_amount;
 										?>
 											<tr class="clonedrow">
 												
@@ -183,13 +185,13 @@
 												</td>
 												<td>
 												<span class="currencyinput">$
-													<input class="form-control" type="number" name="bonus_amount[]" value="{{$invoiceitemdetail->bonus_amount}}"/>
+													<input class="form-control bonus_amount" type="number" name="bonus_amount[]" value="{{$invoiceitemdetail->bonus_amount}}"/>
 												</span>
 												</td>
 												<td>
 													<select name="tax[]" class="form-control tax_amt">
-														<option value="0" selected>No GST</option>
-														<option value="10">GST 10%</option>
+														<option value="0" @if(($invoiceitemdetail->tax ?? 0) == 0) selected @endif>No GST</option>
+														<option value="10" @if(($invoiceitemdetail->tax ?? 0) == 10) selected @endif>GST 10%</option>
 													</select>
 												</td>
 												<td>
@@ -296,8 +298,8 @@
 												<label>GST:</label>
 												<span class="percentageinput">%</span>
 												<div class="label_input">
-													<input type="hidden" name="total_tax" value="{{$tax_amt}}">
-													<input type="text" id="gst" readonly="readonly" value="{{$tax_amt}}"> <div class="basic_label">AUD</div>
+													<input type="hidden" name="total_tax" value="{{ number_format((float) $tax_amt, 2, '.', '') }}">
+													<input type="text" id="gst" readonly="readonly" value="{{ number_format((float) $tax_amt, 2, '.', '') }}"> <div class="basic_label">AUD</div>
 												</div>
 											</div>
 											<div class="inline_field">
@@ -354,12 +356,12 @@
 												<label>GST:</label>
 												<span class="percentageinput">%</span>
 												<div class="label_input">
-													<input type="hidden" name="total_tax" value="{{$tax_amt}}">
-													<input type="text" id="gst" readonly="readonly" value="{{$tax_amt}}"> <div class="basic_label">AUD</div>
+													<input type="hidden" name="total_tax" value="{{ number_format((float) $tax_amt, 2, '.', '') }}">
+													<input type="text" id="gst" readonly="readonly" value="{{ number_format((float) $tax_amt, 2, '.', '') }}"> <div class="basic_label">AUD</div>
 												</div>
 											</div>
 											<?php
-											$feepaid = $total_fee - ($coom_amt + $tax_amt) ;
+											$feepaid = $total_fee - ($coom_amt + $tax_amt + $bonus_amt);
 											$totaldue = $feepaid;
 											?>
 											<div class="inline_field">
@@ -760,7 +762,7 @@ function grandtotal(){
 		var total_fee = $(this).val(); 
 		var currentRow=$(this).closest("tr");
 		var comm_per = currentRow.find('.comm_per').val();
-		var tax_amt = currentRow.find('.tax_amt option:selected').val();
+		var taxRate = parseFloat(currentRow.find('.tax_amt option:selected').val()) || 0;
 		var cserv = 0.00;
 	
 		if(comm_per != ''){
@@ -768,12 +770,12 @@ function grandtotal(){
 		
 		}
 			calamount = (total_fee * cserv) / 100;
-			var calculatetax = (calamount * tax_amt) / 100;
+			var calculatetax = (calamount * taxRate) / 100;
 			
-		var netamount = total_fee - calamount;
+		var netamount = total_fee - (calamount + calculatetax);
 		currentRow.find('.comm_amt').val(calamount);
-		currentRow.find('.netamount').val(netamount.toFixed(2));
-		currentRow.find('.taxamount').val(calculatetax.toFixed(2));
+		currentRow.find('.netamount').val(parseFloat(netamount || 0).toFixed(2));
+		currentRow.find('.taxamount').val(parseFloat(calculatetax || 0).toFixed(2));
 			grandtotal();
 		
 	});
@@ -781,7 +783,7 @@ function grandtotal(){
 		var comm_per = $(this).val(); 
 		var currentRow=$(this).closest("tr");
 		var total_fee = currentRow.find('.total_fee').val();
-		var tax_amt = currentRow.find('.tax_amt option:selected').val() ?? 10;
+		var taxRate = parseFloat(currentRow.find('.tax_amt option:selected').val()) || 0;
 		var cserv = 0.00;
 	
 		if(comm_per != ''){
@@ -789,34 +791,33 @@ function grandtotal(){
 		
 		}
 		calamount = (total_fee * cserv) / 100;
-		var calculatetax = (calamount * tax_amt) / 100;
-		var netamount = total_fee - calamount;
+		var calculatetax = (calamount * taxRate) / 100;
+		var netamount = total_fee - (calamount + calculatetax);
 		currentRow.find('.comm_amt').val(calamount);
-		currentRow.find('.netamount').val(netamount.toFixed(2));
-		currentRow.find('.taxamount').val(calculatetax.toFixed(2));
+		currentRow.find('.netamount').val(parseFloat(netamount || 0).toFixed(2));
+		currentRow.find('.taxamount').val(parseFloat(calculatetax || 0).toFixed(2));
 			grandtotal();
 	});
 	$(document).delegate('.comm_amt','keyup', function(){
 		var comm_amt = $(this).val(); 
 		var currentRow=$(this).closest("tr");
 		var total_fee = currentRow.find('.total_fee').val();
-		var tax_amt = currentRow.find('.tax_amt option:selected').val() ?? 10;
-		var cserv = 0.00;
+		var taxRate = parseFloat(currentRow.find('.tax_amt option:selected').val()) || 0;
+		var calamount = 0.00;
 	
-		if(comm_amt != ''){
-			cserv = comm_amt;
-		
+		if(comm_amt != '' && total_fee != '' && total_fee > 0){
+			calamount = parseFloat(comm_amt);
+			var per = (calamount / parseFloat(total_fee)) * 100;
+			currentRow.find('.comm_per').val(per.toFixed(2));
+		} else if(comm_amt != ''){
+			calamount = parseFloat(comm_amt);
 		}
-		calamount = (total_fee * cserv) / 100;
-		var per = calamount / 100;
-		currentRow.find('.comm_per').val(per);
 		
-		calamount = (total_fee * per) / 100;
-		var calculatetax = (calamount * tax_amt) / 100;
-		var netamount = total_fee - calamount;
-		currentRow.find('.netamount').val(netamount.toFixed(2));
-		currentRow.find('.taxamount').val(calculatetax.toFixed(2));
-			
+        var calculatetax = (calamount * taxRate) / 100;
+		var netamount = total_fee - (calamount + calculatetax);
+	
+		currentRow.find('.netamount').val(parseFloat(netamount || 0).toFixed(2));
+		currentRow.find('.taxamount').val(parseFloat(calculatetax || 0).toFixed(2));
 		
 			grandtotal();
 	});
@@ -826,7 +827,7 @@ function grandtotal(){
 			var comm_per = currentRow.find('.comm_per').val();
 	
 		var total_fee = currentRow.find('.total_fee').val();
-		var tax_amt = currentRow.find('.tax_amt option:selected').val();
+		var taxRate = parseFloat(currentRow.find('.tax_amt option:selected').val()) || 0;
 		var cserv = 0.00;
 	
 		if(comm_per != ''){
@@ -834,12 +835,25 @@ function grandtotal(){
 		
 		}
 		calamount = (total_fee * cserv) / 100;
-		var calculatetax = (calamount * tax_amt) / 100;
-		var netamount = total_fee - (calamount + calculatetax);
+		var calculatetax = (calamount * taxRate) / 100;
+		var bonus_amount = parseFloat(currentRow.find('.bonus_amount').val()) || 0;
+		var netamount = total_fee - (parseFloat(calamount) + parseFloat(calculatetax) + bonus_amount);
 			currentRow.find('.comm_amt').val(calamount);
-			currentRow.find('.netamount').val(netamount.toFixed(2));
-			currentRow.find('.taxamount').val(calculatetax.toFixed(2));
+			currentRow.find('.netamount').val(parseFloat(netamount || 0).toFixed(2));
+			currentRow.find('.taxamount').val(parseFloat(calculatetax || 0).toFixed(2));
 			grandtotal();
+	});
+
+	$(document).delegate('.bonus_amount','change', function(){
+		var currentRow=$(this).closest("tr"); 
+		var total_fee = parseFloat(currentRow.find('.total_fee').val()) || 0;
+		var comm_amt = parseFloat(currentRow.find('.comm_amt').val()) || 0;
+		var bonus_amount = parseFloat($(this).val()) || 0;
+		var taxamount = parseFloat(currentRow.find('.taxamount').val()) || 0;
+		var otherAmount = comm_amt + bonus_amount + taxamount;
+		var netamount_updated = total_fee - otherAmount;
+		currentRow.find('.netamount').val(netamount_updated.toFixed(2)); 
+		grandtotal();
 	});
 	
 	$(document).delegate('#discount','keyup', function(){
@@ -918,6 +932,7 @@ function grandtotal(){
 		var pric = 0;
 		var comm_amt = 0;
 		var tax_amt = 0;
+		var bonus_amt = 0;
 		$('.productitem tr').each(function(){
 			
 			if($(this).find('.total_fee').val() != ''){
@@ -925,20 +940,27 @@ function grandtotal(){
 			}else{
 				var ss = 0;
 			}
-			pric += parseFloat(ss);
+			pric += parseFloat(ss) || 0;
 			if($(this).find('.comm_amt').val() != ''){
 				var s = $(this).find('.comm_amt').val();
 			}else{
 				var s = 0;
 			}
-			comm_amt += parseFloat(s);
+			comm_amt += parseFloat(s) || 0;
 
 			if($(this).find('.taxamount').val() != ''){
 				var sc = $(this).find('.taxamount').val();
 			}else{
 				var sc = 0;
 			}
-			tax_amt += parseFloat(sc);
+			tax_amt += parseFloat(sc) || 0;
+
+			if($(this).find('.bonus_amount').val() != ''){
+				var sb = $(this).find('.bonus_amount').val();
+			}else{
+				var sb = 0;
+			}
+			bonus_amt += parseFloat(sb) || 0;
 		});
 		var dic = $('#discount').val();
 		var cserv = 0.00;
@@ -953,12 +975,15 @@ function grandtotal(){
 		var totlcoommfare = comm_amt - cserv;
 		
 		$('.invoiceNetAmount_2').html(totlcoommfare.toFixed(2));
-		$('#invoice_net_income').html(totlcoommfare.toFixed(2));
+		$('#invoice_net_income').val(totlcoommfare.toFixed(2));
 		$('#totalfee').val(pric.toFixed(2));
 		$('#commissionClaimed').val(comm_amt.toFixed(2));
-		$('#gst').val(tax_amt);
-		var netpaid = pric - comm_amt;
+		tax_amt = parseFloat(tax_amt.toFixed(2));
+		$('#gst').val(tax_amt.toFixed(2));
+		$('input[name="total_tax"]').val(tax_amt.toFixed(2));
+		var netpaid = pric - (comm_amt + tax_amt + bonus_amt);
 		$('#netFeePaid').val(netpaid.toFixed(2));
+		$('input[name="invoice_amount"]').val(netpaid.toFixed(2));
 		if($('#invoicepaid').is(':checked')){
 			$('#paymentpaidamount').val(pric.toFixed(2));
 		}
@@ -997,7 +1022,10 @@ function grandtotal(){
 $trLast = $tableBody.find("tr:last"),
 $trNew = $trLast.clone();
 $trNew.find('input').val('');
-$trNew.find('select').val('');
+$trNew.find('select').val('0');
+$trNew.find('.taxamount').val('0.00');
+$trNew.find('.netamount').val('0.00');
+$trNew.find('.bonus_amount').val('0.00');
 $trLast.after($trNew);
 	}); 
 	$(document).delegate('.removeitems', 'click', function(){ 

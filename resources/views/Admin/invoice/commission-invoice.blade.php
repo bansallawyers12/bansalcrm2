@@ -951,7 +951,7 @@ $(document).delegate('.total_fee','keyup', function(){
 			}else{
 				var sc = 0;
 			}
-			tax_amt += parseFloat(sc);
+			tax_amt += parseFloat(sc) || 0;
 			
 			
 			if($(this).find('.bonus_amount').val() != ''){
@@ -977,9 +977,11 @@ $(document).delegate('.total_fee','keyup', function(){
 		$('#invoice_net_income').val(totlcoommfare.toFixed(2));
 		$('#totalfee').val(pric.toFixed(2));
 		$('#commissionClaimed').val(comm_amt.toFixed(2));
-		$('#gst').val(tax_amt);
+		tax_amt = parseFloat(tax_amt.toFixed(2));
+		$('#gst').val(tax_amt.toFixed(2));
+		$('input[name="total_tax"]').val(tax_amt.toFixed(2));
 		
-		$('#bonusAmount').val(bonus_amt);
+		$('#bonusAmount').val(parseFloat(bonus_amt.toFixed(2)));
 		
 		
 		var netpaid = pric - (comm_amt + tax_amt + bonus_amt);
