@@ -1228,6 +1228,39 @@ form[name="add-leads"] select:invalid {
 	display: inline-flex;
 	align-items: center;
 }
+/* Client edit contact rows — action icon links (Lucide hit target) */
+.contact-actions a.btn-edit,
+.contact-actions a.btn-delete,
+.contact-actions .btn-verify,
+.contact-actions .btn-verify-phone,
+.compact-contact-item a.set-email-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 28px;
+	min-height: 28px;
+	padding: 4px;
+	position: relative;
+	z-index: 2;
+	cursor: pointer;
+	text-decoration: none;
+}
+.contact-actions a.btn-edit:hover,
+.contact-actions a.btn-delete:hover {
+	transform: none;
+}
+.contact-actions a .crm-icon,
+.contact-actions a svg.lucide,
+.contact-actions a i[data-lucide],
+.contact-actions button .crm-icon,
+.contact-actions button svg.lucide,
+.contact-actions button i[data-lucide],
+.compact-contact-item a.set-email-primary .crm-icon,
+.compact-contact-item a.set-email-primary svg.lucide,
+.compact-contact-item a.set-email-primary i[data-lucide] {
+	pointer-events: none;
+	flex-shrink: 0;
+}
 
 /* Extra Small Buttons */
 .btn-xs {
