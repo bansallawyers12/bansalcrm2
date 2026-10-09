@@ -310,9 +310,23 @@
     z-index: 9999 !important;
 }
 
+#actionPopoverModal .form-group .ts-wrapper {
+    position: relative;
+}
+
+#actionPopoverModal .ts-wrapper.focus,
+#actionPopoverModal .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
+}
+
 #actionPopoverModal .modal-body,
 #actionPopoverModal .modal-content {
     overflow: visible !important;
+}
+
+#actionPopoverModal .ts-dropdown-content {
+    max-height: 280px;
+    overflow-y: auto;
 }
 
 /* Partner detail — Assign Staff modal (Group dropdown) */

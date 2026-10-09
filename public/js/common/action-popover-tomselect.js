@@ -39,7 +39,7 @@
 
         if (modal) {
             // Create / edit In Person assignee: menu stays on .ts-wrapper (see initModalTomSelects omitDropdownParent)
-            if (modal.id === 'checkinmodal' || modal.id === 'checkindetailmodal') {
+            if (modal.id === 'checkinmodal' || modal.id === 'checkindetailmodal' || modal.id === 'actionPopoverModal') {
                 return null;
             }
             return modal.querySelector('.modal-content') || modal;

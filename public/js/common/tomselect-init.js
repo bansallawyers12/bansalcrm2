@@ -693,9 +693,10 @@
         var isOpenAllDocsModal = modal.id === 'openalldocsmodal';
         var isCommissionInvoiceModal = modal.id === 'opencommissionmodal';
         var isGeneralInvoiceModal = modal.id === 'opengeneralinvoice';
+        var isActionPopoverModal = modal.id === 'actionPopoverModal';
         var omitDropdownParent = isAddApplicationModal || isAgreementModal || isPartnerAssignModal ||
             isApplicationAssignModal || isApplicationEmailModal || isCheckinModal || isCreateChecklistModal ||
-            isOpenAllDocsModal || isCommissionInvoiceModal || isGeneralInvoiceModal;
+            isOpenAllDocsModal || isCommissionInvoiceModal || isGeneralInvoiceModal || isActionPopoverModal;
         var base = Object.assign({ width: '100%' }, options || {});
         if (!omitDropdownParent) {
             base.dropdownParent = resolveModalDropdownParent(modal);
@@ -731,7 +732,7 @@
             if (isAddApplicationModal || isAgreementModal || isPartnerAssignModal ||
                 isApplicationAssignModal || isApplicationEmailModal || isCheckinModal ||
                 isCreateChecklistModal || isOpenAllDocsModal ||
-                isCommissionInvoiceModal || isGeneralInvoiceModal) {
+                isCommissionInvoiceModal || isGeneralInvoiceModal || isActionPopoverModal) {
                 opts.maxOptions = null;
             }
             if (omitDropdownParent) {

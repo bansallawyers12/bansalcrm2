@@ -179,6 +179,65 @@ function ensureTextareaIds(selector) {
     });
 }
 
+function simpleEditorConfig() {
+    return {
+        license_key: 'gpl',
+        skin_url: 'default',
+        content_css: 'default',
+        height: 150,
+        menubar: false,
+        plugins: SIMPLE_PLUGINS,
+        toolbar: 'bold italic underline strikethrough | bullist numlist | link image | removeformat',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+        branding: false,
+        promotion: false,
+        browser_spellcheck: true,
+        ...EDITOR_URL_OPTIONS,
+        images_upload_handler: getImageUploadHandler(),
+        setup: function (editor) {
+            attachEditorPersistence(editor);
+            editor.on('change', function () {
+                editor.save();
+            });
+            editor.on('blur', function () {
+                editor.save();
+            });
+        },
+    };
+}
+
+/**
+ * Init a simple editor on one textarea added after page load (e.g. cloned into a modal).
+ * Resolves with the editor once ready; content is set with display image URLs.
+ */
+async function initSimpleEditorOn(textarea, content) {
+    if (!textarea) {
+        return null;
+    }
+    if (!textarea.id) {
+        textarea.id = 'tinymce_' + Math.random().toString(36).substr(2, 9);
+    }
+    const tinymce = await whenTinyMceReady();
+    if (!textarea.isConnected) {
+        return null;
+    }
+    if (!window.TinyMCEHelpers) {
+        setupTinyMceHelpers(tinymce);
+    }
+    const existing = tinymce.get(textarea.id);
+    if (existing) {
+        existing.remove();
+    }
+    const editors = await tinymce.init({ ...simpleEditorConfig(), target: textarea });
+    const editor = editors && editors.length ? editors[0] : null;
+    if (editor) {
+        editor.setContent(editorDisplayImageUrls(content || ''));
+        editor.save();
+    }
+
+    return editor;
+}
+
 function initTinyMCE(tinymce) {
     ensureTextareaIds('.tinymce-simple');
     ensureTextareaIds('.tinymce-full');
@@ -392,6 +451,7 @@ async function bootTinyMCE() {
 
 if (typeof window !== 'undefined') {
     window.whenTinyMceReady = whenTinyMceReady;
+    window.initTinyMceSimpleEditor = initSimpleEditorOn;
     whenTinyMceReady();
 }
 

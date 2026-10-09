@@ -183,7 +183,7 @@
                                                                 <div class="form-group row" style="margin-bottom:12px">
                                                                     <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Note</label>
                                                                     <div class="col-sm-9">
-                                                                        <textarea class="form-control assignnote tinymce-simple js-staff-mentions f13" placeholder="Enter a note... (type @ to tag staff)" rows="3"></textarea>
+                                                                        <textarea class="form-control assignnote js-staff-mentions f13" placeholder="Enter a note... (type @ to tag staff)" rows="3"></textarea>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -242,7 +242,7 @@
                                                                 <div class="form-group row" style="margin-bottom:12px">
                                                                     <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Note</label>
                                                                     <div class="col-sm-9">
-                                                                        <textarea class="form-control assignnote tinymce-simple js-staff-mentions f13" placeholder="Enter a note... (type @ to tag staff)" rows="3"></textarea>
+                                                                        <textarea class="form-control assignnote js-staff-mentions f13" placeholder="Enter a note... (type @ to tag staff)" rows="3"></textarea>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -379,9 +379,78 @@ jQuery(document).ready(function($){
         $('.assignee').hide();
     });
 
-    function showActionPopoverModal(title, $clone, assignedTo) {
+    var actionModalEl = document.getElementById('actionPopoverModal');
+    var actionModalHiding = false;
+    var pendingActionModalOpen = null;
+
+    function getActionNoteEditor(textarea) {
+        if (!textarea || !textarea.id || !window.tinymce || typeof tinymce.get !== 'function') {
+            return null;
+        }
+        return tinymce.get(textarea.id) || null;
+    }
+
+    function removeActionNoteEditor() {
+        $('#actionPopoverModalBody .assignnote').each(function () {
+            var editor = getActionNoteEditor(this);
+            if (editor) {
+                editor.remove();
+            }
+        });
+    }
+
+    function initActionNoteEditor() {
+        var textarea = $('#actionPopoverModalBody .assignnote')[0];
+        if (!textarea || getActionNoteEditor(textarea) || typeof window.initTinyMceSimpleEditor !== 'function') {
+            return;
+        }
+        window.initTinyMceSimpleEditor(textarea, textarea.value).catch(function (error) {
+            console.error('Note editor failed to load', error);
+        });
+    }
+
+    /** Copy the editor HTML into the note textarea before validation / submit. */
+    function syncActionNoteEditor() {
+        $('#actionPopoverModalBody .assignnote').each(function () {
+            var editor = getActionNoteEditor(this);
+            if (editor) {
+                editor.save();
+            }
+        });
+    }
+
+    $(actionModalEl).on('hide.bs.modal', function () {
+        actionModalHiding = true;
+    });
+
+    $(actionModalEl).on('hidden.bs.modal', function () {
+        actionModalHiding = false;
+        removeActionNoteEditor();
+        if (pendingActionModalOpen) {
+            var openModal = pendingActionModalOpen;
+            pendingActionModalOpen = null;
+            openModal();
+        }
+    });
+
+    $(actionModalEl).on('shown.bs.modal', function () {
+        initActionNoteEditor();
+    });
+
+    function showActionPopoverModal(title, $clone, assignedTo, noteDescription) {
+        if (actionModalHiding) {
+            pendingActionModalOpen = function () {
+                showActionPopoverModal(title, $clone, assignedTo, noteDescription);
+            };
+            return;
+        }
+
+        removeActionNoteEditor();
         $('#actionPopoverModalLabel').text(title);
         $('#actionPopoverModalBody').html($clone);
+        $clone.find('.assignnote')
+            .attr('id', 'action_note_' + Date.now())
+            .val(noteDescription || '');
 
         if (assignedTo) {
             $.ajax({
@@ -405,8 +474,10 @@ jQuery(document).ready(function($){
             });
         }
 
-        var modalEl = document.getElementById('actionPopoverModal');
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var modalEl = actionModalEl;
+        if (modalEl.classList.contains('show')) {
+            initActionNoteEditor();
+        } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         } else {
             $(modalEl).modal('show');
@@ -442,7 +513,6 @@ jQuery(document).ready(function($){
 
         var $clone = $template.clone().removeClass('d-none');
         $clone.find('.assign_note_id').val(taskId);
-        $clone.find('.assignnote').val(noteDescription);
         if (typeof setEnhancedSelectValue === 'function') {
             setEnhancedSelectValue($clone.find('.task_group')[0], taskgroupId);
         } else {
@@ -450,7 +520,7 @@ jQuery(document).ready(function($){
         }
         $clone.find('.popoverdatetime').val(followupdate);
 
-        showActionPopoverModal('Update Task', $clone, $btn.data('assignedto'));
+        showActionPopoverModal('Update Task', $clone, $btn.data('assignedto'), noteDescription);
     });
 
     $(document).delegate('.reassign_task', 'click', function(e){
@@ -473,7 +543,6 @@ jQuery(document).ready(function($){
 
         var $clone = $template.clone().removeClass('d-none');
         $clone.find('.assign_note_id').val(taskId);
-        $clone.find('.assignnote').val(noteDescription);
         if (typeof setEnhancedSelectValue === 'function') {
             setEnhancedSelectValue($clone.find('.task_group')[0], taskgroupId);
         } else {
@@ -481,7 +550,7 @@ jQuery(document).ready(function($){
         }
         $clone.find('.popoverdatetime').val(followupdate);
 
-        showActionPopoverModal('Re-Assign Staff', $clone, assignedTo);
+        showActionPopoverModal('Re-Assign Staff', $clone, assignedTo, noteDescription);
     });
 
     //Function is used for not complete the task
@@ -638,6 +707,7 @@ jQuery(document).ready(function($){
 
     $(document).delegate('#actionPopoverModalBody .assignUser','click', function(){
 		$(".popuploader").show();
+		syncActionNoteEditor();
 		var $modal = $('#actionPopoverModalBody');
 		var flag = true;
 		var error = "";
@@ -705,6 +775,7 @@ jQuery(document).ready(function($){
 
 	$(document).delegate('#actionPopoverModalBody .updateTask','click', function(){
 		$(".popuploader").show();
+		syncActionNoteEditor();
 		var $modal = $('#actionPopoverModalBody');
 		var flag = true;
 		var error = "";
