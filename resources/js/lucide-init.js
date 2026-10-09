@@ -16,6 +16,10 @@ const SORT_ICON_MAP = {
     'sort-numeric-desc': 'arrow-up-1-0',
 };
 
+/** Placeholders only — rendered <svg> keeps data-lucide, and re-rendering it swaps nodes under the cursor. */
+const PLACEHOLDER_SELECTOR = '[data-lucide]:not(svg)';
+const PENDING_ATTR = 'data-lucide-pending';
+
 let refreshTimer = null;
 let lucideLoadPromise = null;
 let lucideRefreshChain = Promise.resolve();
@@ -52,7 +56,7 @@ function normalizeDataLucideAttributes(root) {
     const scope = root || document;
     const map = (typeof window !== 'undefined' && window.CRM_FA_LUCIDE_MAP) || {};
 
-    scope.querySelectorAll('[data-lucide]').forEach(function (el) {
+    scope.querySelectorAll(PLACEHOLDER_SELECTOR).forEach(function (el) {
         let name = el.getAttribute('data-lucide');
         if (!name) {
             return;
@@ -99,24 +103,39 @@ function nodeNeedsIconHydration(node) {
         return false;
     }
 
-    if (node.matches && (node.matches('[data-lucide]') || node.matches('i[class*="sort-"]'))) {
+    if (node.matches && (node.matches(PLACEHOLDER_SELECTOR) || node.matches('i[class*="sort-"]'))) {
         return true;
     }
 
-    return !!(node.querySelector && node.querySelector('[data-lucide], th i[class*="sort-"]'));
+    return !!(node.querySelector && node.querySelector(PLACEHOLDER_SELECTOR + ', th i[class*="sort-"]'));
 }
 
 async function refreshCrmIconsAsync(root) {
     const { createIcons, icons } = await loadLucide();
+    const scope = root || document;
 
-    hydrateSortIcons(root);
-    normalizeDataLucideAttributes(root);
+    hydrateSortIcons(scope);
+    normalizeDataLucideAttributes(scope);
+
+    const placeholders = scope.querySelectorAll(PLACEHOLDER_SELECTOR);
+    if (!placeholders.length) {
+        return;
+    }
+    placeholders.forEach(function (el) {
+        el.setAttribute(PENDING_ATTR, el.getAttribute('data-lucide'));
+    });
+
     createIcons({
         icons,
+        nameAttr: PENDING_ATTR,
         attrs: {
             'aria-hidden': 'true',
         },
-        root: root || document,
+        root: scope,
+    });
+
+    scope.querySelectorAll('[' + PENDING_ATTR + ']').forEach(function (el) {
+        el.removeAttribute(PENDING_ATTR);
     });
 }
 

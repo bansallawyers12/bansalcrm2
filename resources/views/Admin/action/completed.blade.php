@@ -12,6 +12,7 @@
 .popover .ts-dropdown { z-index: 100001 !important; }
 .action-btns { display: flex; gap: 4px; flex-wrap: nowrap; align-items: center; }
 .action-btns .btn { flex-shrink: 0; }
+.action-btns .btn svg, .action-btns .btn [data-lucide] { pointer-events: none; }
 .table td { vertical-align: middle; }
 </style>
 <!-- Main Content -->
