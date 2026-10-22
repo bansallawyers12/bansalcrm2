@@ -478,7 +478,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/saveapplication')}}" name="applicationform" id="addapplicationformform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/saveapplication')}}" name="applicationform" id="addapplicationformform" autocomplete="off">
 				@csrf 
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">

@@ -2271,13 +2271,10 @@ $('#add_application').modal('hide');
 					{   
 						var client_id = $('input[name="client_id"]').val(); 
 						var myform = document.getElementById('addapplicationformform');
-						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
+							data: $(myform).serialize(),
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
