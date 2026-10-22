@@ -676,6 +676,11 @@ $(document).on('click', '#confirm-bulk-upload', function() {
             }
         } else if (checklist) {
             mapping = { type: 'existing', name: checklist };
+        } else {
+            const docName = checklistNameFromFile(file.name);
+            if (docName) {
+                mapping = { type: 'new', name: docName };
+            }
         }
         
         mappings.push(mapping);
@@ -697,6 +702,19 @@ $(document).on('click', '#confirm-bulk-upload', function() {
     // Upload files
     uploadBulkFiles(bulkUploadFiles, mappings);
 });
+
+function checklistNameFromFile(fileName) {
+    var name = String(fileName || '');
+    var slash = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'));
+    if (slash >= 0) {
+        name = name.slice(slash + 1);
+    }
+    var dot = name.lastIndexOf('.');
+    if (dot > 0) {
+        name = name.slice(0, dot);
+    }
+    return name.trim();
+}
 
 function readBulkFileAsText(file) {
     return new Promise(function(resolve, reject) {
