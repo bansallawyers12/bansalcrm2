@@ -82,19 +82,19 @@
             _token: cfg.csrf || ''
         };
         var url = cfg.routes.blur;
-        if (navigator.sendBeacon) {
-            var fd = new FormData();
+        // urlencoded beacon (not FormData/multipart) so nginx does not 403 text-only POSTs
+        if (navigator.sendBeacon && typeof URLSearchParams !== 'undefined') {
+            var params = new URLSearchParams();
             Object.keys(payload).forEach(function (key) {
                 if (payload[key] !== null && payload[key] !== undefined) {
-                    fd.append(key, payload[key]);
+                    params.append(key, String(payload[key]));
                 }
             });
-            if (!navigator.sendBeacon(url, fd)) {
-                postJson(url, payload);
+            if (navigator.sendBeacon(url, params)) {
+                return;
             }
-        } else {
-            postJson(url, payload);
         }
+        postJson(url, payload);
     }
 
     function heartbeat() {
