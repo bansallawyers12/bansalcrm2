@@ -334,6 +334,15 @@ class ClientDocumentController extends Controller
         $response = ['status' => false, 'message' => 'Please try again'];
         
         try {
+            if (! $request->files->has('files')) {
+                $attached = $this->attachBase64BulkFiles($request);
+                if ($attached === false) {
+                    $response['message'] = 'File upload failed. Please try again.';
+
+                    return response()->json($response);
+                }
+            }
+
             $clientid = $request->clientid;
             $doctype = $request->doctype ?? 'documents';
             $type = $request->type ?? 'client';
@@ -1954,12 +1963,132 @@ class ClientDocumentController extends Controller
             true
         ));
 
-        // hasFile() remembers the first empty result. Drop that memory so the save sees this file.
+        $this->forgetConvertedFilesCache($request);
+
+        return true;
+    }
+
+    /**
+     * Copy a bulk text upload out of the raw body when PHP did not put it in the form fields.
+     */
+    protected function mergeRawBulkDocumentUploadBody(Request $request): void
+    {
+        if ($request->filled('files_base64') || $request->files->has('files')) {
+            return;
+        }
+
+        $contentType = strtolower((string) $request->header('CONTENT_TYPE', ''));
+        if (str_contains($contentType, 'multipart')) {
+            return;
+        }
+
+        $raw = $request->getContent();
+        if (! is_string($raw) || $raw === '') {
+            return;
+        }
+
+        $fields = null;
+        if (str_contains($contentType, '/json') || str_contains($contentType, '+json') || str_starts_with(ltrim($raw), '{')) {
+            $decoded = json_decode($raw, true);
+            $fields = is_array($decoded) ? $decoded : null;
+        } elseif (str_contains($contentType, 'application/x-www-form-urlencoded') || str_contains($raw, 'files_base64')) {
+            $parsed = [];
+            parse_str($raw, $parsed);
+            $fields = $parsed;
+        }
+
+        if (! is_array($fields) || ! array_key_exists('files_base64', $fields)) {
+            return;
+        }
+
+        $request->merge(['files_base64' => $fields['files_base64']]);
+
+        foreach (['files_names', 'mappings', 'clientid', 'doctype', 'type', 'category_id'] as $key) {
+            if ($request->filled($key) || ! array_key_exists($key, $fields)) {
+                continue;
+            }
+            $request->merge([$key => $fields[$key]]);
+        }
+    }
+
+    /**
+     * Turn bulk text uploads into the files input the existing save already reads.
+     *
+     * @return bool|null True when files were attached, null when this request is not a text upload, false when the text is not a file.
+     */
+    protected function attachBase64BulkFiles(Request $request): ?bool
+    {
+        if ($request->files->has('files')) {
+            return null;
+        }
+
+        $this->mergeRawBulkDocumentUploadBody($request);
+
+        $encodedFiles = $request->input('files_base64');
+        if ($encodedFiles === null || $encodedFiles === '' || $encodedFiles === []) {
+            return null;
+        }
+        if (! is_array($encodedFiles)) {
+            $encodedFiles = [$encodedFiles];
+        }
+
+        $names = $request->input('files_names', []);
+        if (! is_array($names)) {
+            $names = [$names];
+        }
+
+        $uploadedFiles = [];
+        foreach ($encodedFiles as $index => $encoded) {
+            $encoded = preg_replace('/\s+/', '', (string) $encoded);
+            $binary = base64_decode(is_string($encoded) ? $encoded : '', true);
+            if ($binary === false || $binary === '') {
+                return false;
+            }
+
+            $originalName = basename(str_replace('\\', '/', (string) ($names[$index] ?? 'document')));
+            $originalName = str_replace(["\0", '/', '\\'], '', $originalName);
+            if ($originalName === '' || $originalName === '.' || $originalName === '..') {
+                $originalName = 'document';
+            }
+
+            $temporaryPath = tempnam(sys_get_temp_dir(), 'crmdoc');
+            if ($temporaryPath === false || file_put_contents($temporaryPath, $binary) === false) {
+                return false;
+            }
+
+            register_shutdown_function(static function () use ($temporaryPath): void {
+                if (is_file($temporaryPath)) {
+                    unlink($temporaryPath);
+                }
+            });
+
+            $uploadedFiles[] = new UploadedFile(
+                $temporaryPath,
+                $originalName,
+                null,
+                UPLOAD_ERR_OK,
+                true
+            );
+        }
+
+        if ($uploadedFiles === []) {
+            return null;
+        }
+
+        $request->files->set('files', $uploadedFiles);
+        $this->forgetConvertedFilesCache($request);
+
+        return true;
+    }
+
+    /**
+     * hasFile() remembers the first empty result. Drop that memory after a text upload is attached.
+     */
+    protected function forgetConvertedFilesCache(Request $request): void
+    {
         if (property_exists($request, 'convertedFiles')) {
             (new \ReflectionProperty($request, 'convertedFiles'))->setValue($request, null);
         }
-
-        return true;
     }
 
     //Update all Document upload
