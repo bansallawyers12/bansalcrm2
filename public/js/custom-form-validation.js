@@ -48,6 +48,50 @@ function syncEditorContent($form) {
 }
 
 /**
+ * True when the form has at least one selected file.
+ * Text-only multipart POSTs are blocked by nginx; use urlencoded when this is false.
+ */
+function formHasSelectedFiles(formEl) {
+	if (!formEl) {
+		return false;
+	}
+	var inputs = formEl.querySelectorAll('input[type="file"]');
+	for (var i = 0; i < inputs.length; i++) {
+		if (inputs[i].files && inputs[i].files.length > 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Partner invoice/payment AJAX body: FormData only when a document is attached;
+ * otherwise urlencoded serialize (same pattern as note/application multipart fixes).
+ */
+function partnerInvoiceAjaxData(formEl, extraFields) {
+	extraFields = extraFields || {};
+	if (formHasSelectedFiles(formEl)) {
+		var fd = new FormData(formEl);
+		Object.keys(extraFields).forEach(function (key) {
+			fd.append(key, extraFields[key]);
+		});
+		return {
+			processData: false,
+			contentType: false,
+			data: fd
+		};
+	}
+
+	var data = $(formEl).serialize();
+	Object.keys(extraFields).forEach(function (key) {
+		data += (data ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(extraFields[key]);
+	});
+	return {
+		data: data
+	};
+}
+
+/**
  * Refresh the activities list after an AJAX action (notes, appointments, etc.).
  * Uses shared getallactivities() when available; otherwise fetches server-rendered HTML.
  */
@@ -745,14 +789,10 @@ function customValidate(formName, savetype = '')
                     {
 						var partner_id = $('#create_student_invoice input[name="partner_id"]').val();
 						var myform = document.getElementById('create_student_invoice');
-						var fd = new FormData(myform);
-                        fd.append('save_type', savetype);
-						$.ajax({
+						var studentInvoiceAjax = partnerInvoiceAjaxData(myform, { save_type: savetype });
+						$.ajax($.extend({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
 							success: function(response){
 								$('.popuploader').hide();
 								var obj = $.parseJSON(response);
@@ -865,21 +905,22 @@ function customValidate(formName, savetype = '')
 								} else {
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 								}
-                            }
-						});
+                            },
+							error: function(){
+								$('.popuploader').hide();
+								$('.custom-error-msg').html('<span class="alert alert-danger">Unable to save student invoice. Please try again.</span>');
+							}
+						}, studentInvoiceAjax));
 					}
 
                     else if(formName == 'create_record_invoice')
                     {
                         var partner_id = $('#create_record_invoice input[name="partner_id"]').val();
                         var myform = document.getElementById('create_record_invoice');
-                        var fd = new FormData(myform);
-                        $.ajax({
+                        var recordInvoiceAjax = partnerInvoiceAjaxData(myform);
+                        $.ajax($.extend({
                             type:'post',
                             url:$("form[name="+formName+"]").attr('action'),
-                            processData: false,
-                            contentType: false,
-                            data: fd,
                             success: function(response){
                                 $('.popuploader').hide();
                                 var obj = $.parseJSON(response);
@@ -913,21 +954,22 @@ function customValidate(formName, savetype = '')
                                 }else{
                                     $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
                                 }
+                            },
+                            error: function(){
+                                $('.popuploader').hide();
+                                $('.custom-error-msg').html('<span class="alert alert-danger">Unable to save record invoice. Please try again.</span>');
                             }
-                        });
+                        }, recordInvoiceAjax));
                     }
 
                     else if(formName == 'create_record_payment')
                     {
                         var partner_id = $('#create_record_payment input[name="partner_id"]').val();
                         var myform = document.getElementById('create_record_payment');
-                        var fd = new FormData(myform);
-                        $.ajax({
+                        var recordPaymentAjax = partnerInvoiceAjaxData(myform);
+                        $.ajax($.extend({
                             type:'post',
                             url:$("form[name="+formName+"]").attr('action'),
-                            processData: false,
-                            contentType: false,
-                            data: fd,
                             success: function(response){
                                 $('.popuploader').hide();
                                 var obj = $.parseJSON(response);
@@ -963,8 +1005,12 @@ function customValidate(formName, savetype = '')
                                 }else{
                                     $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
                                 }
+                            },
+                            error: function(){
+                                $('.popuploader').hide();
+                                $('.custom-error-msg').html('<span class="alert alert-danger">Unable to save record payment. Please try again.</span>');
                             }
-                        });
+                        }, recordPaymentAjax));
                     }
 
                   
