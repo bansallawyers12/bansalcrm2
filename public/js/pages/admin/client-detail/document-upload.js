@@ -75,24 +75,70 @@ jQuery(document).ready(function($){
     });
 
     $(document).on('change', '.alldocupload', function() {
+        var input = this;
+        var file = input.files && input.files[0];
+        if (!file) {
+            return;
+        }
+
         console.log('document-upload.js: File upload detected for .alldocupload');
         $('.popuploader').show();
-        var fileidL = $(this).attr("data-fileid");
-        var formData = new FormData($('#upload_form_'+fileidL)[0]);
+        var fileidL = $(input).attr('data-fileid');
+        var form = document.getElementById('upload_form_' + fileidL);
         var url = App.getUrl('uploadAllDocument') || App.getUrl('siteUrl') + '/upload-alldocument';
-        
+
         // Check if category system is active
         var isCategorySystemActive = (typeof window.DocumentCategoryManager !== 'undefined');
         console.log('document-upload.js: Category system active?', isCategorySystemActive);
-        
-        $.ajax({
+
+        var reader = new FileReader();
+        reader.onerror = function() {
+            $('.popuploader').hide();
+            var failMsg = 'Upload failed. Please try again.';
+            $('.custom-error-msg').html('<span class="alert alert-danger">'+failMsg+'</span>');
+            if (typeof window.toastMsg === 'function') {
+                window.toastMsg(failMsg, 'error');
+            }
+        };
+        reader.onload = function() {
+            var result = String(reader.result || '');
+            var commaAt = result.indexOf(',');
+            var payload = {
+                document_upload_base64: commaAt >= 0 ? result.slice(commaAt + 1) : '',
+                document_upload_name: file.name
+            };
+            if (form) {
+                $(form).find('input, select, textarea').each(function() {
+                    if (!this.name || this.type === 'file' || this.disabled) {
+                        return;
+                    }
+                    if ((this.type === 'checkbox' || this.type === 'radio') && !this.checked) {
+                        return;
+                    }
+                    payload[this.name] = $(this).val();
+                });
+            }
+
+            if (!payload.document_upload_base64) {
+                $('.popuploader').hide();
+                var emptyMsg = 'Upload failed. Please try again.';
+                $('.custom-error-msg').html('<span class="alert alert-danger">'+emptyMsg+'</span>');
+                if (typeof window.toastMsg === 'function') {
+                    window.toastMsg(emptyMsg, 'error');
+                }
+                return;
+            }
+
+            $.ajax({
             url: url,
             type:'POST',
-            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-            datatype:'json',
-            data: formData,
-            contentType: false,
-            processData: false,
+            headers: {
+                'X-CSRF-TOKEN': App.getCsrf(),
+                'Accept': 'application/json'
+            },
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            processData: true,
+            data: $.param(payload),
             success: function(responses){
                 console.log('document-upload.js: Upload success response:', responses);
                 $('.popuploader').hide();
@@ -130,7 +176,9 @@ jQuery(document).ready(function($){
                     window.toastMsg(failMsg, 'error');
                 }
             }
-        });
+            });
+        };
+        reader.readAsDataURL(file);
     });
 
     // ============================================================================

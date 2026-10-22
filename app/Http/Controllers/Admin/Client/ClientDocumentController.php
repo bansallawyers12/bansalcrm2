@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Client;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Filesystem\AwsS3V3Adapter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -1859,8 +1860,122 @@ class ClientDocumentController extends Controller
         }
     }
 
+    /**
+     * Copy a text upload out of the raw body when PHP did not put it in the form fields.
+     */
+    protected function mergeRawDocumentUploadBody(Request $request): void
+    {
+        if ($request->filled('document_upload_base64') || $request->files->has('document_upload')) {
+            return;
+        }
+
+        $contentType = strtolower((string) $request->header('CONTENT_TYPE', ''));
+        if (str_contains($contentType, 'multipart')) {
+            return;
+        }
+
+        $raw = $request->getContent();
+        if (! is_string($raw) || $raw === '') {
+            return;
+        }
+
+        $fields = null;
+        if (str_contains($contentType, '/json') || str_contains($contentType, '+json') || str_starts_with(ltrim($raw), '{')) {
+            $decoded = json_decode($raw, true);
+            $fields = is_array($decoded) ? $decoded : null;
+        } elseif (str_contains($contentType, 'application/x-www-form-urlencoded') || str_contains($raw, 'document_upload_base64=')) {
+            $parsed = [];
+            parse_str($raw, $parsed);
+            $fields = $parsed;
+        }
+
+        if (! is_array($fields)) {
+            return;
+        }
+
+        $encoded = $fields['document_upload_base64'] ?? null;
+        if (! is_string($encoded) || $encoded === '') {
+            return;
+        }
+
+        $request->merge(['document_upload_base64' => $encoded]);
+
+        foreach (['document_upload_name', 'clientid', 'fileid', 'type', 'doctype'] as $key) {
+            if ($request->filled($key)) {
+                continue;
+            }
+            if (isset($fields[$key]) && is_scalar($fields[$key]) && (string) $fields[$key] !== '') {
+                $request->merge([$key => (string) $fields[$key]]);
+            }
+        }
+    }
+
+    /**
+     * Turn a text upload into the file input the existing save already reads.
+     *
+     * @return bool|null True when a file was attached, null when this request is not a text upload, false when the text is not a file.
+     */
+    protected function attachBase64DocumentUpload(Request $request): ?bool
+    {
+        $this->mergeRawDocumentUploadBody($request);
+
+        if (! $request->filled('document_upload_base64')) {
+            return null;
+        }
+
+        $encoded = preg_replace('/\s+/', '', (string) $request->input('document_upload_base64'));
+        $binary = base64_decode(is_string($encoded) ? $encoded : '', true);
+        if ($binary === false || $binary === '') {
+            return false;
+        }
+
+        $originalName = basename(str_replace('\\', '/', (string) $request->input('document_upload_name', 'document')));
+        $originalName = str_replace(["\0", '/', '\\'], '', $originalName);
+        if ($originalName === '' || $originalName === '.' || $originalName === '..') {
+            $originalName = 'document';
+        }
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'crmdoc');
+        if ($temporaryPath === false || file_put_contents($temporaryPath, $binary) === false) {
+            return false;
+        }
+
+        register_shutdown_function(static function () use ($temporaryPath): void {
+            if (is_file($temporaryPath)) {
+                unlink($temporaryPath);
+            }
+        });
+
+        $request->files->set('document_upload', new UploadedFile(
+            $temporaryPath,
+            $originalName,
+            null,
+            UPLOAD_ERR_OK,
+            true
+        ));
+
+        // hasFile() remembers the first empty result. Drop that memory so the save sees this file.
+        if (property_exists($request, 'convertedFiles')) {
+            (new \ReflectionProperty($request, 'convertedFiles'))->setValue($request, null);
+        }
+
+        return true;
+    }
+
     //Update all Document upload
 	public function uploadalldocument(Request $request){ //dd($request->all());
+        if (! $request->files->has('document_upload')) {
+            $attached = $this->attachBase64DocumentUpload($request);
+            if ($attached === false) {
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'File upload failed. Please try again.',
+                ]);
+
+                return;
+            }
+        }
+
         if ($request->hasfile('document_upload'))
         {
             $clientid = $request->clientid;
