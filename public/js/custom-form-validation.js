@@ -386,13 +386,10 @@ function customValidate(formName, savetype = '')
 			var stagetype = $('#appnotetermform input[name="type"]').val(); // Capture stage name
 					var myform = document.getElementById('appnotetermform');
 					syncEditorContent($(myform));
-					var fd = new FormData(myform);
 					$.ajax({
 						type:'post',
 						url:$("form[name="+formName+"]").attr('action'),
-						processData: false,
-						contentType: false,
-						data: fd,
+						data: $(myform).serialize(),
 						success: function(response){
 								$('.popuploader').hide();
 							var obj = $.parseJSON(response);
@@ -440,13 +437,10 @@ function customValidate(formName, savetype = '')
 						var client_id = $('input[name="client_id"]').val(); 	
 						var myform = document.getElementById('clientnotetermform');
 						syncEditorContent($(myform));
-						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
+							data: $(myform).serialize(),
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
@@ -477,13 +471,10 @@ function customValidate(formName, savetype = '')
                         var partner_id = $('input[name="partner_id"]').val();
                         var myform = document.getElementById('studentnotetermform');
                         syncEditorContent($(myform));
-                        var fd = new FormData(myform);
                         $.ajax({
                             type:'post',
                             url:$("form[name="+formName+"]").attr('action'),
-                            processData: false,
-                            contentType: false,
-                            data: fd,
+                            data: $(myform).serialize(),
                             success: function(response){
                                 $('.popuploader').hide();
                                 var obj = $.parseJSON(response);
@@ -2145,13 +2136,10 @@ function customValidate(formName, savetype = '')
 					var note_type = $('input[name="vtype"]').val() || 'client'; // Get type from form, default to 'client'
 					var myform = document.getElementById('notetermform');
 					syncEditorContent($(myform));
-					var fd = new FormData(myform);
 					$.ajax({
 						type:'post',
 						url:$("form[name="+formName+"]").attr('action'),
-						processData: false,
-						contentType: false,
-						data: fd,
+						data: $(myform).serialize(),
 						success: function(response){
 							$('.popuploader').hide(); 
 							var obj = $.parseJSON(response);
@@ -2182,13 +2170,10 @@ function customValidate(formName, savetype = '')
 						var client_id = $('input[name="client_id"]').val(); 	
 						var myform = document.getElementById('notetermform_n');
 						syncEditorContent($(myform));
-						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
+							data: $(myform).serialize(),
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);

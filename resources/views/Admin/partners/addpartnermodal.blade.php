@@ -97,7 +97,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/create-note')}}" name="clientnotetermform" autocomplete="off" id="clientnotetermform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/create-note')}}" name="clientnotetermform" autocomplete="off" id="clientnotetermform">
 				@csrf 
 				<input type="hidden" name="client_id" id= "partner_id" value="{{$fetchedData->id}}">
 				<input type="hidden" name="noteid" value="">
@@ -1682,7 +1682,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/add-student-note')}}" name="studentnotetermform" autocomplete="off" id="studentnotetermform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/add-student-note')}}" name="studentnotetermform" autocomplete="off" id="studentnotetermform">
 				@csrf
 				<input type="hidden" name="partner_id" id="partner_id" value="{{$fetchedData->id}}">
                 <input type="hidden" name="college_name" id="college_name" value="">
