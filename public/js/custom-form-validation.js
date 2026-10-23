@@ -1956,13 +1956,11 @@ function customValidate(formName, savetype = '')
 						var client_id = $('#appliassignform input[name="client_id"]').val();
 						var noteid = $('#appliassignform input[name="noteid"]').val();
 						var myform = document.getElementById('appliassignform');
-						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
+							// No file on this form. Urlencoded avoids the nginx 403 on text-only multipart.
+							data: $(myform).serialize(),
 							success: function(response){
 								$('.popuploader').hide();
 								var obj = $.parseJSON(response);
