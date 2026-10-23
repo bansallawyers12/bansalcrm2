@@ -54,6 +54,18 @@ class ClientReceiptController extends Controller
             return;
         }
 
+        $application = $this->receiptApplicationId($requestData['application_id'] ?? null);
+        if ($application['error'] !== null) {
+            echo json_encode([
+                'status' => false,
+                'message' => $application['error'],
+                'function_type' => $requestData['function_type'],
+            ]);
+
+            return;
+        }
+        $requestData['application_id'] = $application['id'];
+
         if (! $request->files->has('document_upload')) {
             $attached = $this->attachBase64ReceiptDocument($request);
             if ($attached === false) {
@@ -1026,6 +1038,28 @@ class ClientReceiptController extends Controller
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Keep a receipt linked only to an application number. A course name is not a valid id.
+     *
+     * @return array{id: ?int, error: ?string}
+     */
+    protected function receiptApplicationId(mixed $raw): array
+    {
+        if ($raw === null || (is_string($raw) && trim($raw) === '')) {
+            return ['id' => null, 'error' => null];
+        }
+
+        $value = is_string($raw) ? trim($raw) : $raw;
+        if ((is_int($value) || (is_string($value) && preg_match('/^\d+$/', $value) === 1)) && (int) $value > 0) {
+            return ['id' => (int) $value, 'error' => null];
+        }
+
+        return [
+            'id' => null,
+            'error' => 'Select a course from the list. A course name cannot be saved in this field.',
+        ];
     }
 
     /**
