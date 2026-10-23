@@ -624,13 +624,11 @@ function customValidate(formName, savetype = '')
 						else if(formName == 'create_client_receipt'){
 						var client_id = $('#create_client_receipt input[name="client_id"]').val();
 						var myform = document.getElementById('create_client_receipt');
-						var fd = new FormData(myform);
-						$.ajax({
+						// Multipart only when a document is attached. Nginx returns 403 for a text-only multipart body.
+						var receiptAjax = partnerInvoiceAjaxData(myform);
+						$.ajax($.extend({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
 							dataType: 'json',
 							timeout: 60000,
 							success: function(obj){
@@ -745,7 +743,7 @@ function customValidate(formName, savetype = '')
 							complete: function() {
 								$('.popuploader').hide();
 							}
-						});
+						}, receiptAjax));
 					}
 
 					else if(formName == 'create_client_refund'){
