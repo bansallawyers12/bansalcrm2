@@ -624,13 +624,19 @@ function customValidate(formName, savetype = '')
 						else if(formName == 'create_client_receipt'){
 						var client_id = $('#create_client_receipt input[name="client_id"]').val();
 						var myform = document.getElementById('create_client_receipt');
-						// Multipart only when a document is attached. Nginx returns 403 for a text-only multipart body.
-						var receiptAjax = partnerInvoiceAjaxData(myform);
-						$.ajax($.extend({
+						// Always urlencoded. A selected document is sent as text so nginx does not 403 the multipart body.
+						var postReceipt = function(extraFields) {
+						var data = $(myform).serialize();
+						if (extraFields) {
+							data += (data ? '&' : '') + $.param(extraFields);
+						}
+						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
+							contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+							data: data,
 							dataType: 'json',
-							timeout: 60000,
+							timeout: 120000,
 							success: function(obj){
 								if (!obj || typeof obj !== 'object') {
 									$('.popuploader').hide();
@@ -743,7 +749,36 @@ function customValidate(formName, savetype = '')
 							complete: function() {
 								$('.popuploader').hide();
 							}
-						}, receiptAjax));
+						});
+						};
+						var receiptFileInput = myform.querySelector('input[type="file"]');
+						var receiptFile = receiptFileInput && receiptFileInput.files && receiptFileInput.files[0];
+						if (!receiptFile) {
+							postReceipt(null);
+						} else {
+							var receiptReader = new FileReader();
+							receiptReader.onerror = function() {
+								$('.popuploader').hide();
+								$('#createclientreceiptmodal').modal('hide');
+								$('.custom-error-msg').html('<span class="alert alert-danger">File upload failed. Please try again.</span>');
+							};
+							receiptReader.onload = function() {
+								var result = String(receiptReader.result || '');
+								var commaAt = result.indexOf(',');
+								var encoded = commaAt >= 0 ? result.slice(commaAt + 1) : '';
+								if (!encoded) {
+									$('.popuploader').hide();
+									$('#createclientreceiptmodal').modal('hide');
+									$('.custom-error-msg').html('<span class="alert alert-danger">File upload failed. Please try again.</span>');
+									return;
+								}
+								postReceipt({
+									document_upload_base64: encoded,
+									document_upload_name: receiptFile.name
+								});
+							};
+							receiptReader.readAsDataURL(receiptFile);
+						}
 					}
 
 					else if(formName == 'create_client_refund'){

@@ -12,6 +12,7 @@ use App\Models\Staff;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -51,6 +52,18 @@ class ClientReceiptController extends Controller
             echo json_encode($response);
 
             return;
+        }
+
+        if (! $request->files->has('document_upload')) {
+            $attached = $this->attachBase64ReceiptDocument($request);
+            if ($attached === false) {
+                $response['status'] = false;
+                $response['message'] = 'File upload failed. Please try again.';
+                $response['function_type'] = $requestData['function_type'];
+                echo json_encode($response);
+
+                return;
+            }
         }
 
         if ($requestData['function_type'] == 'add') {
@@ -1013,5 +1026,55 @@ class ClientReceiptController extends Controller
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Turn a urlencoded receipt document into the file input the existing save already reads.
+     * Nginx blocks multipart on this endpoint, including when a real file is attached.
+     *
+     * @return bool|null True when a file was attached, null when this request is not a text upload, false when the text is not a file.
+     */
+    protected function attachBase64ReceiptDocument(Request $request): ?bool
+    {
+        if ($request->files->has('document_upload') || ! $request->filled('document_upload_base64')) {
+            return null;
+        }
+
+        $encoded = preg_replace('/\s+/', '', (string) $request->input('document_upload_base64'));
+        $binary = base64_decode(is_string($encoded) ? $encoded : '', true);
+        if ($binary === false || $binary === '') {
+            return false;
+        }
+
+        $originalName = basename(str_replace('\\', '/', (string) $request->input('document_upload_name', 'document')));
+        $originalName = str_replace(["\0", '/', '\\'], '', $originalName);
+        if ($originalName === '' || $originalName === '.' || $originalName === '..') {
+            $originalName = 'document';
+        }
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'crmrcpt');
+        if ($temporaryPath === false || file_put_contents($temporaryPath, $binary) === false) {
+            return false;
+        }
+
+        register_shutdown_function(static function () use ($temporaryPath): void {
+            if (is_file($temporaryPath)) {
+                unlink($temporaryPath);
+            }
+        });
+
+        $request->files->set('document_upload', new UploadedFile(
+            $temporaryPath,
+            $originalName,
+            null,
+            UPLOAD_ERR_OK,
+            true
+        ));
+
+        if (property_exists($request, 'convertedFiles')) {
+            (new \ReflectionProperty($request, 'convertedFiles'))->setValue($request, null);
+        }
+
+        return true;
     }
 }
