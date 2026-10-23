@@ -1139,14 +1139,12 @@ function customValidate(formName, savetype = '')
 
 					else if(formName == 'applicationfeeformlatest'){
                         var myform = document.getElementById('applicationfeeformlatest');
-						var fd = new FormData(myform);
 						var appIdForReload = $(myform).find('input[name="id"]').val();
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
+							// No file on this form. Urlencoded avoids the nginx 403 on text-only multipart.
+							data: $(myform).serialize(),
 							dataType: 'json',
 							success: function(obj){
 								$('.popuploader').hide();
