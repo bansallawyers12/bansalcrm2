@@ -84,15 +84,10 @@ jQuery(document).ready(function($){
 
         var $form = $('form[name="edit-clients"]');
         if ($form.length > 0) {
-            var formEl = $form[0];
-            var formData = new FormData(formEl);
-
             $.ajax({
                 url: $form.attr('action'),
                 method: ($form.attr('method') || 'POST').toUpperCase(),
-                data: formData,
-                processData: false,
-                contentType: false,
+                data: $form.serialize(),
                 headers: {
                     'X-CSRF-TOKEN': App.getCsrf()
                 }

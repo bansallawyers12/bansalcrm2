@@ -228,7 +228,7 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			<form action="{{ url('clients/edit') }}" method="POST" name="edit-clients" autocomplete="off" enctype="multipart/form-data">
+			<form action="{{ url('clients/edit') }}" method="POST" name="edit-clients" autocomplete="off">
 				@csrf
 				<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
 				<input type="hidden" name="type" value="{{ @$fetchedData->type }}">
