@@ -510,13 +510,11 @@ function customValidate(formName, savetype = '')
 					}else if(formName == 'applicationfeeform'){
 						
 						var myform = document.getElementById('applicationfeeform');
-						var fd = new FormData(myform);	
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
+							// Fee fields only. Urlencoded avoids the nginx 403 on a text-only multipart body.
+							data: $(myform).serialize(),
 							success: function(response){
 								$('.popuploader').hide(); 
 									$('#new_fee_option').modal('hide');
