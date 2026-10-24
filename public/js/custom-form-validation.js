@@ -48,50 +48,6 @@ function syncEditorContent($form) {
 }
 
 /**
- * True when the form has at least one selected file.
- * Text-only multipart POSTs are blocked by nginx; use urlencoded when this is false.
- */
-function formHasSelectedFiles(formEl) {
-	if (!formEl) {
-		return false;
-	}
-	var inputs = formEl.querySelectorAll('input[type="file"]');
-	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].files && inputs[i].files.length > 0) {
-			return true;
-		}
-	}
-	return false;
-}
-
-/**
- * Partner invoice/payment AJAX body: FormData only when a document is attached;
- * otherwise urlencoded serialize (same pattern as note/application multipart fixes).
- */
-function partnerInvoiceAjaxData(formEl, extraFields) {
-	extraFields = extraFields || {};
-	if (formHasSelectedFiles(formEl)) {
-		var fd = new FormData(formEl);
-		Object.keys(extraFields).forEach(function (key) {
-			fd.append(key, extraFields[key]);
-		});
-		return {
-			processData: false,
-			contentType: false,
-			data: fd
-		};
-	}
-
-	var data = $(formEl).serialize();
-	Object.keys(extraFields).forEach(function (key) {
-		data += (data ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(extraFields[key]);
-	});
-	return {
-		data: data
-	};
-}
-
-/**
  * Refresh the activities list after an AJAX action (notes, appointments, etc.).
  * Uses shared getallactivities() when available; otherwise fetches server-rendered HTML.
  */
@@ -430,10 +386,13 @@ function customValidate(formName, savetype = '')
 			var stagetype = $('#appnotetermform input[name="type"]').val(); // Capture stage name
 					var myform = document.getElementById('appnotetermform');
 					syncEditorContent($(myform));
+					var fd = new FormData(myform);
 					$.ajax({
 						type:'post',
 						url:$("form[name="+formName+"]").attr('action'),
-						data: $(myform).serialize(),
+						processData: false,
+						contentType: false,
+						data: fd,
 						success: function(response){
 								$('.popuploader').hide();
 							var obj = $.parseJSON(response);
@@ -481,10 +440,13 @@ function customValidate(formName, savetype = '')
 						var client_id = $('input[name="client_id"]').val(); 	
 						var myform = document.getElementById('clientnotetermform');
 						syncEditorContent($(myform));
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
@@ -515,10 +477,13 @@ function customValidate(formName, savetype = '')
                         var partner_id = $('input[name="partner_id"]').val();
                         var myform = document.getElementById('studentnotetermform');
                         syncEditorContent($(myform));
+                        var fd = new FormData(myform);
                         $.ajax({
                             type:'post',
                             url:$("form[name="+formName+"]").attr('action'),
-                            data: $(myform).serialize(),
+                            processData: false,
+                            contentType: false,
+                            data: fd,
                             success: function(response){
                                 $('.popuploader').hide();
                                 var obj = $.parseJSON(response);
@@ -624,19 +589,15 @@ function customValidate(formName, savetype = '')
 						else if(formName == 'create_client_receipt'){
 						var client_id = $('#create_client_receipt input[name="client_id"]').val();
 						var myform = document.getElementById('create_client_receipt');
-						// Always urlencoded. A selected document is sent as text so nginx does not 403 the multipart body.
-						var postReceipt = function(extraFields) {
-						var data = $(myform).serialize();
-						if (extraFields) {
-							data += (data ? '&' : '') + $.param(extraFields);
-						}
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-							data: data,
+							processData: false,
+							contentType: false,
+							data: fd,
 							dataType: 'json',
-							timeout: 120000,
+							timeout: 60000,
 							success: function(obj){
 								if (!obj || typeof obj !== 'object') {
 									$('.popuploader').hide();
@@ -750,35 +711,6 @@ function customValidate(formName, savetype = '')
 								$('.popuploader').hide();
 							}
 						});
-						};
-						var receiptFileInput = myform.querySelector('input[type="file"]');
-						var receiptFile = receiptFileInput && receiptFileInput.files && receiptFileInput.files[0];
-						if (!receiptFile) {
-							postReceipt(null);
-						} else {
-							var receiptReader = new FileReader();
-							receiptReader.onerror = function() {
-								$('.popuploader').hide();
-								$('#createclientreceiptmodal').modal('hide');
-								$('.custom-error-msg').html('<span class="alert alert-danger">File upload failed. Please try again.</span>');
-							};
-							receiptReader.onload = function() {
-								var result = String(receiptReader.result || '');
-								var commaAt = result.indexOf(',');
-								var encoded = commaAt >= 0 ? result.slice(commaAt + 1) : '';
-								if (!encoded) {
-									$('.popuploader').hide();
-									$('#createclientreceiptmodal').modal('hide');
-									$('.custom-error-msg').html('<span class="alert alert-danger">File upload failed. Please try again.</span>');
-									return;
-								}
-								postReceipt({
-									document_upload_base64: encoded,
-									document_upload_name: receiptFile.name
-								});
-							};
-							receiptReader.readAsDataURL(receiptFile);
-						}
 					}
 
 					else if(formName == 'create_client_refund'){
@@ -822,10 +754,14 @@ function customValidate(formName, savetype = '')
                     {
 						var partner_id = $('#create_student_invoice input[name="partner_id"]').val();
 						var myform = document.getElementById('create_student_invoice');
-						var studentInvoiceAjax = partnerInvoiceAjaxData(myform, { save_type: savetype });
-						$.ajax($.extend({
+						var fd = new FormData(myform);
+						fd.append('save_type', savetype);
+						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide();
 								var obj = $.parseJSON(response);
@@ -943,17 +879,20 @@ function customValidate(formName, savetype = '')
 								$('.popuploader').hide();
 								$('.custom-error-msg').html('<span class="alert alert-danger">Unable to save student invoice. Please try again.</span>');
 							}
-						}, studentInvoiceAjax));
+						});
 					}
 
                     else if(formName == 'create_record_invoice')
                     {
                         var partner_id = $('#create_record_invoice input[name="partner_id"]').val();
                         var myform = document.getElementById('create_record_invoice');
-                        var recordInvoiceAjax = partnerInvoiceAjaxData(myform);
-                        $.ajax($.extend({
+                        var fd = new FormData(myform);
+                        $.ajax({
                             type:'post',
                             url:$("form[name="+formName+"]").attr('action'),
+                            processData: false,
+                            contentType: false,
+                            data: fd,
                             success: function(response){
                                 $('.popuploader').hide();
                                 var obj = $.parseJSON(response);
@@ -992,17 +931,20 @@ function customValidate(formName, savetype = '')
                                 $('.popuploader').hide();
                                 $('.custom-error-msg').html('<span class="alert alert-danger">Unable to save record invoice. Please try again.</span>');
                             }
-                        }, recordInvoiceAjax));
+                        });
                     }
 
                     else if(formName == 'create_record_payment')
                     {
                         var partner_id = $('#create_record_payment input[name="partner_id"]').val();
                         var myform = document.getElementById('create_record_payment');
-                        var recordPaymentAjax = partnerInvoiceAjaxData(myform);
-                        $.ajax($.extend({
+                        var fd = new FormData(myform);
+                        $.ajax({
                             type:'post',
                             url:$("form[name="+formName+"]").attr('action'),
+                            processData: false,
+                            contentType: false,
+                            data: fd,
                             success: function(response){
                                 $('.popuploader').hide();
                                 var obj = $.parseJSON(response);
@@ -1043,7 +985,7 @@ function customValidate(formName, savetype = '')
                                 $('.popuploader').hide();
                                 $('.custom-error-msg').html('<span class="alert alert-danger">Unable to save record payment. Please try again.</span>');
                             }
-                        }, recordPaymentAjax));
+                        });
                     }
 
                   
@@ -1135,11 +1077,13 @@ function customValidate(formName, savetype = '')
 					else if(formName == 'applicationfeeform'){
 						
 						var myform = document.getElementById('applicationfeeform');
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							// Fee fields only. Urlencoded avoids the nginx 403 on a text-only multipart body.
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 									$('#new_fee_option').modal('hide');
@@ -1170,12 +1114,14 @@ function customValidate(formName, savetype = '')
 
 					else if(formName == 'applicationfeeformlatest'){
                         var myform = document.getElementById('applicationfeeformlatest');
+						var fd = new FormData(myform);
 						var appIdForReload = $(myform).find('input[name="id"]').val();
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							// No file on this form. Urlencoded avoids the nginx 403 on text-only multipart.
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							dataType: 'json',
 							success: function(obj){
 								$('.popuploader').hide();
@@ -1985,11 +1931,13 @@ function customValidate(formName, savetype = '')
 						var client_id = $('#appliassignform input[name="client_id"]').val();
 						var noteid = $('#appliassignform input[name="noteid"]').val();
 						var myform = document.getElementById('appliassignform');
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							// No file on this form. Urlencoded avoids the nginx 403 on text-only multipart.
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide();
 								var obj = $.parseJSON(response);
@@ -2209,10 +2157,13 @@ function customValidate(formName, savetype = '')
 					var note_type = $('input[name="vtype"]').val() || 'client'; // Get type from form, default to 'client'
 					var myform = document.getElementById('notetermform');
 					syncEditorContent($(myform));
+					var fd = new FormData(myform);
 					$.ajax({
 						type:'post',
 						url:$("form[name="+formName+"]").attr('action'),
-						data: $(myform).serialize(),
+						processData: false,
+						contentType: false,
+						data: fd,
 						success: function(response){
 							$('.popuploader').hide(); 
 							var obj = $.parseJSON(response);
@@ -2243,10 +2194,13 @@ function customValidate(formName, savetype = '')
 						var client_id = $('input[name="client_id"]').val(); 	
 						var myform = document.getElementById('notetermform_n');
 						syncEditorContent($(myform));
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
@@ -2344,10 +2298,13 @@ $('#add_application').modal('hide');
 					{   
 						var client_id = $('input[name="client_id"]').val(); 
 						var myform = document.getElementById('addapplicationformform');
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);

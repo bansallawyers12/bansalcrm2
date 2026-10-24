@@ -143,7 +143,7 @@
                     return;
                 }
 
-                const body = new URLSearchParams(new FormData(this));
+                const formData = new FormData(this);
                 const submitUrl = App.getUrl('partnersUpdateStudentStatus');
                 if (!submitUrl) {
                     showChangeStatusMessage('Configuration error. Please refresh the page and try again.', 'error');
@@ -152,11 +152,9 @@
 
                 fetch(submitUrl, {
                     method: 'POST',
-                    body: body,
+                    body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': App.getCsrf(),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        'X-CSRF-TOKEN': App.getCsrf()
                     }
                 })
                 .then(function (response) {

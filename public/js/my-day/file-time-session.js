@@ -82,19 +82,19 @@
             _token: cfg.csrf || ''
         };
         var url = cfg.routes.blur;
-        // urlencoded beacon (not FormData/multipart) so nginx does not 403 text-only POSTs
-        if (navigator.sendBeacon && typeof URLSearchParams !== 'undefined') {
-            var params = new URLSearchParams();
+        if (navigator.sendBeacon) {
+            var fd = new FormData();
             Object.keys(payload).forEach(function (key) {
                 if (payload[key] !== null && payload[key] !== undefined) {
-                    params.append(key, String(payload[key]));
+                    fd.append(key, payload[key]);
                 }
             });
-            if (navigator.sendBeacon(url, params)) {
-                return;
+            if (!navigator.sendBeacon(url, fd)) {
+                postJson(url, payload);
             }
+        } else {
+            postJson(url, payload);
         }
-        postJson(url, payload);
     }
 
     function heartbeat() {

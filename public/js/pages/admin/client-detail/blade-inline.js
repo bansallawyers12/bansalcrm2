@@ -716,61 +716,36 @@ function checklistNameFromFile(fileName) {
     return name.trim();
 }
 
-function readBulkFileAsText(file) {
-    return new Promise(function(resolve, reject) {
-        var reader = new FileReader();
-        reader.onerror = function() {
-            reject();
-        };
-        reader.onload = function() {
-            var result = String(reader.result || '');
-            var commaAt = result.indexOf(',');
-            var encoded = commaAt >= 0 ? result.slice(commaAt + 1) : '';
-            if (!encoded) {
-                reject();
-                return;
-            }
-            resolve(encoded);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// Upload bulk files as form text so the server multipart block does not reject them.
 function uploadBulkFiles(files, mappings) {
-    var payloadFiles = Array.from(files);
-
+    const formData = new FormData();
+    
+    files.forEach((file, index) => {
+        formData.append('files[]', file);
+        formData.append('mappings[]', JSON.stringify(mappings[index]));
+    });
+    
+    formData.append('_token', App.getCsrf());
+    formData.append('clientid', currentClientId);
+    formData.append('doctype', 'documents');
+    formData.append('type', 'client');
+    
+    // Add category_id if category system is active and a category is selected
+    if (typeof window.DocumentCategoryManager !== 'undefined' && 
+        window.DocumentCategoryManager && 
+        window.DocumentCategoryManager.currentCategoryId) {
+        formData.append('category_id', window.DocumentCategoryManager.currentCategoryId);
+    }
+    
     $('#bulk-upload-progress').show();
     $('#bulk-upload-progress-bar').css('width', '0%').text('0%');
     $('#confirm-bulk-upload').prop('disabled', true);
-
-    Promise.all(payloadFiles.map(readBulkFileAsText)).then(function(encodedFiles) {
-        var payload = {
-            files_base64: encodedFiles,
-            files_names: payloadFiles.map(function(file) { return file.name; }),
-            mappings: mappings.map(function(mapping) { return JSON.stringify(mapping); }),
-            _token: App.getCsrf(),
-            clientid: currentClientId,
-            doctype: 'documents',
-            type: 'client'
-        };
-
-        if (typeof window.DocumentCategoryManager !== 'undefined' &&
-            window.DocumentCategoryManager &&
-            window.DocumentCategoryManager.currentCategoryId) {
-            payload.category_id = window.DocumentCategoryManager.currentCategoryId;
-        }
-
-        $.ajax({
+    
+    $.ajax({
         url: App.getUrl('documentsBulkUpload'),
         method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': App.getCsrf(),
-            'Accept': 'application/json'
-        },
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        processData: true,
-        data: $.param(payload),
+        data: formData,
+        processData: false,
+        contentType: false,
         xhr: function() {
             const xhr = new window.XMLHttpRequest();
             xhr.upload.addEventListener('progress', function(e) {
@@ -824,11 +799,6 @@ function uploadBulkFiles(files, mappings) {
             }
             toastMsg(errorMsg, 'error');
         }
-        });
-    }).catch(function() {
-        $('#bulk-upload-progress').hide();
-        $('#confirm-bulk-upload').prop('disabled', false);
-        toastMsg('Upload failed. Please try again.', 'error');
     });
 }
 

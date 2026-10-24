@@ -9,7 +9,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/create-note')}}" name="editnotetermform" autocomplete="off" id="editnotetermform">
+				<form method="post" action="{{URL::to('/create-note')}}" name="editnotetermform" autocomplete="off" id="editnotetermform" enctype="multipart/form-data">
 				@csrf 
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" name="noteid" value="">

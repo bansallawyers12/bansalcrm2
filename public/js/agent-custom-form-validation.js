@@ -273,10 +273,13 @@ function customValidate(formName, savetype = '')
 			var stagetype = $('#appnotetermform input[name="type"]').val(); // Capture stage name
 					var myform = document.getElementById('appnotetermform');
 					syncEditorContent($(myform));
+					var fd = new FormData(myform);
 					$.ajax({
 						type:'post',
 						url:$("form[name="+formName+"]").attr('action'),
-						data: $(myform).serialize(),
+						processData: false,
+						contentType: false,
+						data: fd,
 						success: function(response){
 								$('.popuploader').hide();
 							var obj = $.parseJSON(response);
@@ -324,10 +327,13 @@ function customValidate(formName, savetype = '')
 						var client_id = $('input[name="client_id"]').val(); 	
 						var myform = document.getElementById('clientnotetermform');
 						syncEditorContent($(myform));
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
@@ -510,11 +516,13 @@ function customValidate(formName, savetype = '')
 					}else if(formName == 'applicationfeeform'){
 						
 						var myform = document.getElementById('applicationfeeform');
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							// Fee fields only. Urlencoded avoids the nginx 403 on a text-only multipart body.
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 									$('#new_fee_option').modal('hide');
@@ -1422,10 +1430,13 @@ function customValidate(formName, savetype = '')
 						var client_id = $('input[name="client_id"]').val(); 	
 						var myform = document.getElementById('notetermform');
 						syncEditorContent($(myform));
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
@@ -1493,10 +1504,13 @@ $('#add_application').modal('hide');
 					{   
 						var client_id = $('input[name="client_id"]').val(); 
 						var myform = document.getElementById('addapplicationformform');
+						var fd = new FormData(myform);
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
-							data: $(myform).serialize(),
+							processData: false,
+							contentType: false,
+							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
