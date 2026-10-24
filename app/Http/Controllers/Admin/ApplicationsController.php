@@ -343,7 +343,7 @@ class ApplicationsController extends Controller
 								</div>
 							</div>
 							<?php
-                            $applicationlists = ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('stage', $stages->name)->orderby('created_at', 'DESC')->get();
+						    $applicationlists = ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('stage', $stages->name)->orderby('created_at', 'DESC')->get();
 
             ?>
 							<div class="accordion-body collapse" id="<?php echo $stagname; ?>_accor" data-parent="#accordion" style="">
@@ -1102,7 +1102,8 @@ class ApplicationsController extends Controller
     }
 
     public function showproductfee(Request $request) // dd($request->all());
-    {$id = $request->id;
+    {
+        $id = $request->id;
         $partnerid = $request->partnerid;
         ob_start();
         $appfeeoption = ApplicationFeeOption::where('app_id', $id)->first(); // dd($appfeeoption);
@@ -1176,7 +1177,7 @@ class ApplicationsController extends Controller
 									</thead>
 									<tbody class="tdata">
 									<?php
-                                    $totl = 0.00;
+	                                $totl = 0.00;
         $discount = 0.00;
         ?>
                                         <tr class="add_fee_option cus_fee_option">
@@ -1527,7 +1528,8 @@ class ApplicationsController extends Controller
     }
 
     public function checklistupload(Request $request) // dd($request->all());
-    {$imageData = '';
+    {
+        $imageData = '';
         $uploadSummary = [
             'total' => 0,
             'uploaded_count' => 0,
@@ -1608,6 +1610,8 @@ class ApplicationsController extends Controller
             $obj->file_size = $size;
             $obj->user_id = Auth::user()->id;
             $obj->application_id = $request->application_id;
+            // Unpublished by default (0); publishdoc sets 1. Column is NOT NULL with no DB default.
+            $obj->status = 0;
 
             $save = $obj->save();
             if ($save) {
@@ -1965,7 +1969,8 @@ class ApplicationsController extends Controller
 
     // Show Product Fee latest
     public function showproductfeelatest(Request $request) // dd($request->all());
-    {$id = $request->id;
+    {
+        $id = $request->id;
 
         // DEBUG: Check for various date formats in this application
         $appfeeoption_debug = ApplicationFeeOption::where('app_id', $id)->first();
