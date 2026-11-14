@@ -28,7 +28,6 @@ use App\Models\PartnerBranch;
 use App\Models\Product;
 use App\Models\Staff;
 use App\Models\State;
-use App\Models\UploadChecklist;
 use App\Models\Workflow;
 use App\Services\CrmAccess\CrmAccessService;
 use App\Services\CrmSentEmailS3Service;
@@ -938,26 +937,6 @@ class AdminController extends Controller
                                 }
                             }
 
-                        } elseif ($requestData['table'] == 'upload_checklists') {
-                            // Delete DB row; remove local file if present (missing file must not block delete)
-                            $row = DB::table('upload_checklists')->where('id', $requestData['id'])->first();
-                            if ($row) {
-                                if (! empty($row->file)) {
-                                    $filePath = public_path('checklists/'.$row->file);
-                                    if (is_file($filePath)) {
-                                        @unlink($filePath);
-                                    }
-                                }
-                                $response = DB::table('upload_checklists')->where('id', $requestData['id'])->delete();
-                                if ($response) {
-                                    $status = 1;
-                                    $message = 'Record has been deleted successfully.';
-                                } else {
-                                    $message = Config::get('constants.server_error');
-                                }
-                            } else {
-                                $message = 'ID does not exist, please check it once again.';
-                            }
                         } else {
 
                             // save and send to activity log
@@ -1389,36 +1368,6 @@ class AdminController extends Controller
         }
 
         $attachments = [];
-
-        if (isset($requestData['checklistfile'])) {
-            if (! empty($requestData['checklistfile'])) {
-                $checklistfiles = $requestData['checklistfile'];
-                $attachments = [];
-                foreach ($checklistfiles as $checklistfile) {
-                    $filechecklist = UploadChecklist::where('id', $checklistfile)->first();
-                    if ($filechecklist && ! empty($filechecklist->file)) {
-                        $checkPath = public_path('checklists/'.$filechecklist->file);
-                        // Skip missing disk files so metadata/compose never ship broken attachments
-                        if (! is_file($checkPath)) {
-                            Log::warning('Compose skipped missing upload checklist file', [
-                                'upload_checklist_id' => $filechecklist->id,
-                                'file' => $filechecklist->file,
-                                'path' => $checkPath,
-                            ]);
-
-                            continue;
-                        }
-                        $attachments[] = [
-                            'file_name' => $filechecklist->name,
-                            'file_url' => $filechecklist->file,
-                            'file_size' => (int) filesize($checkPath),
-                        ];
-                    }
-                }
-                // $obj->attachments = json_encode($attachments);
-            }
-        }
-
         $attachments2 = [];
         if (isset($requestData['checklistfile_document'])) {
             if (! empty($requestData['checklistfile_document'])) {
@@ -1508,10 +1457,8 @@ class AdminController extends Controller
                 if ($app && $app->client_id) {
                     $clientIdForLog = $app->client_id;
                     $wasAlreadySent = $app->checklist_sent_at !== null;
-                    if (! empty($requestData['checklistfile'])) {
-                        $app->checklist_sent_at = now()->toDateString();
-                        $app->save();
-                    }
+                    $app->checklist_sent_at = now()->toDateString();
+                    $app->save();
                 }
             }
             if ($clientIdForLog === null && ! empty($requestData['email_to'][0])) {
@@ -1520,39 +1467,6 @@ class AdminController extends Controller
             if ($clientIdForLog) {
                 $logSubject = $wasAlreadySent ? 'Checklist Email resent' : 'Checklist Email sent';
                 $logDescription = 'Checklist Email sent on '.$sentDate;
-                $objs = new ActivitiesLog;
-                $objs->client_id = $clientIdForLog;
-                $objs->created_by = Auth::user()->id;
-                $objs->subject = $logSubject;
-                $objs->description = $logDescription;
-                $objs->task_status = 0;
-                $objs->pin = 0;
-                $objs->save();
-            }
-        }
-
-        // When checklistfile present but no send_context (legacy): update checklist_sent_at and log
-        if (isset($requestData['checklistfile']) && ! empty($requestData['checklistfile']) && ! $isChecklistContext) {
-            $clientIdForLog = null;
-            $logSubject = 'Checklist Email sent';
-            $sentDate = now()->format('d/m/Y');
-            $logDescription = 'Checklist Email sent on '.$sentDate;
-
-            if (! empty($requestData['application_id'])) {
-                $app = Application::find((int) $requestData['application_id']);
-                if ($app) {
-                    $wasAlreadySent = $app->checklist_sent_at !== null;
-                    $app->checklist_sent_at = now()->toDateString();
-                    $app->save();
-                    $clientIdForLog = $app->client_id;
-                    $logSubject = $wasAlreadySent ? 'Checklist Email resent' : 'Checklist Email sent';
-                    $logDescription = 'Checklist Email sent on '.$sentDate;
-                }
-            }
-            if ($clientIdForLog === null && ! empty($requestData['email_to'][0])) {
-                $clientIdForLog = is_numeric($requestData['email_to'][0]) ? (int) $requestData['email_to'][0] : null;
-            }
-            if ($clientIdForLog) {
                 $objs = new ActivitiesLog;
                 $objs->client_id = $clientIdForLog;
                 $objs->created_by = Auth::user()->id;
@@ -1588,7 +1502,7 @@ class AdminController extends Controller
         }
 
         // When application_id present, no send_context (legacy): record email reminder and log
-        $isChecklistEmail = (! empty($requestData['checklistfile']) || ! empty($requestData['checklistfile_document']));
+        $isChecklistEmail = ! empty($requestData['checklistfile_document']);
         if ($saved && ! empty($requestData['application_id']) && ! $isChecklistEmail && ! $isChecklistContext && ! $isEmailReminderContext && ! $isApplicationComposeContext) {
             $app = Application::find((int) $requestData['application_id']);
             if ($app && $app->client_id) {
@@ -1612,7 +1526,6 @@ class AdminController extends Controller
 
         // Plain compose: log "Sent email" when no checklist/reminder activity was created
         $loggedChecklistOrReminder = $isChecklistContext
-            || (isset($requestData['checklistfile']) && ! empty($requestData['checklistfile']))
             || $isEmailReminderContext
             || (! empty($requestData['application_id']) && ! $isChecklistEmail && ! $isChecklistContext && ! $isEmailReminderContext && ! $isApplicationComposeContext);
         if ($saved && ! $loggedChecklistOrReminder) {
@@ -1774,27 +1687,6 @@ class AdminController extends Controller
             }
             $subject = str_replace('{DOB}', $client_dob, $subject);
             $message = str_replace('{DOB}', $client_dob, $message);
-
-            if (isset($requestData['checklistfile'])) {
-                if (! empty($requestData['checklistfile'])) {
-                    $checklistfiles = $requestData['checklistfile'];
-                    foreach ($checklistfiles as $checklistfile) {
-                        $filechecklist = UploadChecklist::where('id', $checklistfile)->first();
-                        if ($filechecklist && ! empty($filechecklist->file)) {
-                            $checkPath = public_path('checklists/'.$filechecklist->file);
-                            if (is_file($checkPath)) {
-                                $array['files'][] = $checkPath;
-                            } else {
-                                Log::warning('Compose skipped missing upload checklist file on send', [
-                                    'upload_checklist_id' => $filechecklist->id,
-                                    'file' => $filechecklist->file,
-                                    'path' => $checkPath,
-                                ]);
-                            }
-                        }
-                    }
-                }
-            }
 
             if (isset($requestData['checklistfile_document'])) {
                 if (! empty($requestData['checklistfile_document'])) {

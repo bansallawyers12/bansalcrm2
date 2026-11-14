@@ -1710,7 +1710,7 @@ use App\Http\Controllers\Controller;
 					            @icon('paperclip') Add Files
 					        </button>
 					        <button type="button" class="btn btn-link btn-sm p-0 ms-2 compose-attach-toggle" data-bs-toggle="collapse" data-bs-target="#composeChecklistDocuments" aria-expanded="false" aria-controls="composeChecklistDocuments">
-					            <span>▼ Checklist / Documents</span>
+					            <span>▼ Client documents</span>
 					        </button>
 					     </div>
 					     <div id="composeAttachFileList" class="compose-attach-file-list mt-1"></div>
@@ -1718,41 +1718,7 @@ use App\Http\Controllers\Controller;
                       
                          <div class="col-12 collapse" id="composeChecklistDocuments">
                             <div class="composeemail-tab">
-                                <ul class="nav nav-pills round_tabs" id="composeemails-tab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" data-bs-toggle="pill" id="composechecklist-tab" href="#composechecklist" role="tab" aria-controls="composechecklist" aria-selected="true">Checklist</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" data-bs-toggle="pill" id="composedocument-tab" href="#composedocument" role="tab" aria-controls="composedocument" aria-selected="false">Document List</a>
-                                    </li>
-                                </ul>
-
-                                <div class="tab-content" id="composeemailContent">
-                                    <div class="tab-pane fade show active" id="composechecklist" role="tabpanel" aria-labelledby="composechecklist-tab">
-                                        <div class="table-responsive uploadchecklists">
-
-                                            <table id="mychecklist-datatable" class="table text_wrap table-2 table-sm">
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                        <th style="white-space: initial;">File Name</th>
-                                                        <th style="white-space: initial;">File</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach(\App\Models\UploadChecklist::all() as $uclist)
-                                                    <tr>
-                                                        <td><input type="checkbox" name="checklistfile[]" value="{{$uclist->id}}" {{ old('checklistfile') && in_array($uclist->id, old('checklistfile', [])) ? 'checked' : '' }}></td>
-                                                        <td style="white-space: initial;">{{$uclist->name}}</td>
-                                                        <td style="white-space: initial;"><a target="_blank" href="{{ asset('checklists/'.$uclist->file) }}">{{$uclist->name}}</a></td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <div class="tab-pane fade" id="composedocument" role="tabpanel" aria-labelledby="composedocument-tab">
+                                <div id="composedocument">
                                         <table id="mydocumentlist-datatable" class="table text_wrap table-2 table-sm">
                                             <thead>
                                                 <tr>
@@ -1825,7 +1791,6 @@ use App\Http\Controllers\Controller;
                                                 @endforeach
                                             </tbody>
                                         </table>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2761,10 +2726,6 @@ $(document).ready(function() {
 					$('#emailmodal').data('composeRecipientsPending', data);
 				}
 				$('#composeChecklistDocuments').collapse('show');
-				var checklistTabEl = document.getElementById('composechecklist-tab');
-				if (checklistTabEl && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-					bootstrap.Tab.getOrCreateInstance(checklistTabEl).show();
-				}
 				$('#emailmodal').modal('show');
 			} else if (openEmailReminder === '1' && applicationId && $('#emailmodal').length) {
 				$('#sendmail_application_id').val(applicationId);

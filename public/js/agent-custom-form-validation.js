@@ -1578,7 +1578,7 @@ $('#add_application').modal('hide');
 												$('#emailmodal').data('composeRecipientsPending', checklistEntries);
 											}
 										}
-										$('#composechecklist-tab').tab('show');
+										$('#composeChecklistDocuments').collapse('show');
 										$('#emailmodal').modal('show');
 										$('#send_checklist_after').prop('checked', false);
 									}

@@ -22,7 +22,6 @@ import '@legacy/pages/admin/client-detail/document-rename.js';
 import '@legacy/pages/admin/client-detail/document-actions.js';
 import '@legacy/pages/admin/client-detail/document-categories.js';
 import '@legacy/pages/admin/client-detail/drag-drop-handlers.js';
-import '@legacy/pages/admin/client-detail/datatable-handlers.js';
 import '@legacy/pages/admin/client-detail/application-handlers.js';
 import '@legacy/pages/admin/client-detail/application-stage.js';
 import '@legacy/pages/admin/client-detail/commission-handlers.js';

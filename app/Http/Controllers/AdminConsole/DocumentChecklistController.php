@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\AdminConsole;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use App\Models\DocumentChecklist;
 use Config;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 
 class DocumentChecklistController extends Controller
@@ -24,13 +25,14 @@ class DocumentChecklistController extends Controller
     /**
      * Display a listing of the matters.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
-        $query = DocumentChecklist::query()->where('status',1);
+        $query = DocumentChecklist::query()->where('status', 1);
         $totalData = $query->count(); // for all data
-        $lists = $query->sortable(['id' => 'desc'])->paginate(100);
+        $lists = $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
+
         return view('AdminConsole.documentchecklist.index', compact(['lists', 'totalData']));
     }
 
@@ -41,16 +43,15 @@ class DocumentChecklistController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->isMethod('post'))
-        {
+        if ($request->isMethod('post')) {
             // Validation rules with unique check for nick_name and optional fields
             $this->validate($request, [
-                'name' => ['required','max:255',
+                'name' => ['required', 'max:255',
                     Rule::unique('document_checklists')->where(function ($query) {
                         return $query->where('doc_type', request('doc_type'));
-                    })
+                    }),
                 ],
-                'doc_type' => 'required'
+                'doc_type' => 'required',
             ]);
 
             $requestData = $request->all();
@@ -58,19 +59,19 @@ class DocumentChecklistController extends Controller
             $obj->name = $requestData['name'];
             $obj->doc_type = $requestData['doc_type'];
             $saved = $obj->save();
-            if (!$saved) {
+            if (! $saved) {
                 return redirect()->back()->with('error', Config::get('constants.server_error'));
             } else {
                 return Redirect::to('/adminconsole/documentchecklist')->with('success', 'Checklist Added Successfully');
             }
         }
+
         return view('AdminConsole.documentchecklist.create');
     }
 
-    public function edit(Request $request, $id = NULL)
+    public function edit(Request $request, $id = null)
     {
-        if ($request->isMethod('post'))
-        {
+        if ($request->isMethod('post')) {
             $requestData = $request->all();
             $checklistId = $requestData['id'];
             $doc_type = $requestData['doc_type'];
@@ -81,26 +82,25 @@ class DocumentChecklistController extends Controller
                     'max:255',
                     Rule::unique('document_checklists')->where(function ($query) use ($request) {
                         return $query->where('doc_type', $request->doc_type); // Correct access to doc_type from the request
-                    })->ignore($checklistId) // Ignore the current record being edited
-                ]
+                    })->ignore($checklistId), // Ignore the current record being edited
+                ],
             ]);
 
             $obj = DocumentChecklist::find($requestData['id']);
             $obj->name = $requestData['name'];
             $obj->doc_type = $requestData['doc_type'];
             $saved = $obj->save();
-            if (!$saved) {
+            if (! $saved) {
                 return redirect()->back()->with('error', Config::get('constants.server_error'));
             } else {
                 return Redirect::to('/adminconsole/documentchecklist')->with('success', 'Checklist Edited Successfully');
             }
-        }
-        else
-        {
-            if (isset($id) && !empty($id)) {
+        } else {
+            if (isset($id) && ! empty($id)) {
                 $id = $this->decodeString($id);
                 if (DocumentChecklist::where('id', '=', $id)->exists()) {
                     $fetchedData = DocumentChecklist::find($id);
+
                     return view('AdminConsole.documentchecklist.edit', compact(['fetchedData']));
                 } else {
                     return Redirect::to('/adminconsole/documentchecklist')->with('error', 'Checklist Not Exist');

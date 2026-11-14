@@ -1,19 +1,19 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PhoneHelper;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-
-use App\Models\Staff;
 use App\Models\FromEmail;
+use App\Models\Staff;
 use App\Models\StaffRole;
-
+use App\Services\CrmAccess\CrmAccessService;
 use Auth;
 use Config;
-use App\Helpers\PhoneHelper;
-use App\Services\CrmAccess\CrmAccessService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
@@ -34,9 +34,10 @@ class StaffController extends Controller
 
         // Staff roles only (exclude role 7 = client)
         $usertype = StaffRole::where('id', '!=', 7)->get();
-$emails = FromEmail::where('status', 1)->orderBy('email')->get();
+        $emails = FromEmail::where('status', 1)->orderBy('email')->get();
         $canManageCrmAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
-		return view('Admin.staff.create', compact(['usertype', 'emails', 'canManageCrmAccess']));
+
+        return view('Admin.staff.create', compact(['usertype', 'emails', 'canManageCrmAccess']));
     }
 
     public function store(Request $request)
@@ -68,7 +69,6 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             $obj->phone = @$requestData['phone'];
             $obj->role = @$requestData['role'];
             $obj->office_id = @$requestData['office'];
-            $obj->team = @$requestData['team'];
             $obj->verified = 1;
             $obj->status = 1;
             $obj->email_signature = $request->input('email_signature');
@@ -91,9 +91,10 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
             $saved = $obj->save();
 
-            if (!$saved) {
+            if (! $saved) {
                 return redirect()->back()->with('error', Config::get('constants.server_error'));
             }
+
             return redirect()->route('staff.active')->with('success', 'Staff added Successfully');
         }
 
@@ -114,7 +115,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             $this->validate($request, [
                 'first_name' => 'required|max:255',
                 'last_name' => 'required|max:255',
-                'email' => 'required|email|max:255|unique:staff,email,' . (@$requestData['id'] ?? 0),
+                'email' => 'required|email|max:255|unique:staff,email,'.(@$requestData['id'] ?? 0),
                 'phone' => 'required|max:255',
                 'office' => 'nullable|exists:branches,id',
             ]);
@@ -131,7 +132,6 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             $obj->phone = @$requestData['phone'];
             $obj->role = @$requestData['role'];
             $obj->office_id = @$requestData['office'];
-            $obj->team = @$requestData['team'];
 
             if (isset($requestData['permission']) && $requestData['permission'] != '') {
                 $obj->permission = implode(',', $requestData['permission']);
@@ -145,7 +145,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
                 $obj->show_dashboard_per = 0;
             }
             $obj->email_signature = $request->input('email_signature');
-            if (!empty(@$requestData['password'])) {
+            if (! empty(@$requestData['password'])) {
                 $obj->password = Hash::make(@$requestData['password']);
             }
             $obj->phone = @$requestData['phone'];
@@ -163,25 +163,29 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
             $saved = $obj->save();
 
-            if (!$saved) {
+            if (! $saved) {
                 return redirect()->back()->with('error', Config::get('constants.server_error'));
             }
+
             return redirect()->route('staff.view', ['id' => @$requestData['id']])->with('success', 'Staff Edited Successfully');
         }
 
-        if (isset($id) && !empty($id)) {
+        if (isset($id) && ! empty($id)) {
             $id = $this->decodeString($id);
             if ($id === false || $id === '') {
                 return redirect()->route('staff.active')->with('error', 'Invalid Staff ID');
             }
             if (Staff::where('id', '=', $id)->exists()) {
                 $fetchedData = Staff::with(['office'])->find($id);
-$emails = FromEmail::where('status', 1)->orderBy('email')->get();
+                $emails = FromEmail::where('status', 1)->orderBy('email')->get();
                 $canManageCrmAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
-				return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails', 'canManageCrmAccess']));
+
+                return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails', 'canManageCrmAccess']));
             }
+
             return redirect()->route('staff.active')->with('error', 'Staff Not Exist');
         }
+
         return redirect()->route('staff.active')->with('error', Config::get('constants.unauthorized'));
     }
 
@@ -234,6 +238,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
         if (Staff::where('id', '=', $id)->exists()) {
             $fetchedData = Staff::with('office')->find($id);
+
             return view('Admin.staff.view', compact(['fetchedData']));
         }
 
@@ -260,6 +265,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
         $totalData = $query->count();
         $lists = $query->orderby('first_name', 'ASC')->paginate(config('constants.limit'));
         $viewType = 'active';
+
         return view('Admin.staff.index', compact(['lists', 'totalData', 'viewType']));
     }
 
@@ -283,6 +289,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
         $totalData = $query->count();
         $lists = $query->orderby('first_name', 'ASC')->paginate(config('constants.limit'));
         $viewType = 'inactive';
+
         return view('Admin.staff.index', compact(['lists', 'totalData', 'viewType']));
     }
 
@@ -291,7 +298,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
      */
     private function applyStaffListSearch($query, string $searchTerm): void
     {
-        $like = '%' . $searchTerm . '%';
+        $like = '%'.$searchTerm.'%';
         $query->where(function ($q) use ($like) {
             $q->where('first_name', 'ILIKE', $like)
                 ->orWhere('last_name', 'ILIKE', $like)
@@ -305,7 +312,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
      * Roles UI module 3 (manage staff) or 4 (view staff list/details), or role 1.
      * checkAuthorizationAction: truthy = deny.
      *
-     * @return \Illuminate\Http\RedirectResponse|null
+     * @return RedirectResponse|null
      */
     private function redirectUnlessCanViewStaffDirectory()
     {
@@ -335,19 +342,19 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
         $squery = $request->likevalue ?? '';
         $fetchedData = Staff::where(function ($query) use ($squery) {
             return $query
-                ->where('email', 'ILIKE', '%' . $squery . '%')
-                ->orWhere('first_name', 'ILIKE', '%' . $squery . '%')
-                ->orWhere('last_name', 'ILIKE', '%' . $squery . '%')
-                ->orWhere('phone', 'ILIKE', '%' . $squery . '%')
-                ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ILIKE', '%' . $squery . '%');
+                ->where('email', 'ILIKE', '%'.$squery.'%')
+                ->orWhere('first_name', 'ILIKE', '%'.$squery.'%')
+                ->orWhere('last_name', 'ILIKE', '%'.$squery.'%')
+                ->orWhere('phone', 'ILIKE', '%'.$squery.'%')
+                ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ILIKE', '%'.$squery.'%');
         })->get();
 
         $agents = [];
         foreach ($fetchedData as $list) {
             $agents[] = [
                 'id' => $list->id,
-                'agent_id' => $list->first_name . ' ' . $list->last_name,
-                'assignee' => $list->first_name . ' ' . $list->last_name,
+                'agent_id' => $list->first_name.' '.$list->last_name,
+                'assignee' => $list->first_name.' '.$list->last_name,
             ];
         }
         echo json_encode($agents);
@@ -365,11 +372,11 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
         foreach (Staff::with('office')->where('status', 1)->orderby('first_name', 'ASC')->get() as $staff) {
             $staffId = (int) $staff->id;
             $officeName = $staff->office ? (string) $staff->office->office_name : '';
-            $label = trim(($staff->first_name ?? '') . ' ' . ($staff->last_name ?? '')) . ' (' . $officeName . ')';
+            $label = trim(($staff->first_name ?? '').' '.($staff->last_name ?? '')).' ('.$officeName.')';
             // Escape label text only — keep value as integer so Action popovers still bind staff id
             $optionLabel = e($label);
             $selected = ((string) $staffId === (string) $assignedto) ? ' selected' : '';
-            $content1[] = '<option value="' . $staffId . '"' . $selected . '>' . $optionLabel . '</option>';
+            $content1[] = '<option value="'.$staffId.'"'.$selected.'>'.$optionLabel.'</option>';
         }
         $response['status'] = true;
         $response['message'] = $content1;

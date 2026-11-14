@@ -227,15 +227,6 @@
                                 </select>
                             </div>
                             <div class="col-md-2 col-sm-6">
-                                <label class="form-label">Team</label>
-                                <select name="team_id" class="form-control">
-                                    <option value="">Any</option>
-                                    @foreach($teams as $t)
-                                        <option value="{{ $t->id }}" @selected(($filters['team_id'] ?? null) == $t->id)>{{ $t->name ?? ('Team #' . $t->id) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2 col-sm-6">
                                 <label class="form-label">Grant type</label>
                                 <select name="grant_type" class="form-control">
                                     <option value="">Any</option>

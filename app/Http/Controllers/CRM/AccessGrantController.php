@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Branch;
 use App\Models\ClientAccessGrant;
 use App\Models\Staff;
 use App\Services\CrmAccess\CrmAccessDeniedException;
@@ -101,11 +102,11 @@ class AccessGrantController extends Controller
             $encodeId = base64_encode(convert_uuencode($admin->id));
 
             return $admin->type === 'lead'
-                ? redirect()->to('/leads/detail/' . $encodeId)
-                : redirect()->to('/clients/detail/' . $encodeId);
+                ? redirect()->to('/leads/detail/'.$encodeId)
+                : redirect()->to('/clients/detail/'.$encodeId);
         }
 
-        $offices = \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
+        $offices = Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
         $reasons = config('crm_access.quick_reason_options', []);
         $quickEnabled = (bool) ($user->quick_access_enabled ?? false);
         $canSupervisor = StaffClientVisibility::staffMayUseSupervisorAccessPath($user);
@@ -122,7 +123,7 @@ class AccessGrantController extends Controller
         $user = Auth::guard('admin')->user();
 
         return response()->json([
-            'offices' => \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']),
+            'offices' => Branch::query()->orderBy('office_name')->get(['id', 'office_name']),
             'reasons' => config('crm_access.quick_reason_options', []),
             'quick_access_enabled' => (bool) ($user->quick_access_enabled ?? false),
             'can_supervisor' => StaffClientVisibility::staffMayUseSupervisorAccessPath($user),
@@ -187,8 +188,7 @@ class AccessGrantController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        $offices = \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
-        $teams = \App\Models\Team::query()->orderBy('name')->get(['id', 'name']);
+        $offices = Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
         $reasonLabels = config('crm_access.quick_reason_options', []);
 
         return view('crm.access.dashboard', compact(
@@ -200,7 +200,6 @@ class AccessGrantController extends Controller
             'pendingPreview',
             'grants',
             'offices',
-            'teams',
             'reasonLabels'
         ));
     }
@@ -215,10 +214,10 @@ class AccessGrantController extends Controller
 
         $filters = $this->validatedDashboardFilters($request);
 
-        $filename = 'grants-export-' . date('Y-m-d-His') . '.csv';
+        $filename = 'grants-export-'.date('Y-m-d-His').'.csv';
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
         $query = $this->grantsFilteredQuery($filters)
@@ -256,7 +255,7 @@ class AccessGrantController extends Controller
                 fputcsv($out, [
                     $g->id,
                     $g->staff_id,
-                    $g->staff ? trim(($g->staff->first_name ?? '') . ' ' . ($g->staff->last_name ?? '')) : '',
+                    $g->staff ? trim(($g->staff->first_name ?? '').' '.($g->staff->last_name ?? '')) : '',
                     $g->admin_id,
                     $g->record_type,
                     $g->grant_type,

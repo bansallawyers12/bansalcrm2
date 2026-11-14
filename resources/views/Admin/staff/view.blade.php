@@ -101,19 +101,6 @@ use App\Http\Controllers\Controller;
 							</p>
 							
 							<p class="clearfix">
-								<span class="float-start">Department:</span>
-								<?php
-								if($fetchedData->team != ""){
-								    $teamData = \App\Models\Team::select('name')->where('id', '=', $fetchedData->team)->first(); //dd($teamData);
-								    $teamname = $teamData->name;
-								} else {
-								    $teamname = "";
-								} ?>
-								<span class="float-end text-muted">{{$teamname}}</span>
-							</p>
-							
-							
-							<p class="clearfix">
 								<span class="float-start">Permission:</span>
 								<span class="float-end text-muted">
 

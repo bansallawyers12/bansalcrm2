@@ -7,49 +7,48 @@ return [
     | View All Constants
     |--------------------------------------------------------------------------
     |
-	| All Globally constants declare...
+    | All Globally constants declare...
     |
     */
-	'unlimited' => '1000000',
-	'limit' => '20',
-	'empty' => 'N/A',
-	'developer' =>'raghavgarg.jpiet@gmail.com',
-	'no_data' =>'There are no data in this table.',
-	'logoImg' => '/img/logo.png', 
-	'test_pdfs' => public_path().'/img/test_pdfs',
-	'test_suggestion_pdfs' => public_path().'/img/test_suggestion_pdfs',
-	'test_submitted_copies' => public_path().'/img/test_submitted_copies',
-	'test_reviewed_copies' => public_path().'/img/test_reviewed_copies',
-	'profile_imgs' => public_path().'/img/profile_imgs',
-	'invoice' => public_path().'/img/invoice', 
-	'pdfs' => public_path().'/img/pdfs',
-	'plans' => public_path().'/img/plans',
-	'service_imgs' => public_path().'/img/service_imgs',
-	'product_sample_img' => public_path().'/img/product_sample_img',
-	'cmspage' => public_path().'/img/cmspage',
-	'attach_files' => public_path().'/img/attach_files',
-	'attacment_file' => public_path().'/img/attacment_file',
-	'checklists' => public_path().'/checklists',
-	'blog' => public_path().'/img/blog',
-	'free_imgs' => public_path().'/img/free_downloads/free_imgs',
-	'free_audio' => public_path().'/img/free_downloads/audio',
-	'free_video' => public_path().'/img/free_downloads/video',
-	'free_pdf' => public_path().'/img/free_downloads/pdf',
-	
-	'logo' => public_path().'/img/logo',
-	'documents' => public_path().'/img/documents',
-    'client_receipts' => public_path().'/img/client_receipts',
-	
-	//error response
-	'server_error' =>'There are some error into server end, so please try again later.',	
-	'unauthorized' =>'You are not authorized person to access this page directly.',	
-	'exception' =>'There are some exception issue into your request, so please write the comment below, what you did face.',	
-	'post_method' =>'Method should be POST.',	
-	'decode_string' =>'Encode String can not be converted, We think, you did pass the value manually, so please do not this.',
-	'not_exist' => ' does not exist in our system, so please check it once again.',	
-	'added' => ' has been added successfully.',	
-	'edited' => ' has been edited successfully.',	
+    'unlimited' => '1000000',
+    'limit' => '20',
+    'empty' => 'N/A',
+    'developer' => 'raghavgarg.jpiet@gmail.com',
+    'no_data' => 'There are no data in this table.',
+    'logoImg' => '/img/logo.png',
+    'test_pdfs' => public_path().'/img/test_pdfs',
+    'test_suggestion_pdfs' => public_path().'/img/test_suggestion_pdfs',
+    'test_submitted_copies' => public_path().'/img/test_submitted_copies',
+    'test_reviewed_copies' => public_path().'/img/test_reviewed_copies',
+    'profile_imgs' => public_path().'/img/profile_imgs',
+    'invoice' => public_path().'/img/invoice',
+    'pdfs' => public_path().'/img/pdfs',
+    'plans' => public_path().'/img/plans',
+    'service_imgs' => public_path().'/img/service_imgs',
+    'product_sample_img' => public_path().'/img/product_sample_img',
+    'cmspage' => public_path().'/img/cmspage',
+    'attach_files' => public_path().'/img/attach_files',
+    'attacment_file' => public_path().'/img/attacment_file',
+    'blog' => public_path().'/img/blog',
+    'free_imgs' => public_path().'/img/free_downloads/free_imgs',
+    'free_audio' => public_path().'/img/free_downloads/audio',
+    'free_video' => public_path().'/img/free_downloads/video',
+    'free_pdf' => public_path().'/img/free_downloads/pdf',
 
-	// Office visit / In Person: reception Staff id (auth guard admin). Gets popup when assignee clicks Waiting on the waiting list, and when assignee clicks "Pls Send The Client" on the assignment popup.
-	'reception_user_id' => env('RECEPTION_USER_ID', 22136),
+    'logo' => public_path().'/img/logo',
+    'documents' => public_path().'/img/documents',
+    'client_receipts' => public_path().'/img/client_receipts',
+
+    // error response
+    'server_error' => 'There are some error into server end, so please try again later.',
+    'unauthorized' => 'You are not authorized person to access this page directly.',
+    'exception' => 'There are some exception issue into your request, so please write the comment below, what you did face.',
+    'post_method' => 'Method should be POST.',
+    'decode_string' => 'Encode String can not be converted, We think, you did pass the value manually, so please do not this.',
+    'not_exist' => ' does not exist in our system, so please check it once again.',
+    'added' => ' has been added successfully.',
+    'edited' => ' has been edited successfully.',
+
+    // Office visit / In Person: reception Staff id (auth guard admin). Gets popup when assignee clicks Waiting on the waiting list, and when assignee clicks "Pls Send The Client" on the assignment popup.
+    'reception_user_id' => env('RECEPTION_USER_ID', 22136),
 ];

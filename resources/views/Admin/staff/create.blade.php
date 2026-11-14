@@ -146,18 +146,6 @@
 
 
 
-								<div class="form-group">
-									<label for="role">Department (Team)</label>
-									<select name="team" id="team" class="form-control" data-valid="" autocomplete="new-password">
-										<option value="">Choose One...</option>
-
-											@foreach (\App\Models\Team::all() as $tm)
-												<option value="{{ @$tm->id }}">{{ @$tm->name }}</option>
-											@endforeach
-
-									</select>
-                                </div>
-                                
                                  <div class="form-group">
                                     <label for="role">Permission</label>
 							    	<br><b>Notes</b>  &nbsp;&nbsp;&nbsp;&nbsp;

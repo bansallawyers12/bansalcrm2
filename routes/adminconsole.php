@@ -16,8 +16,6 @@ use App\Http\Controllers\Admin\FollowupCalendarBlockTimingController;
 use App\Http\Controllers\Admin\FollowupCalendarSettingController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StaffroleController;
-use App\Http\Controllers\Admin\TeamController;
-use App\Http\Controllers\Admin\UploadChecklistController;
 use App\Http\Controllers\AdminConsole\ChecklistController;
 use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
 use App\Http\Controllers\AdminConsole\DocumentCategoryController as AdminConsoleDocumentCategoryController;
@@ -161,24 +159,12 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function () {
     Route::get('/staff/active', [StaffController::class, 'active'])->name('adminconsole.staff.active');
     Route::get('/staff/inactive', [StaffController::class, 'inactive'])->name('adminconsole.staff.inactive');
 
-    // Teams Routes
-    Route::get('/teams', [TeamController::class, 'index'])->name('adminconsole.teams.index');
-    Route::get('/teams/edit/{id}', [TeamController::class, 'edit'])->name('adminconsole.teams.edit');
-    Route::post('/teams/edit', [TeamController::class, 'edit'])->name('adminconsole.teams.update');
-    Route::post('/teams/store', [TeamController::class, 'store'])->name('adminconsole.teams.store');
-
     // Staff Role Routes
     Route::get('/staffrole', [StaffroleController::class, 'index'])->name('adminconsole.staffrole.index');
     Route::get('/staffrole/create', [StaffroleController::class, 'create'])->name('adminconsole.staffrole.create');
     Route::post('/staffrole/store', [StaffroleController::class, 'store'])->name('adminconsole.staffrole.store');
     Route::get('/staffrole/edit/{id}', [StaffroleController::class, 'edit'])->name('adminconsole.staffrole.edit');
     Route::post('/staffrole/edit', [StaffroleController::class, 'edit'])->name('adminconsole.staffrole.update');
-
-    // Upload Checklists Routes
-    Route::get('/upload-checklists', [UploadChecklistController::class, 'index'])->name('adminconsole.upload_checklists.index');
-    Route::post('/upload-checklists/store', [UploadChecklistController::class, 'store'])->name('adminconsole.upload_checklists.store');
-    Route::get('/upload-checklists/edit/{id}', [UploadChecklistController::class, 'edit'])->name('adminconsole.upload_checklists.edit');
-    Route::post('/upload-checklists/edit/{id}', [UploadChecklistController::class, 'update'])->name('adminconsole.upload_checklists.update');
 
     // Email Labels Routes
     Route::get('/email-labels', [EmailLabelController::class, 'index'])->name('adminconsole.emaillabels.index');
