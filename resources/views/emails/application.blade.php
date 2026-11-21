@@ -108,11 +108,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Application</td>
+							<td colspan="5" style="color:#0369a1 ;">Application</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -133,11 +133,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Acceptance</td>
+							<td colspan="5" style="color:#0369a1 ;">Acceptance</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -159,11 +159,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Payment</td>
+							<td colspan="5" style="color:#0369a1 ;">Payment</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -184,11 +184,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Form I 20</td>
+							<td colspan="5" style="color:#0369a1 ;">Form I 20</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -209,11 +209,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Visa Application</td>
+							<td colspan="5" style="color:#0369a1 ;">Visa Application</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -234,11 +234,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Interview</td>
+							<td colspan="5" style="color:#0369a1 ;">Interview</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -259,11 +259,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Enrolment</td>
+							<td colspan="5" style="color:#0369a1 ;">Enrolment</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -284,11 +284,11 @@
 				<thead>
 					<tr >
 						<td>
-							<td colspan="5" style="color:#3abaf4 ;">Course Ongoing</td>
+							<td colspan="5" style="color:#0369a1 ;">Course Ongoing</td>
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5"><hr style="border-color:#3abaf4;"/></td>
+						<td colspan="5"><hr style="border-color:#0369a1;"/></td>
 					</tr>
 				</thead>
 				<tbody>

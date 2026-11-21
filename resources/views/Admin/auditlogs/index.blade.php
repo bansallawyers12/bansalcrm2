@@ -31,7 +31,7 @@
 .audit-kpi-card.kpi-login::before { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
 .audit-kpi-card.kpi-logout::before { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
 .audit-kpi-card.kpi-active::before { background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%); }
-.audit-kpi-card.kpi-week::before { background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%); }
+.audit-kpi-card.kpi-week::before { background: #4f46e5; }
 .audit-kpi-card.kpi-top::before { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); }
 .audit-kpi-card h6 { font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 600; }
 .audit-kpi-card .kpi-value { font-size: 1.5rem; font-weight: 700; color: #1f2937; }
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
             grid: { padding: { left: 0, right: 0, top: 4, bottom: 0 } },
             series: [{ name: 'Logins', data: trendValues }],
             xaxis: { categories: trendLabels, labels: { style: { fontSize: '11px' } } },
-            colors: ['#8b5cf6'],
+            colors: ['#4f46e5'],
         }).render();
     }
     }

@@ -31,7 +31,7 @@
     .insights-kpi-card.kpi-conv::before { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
     .insights-kpi-card.kpi-seen::before { background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%); }
     .insights-kpi-card.kpi-disc::before { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
-    .insights-kpi-card.kpi-rate::before { background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%); }
+    .insights-kpi-card.kpi-rate::before { background: #4f46e5; }
     .insights-kpi-card h6 { font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 600; }
     .insights-kpi-card .kpi-value { font-size: 2rem; font-weight: 700; color: #1f2937; }
     .insights-chart-card {

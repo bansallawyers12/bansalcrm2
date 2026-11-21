@@ -901,7 +901,7 @@ use App\Http\Controllers\Controller;
                                                         {{@$productdetail->name}}
 
                                                         <?php if( $application_assign_count > 0 ) { ?>
-                                                           <span class="countTotalActivityAction" style="background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;">{{ $application_assign_count }}</span>
+                                                           <span class="countTotalActivityAction" style="background: #4f46e5;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;">{{ $application_assign_count }}</span>
                                                         <?php } ?>
                                                       </a>
                                                       <small>{{@$partnerdetail->partner_name}} ({{@$PartnerBranch->name}})</small>

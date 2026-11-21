@@ -33,7 +33,7 @@
         .success-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: #0f766e;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -216,7 +216,7 @@
         // Create confetti effect
         function createConfetti() {
             const confettiContainer = document.getElementById('confetti');
-            const colors = ['#4f46e5', '#764ba2', '#28a745', '#ffd700', '#ff6b6b', '#4ecdc4'];
+            const colors = ['#4f46e5', '#4338ca', '#28a745', '#ffd700', '#ff6b6b', '#4ecdc4'];
             
             for (let i = 0; i < 50; i++) {
                 const piece = document.createElement('div');

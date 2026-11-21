@@ -50,7 +50,7 @@
 }
 
 .main-content .section-body .card-header {
-	background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+	background: #f7f8fa;
 	border-bottom: 2px solid #cbd5e1;
 	padding: 24px 30px;
 	margin: 0;

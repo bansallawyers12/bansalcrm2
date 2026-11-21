@@ -1,7 +1,7 @@
 {{-- Schedule Follow-up — opened from client detail “Add follow-up” icon --}}
 <style>
 #scheduleFollowupModal .modal-header.schedule-followup-header {
-	background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+	background: #4f46e5;
 	color: #fff;
 	border-bottom: none;
 }
@@ -37,7 +37,7 @@
 	overflow: visible;
 }
 #scheduleFollowupModal .schedule-section-card-head {
-	background: linear-gradient(135deg, rgba(79, 70, 229, 0.14) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(59, 130, 246, 0.08) 100%);
+	background: #eef2ff;
 	padding: 11px 14px;
 	min-height: 46px;
 	border-bottom: 1px solid rgba(148, 163, 184, 0.3);
@@ -370,7 +370,7 @@
 	height: 56px;
 	margin-bottom: 14px;
 	border-radius: 50%;
-	background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
+	background: #eef2ff;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -415,12 +415,12 @@
 }
 #scheduleFollowupModal .schedule-slot-btn.is-active {
 	border-color: #4f46e5;
-	background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+	background: #4f46e5;
 	color: #fff;
 	box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
 }
 #scheduleFollowupModal .schedule-followup-footer-actions .btn-schedule-followup {
-	background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+	background: #4f46e5;
 	border: none;
 	font-weight: 600;
 }

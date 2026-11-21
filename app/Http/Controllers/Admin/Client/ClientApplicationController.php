@@ -239,7 +239,7 @@ class ClientApplicationController extends Controller
                   <a class="openapplicationdetail" data-id="<?php echo $alist->id; ?>" href="javascript:;" style="display:block;">
                   <?php echo @$productdetail->name; ?>
                   <?php if ($application_assign_count > 0) { ?>
-                            <span class="countTotalActivityAction" style="background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;"><?php echo $application_assign_count; ?></span>
+                            <span class="countTotalActivityAction" style="background: #4f46e5;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;"><?php echo $application_assign_count; ?></span>
                   <?php } ?>
                   </a> 
                   <small><?php echo @$partnerdetail->partner_name; ?>(<?php echo @$PartnerBranch->name; ?>)</small>

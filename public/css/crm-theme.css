@@ -120,9 +120,12 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a {
 
 .form-control:focus,
 .form-select:focus,
-.custom-select:focus {
-	border-color: var(--crm-primary);
-	box-shadow: 0 0 0 3px var(--crm-primary-tint);
+.custom-select:focus,
+input:focus:invalid,
+textarea:focus:invalid,
+select:focus:invalid {
+	border-color: var(--crm-primary) !important;
+	box-shadow: 0 0 0 3px var(--crm-primary-tint) !important;
 }
 
 .btn-primary,
@@ -263,4 +266,60 @@ table.table thead th {
 	color: var(--crm-muted);
 	font-weight: 600;
 	border-bottom-color: var(--crm-border);
+}
+
+.text-primary,
+.text-primary-all,
+.text-primary-all * {
+	color: var(--crm-primary) !important;
+}
+
+.text-success,
+.text-success-all,
+.text-success-all * {
+	color: var(--crm-success) !important;
+}
+
+.text-warning,
+.text-warning-all,
+.text-warning-all * {
+	color: var(--crm-warning) !important;
+}
+
+.text-danger,
+.text-danger-all,
+.text-danger-all * {
+	color: var(--crm-danger) !important;
+}
+
+.text-info,
+.text-info-all,
+.text-info-all * {
+	color: var(--crm-info) !important;
+}
+
+.progress-bar,
+.progress-bar.bg-primary {
+	background-color: var(--crm-primary) !important;
+}
+
+.btn-outline-primary {
+	color: var(--crm-primary) !important;
+	border-color: var(--crm-primary) !important;
+	background-color: transparent !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+	color: #fff !important;
+	background-color: var(--crm-primary) !important;
+	border-color: var(--crm-primary) !important;
+}
+
+.countbell,
+.countAction,
+.countaction,
+.countTotalActivityAction {
+	background-color: var(--crm-primary) !important;
+	color: #fff !important;
 }

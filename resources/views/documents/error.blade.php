@@ -33,7 +33,7 @@
         .error-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            background: #be123c;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -41,10 +41,10 @@
             margin: 0 auto 30px;
         }
         .error-icon.warning {
-            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            background: #b45309;
         }
         .error-icon.cancelled {
-            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            background: #334155;
         }
         .error-icon i {
             font-size: 48px;

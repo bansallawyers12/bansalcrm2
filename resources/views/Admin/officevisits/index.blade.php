@@ -4,7 +4,7 @@
 @section('content')
 
 <style>
-.countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
+.countAction {background: #4f46e5;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
 </style>
 
 @php

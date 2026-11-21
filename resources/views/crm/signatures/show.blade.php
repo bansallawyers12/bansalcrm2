@@ -148,7 +148,7 @@
     }
     .btn-action-success {
         width: 100%;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: #0f766e;
         color: white;
         padding: 12px 20px;
         border-radius: 8px;

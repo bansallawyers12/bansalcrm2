@@ -10,7 +10,7 @@
     /* Dashboard Section */
     .main-content .section {
         padding: 0.5rem 0;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: #f7f8fa;
         min-height: calc(100vh - 100px);
     }
     
@@ -114,7 +114,7 @@
     }
     
     .card-content a:hover {
-        color: #5568d3;
+        color: #4338ca;
         text-decoration: underline;
     }
     
@@ -247,12 +247,12 @@
     }
     
     .login-stats .badge-success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: #0f766e;
         color: #ffffff;
     }
     
     .login-stats .badge-warning {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: #b45309;
         color: #ffffff;
     }
     
@@ -369,7 +369,7 @@
     
     /* Button Improvements */
     .btn-primary {
-        background: linear-gradient(135deg, #4f46e5 0%, #5568d3 100%);
+        background: #4f46e5;
         border: none;
         border-radius: 8px;
         padding: 0.5rem 1.25rem;
@@ -391,7 +391,7 @@
     }
     
     .card_body table tbody tr td a:hover {
-        color: #5568d3;
+        color: #4338ca;
         text-decoration: underline;
     }
     
@@ -660,7 +660,7 @@
 						</p>
 					</div>
 					<div>
-						<span class="badge badge-primary" style="background: linear-gradient(135deg, #4f46e5 0%, #5568d3 100%); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;">
+						<span class="badge badge-primary" style="background: #4f46e5; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;">
 							@icon('calendar') {{ date('l, F j, Y') }}
 						</span>
 					</div>
@@ -1061,7 +1061,7 @@
 <div class="modal fade" id="completeActionModal" tabindex="-1" role="dialog" aria-labelledby="completeActionModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
+            <div class="modal-header" style="background: #0f766e; color: #fff;">
                 <h5 class="modal-title" id="completeActionModalLabel">
                     @icon('check-circle') Complete Action
                 </h5>

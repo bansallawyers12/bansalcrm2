@@ -462,12 +462,12 @@ i[style*="color:rgba"] {
 	<div class="teams-notification-container" id="teamsNotificationContainer" aria-label="Office visit notifications"></div>
 	<style>
 		.teams-notification-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column-reverse; gap: 12px; max-width: 360px; }
-		.teams-notification-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.15); border-left: 4px solid #1f1655; overflow: hidden; animation: teamsNotificationIn 0.25s ease; }
+		.teams-notification-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.15); border-left: 4px solid #4f46e5; overflow: hidden; animation: teamsNotificationIn 0.25s ease; }
 		@keyframes teamsNotificationIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
 		.teams-notification-card.minimized { max-height: 48px; }
 		.teams-notification-card.minimized .teams-notification-body { display: none; }
 		.teams-notification-header { padding: 10px 12px; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-		.teams-notification-header h6 { margin: 0; font-size: 14px; font-weight: 600; color: #1f1655; }
+		.teams-notification-header h6 { margin: 0; font-size: 14px; font-weight: 600; color: #4f46e5; }
 		.teams-notification-actions { display: flex; gap: 4px; }
 		.teams-notification-actions button { padding: 2px 8px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
 		.teams-notification-body { padding: 12px; font-size: 13px; }

@@ -1,7 +1,7 @@
 .my-day-diary {
     margin: 0 0 1.5rem;
     padding: 1rem 1.25rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e6e8ee;
     border-radius: 12px;
     background: #fff;
     scroll-margin-top: 80px;
@@ -19,11 +19,11 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #374151;
+    color: #0f172a;
 }
 .my-day-diary-sub {
     margin: 0.25rem 0 0;
-    color: #6b7280;
+    color: #64748b;
     font-size: 0.875rem;
 }
 .my-day-diary-section {
@@ -33,7 +33,7 @@
 .my-day-diary-section summary {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #4b5563;
+    color: #334155;
     margin-bottom: 0.5rem;
 }
 .my-day-diary-list {
@@ -59,7 +59,7 @@
     text-underline-offset: 2px;
 }
 .my-day-diary-list a.my-day-diary-ref:hover {
-    color: #2563eb;
+    color: #4f46e5;
 }
 .my-day-auto li {
     border-left: 3px solid #4f46e5;
@@ -71,7 +71,7 @@
     color: #64748b;
 }
 .my-day-manual {
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #e6e8ee;
     padding-top: 0.75rem;
 }
 .my-day-diary-chip {
@@ -88,7 +88,7 @@
     margin: 0.75rem 0;
     padding: 0.75rem;
     background: #f8fafc;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e6e8ee;
     border-radius: 8px;
     white-space: pre-wrap;
     font-size: 0.8rem;
@@ -112,7 +112,7 @@
     display: block;
     width: 100%;
     text-align: left;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e6e8ee;
     background: #fff;
     padding: 0.4rem 0.55rem;
     margin-bottom: 0.25rem;
@@ -150,7 +150,7 @@
     padding: 0;
     border: 0;
     background: none;
-    color: #2563eb;
+    color: #4f46e5;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
@@ -162,7 +162,7 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: #2563eb;
+    color: #4f46e5;
     font-size: inherit;
     font-weight: 600;
     cursor: pointer;
@@ -195,7 +195,7 @@
 }
 .my-day-auto-event {
     padding: 0.65rem 0.75rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e6e8ee;
     border-radius: 8px;
     background: #f9fafb;
 }
@@ -203,7 +203,7 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: #6b7280;
+    color: #64748b;
     margin-bottom: 0.15rem;
 }
 .my-day-auto-event-title {
@@ -217,12 +217,12 @@
     text-underline-offset: 2px;
 }
 .my-day-auto-event-title a:hover {
-    color: #2563eb;
+    color: #4f46e5;
 }
 .my-day-auto-event-meta {
     margin-top: 0.2rem;
     font-size: 0.78rem;
-    color: #6b7280;
+    color: #64748b;
 }
 .my-day-auto-event-meta a {
     color: inherit;
@@ -230,6 +230,6 @@
 }
 .my-day-auto-events-empty {
     margin: 0;
-    color: #6b7280;
+    color: #64748b;
     font-size: 0.875rem;
 }

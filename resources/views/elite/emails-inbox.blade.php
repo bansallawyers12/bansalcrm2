@@ -47,7 +47,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     font-size: 11px;
     font-weight: 500;
     margin-left: 8px;
-    font-family: Nunito, "Segoe UI", system-ui, sans-serif;
+    font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
     vertical-align: middle;
     letter-spacing: 0;
 }

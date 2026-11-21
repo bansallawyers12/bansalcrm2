@@ -7,7 +7,7 @@
 #openassigneview .modal-body ul.navbar-nav li .dropdown-menu{transform: none!important; top:40px!important;}
 .sort_col a { color: #212529 !important; font-weight: 700 !important;}
 .group_type_section a.active {color:black;}
-.countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
+.countAction {background: #4f46e5;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
 .table:not(.table-sm) thead th {background-color:#fff !important;height: 60px;vertical-align: middle;padding: 0 10px !important;color: #212529;font-size: 15px;}
 .card .card-body table.table thead tr th {padding: 0px 10px!important;}
 .uniqueClassName {text-align: center;}

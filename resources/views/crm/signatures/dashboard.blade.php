@@ -34,11 +34,11 @@
     }
     
     .stat-card.pending {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: #be123c;
     }
     
     .stat-card.signed {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: #0369a1;
     }
     
     .stat-card h3 {

@@ -69,7 +69,7 @@
 
 .card .card-body .form-group .span_note, .modal .modal-body .form-group .span_note{font-size:10px;line-height:14px;display: block;margin-top: 4px;}
 .card .card-body .invoice-detail-item .invoice-detail-name{letter-spacing: 0.3px;color: #98a6ad;margin-bottom: 4px;}
-.card .card-body .invoice-detail-item .invoice-detail-value{font-size: 18px;color: #34395e;font-weight: 700;}
+.card .card-body .invoice-detail-item .invoice-detail-value{font-size: 18px;color: #0f172a;font-weight: 700;}
 .card .card-body table.vertical_align tbody tr td{vertical-align:top;}
 .card .card-body table.table thead tr th{padding: 8px 5px!important;} 
 .card .card-body table.table tbody tr td{padding: 0px 5px!important;font-size: 13px;line-height: 18px;} 
@@ -819,7 +819,7 @@ text-overflow: ellipsis;white-space: nowrap;}
 .client_task a:hover{text-decoration:none;}
 
 .navbar ul.navbar-nav li.dropdown-list-toggle a.notification-toggle{position:relative;}
-.navbar ul.navbar-nav li.dropdown-list-toggle a.notification-toggle span.countbell{position: absolute;top: 0px;right: 5px;font-size: 11px;line-height: 14px;color: #fff;background: #1f1655;border-radius: 50%;display: inline-block;padding: 3px 6px;}
+.navbar ul.navbar-nav li.dropdown-list-toggle a.notification-toggle span.countbell{position: absolute;top: 0px;right: 5px;font-size: 11px;line-height: 14px;color: #fff;background: #4f46e5;border-radius: 50%;display: inline-block;padding: 3px 6px;}
 
 /* Fix: Profile dropdown cutting off on the right - ensure dropdown isn't clipped by overflow */
 .main-navbar,
@@ -858,8 +858,9 @@ text-overflow: ellipsis;white-space: nowrap;}
 .popover{
     max-width: 600px !important;
 }
-.popover-content, .badge.badge-info {
-    background-color: #3abaf4 !important;
+.popover-content {
+    background-color: #f0f9ff !important;
+    color: #0369a1;
 }
 
 
@@ -886,7 +887,7 @@ input:invalid,
 textarea:invalid,
 select:invalid {
 	box-shadow: none !important;
-	border-color: inherit !important;
+	border-color: #e6e8ee !important;
 	outline: none !important;
 	text-decoration: none !important;
 	text-decoration-line: none !important;
@@ -897,7 +898,7 @@ form[novalidate] input:invalid,
 form[novalidate] textarea:invalid,
 form[novalidate] select:invalid {
 	box-shadow: none !important;
-	border-color: inherit !important;
+	border-color: #e6e8ee !important;
 	outline: none !important;
 	text-decoration: none !important;
 	text-decoration-line: none !important;
@@ -926,7 +927,7 @@ form[name="add-leads"] input:invalid,
 form[name="add-leads"] textarea:invalid,
 form[name="add-leads"] select:invalid {
 	box-shadow: none !important;
-	border-color: inherit !important;
+	border-color: #e6e8ee !important;
 	outline: none !important;
 	text-decoration: none !important;
 	text-decoration-line: none !important;
@@ -2212,7 +2213,7 @@ select.form-control:focus {
 }
 
 .activity-type-dropdown-item.active:hover {
-	background-color: #5568d3 !important;
+	background-color: #4338ca !important;
 }
 
 /* Native scrollbars (replaces jQuery NiceScroll) */

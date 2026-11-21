@@ -1052,8 +1052,8 @@ td .dropdown-menu {
 }
 
 .activity-type-btn.active:hover {
-	background: #5568d3;
-	border-color: #5568d3;
+	background: #4338ca;
+	border-color: #4338ca;
 }
 
 .activity-type-btn.dropdown-toggle.active {
@@ -1072,7 +1072,7 @@ td .dropdown-menu {
 }
 
 .activity-type-dropdown-item.active:hover {
-	background-color: #5568d3;
+	background-color: #4338ca;
 }
 
 .date-filter {

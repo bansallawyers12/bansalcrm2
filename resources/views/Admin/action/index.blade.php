@@ -6,7 +6,7 @@
 .fc-event-container .fc-h-event{cursor:pointer;}
 .sort_col a { color: #212529 !important; font-weight: 700 !important;}
 .group_type_section a.active {color:black;}
-.countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
+.countAction {background: #4f46e5;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
 .table:not(.table-sm) thead th {background-color:#fff !important;height: 60px;vertical-align: middle;padding: 0 10px !important;color: #212529;font-size: 15px;}
 .card .card-body table.table thead tr th {padding: 0px 10px!important;}
 .uniqueClassName {text-align: center;}
@@ -254,7 +254,7 @@
 <div class="modal fade" id="completeActionModal" tabindex="-1" role="dialog" aria-labelledby="completeActionModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
+            <div class="modal-header" style="background: #0f766e; color: #fff;">
                 <h5 class="modal-title" id="completeActionModalLabel">
                     @icon('check-circle') Complete Action
                 </h5>

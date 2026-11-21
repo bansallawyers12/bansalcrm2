@@ -103,7 +103,7 @@
 
 			<!--<li class="dropdown {{-- @$assigneetype --}}"><!--
 				<a href="#" class="menu-toggle nav-link has-dropdown">
-                    @icon('check')<span>Activity   <span class="countAction" style="background: #1f1655;
+                    @icon('check')<span>Activity   <span class="countAction" style="background: #4f46e5;
 					padding: 0px 5px;
 					border-radius: 50%;
 					color: #fff;">{{-- $assigneesCount --}}</span></span></a>
@@ -273,7 +273,7 @@
 	
 									?>
 			<!--<li class="dropdown {{--@$clientclasstype--}}">
-				<a href="{{--URL::to('/action-calendar/')--}}" class="nav-link">@icon('user')<span>Today Actions <span class="countaction" style="background: #1f1655;
+				<a href="{{--URL::to('/action-calendar/')--}}" class="nav-link">@icon('user')<span>Today Actions <span class="countaction" style="background: #4f46e5;
     padding: 0px 5px;
     border-radius: 50%;
     color: #fff;">{{--$countaction--}}</span></span></a>

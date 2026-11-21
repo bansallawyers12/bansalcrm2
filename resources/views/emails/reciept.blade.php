@@ -29,7 +29,7 @@
 							<b>Phone:</b> {{ $crmProfile ? $crmProfile->phone : '' }}</p>
 						</td>
 						<td style="text-align: right;">
-							<h2 style="color:#3abaf4">RECEIPT</h2>
+							<h2 style="color:#0369a1">RECEIPT</h2>
 						</td>
 					</tr>
 					<tr>
