@@ -198,7 +198,7 @@
 											<td style="white-space: initial;">{{ @$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...') }}<br/>{{ @$list->country == "" ? config('constants.empty') : str_limit(@$list->country, '50', '...') }}</td> 
 											<td style="white-space: initial;">{{ $list->products_count }}</td> 
 											
-											<!--<td><span class="ag-label--circular" style="color: #6777ef" >In Progress</span></td>-->	
+											<!--<td><span class="ag-label--circular" style="color: #4f46e5" >In Progress</span></td>-->	
 											<td>
 												<div class="dropdown d-inline">
 													<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>

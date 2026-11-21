@@ -26,7 +26,7 @@
     }
     
     .stat-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #4f46e5;
         padding: 20px;
         border-radius: 10px;
         color: white;
@@ -74,9 +74,9 @@
     }
     
     .nav-tabs .nav-link.active {
-        color: #667eea;
+        color: #4f46e5;
         background: transparent;
-        border-bottom: 2px solid #667eea;
+        border-bottom: 2px solid #4f46e5;
     }
     
     .documents-table {
@@ -111,7 +111,7 @@
     }
     
     .document-link:hover {
-        color: #667eea;
+        color: #4f46e5;
     }
     
     .badge-status {
@@ -126,7 +126,7 @@
     .badge-signed { background: #28a745; color: white; }
     
     .btn-primary-custom {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #4f46e5;
         color: white;
         padding: 10px 20px;
         border-radius: 8px;

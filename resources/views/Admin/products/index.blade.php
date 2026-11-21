@@ -90,7 +90,7 @@
 													<td style="white-space: initial;">{{@$partner->partner_name}}</td> 
 													<td style="white-space: initial;">{{ @$list->product_type == "" ? config('constants.empty') : str_limit(@$list->product_type, '50', '...') }}</td>
 													<td style="white-space: initial;"> - </td>
-													<td><span class="ag-label--circular" style="color: #6777ef" >In Progress</span></td>
+													<td><span class="ag-label--circular" style="color: #4f46e5" >In Progress</span></td>
 													<td style="white-space: initial;">{{@$partnerbranch->name}} ({{@$partnerbranch->city}})</td> 
 													<td>
 														<div class="dropdown d-inline">

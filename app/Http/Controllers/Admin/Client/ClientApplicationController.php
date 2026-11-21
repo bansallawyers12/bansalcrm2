@@ -248,9 +248,9 @@ class ClientApplicationController extends Controller
 				<td><?php echo @$alist->stage; ?></td>
 				<td>
                     <?php if ($alist->status == 0) { ?>
-                        <span class="ag-label--circular" style="color: #6777ef" >In Progress</span>
+                        <span class="ag-label--circular" style="color: #4f46e5" >In Progress</span>
                     <?php } elseif ($alist->status == 1) { ?>
-                        <span class="ag-label--circular" style="color: #6777ef" >Completed</span>
+                        <span class="ag-label--circular" style="color: #4f46e5" >Completed</span>
                     <?php } elseif ($alist->status == 2) { ?>
                         <span class="ag-label--circular" style="color: red;" >Discontinued</span>
                     <?php } elseif ($alist->status == 3) { ?>

@@ -35,14 +35,14 @@
     left: 0 !important;
     width: 50px !important;
     height: 2px !important;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    background: linear-gradient(90deg, #4f46e5, #8b5cf6) !important;
     border-radius: 2px !important;
 }
 
 .form-section h3 i {
-    color: #6366f1 !important;
+    color: #4f46e5 !important;
     font-size: 14px !important;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    background: linear-gradient(135deg, #4f46e5, #8b5cf6) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -80,15 +80,15 @@
     left: 0 !important;
     width: 50px !important;
     height: 2px !important;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    background: linear-gradient(90deg, #4f46e5, #8b5cf6) !important;
     border-radius: 2px !important;
 }
 
 .card-body .form-section h3 i,
 .section-card .form-section h3 i {
-    color: #6366f1 !important;
+    color: #4f46e5 !important;
     font-size: 14px !important;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    background: linear-gradient(135deg, #4f46e5, #8b5cf6) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -182,7 +182,7 @@
     height: 18px;
     margin: 0;
     cursor: pointer;
-    accent-color: #6366f1;
+    accent-color: #4f46e5;
     flex-shrink: 0;
     position: relative;
     z-index: 2;
@@ -202,18 +202,18 @@
 }
 
 .naati-checkbox-item input[type="checkbox"]:checked ~ .naati-checkbox-label {
-    color: #6366f1 !important;
+    color: #4f46e5 !important;
     font-weight: 600 !important;
 }
 
 .naati-checkbox-item:has(input[type="checkbox"]:checked),
 .naati-checkbox-item.checked {
-    border-color: #6366f1 !important;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05)) !important;
+    border-color: #4f46e5 !important;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05)) !important;
 }
 
 .naati-checkbox-item.checked .naati-checkbox-label {
-    color: #6366f1 !important;
+    color: #4f46e5 !important;
     font-weight: 600 !important;
 }
 </style>
@@ -1771,7 +1771,7 @@ jQuery(document).ready(function($){
         if ($(checkbox).is(':checked')) {
             $item.addClass('checked');
             $label.css({
-                'color': '#6366f1',
+                'color': '#4f46e5',
                 'font-weight': '600'
             });
         } else {

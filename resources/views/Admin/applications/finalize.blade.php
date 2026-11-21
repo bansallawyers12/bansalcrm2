@@ -156,9 +156,9 @@
 											<td style="white-space: initial;">{{$PartnerBranch->name ?? 'N/P'}}</td>
 											<td>
                                                 <?php if($list->status == 0){ ?>
-                                                    <span class="ag-label--circular" style="color: #6777ef" >In Progress</span>
+                                                    <span class="ag-label--circular" style="color: #4f46e5" >In Progress</span>
                                                 <?php }else if($list->status == 1){ ?>
-                                                    <span class="ag-label--circular" style="color: #6777ef" >Completed</span>
+                                                    <span class="ag-label--circular" style="color: #4f46e5" >Completed</span>
                                                 <?php } else if($list->status == 2){ ?>
                                                     <span class="ag-label--circular" style="color: red;" >Discontinued</span>
                                                 <?php } else if($list->status == 3){ ?>

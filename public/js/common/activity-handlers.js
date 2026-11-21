@@ -229,7 +229,7 @@ function applyActivitiesFilters() {
 function buildLegacyActivityItemHtml(v) {
     var activityId = v.activity_id || v.id || '';
     var pinHtml = (v.pin == 1)
-        ? '<div class="pined_note">' + crmIcon('thumbtack', 'solid', { attrs: { style: 'font-size: 12px;color: #6777ef;' } }) + '</div>'
+        ? '<div class="pined_note">' + crmIcon('thumbtack', 'solid', { attrs: { style: 'font-size: 12px;color: #4f46e5;' } }) + '</div>'
         : '';
     var pinLabel = (v.pin == 1) ? 'UnPin' : 'Pin';
     var canDelete = App.getPageConfig && App.getPageConfig('canDeleteActivityLog');

@@ -579,7 +579,7 @@ class InvoiceController extends Controller
 				<td>-</td>
 				<td>
 				<?php if ($invoicelist->status == 1) { ?>
-					<span class="ag-label--circular" style="color: #6777ef" >Paid</span></td> 
+					<span class="ag-label--circular" style="color: #4f46e5" >Paid</span></td> 
 				<?php } else {  ?>
 					<span class="ag-label--circular" style="color: #ed5a5a" >UnPaid</span></td> 
 				<?php }  ?>

@@ -1,14 +1,14 @@
 /* Modern Design CSS Variables */
 :root {
-	--primary-color: #6366f1;
-	--primary-hover: #4f46e5;
-	--secondary-color: #06b6d4;
-	--success-color: #10b981;
-	--background-color: #f8fafc;
+	--primary-color: #4f46e5;
+	--primary-hover: #4338ca;
+	--secondary-color: #0369a1;
+	--success-color: #0f766e;
+	--background-color: #f7f8fa;
 	--card-background: #ffffff;
 	--text-primary: #0f172a;
 	--text-secondary: #64748b;
-	--border-color: #e2e8f0;
+	--border-color: #e6e8ee;
 	--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -58,7 +58,7 @@
 
 /* Modern Profile Card Styles */
 .author-box.left_section_upper {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #4f46e5;
 	border-radius: var(--radius-lg);
 	box-shadow: var(--shadow-lg);
 	border: none;
@@ -98,7 +98,7 @@
 	width: 55px !important;
 	height: 55px !important;
 	border-radius: var(--radius-full) !important;
-	background: linear-gradient(135deg, var(--secondary-color), #0891b2) !important;
+	background: var(--primary-color) !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -298,7 +298,7 @@
 
 .add_note .not_picked_call,
 .add_note .create_note_d {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #4f46e5;
 	color: white;
 	padding: 3px 10px;
 	border-radius: var(--radius-sm);
@@ -349,14 +349,14 @@
 }
 
 .card.right_section .nav-pills .nav-link:hover {
-	background: rgba(99, 102, 241, 0.08);
+	background: rgba(79, 70, 229, 0.08);
 	color: var(--primary-color);
 }
 
 .card.right_section .nav-pills .nav-link.active {
 	background: var(--primary-color);
 	color: white;
-	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+	box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
 /* Modern Filter Section */
@@ -380,7 +380,7 @@
 .activities-filter-bar .form-control:focus {
 	outline: none;
 	border-color: var(--primary-color);
-	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .activities-filter-bar .activity-type-btn {
@@ -407,7 +407,7 @@
 .activities-filter-bar .btn-primary {
 	background: var(--primary-color);
 	color: white;
-	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+	box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 	border-radius: var(--radius-md);
 	padding: 10px 24px;
 	font-weight: 600;
@@ -419,7 +419,7 @@
 .activities-filter-bar .btn-primary:hover {
 	background: var(--primary-hover);
 	transform: translateY(-2px);
-	box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+	box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
 .activities-filter-bar .btn-secondary {
@@ -443,7 +443,7 @@
 	padding: 0.25rem 0.75rem;
 	border: 0;
 	background: transparent;
-	color: #6777ef;
+	color: #4f46e5;
 	font-size: 1.75rem;
 	font-weight: 700;
 	letter-spacing: 0.2em;
@@ -463,7 +463,7 @@
 	padding: 0.25rem 0.75rem;
 	border: 0;
 	background: transparent;
-	color: #6777ef;
+	color: #4f46e5;
 	font-size: 1.75rem;
 	font-weight: 700;
 	letter-spacing: 0.2em;
@@ -491,7 +491,7 @@
 	top: 0;
 	bottom: -24px;
 	width: 2px;
-	background: linear-gradient(180deg, var(--primary-color) 0%, rgba(99, 102, 241, 0.1) 100%);
+	background: linear-gradient(180deg, var(--primary-color) 0%, rgba(79, 70, 229, 0.1) 100%);
 }
 
 .activity:last-child::before {
@@ -511,7 +511,7 @@
 	color: white;
 	font-weight: 700;
 	font-size: 14px;
-	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+	box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
 	border: 3px solid var(--card-background);
 	z-index: 1;
 }
@@ -652,9 +652,9 @@
 
 /* Other activity type badges */
 .activity-type-badge--note {
-	background: rgba(99, 102, 241, 0.15);
+	background: rgba(79, 70, 229, 0.15);
 	color: #4f46e5;
-	border: 1px solid rgba(99, 102, 241, 0.3);
+	border: 1px solid rgba(79, 70, 229, 0.3);
 }
 .activity-type-badge--document {
 	background: rgba(14, 165, 233, 0.15);
@@ -682,9 +682,9 @@
 	border: 1px solid rgba(245, 158, 11, 0.3);
 }
 .activity-type-badge--action {
-	background: rgba(99, 102, 241, 0.15);
+	background: rgba(79, 70, 229, 0.15);
 	color: #4f46e5;
-	border: 1px solid rgba(99, 102, 241, 0.3);
+	border: 1px solid rgba(79, 70, 229, 0.3);
 }
 .activity-type-badge--accounting {
 	background: rgba(34, 197, 94, 0.15);
@@ -1045,9 +1045,9 @@ td .dropdown-menu {
 }
 
 .activity-type-btn.active {
-	background: #6777ef;
+	background: #4f46e5;
 	color: #fff;
-	border-color: #6777ef;
+	border-color: #4f46e5;
 	font-weight: 600;
 }
 
@@ -1057,13 +1057,13 @@ td .dropdown-menu {
 }
 
 .activity-type-btn.dropdown-toggle.active {
-	background: #6777ef;
+	background: #4f46e5;
 	color: #fff;
-	border-color: #6777ef;
+	border-color: #4f46e5;
 }
 
 .activity-type-dropdown-item.active {
-	background-color: #6777ef;
+	background-color: #4f46e5;
 	color: #fff;
 }
 

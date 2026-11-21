@@ -1235,7 +1235,7 @@
 
 /* Create Label Button */
 .create-label-btn {
-    background: #6366f1;
+    background: #4f46e5;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -1402,8 +1402,8 @@
 
 .label-form-input:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .color-picker-container {
@@ -1450,7 +1450,7 @@
 .icon-option:hover,
 .icon-option.selected {
     background: #f3f4f6;
-    border-color: #6366f1;
+    border-color: #4f46e5;
 }
 
 .label-form-actions {
@@ -1480,7 +1480,7 @@
 }
 
 .label-form-btn-create {
-    background: #6366f1;
+    background: #4f46e5;
     color: white;
 }
 
@@ -1560,7 +1560,7 @@
 
 .preview-loading i {
     font-size: 28px;
-    color: #6366f1;
+    color: #4f46e5;
 }
 
 #previewFrameV2 {

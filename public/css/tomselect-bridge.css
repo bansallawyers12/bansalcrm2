@@ -58,8 +58,8 @@
 
 .ts-wrapper.form-control.focus:not(.disabled):not(.is-invalid):not(.is-valid),
 .ts-wrapper.form-control:focus-within:not(.disabled):not(.is-invalid):not(.is-valid) {
-    border-color: #5468e8;
-    box-shadow: 0 0 0 4px rgba(84, 104, 232, 0.15);
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
     outline: none;
 }
 

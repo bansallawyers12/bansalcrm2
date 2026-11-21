@@ -14,7 +14,7 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -121,7 +121,7 @@
             border: none;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
         }
         .btn-primary:hover {
@@ -130,11 +130,11 @@
         }
         .btn-outline {
             background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
         }
         .btn-outline:hover {
-            background: #667eea;
+            background: #4f46e5;
             color: white;
         }
         .buttons {
@@ -216,7 +216,7 @@
         // Create confetti effect
         function createConfetti() {
             const confettiContainer = document.getElementById('confetti');
-            const colors = ['#667eea', '#764ba2', '#28a745', '#ffd700', '#ff6b6b', '#4ecdc4'];
+            const colors = ['#4f46e5', '#764ba2', '#28a745', '#ffd700', '#ff6b6b', '#4ecdc4'];
             
             for (let i = 0; i < 50; i++) {
                 const piece = document.createElement('div');

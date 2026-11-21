@@ -108,7 +108,7 @@ use App\Http\Controllers\Controller;
 				<div class="personal-details-container">
 					<div class="card left_section_lower">
 						<!-- Avatar Section at Top -->
-						<div class="card-body" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; padding: 20px; color: white;">
+						<div class="card-body" style="background: #4f46e5; border-radius: 16px 16px 0 0; padding: 20px; color: white;">
 							<div class="author-box-center">
 								<span class="author-avtar"><b>{{substr($fetchedData->first_name, 0, 1)}}{{substr($fetchedData->last_name, 0, 1)}}</b></span>
 								<div class="author-box-name">
@@ -235,7 +235,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-header">
 							<div style="display: flex; align-items: center; gap: 8px;">
 								<h4>Personal Details</h4>
-								<a href="javascript:;" datatype="not_picked_call" class="not_picked_call" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-decoration: none;">NP</a>
+								<a href="javascript:;" datatype="not_picked_call" class="not_picked_call" style="background: #4f46e5; color: white; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-decoration: none;">NP</a>
 							</div>
 							<a href="javascript:;" datatype="note" class="create_note_d">@icon('plus') Add Notes</a>
 						</div>
@@ -772,7 +772,7 @@ use App\Http\Controllers\Controller;
 																	class="btn btn-sm activity-type-btn dropdown-toggle <?php echo $dropdownActive ? 'active' : ''; ?>" 
 																	data-bs-toggle="dropdown" 
 																	aria-expanded="false"
-																	style="border: 1px solid #ddd; background: <?php echo $dropdownActive ? '#6777ef' : '#fff'; ?>; color: <?php echo $dropdownActive ? '#fff' : '#000'; ?>; padding: 5px 12px; font-size: 12px; border-radius: 4px; white-space: nowrap;">
+																	style="border: 1px solid #ddd; background: <?php echo $dropdownActive ? '#4f46e5' : '#fff'; ?>; color: <?php echo $dropdownActive ? '#fff' : '#000'; ?>; padding: 5px 12px; font-size: 12px; border-radius: 4px; white-space: nowrap;">
 																<?php echo $dropdownLabel; ?>
 															</button>
 															<ul class="dropdown-menu" style="font-size: 12px;">
@@ -781,7 +781,7 @@ use App\Http\Controllers\Controller;
 																		<a class="dropdown-item activity-type-dropdown-item <?php echo ($selectedType == $key) ? 'active' : ''; ?>" 
 																		   href="javascript:;" 
 																		   data-type="<?php echo $key; ?>"
-																		   style="<?php echo ($selectedType == $key) ? 'background-color: #6777ef; color: #fff;' : ''; ?>">
+																		   style="<?php echo ($selectedType == $key) ? 'background-color: #4f46e5; color: #fff;' : ''; ?>">
 																			<?php echo $label; ?>
 																		</a>
 																	</li>
@@ -910,9 +910,9 @@ use App\Http\Controllers\Controller;
 													<td>{{@$alist->stage}}</td>
 													<td>
                                                       @if(@$alist->status == 0)
-                                                      <span class="ag-label--circular" style="color: #6777ef" >In Progress</span>
+                                                      <span class="ag-label--circular" style="color: #4f46e5" >In Progress</span>
                                                       @elseif(@$alist->status == 1)
-                                                      <span class="ag-label--circular" style="color: #6777ef" >Completed</span>
+                                                      <span class="ag-label--circular" style="color: #4f46e5" >Completed</span>
                                                       @elseif(@$alist->status == 2)
                                                       <span class="ag-label--circular" style="color: red;" >Discontinued</span>
                                                       @elseif(@$alist->status == 3)
@@ -1560,7 +1560,7 @@ use App\Http\Controllers\Controller;
 													<td>-</td>
 													<td>
 													@if($invoicelist->status == 1)
-														<span class="ag-label--circular" style="color: #6777ef" >Paid</span></td>
+														<span class="ag-label--circular" style="color: #4f46e5" >Paid</span></td>
 													@else
 														<span class="ag-label--circular" style="color: #ed5a5a" >UnPaid</span></td>
 													@endif

@@ -37,7 +37,7 @@
 	overflow: visible;
 }
 #scheduleFollowupModal .schedule-section-card-head {
-	background: linear-gradient(135deg, rgba(99, 102, 241, 0.14) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(59, 130, 246, 0.08) 100%);
+	background: linear-gradient(135deg, rgba(79, 70, 229, 0.14) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(59, 130, 246, 0.08) 100%);
 	padding: 11px 14px;
 	min-height: 46px;
 	border-bottom: 1px solid rgba(148, 163, 184, 0.3);
@@ -132,7 +132,7 @@
 }
 #scheduleFollowupModal .schedule-duo-select:focus {
 	border-color: #818cf8 !important;
-	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22) !important;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.22) !important;
 	outline: none !important;
 }
 #scheduleFollowupModal .schedule-service-segment-wrap {
@@ -178,12 +178,12 @@
 	letter-spacing: 0.02em;
 }
 #scheduleFollowupModal .schedule-service-option input:focus-visible + .schedule-service-option-face {
-	outline: 2px solid #6366f1;
+	outline: 2px solid #4f46e5;
 	outline-offset: 2px;
 }
 #scheduleFollowupModal .schedule-service-option input:checked + .schedule-service-option-face {
-	border-color: #6366f1;
-	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 14px rgba(79, 70, 229, 0.12);
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2), 0 4px 14px rgba(79, 70, 229, 0.12);
 	background: linear-gradient(180deg, #eef2ff 0%, #ffffff 55%);
 }
 #scheduleFollowupModal .schedule-choice-card {
@@ -206,12 +206,12 @@
 	min-height: 72px;
 }
 #scheduleFollowupModal .schedule-choice-card input:focus-visible + .schedule-choice-face {
-	outline: 2px solid #6366f1;
+	outline: 2px solid #4f46e5;
 	outline-offset: 2px;
 }
 #scheduleFollowupModal .schedule-choice-card input:checked + .schedule-choice-face {
-	border-color: #6366f1;
-	box-shadow: 0 0 0 1px rgba(99, 102, 241, .25);
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 1px rgba(79, 70, 229, .25);
 	background: #f8fafc;
 }
 #scheduleFollowupModal .schedule-choice-title { font-weight: 700; font-size: .85rem; color: #0f172a; display: block; }
@@ -411,16 +411,16 @@
 #scheduleFollowupModal .schedule-slot-btn:hover {
 	border-color: #a5b4fc;
 	background: linear-gradient(180deg, #eef2ff 0%, #e0e7ff 100%);
-	box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+	box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 #scheduleFollowupModal .schedule-slot-btn.is-active {
-	border-color: #6366f1;
-	background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+	border-color: #4f46e5;
+	background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 	color: #fff;
-	box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+	box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
 }
 #scheduleFollowupModal .schedule-followup-footer-actions .btn-schedule-followup {
-	background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+	background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 	border: none;
 	font-weight: 600;
 }
@@ -443,7 +443,7 @@
 }
 #scheduleFollowupModal .schedule-followup-field-select:focus {
 	border-color: #818cf8 !important;
-	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
 	outline: none !important;
 }
 #scheduleFollowupModal .schedule-followup-lower-fields textarea.form-control {

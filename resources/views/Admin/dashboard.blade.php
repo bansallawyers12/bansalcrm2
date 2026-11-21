@@ -45,7 +45,7 @@
         left: 0;
         right: 0;
         height: 4px;
-        background: linear-gradient(90deg, #6777ef 0%, #764ba2 100%);
+        background: #4f46e5;
     }
     
     .dash_card:hover {
@@ -89,7 +89,7 @@
     
     .card-content h5 i {
         font-size: 1rem;
-        color: #6777ef;
+        color: #4f46e5;
     }
     
     .card-content h2 {
@@ -107,7 +107,7 @@
     }
     
     .card-content a {
-        color: #6777ef;
+        color: #4f46e5;
         text-decoration: none;
         font-weight: 500;
         transition: color 0.2s;
@@ -136,7 +136,7 @@
     }
     
     .card_header h5 i {
-        color: #6777ef;
+        color: #4f46e5;
         margin-right: 0.5rem;
     }
     
@@ -302,7 +302,7 @@
     }
     
     .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #4f46e5;
         color: #ffffff;
         padding: 1.25rem 1.5rem;
         border-bottom: none;
@@ -352,7 +352,7 @@
     }
     
     .card-body table tbody td a {
-        color: #6777ef;
+        color: #4f46e5;
         font-weight: 500;
         text-decoration: none;
     }
@@ -369,7 +369,7 @@
     
     /* Button Improvements */
     .btn-primary {
-        background: linear-gradient(135deg, #6777ef 0%, #5568d3 100%);
+        background: linear-gradient(135deg, #4f46e5 0%, #5568d3 100%);
         border: none;
         border-radius: 8px;
         padding: 0.5rem 1.25rem;
@@ -379,12 +379,12 @@
     
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.4);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
     
     /* Check-in Queue Styling */
     .card_body table tbody tr td a {
-        color: #6777ef;
+        color: #4f46e5;
         font-weight: 500;
         text-decoration: none;
         transition: color 0.2s;
@@ -482,8 +482,8 @@
         width: 32px;
         height: 32px;
         border-radius: 8px;
-        background: rgba(103, 119, 239, 0.1);
-        color: #6777ef;
+        background: rgba(79, 70, 229, 0.1);
+        color: #4f46e5;
     }
     
     /* Recent Activities Styling */
@@ -556,7 +556,7 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        border: 2px solid #6777ef;
+        border: 2px solid #4f46e5;
         display: inline-block;
         margin-top: 0.15rem;
     }
@@ -660,7 +660,7 @@
 						</p>
 					</div>
 					<div>
-						<span class="badge badge-primary" style="background: linear-gradient(135deg, #6777ef 0%, #5568d3 100%); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;">
+						<span class="badge badge-primary" style="background: linear-gradient(135deg, #4f46e5 0%, #5568d3 100%); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;">
 							@icon('calendar') {{ date('l, F j, Y') }}
 						</span>
 					</div>
@@ -940,7 +940,7 @@
                                         @endphp
                                         <tr>
                                             <td>
-                                                <a href="{{ $detailUrl }}" style="color: #6777ef; font-weight: 500; text-decoration: none;">
+                                                <a href="{{ $detailUrl }}" style="color: #4f46e5; font-weight: 500; text-decoration: none;">
                                                     {{ $clientActivity->client_name ?: 'N/A' }}
                                                 </a>
                                                 @if($clientActivity->client_email)
@@ -957,7 +957,7 @@
                                             </td>
                                             <td>
                                                 @if($clientActivity->activity_type == 'email')
-                                                    <span class="badge" style="background: #6777ef; color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
+                                                    <span class="badge" style="background: #4f46e5; color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
                                                         @icon('envelope') Email
                                                     </span>
                                                 @elseif($clientActivity->activity_type == 'file')
@@ -1011,15 +1011,15 @@
                                 @foreach($recentActivities as $activity)
                                     <div class="activity-item mb-3 pb-3" style="border-bottom: 1px solid #f3f4f6;">
                                         <div class="d-flex align-items-start">
-                                            <div class="activity-icon me-3" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(103, 119, 239, 0.1); flex-shrink: 0;">
+                                            <div class="activity-icon me-3" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(79, 70, 229, 0.1); flex-shrink: 0;">
                                                 @if($activity->activity_type == 'email')
-                                                    {!! \App\Helpers\IconHelper::render('envelope', 'solid', ['attrs' => ['style' => 'color: #6777ef; font-size: 14px;']]) !!}
+                                                    {!! \App\Helpers\IconHelper::render('envelope', 'solid', ['attrs' => ['style' => 'color: #4f46e5; font-size: 14px;']]) !!}
                                                 @elseif($activity->activity_type == 'file')
-                                                    {!! \App\Helpers\IconHelper::render('file', 'solid', ['attrs' => ['style' => 'color: #6777ef; font-size: 14px;']]) !!}
+                                                    {!! \App\Helpers\IconHelper::render('file', 'solid', ['attrs' => ['style' => 'color: #4f46e5; font-size: 14px;']]) !!}
                                                 @elseif($activity->activity_type == 'note')
-                                                    {!! \App\Helpers\IconHelper::render('sticky-note', 'solid', ['attrs' => ['style' => 'color: #6777ef; font-size: 14px;']]) !!}
+                                                    {!! \App\Helpers\IconHelper::render('sticky-note', 'solid', ['attrs' => ['style' => 'color: #4f46e5; font-size: 14px;']]) !!}
                                                 @else
-                                                    {!! \App\Helpers\IconHelper::render('circle', 'solid', ['attrs' => ['style' => 'color: #6777ef; font-size: 8px;']]) !!}
+                                                    {!! \App\Helpers\IconHelper::render('circle', 'solid', ['attrs' => ['style' => 'color: #4f46e5; font-size: 8px;']]) !!}
                                                 @endif
                                             </div>
                                             <div class="activity-content flex-grow-1" style="min-width: 0;">
@@ -1105,7 +1105,7 @@
 <div class="modal fade" id="actionDetailModal" tabindex="-1" role="dialog" aria-labelledby="actionDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
+            <div class="modal-header" style="background: #4f46e5; color: #fff;">
                 <h5 class="modal-title" id="actionDetailModalLabel">
                     @icon('tasks') Action Details
                 </h5>

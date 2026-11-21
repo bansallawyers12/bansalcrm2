@@ -165,9 +165,9 @@ use App\Http\Controllers\Controller;
 													</td> 
 													<td>{{$alist->stage}}</td>
 													<td>@if($alist->status == 0)
-													<span class="ag-label--circular" style="color: #6777ef" >In Progress</span>
+													<span class="ag-label--circular" style="color: #4f46e5" >In Progress</span>
 													@elseif($alist->status == 1)
-														<span class="ag-label--circular" style="color: #6777ef" >Completed</span>
+														<span class="ag-label--circular" style="color: #4f46e5" >Completed</span>
 													@endif</td> 
 													<td>{{date('Y-m-d', strtotime($alist->created_at))}}</td> 
 													<td>

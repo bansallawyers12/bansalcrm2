@@ -1,0 +1,269 @@
+/* Ink and indigo theme. Load after style.css, components.css, custom.css, and layout <style> blocks. */
+
+:root {
+	--crm-page: #f7f8fa;
+	--crm-card: #ffffff;
+	--crm-border: #e6e8ee;
+	--crm-heading: #0f172a;
+	--crm-body: #334155;
+	--crm-muted: #64748b;
+	--crm-primary: #4f46e5;
+	--crm-primary-hover: #4338ca;
+	--crm-primary-tint: #eef2ff;
+	--crm-success: #0f766e;
+	--crm-success-bg: #f0fdfa;
+	--crm-warning: #b45309;
+	--crm-warning-bg: #fffbeb;
+	--crm-danger: #be123c;
+	--crm-danger-bg: #fff1f2;
+	--crm-info: #0369a1;
+	--crm-info-bg: #f0f9ff;
+	--font-sans: "DM Sans", "Segoe UI", sans-serif;
+}
+
+body {
+	background-color: var(--crm-page);
+	color: var(--crm-body);
+	font-family: var(--font-sans);
+}
+
+button,
+input,
+select,
+textarea,
+.btn,
+.form-control,
+.form-select,
+.dropdown-menu,
+.modal,
+.card,
+.main-sidebar,
+.navbar,
+table {
+	font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.section .section-header h1,
+.card .card-header h4 {
+	color: var(--crm-heading);
+	font-family: var(--font-sans);
+}
+
+a {
+	color: var(--crm-primary);
+}
+
+a:hover {
+	color: var(--crm-primary-hover);
+}
+
+.text-muted,
+.section .section-header .section-header-breadcrumb,
+.breadcrumb-item,
+.main-sidebar .sidebar-menu .menu-header {
+	color: var(--crm-muted) !important;
+}
+
+.navbar-bg {
+	background-color: var(--crm-card);
+	border-bottom: 1px solid var(--crm-border);
+	box-shadow: none;
+}
+
+.main-sidebar {
+	background-color: var(--crm-card);
+	border-right: 1px solid var(--crm-border);
+	box-shadow: none;
+}
+
+.sidebar-menu .active .nav-link,
+.main-sidebar .sidebar-menu li.active > a,
+.main-sidebar .sidebar-menu li.active > a.nav-link,
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a {
+	color: var(--crm-primary) !important;
+	background-color: var(--crm-primary-tint) !important;
+	border-radius: 8px;
+}
+
+.sidebar-menu .active .nav-link i,
+.sidebar-menu .active .nav-link .crm-icon,
+.sidebar-menu .active .nav-link svg.crm-icon,
+.sidebar-menu .active .nav-link svg.lucide,
+.sidebar-menu .active .nav-link span,
+.main-sidebar .sidebar-menu li.active > a.nav-link span {
+	color: var(--crm-primary) !important;
+	background-color: transparent !important;
+}
+
+.card {
+	background-color: var(--crm-card);
+	border: 1px solid var(--crm-border);
+	border-radius: 12px;
+	box-shadow: none;
+}
+
+.card .card-header {
+	border-bottom: 1px solid var(--crm-border);
+	background-color: var(--crm-card);
+}
+
+.form-control,
+.form-select,
+.custom-select {
+	border-color: var(--crm-border);
+	color: var(--crm-heading);
+	background-color: var(--crm-card);
+}
+
+.form-control:focus,
+.form-select:focus,
+.custom-select:focus {
+	border-color: var(--crm-primary);
+	box-shadow: 0 0 0 3px var(--crm-primary-tint);
+}
+
+.btn-primary,
+.btn-primary.disabled,
+.btn-primary:disabled,
+.bg-primary,
+.badge.bg-primary {
+	background-color: var(--crm-primary) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active {
+	background-color: var(--crm-primary-hover) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+}
+
+.btn-success,
+.btn-success:hover,
+.btn-success:focus,
+.bg-success {
+	background-color: var(--crm-success) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+}
+
+.btn-warning,
+.btn-warning:hover,
+.btn-warning:focus,
+.bg-warning {
+	background-color: var(--crm-warning) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+}
+
+.btn-danger,
+.btn-danger:hover,
+.btn-danger:focus,
+.bg-danger {
+	background-color: var(--crm-danger) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+}
+
+.btn-info,
+.btn-info:hover,
+.btn-info:focus,
+.bg-info {
+	background-color: var(--crm-info) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+}
+
+.badge.badge-primary,
+.badge-primary {
+	background-color: var(--crm-primary-tint) !important;
+	color: var(--crm-primary) !important;
+}
+
+.badge.badge-success,
+.badge-success {
+	background-color: var(--crm-success-bg) !important;
+	color: var(--crm-success) !important;
+}
+
+.badge.badge-warning,
+.badge-warning {
+	background-color: var(--crm-warning-bg) !important;
+	color: var(--crm-warning) !important;
+}
+
+.badge.badge-danger,
+.badge-danger {
+	background-color: var(--crm-danger-bg) !important;
+	color: var(--crm-danger) !important;
+}
+
+.badge.badge-info,
+.badge-info {
+	background-color: var(--crm-info-bg) !important;
+	color: var(--crm-info) !important;
+}
+
+.alert.alert-primary {
+	background-color: var(--crm-primary-tint) !important;
+	color: var(--crm-primary) !important;
+	border: 1px solid #c7d2fe;
+}
+
+.alert.alert-success {
+	background-color: var(--crm-success-bg) !important;
+	color: var(--crm-success) !important;
+	border: 1px solid #99f6e4;
+}
+
+.alert.alert-warning {
+	background-color: var(--crm-warning-bg) !important;
+	color: var(--crm-warning) !important;
+	border: 1px solid #fde68a;
+}
+
+.alert.alert-danger {
+	background-color: var(--crm-danger-bg) !important;
+	color: var(--crm-danger) !important;
+	border: 1px solid #fecdd3;
+}
+
+.alert.alert-info {
+	background-color: var(--crm-info-bg) !important;
+	color: var(--crm-info) !important;
+	border: 1px solid #bae6fd;
+}
+
+.page-item.active .page-link {
+	background-color: var(--crm-primary) !important;
+	border-color: var(--crm-primary) !important;
+	color: #fff !important;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+	background-color: var(--crm-primary) !important;
+	color: #fff !important;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu .dropdown-item:hover {
+	background-color: var(--crm-primary-tint) !important;
+	color: var(--crm-heading) !important;
+}
+
+table.table thead th {
+	color: var(--crm-muted);
+	font-weight: 600;
+	border-bottom-color: var(--crm-border);
+}

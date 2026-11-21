@@ -15,7 +15,9 @@
 	@vite(['resources/js/vendor-libs.js'])
     @include('Elements.font-awesome-styles')
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
+    <link href="{{ asset('css/crm-theme.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/crm-theme.css')) }}" rel="stylesheet">
     <!-- flatpickr CSS now loaded via Vite (vendor-libs.js) -->
 </head>
 <body>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bansal CRM — theme preview</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--page: #f7f8fa;
+			--card: #ffffff;
+			--border: #e6e8ee;
+			--heading: #0f172a;
+			--body: #334155;
+			--muted: #64748b;
+			--primary: #4f46e5;
+			--primary-hover: #4338ca;
+			--primary-tint: #eef2ff;
+			--success: #0f766e;
+			--success-bg: #f0fdfa;
+			--warning: #b45309;
+			--warning-bg: #fffbeb;
+			--danger: #be123c;
+			--danger-bg: #fff1f2;
+			--info: #0369a1;
+			--info-bg: #f0f9ff;
+			--sidebar: #ffffff;
+			--font: "DM Sans", "Segoe UI", sans-serif;
+		}
+
+		* { box-sizing: border-box; }
+
+		html, body {
+			margin: 0;
+			min-height: 100%;
+			background: var(--page);
+			color: var(--body);
+			font-family: var(--font);
+			font-size: 14px;
+			font-weight: 400;
+			line-height: 1.5;
+		}
+
+		button, input, select {
+			font-family: inherit;
+		}
+
+		.app {
+			display: grid;
+			grid-template-columns: 232px 1fr;
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			background: var(--sidebar);
+			border-right: 1px solid var(--border);
+			padding: 20px 12px;
+			position: sticky;
+			top: 0;
+			height: 100vh;
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 4px 10px 18px;
+		}
+
+		.brand-mark {
+			width: 28px;
+			height: 28px;
+			border-radius: 8px;
+			background: var(--primary);
+			color: #fff;
+			display: grid;
+			place-items: center;
+			font-weight: 700;
+			font-size: 13px;
+		}
+
+		.brand-name {
+			font-weight: 700;
+			color: var(--heading);
+			font-size: 15px;
+			letter-spacing: -0.01em;
+		}
+
+		.brand-name span {
+			display: block;
+			font-weight: 500;
+			font-size: 11px;
+			color: var(--muted);
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		.nav-label {
+			margin: 14px 10px 6px;
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.06em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+
+		.nav a {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 8px 10px;
+			margin-bottom: 2px;
+			border-radius: 8px;
+			color: var(--body);
+			text-decoration: none;
+			font-weight: 500;
+		}
+
+		.nav a:hover { background: var(--page); }
+
+		.nav a.active {
+			background: var(--primary-tint);
+			color: var(--primary);
+			font-weight: 600;
+		}
+
+		.nav .count {
+			font-size: 12px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.nav a.active .count { color: var(--primary); }
+
+		.main { min-width: 0; }
+
+		.topbar {
+			height: 60px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 28px;
+			background: var(--card);
+			border-bottom: 1px solid var(--border);
+			position: sticky;
+			top: 0;
+			z-index: 2;
+		}
+
+		.search {
+			width: min(420px, 46vw);
+			height: 36px;
+			border: 1px solid var(--border);
+			background: var(--page);
+			border-radius: 8px;
+			padding: 0 12px;
+			color: var(--heading);
+			font-size: 14px;
+		}
+
+		.search:focus {
+			outline: 2px solid var(--primary-tint);
+			border-color: var(--primary);
+			background: var(--card);
+		}
+
+		.who {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: var(--heading);
+			font-weight: 600;
+		}
+
+		.avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 999px;
+			background: var(--primary-tint);
+			color: var(--primary);
+			display: grid;
+			place-items: center;
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.content { padding: 28px; }
+
+		.page-head {
+			display: flex;
+			align-items: flex-end;
+			justify-content: space-between;
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 20px;
+			line-height: 1.3;
+			font-weight: 700;
+			color: var(--heading);
+			letter-spacing: -0.02em;
+		}
+
+		.lede {
+			margin: 4px 0 0;
+			color: var(--muted);
+			font-size: 14px;
+		}
+
+		.actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+		.btn {
+			height: 36px;
+			padding: 0 14px;
+			border-radius: 8px;
+			border: 1px solid transparent;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			white-space: nowrap;
+		}
+
+		.btn-primary { background: var(--primary); color: #fff; }
+		.btn-primary:hover { background: var(--primary-hover); }
+		.btn-ghost {
+			background: var(--card);
+			color: var(--heading);
+			border-color: var(--border);
+		}
+		.btn-ghost:hover { background: var(--page); }
+
+		.stats {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 12px;
+			margin-bottom: 16px;
+		}
+
+		.card {
+			background: var(--card);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+		}
+
+		.stat { padding: 16px 18px; }
+		.stat .label {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--muted);
+			letter-spacing: 0.02em;
+		}
+		.stat .value {
+			margin-top: 6px;
+			font-size: 22px;
+			font-weight: 700;
+			color: var(--heading);
+			letter-spacing: -0.03em;
+			font-variant-numeric: tabular-nums;
+		}
+		.stat .hint { margin-top: 4px; font-size: 12px; color: var(--muted); }
+		.stat .hint.up { color: var(--success); }
+		.stat .hint.down { color: var(--danger); }
+
+		.layout {
+			display: grid;
+			grid-template-columns: 1.6fr 0.8fr;
+			gap: 16px;
+		}
+
+		.card-head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 14px 16px;
+			border-bottom: 1px solid var(--border);
+		}
+
+		h2 {
+			margin: 0;
+			font-size: 16px;
+			font-weight: 700;
+			color: var(--heading);
+			letter-spacing: -0.01em;
+		}
+
+		table { width: 100%; border-collapse: collapse; }
+
+		th {
+			text-align: left;
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--muted);
+			padding: 10px 16px;
+			border-bottom: 1px solid var(--border);
+		}
+
+		td {
+			padding: 12px 16px;
+			border-bottom: 1px solid var(--border);
+			color: var(--body);
+			vertical-align: middle;
+		}
+
+		tr:last-child td { border-bottom: 0; }
+		tbody tr:hover td { background: #fafbfc; }
+
+		.name { color: var(--heading); font-weight: 600; }
+		.sub { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+
+		.pill {
+			display: inline-flex;
+			align-items: center;
+			height: 22px;
+			padding: 0 8px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.pill-success { color: var(--success); background: var(--success-bg); }
+		.pill-warning { color: var(--warning); background: var(--warning-bg); }
+		.pill-danger { color: var(--danger); background: var(--danger-bg); }
+		.pill-info { color: var(--info); background: var(--info-bg); }
+		.pill-primary { color: var(--primary); background: var(--primary-tint); }
+
+		.side-card { padding: 16px; }
+		.side-card + .side-card { margin-top: 16px; }
+
+		.field { margin-bottom: 12px; }
+		.field label {
+			display: block;
+			margin-bottom: 6px;
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--heading);
+		}
+		.field input, .field select {
+			width: 100%;
+			height: 36px;
+			border: 1px solid var(--border);
+			border-radius: 8px;
+			padding: 0 10px;
+			background: var(--card);
+			color: var(--heading);
+			font-size: 14px;
+		}
+		.field input:focus, .field select:focus {
+			outline: 2px solid var(--primary-tint);
+			border-color: var(--primary);
+		}
+		.help { margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+		.swatches {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8px;
+		}
+
+		.swatch {
+			border: 1px solid var(--border);
+			border-radius: 8px;
+			overflow: hidden;
+		}
+
+		.swatch i {
+			display: block;
+			height: 36px;
+		}
+
+		.swatch b, .swatch span {
+			display: block;
+			padding: 0 8px;
+		}
+
+		.swatch b {
+			padding-top: 6px;
+			font-size: 12px;
+			color: var(--heading);
+		}
+
+		.swatch span {
+			padding-bottom: 8px;
+			font-size: 11px;
+			color: var(--muted);
+			font-variant-numeric: tabular-nums;
+		}
+
+		.type-row { margin-bottom: 10px; }
+		.type-row small {
+			display: block;
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+
+		.note {
+			margin-top: 16px;
+			font-size: 12px;
+			color: var(--muted);
+		}
+
+		@media (max-width: 980px) {
+			.app { grid-template-columns: 1fr; }
+			.sidebar { position: relative; height: auto; }
+			.stats, .layout { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<div class="app">
+		<aside class="sidebar">
+			<div class="brand">
+				<div class="brand-mark">B</div>
+				<div class="brand-name">Bansal CRM<span>Theme preview</span></div>
+			</div>
+			<div class="nav-label">Work</div>
+			<nav class="nav">
+				<a class="active" href="#clients">Clients <span class="count">128</span></a>
+				<a href="#applications">Applications <span class="count">46</span></a>
+				<a href="#tasks">Tasks <span class="count">9</span></a>
+				<a href="#invoices">Invoices</a>
+			</nav>
+			<div class="nav-label">Records</div>
+			<nav class="nav">
+				<a href="#notes">Notes</a>
+				<a href="#documents">Documents</a>
+				<a href="#staff">Staff</a>
+			</nav>
+		</aside>
+
+		<div class="main">
+			<header class="topbar">
+				<input class="search" type="search" placeholder="Search clients, files, invoices" aria-label="Search">
+				<div class="who"><span class="avatar">AK</span> Preview</div>
+			</header>
+
+			<div class="content">
+				<div class="page-head">
+					<div>
+						<h1>Clients</h1>
+						<p class="lede">Sample of DM Sans with the ink and indigo palette. This page is not wired to live data.</p>
+					</div>
+					<div class="actions">
+						<button class="btn btn-ghost" type="button">Export</button>
+						<button class="btn btn-primary" type="button">New client</button>
+					</div>
+				</div>
+
+				<section class="stats">
+					<article class="card stat">
+						<div class="label">Open matters</div>
+						<div class="value">46</div>
+						<div class="hint up">8 started this week</div>
+					</article>
+					<article class="card stat">
+						<div class="label">Awaiting documents</div>
+						<div class="value">12</div>
+						<div class="hint">3 due today</div>
+					</article>
+					<article class="card stat">
+						<div class="label">Unpaid invoices</div>
+						<div class="value">7</div>
+						<div class="hint down">$18,400 outstanding</div>
+					</article>
+					<article class="card stat">
+						<div class="label">Completed</div>
+						<div class="value">19</div>
+						<div class="hint up">This month</div>
+					</article>
+				</section>
+
+				<div class="layout">
+					<section class="card" id="clients">
+						<div class="card-head">
+							<h2>Recent clients</h2>
+							<span class="pill pill-primary">Indigo accent</span>
+						</div>
+						<table>
+							<thead>
+								<tr>
+									<th>Client</th>
+									<th>Matter</th>
+									<th>Owner</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="name">Aisha Rahman</span><span class="sub">aisha@example.com</span></td>
+									<td>Student visa</td>
+									<td>Priya S.</td>
+									<td><span class="pill pill-info">In progress</span></td>
+								</tr>
+								<tr>
+									<td><span class="name">Daniel Okonkwo</span><span class="sub">daniel@example.com</span></td>
+									<td>Partner visa</td>
+									<td>James L.</td>
+									<td><span class="pill pill-warning">Pending</span></td>
+								</tr>
+								<tr>
+									<td><span class="name">Mei Chen</span><span class="sub">mei@example.com</span></td>
+									<td>Skills assessment</td>
+									<td>Priya S.</td>
+									<td><span class="pill pill-success">Complete</span></td>
+								</tr>
+								<tr>
+									<td><span class="name">Omar Haddad</span><span class="sub">omar@example.com</span></td>
+									<td>Invoice 1042</td>
+									<td>Accounts</td>
+									<td><span class="pill pill-danger">Unpaid</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</section>
+
+					<div>
+						<section class="card side-card">
+							<h2>New note</h2>
+							<p class="lede" style="margin-bottom: 14px;">Form text at 14px, labels at 600.</p>
+							<div class="field">
+								<label for="note-client">Client</label>
+								<select id="note-client">
+									<option>Aisha Rahman</option>
+									<option>Daniel Okonkwo</option>
+								</select>
+							</div>
+							<div class="field">
+								<label for="note-body">Note</label>
+								<input id="note-body" type="text" value="Called, left a message.">
+								<div class="help">Muted helper text uses #64748b.</div>
+							</div>
+							<button class="btn btn-primary" type="button">Save note</button>
+						</section>
+
+						<section class="card side-card">
+							<h2>Palette</h2>
+							<div class="swatches" style="margin-top: 12px;">
+								<div class="swatch"><i style="background:#4f46e5"></i><b>Primary</b><span>#4f46e5</span></div>
+								<div class="swatch"><i style="background:#4338ca"></i><b>Hover</b><span>#4338ca</span></div>
+								<div class="swatch"><i style="background:#eef2ff"></i><b>Tint</b><span>#eef2ff</span></div>
+								<div class="swatch"><i style="background:#0f172a"></i><b>Heading</b><span>#0f172a</span></div>
+								<div class="swatch"><i style="background:#334155"></i><b>Body</b><span>#334155</span></div>
+								<div class="swatch"><i style="background:#64748b"></i><b>Muted</b><span>#64748b</span></div>
+								<div class="swatch"><i style="background:#0f766e"></i><b>Success</b><span>#0f766e</span></div>
+								<div class="swatch"><i style="background:#b45309"></i><b>Warning</b><span>#b45309</span></div>
+								<div class="swatch"><i style="background:#be123c"></i><b>Danger</b><span>#be123c</span></div>
+								<div class="swatch"><i style="background:#0369a1"></i><b>Info</b><span>#0369a1</span></div>
+								<div class="swatch"><i style="background:#f7f8fa"></i><b>Page</b><span>#f7f8fa</span></div>
+								<div class="swatch"><i style="background:#e6e8ee"></i><b>Border</b><span>#e6e8ee</span></div>
+							</div>
+						</section>
+
+						<section class="card side-card">
+							<h2>DM Sans</h2>
+							<div class="type-row" style="margin-top: 12px;">
+								<small>Page title · 20 / 700</small>
+								<div style="font-size:20px;font-weight:700;color:#0f172a;letter-spacing:-0.02em;">Clients this week</div>
+							</div>
+							<div class="type-row">
+								<small>Section · 16 / 700</small>
+								<div style="font-size:16px;font-weight:700;color:#0f172a;">Recent clients</div>
+							</div>
+							<div class="type-row">
+								<small>Body · 14 / 400</small>
+								<div>Called the client and left a message about the missing passport scan.</div>
+							</div>
+							<div class="type-row">
+								<small>Meta · 12 / 600</small>
+								<div style="font-size:12px;font-weight:600;color:#64748b;">Updated 2 hours ago</div>
+							</div>
+						</section>
+					</div>
+				</div>
+
+				<p class="note">Preview only. The live CRM still uses Nunito and #6777ef.</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -24,7 +24,7 @@
 	<!-- TinyMCE - No CSS needed -->
 	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
-	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
 	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
 	<!-- Vendor CSS + JS (flatpickr, iziToast, Tom Select, DataTables) — CSS in head prevents FOUC -->
@@ -95,7 +95,7 @@
 .navbar .nav-link-lg .crm-icon,
 .navbar .nav-link-lg svg.crm-icon,
 .navbar .nav-link-lg svg.lucide {
-    color: #2d3748 !important; /* Dark gray for better contrast */
+    color: #334155 !important; /* Dark gray for better contrast */
 }
 
 .navbar .nav-link:hover,
@@ -108,7 +108,7 @@
 .navbar .nav-link-lg:hover .crm-icon,
 .navbar .nav-link-lg:hover svg.crm-icon,
 .navbar .nav-link-lg:hover svg.lucide {
-    color: #1a202c !important; /* Even darker on hover */
+    color: #0f172a !important; /* Even darker on hover */
 }
 
 /* Specific icon improvements */
@@ -127,7 +127,7 @@
 .navbar .opencheckin i,
 .navbar .opencheckin .crm-icon,
 .navbar .opencheckin svg.crm-icon {
-    color: #2d3748 !important;
+    color: #334155 !important;
     opacity: 1 !important;
 }
 
@@ -146,7 +146,7 @@
 .navbar .opencheckin:hover i,
 .navbar .opencheckin:hover .crm-icon,
 .navbar .opencheckin:hover svg.crm-icon {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 /* Search Element - Improved Contrast */
@@ -154,31 +154,31 @@
 .search-element .btn i,
 .search-element .btn .crm-icon,
 .search-element .btn svg.crm-icon {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 .search-element .btn:hover,
 .search-element .btn:hover i,
 .search-element .btn:hover .crm-icon,
 .search-element .btn:hover svg.crm-icon {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 .search-element .form-control,
 .search-element .ts-control,
 .search-element .ts-wrapper .ts-control input {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 /* Dropdown Elements */
 .dropdown-toggle,
 .dropdown-toggle i {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 .dropdown-toggle:hover,
 .dropdown-toggle:hover i {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 /* Sidebar Menu Items */
@@ -188,7 +188,7 @@
 .sidebar-menu .nav-link svg.crm-icon,
 .sidebar-menu .nav-link svg.lucide,
 .sidebar-menu .nav-link span {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 .sidebar-menu .nav-link:hover,
@@ -197,7 +197,7 @@
 .sidebar-menu .nav-link:hover svg.crm-icon,
 .sidebar-menu .nav-link:hover svg.lucide,
 .sidebar-menu .nav-link:hover span {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 /* Normal weight for non-active items (theme style.css sets font-weight: 600 on all li a) */
@@ -214,7 +214,7 @@
 .sidebar-menu .active .nav-link svg.crm-icon,
 .sidebar-menu .active .nav-link svg.lucide,
 .sidebar-menu .active .nav-link span {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 .main-sidebar .sidebar-menu li.active > a.nav-link,
@@ -224,62 +224,62 @@
 
 /* Menu Header Text */
 .sidebar-menu .menu-header {
-    color: #4a5568 !important;
+    color: #64748b !important;
     font-weight: 700 !important;
 }
 
 /* Dropdown Menu Items */
 .dropdown-menu a,
 .dropdown-menu .dropdown-item {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 .dropdown-menu a:hover,
 .dropdown-menu .dropdown-item:hover {
-    color: #1a202c !important;
+    color: #0f172a !important;
     background-color: #f7fafc !important;
 }
 
 /* User Profile Dropdown */
 .nav-link-user,
 .nav-link-user span {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 /* Bell Icon with Badge */
 .bell,
 .bell i {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 /* Tom Select dropdown text */
 .search-element .ts-wrapper .ts-control {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 .search-element .ts-wrapper.single .ts-control > input::placeholder {
-    color: #718096 !important;
+    color: #64748b !important;
 }
 
 /* Form Controls Text */
 .form-control,
 .form-control::placeholder {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 .form-control::placeholder {
-    color: #718096 !important;
+    color: #64748b !important;
     opacity: 1 !important;
 }
 
 /* Button Text */
 .btn:not(.btn-primary):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info) {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 /* General Text Improvements */
 .text-muted {
-    color: #4a5568 !important;
+    color: #64748b !important;
 }
 
 /* Ensure all Font Awesome icons have good contrast */
@@ -296,9 +296,10 @@ i[style*="color: #"],
 i[style*="color:#"],
 i[style*="color: rgb"],
 i[style*="color:rgba"] {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 </style>
+<link rel="stylesheet" href="{{ asset('css/crm-theme.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/crm-theme.css')) }}">
 </head>
 <body >
 	<div class="loader"></div>

@@ -109,7 +109,7 @@
     }
     
     .section-header .icon {
-        color: #6366f1;
+        color: #4f46e5;
         font-size: 18px;
     }
     
@@ -249,7 +249,7 @@
     }
     
     .btn-next {
-        background: #6366f1;
+        background: #4f46e5;
         color: white;
         padding: 12px 32px;
         border-radius: 8px;
@@ -268,7 +268,7 @@
     }
     
     .btn-add-signer {
-        background: #6366f1;
+        background: #4f46e5;
         color: white;
         padding: 12px 32px;
         border-radius: 8px;

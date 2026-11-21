@@ -8,7 +8,7 @@
 	<title>Bansal CRM | @yield('title')</title>
 	<link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
-	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
 	@include('Elements.font-awesome-styles')
 	<!-- jQuery 3.7.1 — single source (Phase 2a) -->
 	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
@@ -17,6 +17,7 @@
 	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/components.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}">
+	<link rel="stylesheet" href="{{ asset('css/crm-theme.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/crm-theme.css')) }}">
 	@stack('styles')
 </head>
 <body>

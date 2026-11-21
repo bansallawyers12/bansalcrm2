@@ -886,7 +886,7 @@ class ApplicationsController extends Controller
                 $response['status'] = true;
                 $response['message'] = 'Application successfully updated.';
                 $response['data'] = '<div class="client_info">
-							<div class="cl_logo" style="display: inline-block;width: 30px;height: 30px; border-radius: 50%;background: #6777ef;text-align: center;color: #fff;font-size: 14px; line-height: 30px; vertical-align: top;">'.substr($agent->full_name, 0, 1).'</div>
+							<div class="cl_logo" style="display: inline-block;width: 30px;height: 30px; border-radius: 50%;background: #4f46e5;text-align: center;color: #fff;font-size: 14px; line-height: 30px; vertical-align: top;">'.substr($agent->full_name, 0, 1).'</div>
 							<div class="cl_name" style="display: inline-block;margin-left: 5px;width: calc(100% - 60px);">
 								<span class="name">'.$agent->full_name.'</span>
 								<span class="ui label zippyLabel alignMiddle yellow">
@@ -930,7 +930,7 @@ class ApplicationsController extends Controller
                 $response['status'] = true;
                 $response['message'] = 'Application successfully updated.';
                 $response['data'] = '<div class="client_info">
-							<div class="cl_logo" style="display: inline-block;width: 30px;height: 30px; border-radius: 50%;background: #6777ef;text-align: center;color: #fff;font-size: 14px; line-height: 30px; vertical-align: top;">'.substr($agent->full_name, 0, 1).'</div>
+							<div class="cl_logo" style="display: inline-block;width: 30px;height: 30px; border-radius: 50%;background: #4f46e5;text-align: center;color: #fff;font-size: 14px; line-height: 30px; vertical-align: top;">'.substr($agent->full_name, 0, 1).'</div>
 							<div class="cl_name" style="display: inline-block;margin-left: 5px;width: calc(100% - 60px);">
 								<span class="name">'.$agent->full_name.'</span>
 								<span class="ui label zippyLabel alignMiddle yellow">

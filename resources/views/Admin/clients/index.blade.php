@@ -50,7 +50,7 @@
 	align-items: center;
 	padding: 4px 12px;
 	border-radius: 999px;
-	background: #6777ef;
+	background: #4f46e5;
 	color: #fff;
 	font-size: 13px;
 	font-weight: 600;
@@ -242,7 +242,7 @@
 													$assignee = \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue(@$list->assignee);
 													?>
 													<td style="white-space: initial;">{{ $assignee ? (@$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...')) : '-' }}</td> 
-													<td ><span class="ag-label--circular" style="color: #6777ef" >
+													<td ><span class="ag-label--circular" style="color: #4f46e5" >
 														In Progress
 													</span></td>
 													<td style="white-space: initial;">{{ isset($list->in_progress_applications_count) ? (int) $list->in_progress_applications_count : 0 }}</td>

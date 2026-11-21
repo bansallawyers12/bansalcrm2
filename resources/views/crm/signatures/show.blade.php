@@ -58,7 +58,7 @@
         gap: 10px;
     }
     .card-section-header h2 i {
-        color: #667eea;
+        color: #4f46e5;
     }
     .card-section-body {
         padding: 20px;
@@ -125,7 +125,7 @@
     }
     .btn-action-primary {
         width: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #4f46e5;
         color: white;
         padding: 12px 20px;
         border-radius: 8px;
@@ -205,7 +205,7 @@
     /* Signers Section */
     .signer-card {
         background: #f8f9fa;
-        border-left: 4px solid #667eea;
+        border-left: 4px solid #4f46e5;
         border-radius: 8px;
         padding: 15px 20px;
         margin-bottom: 15px;
@@ -326,7 +326,7 @@
         color: white;
     }
     .activity-icon.icon-placed {
-        background: #667eea;
+        background: #4f46e5;
         color: white;
     }
     .activity-icon.icon-signer {
@@ -346,7 +346,7 @@
         color: white;
     }
     .activity-icon.icon-default {
-        background: #667eea;
+        background: #4f46e5;
         color: white;
     }
     .activity-item .activity-time {
@@ -366,7 +366,7 @@
     }
 
     .btn-primary-custom {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #4f46e5;
         color: white;
         padding: 8px 16px;
         border-radius: 6px;
@@ -383,10 +383,10 @@
     }
     .btn-outline-custom {
         background: transparent;
-        color: #667eea;
+        color: #4f46e5;
         padding: 8px 16px;
         border-radius: 6px;
-        border: 1px solid #667eea;
+        border: 1px solid #4f46e5;
         font-weight: 500;
         display: inline-flex;
         align-items: center;
@@ -394,7 +394,7 @@
         text-decoration: none;
     }
     .btn-outline-custom:hover {
-        background: #667eea;
+        background: #4f46e5;
         color: white;
     }
     .document-preview {
@@ -410,7 +410,7 @@
     }
     .document-preview i {
         font-size: 48px;
-        color: #667eea;
+        color: #4f46e5;
         margin-bottom: 15px;
     }
     .hash-display {

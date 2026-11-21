@@ -32,7 +32,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 	align-items: center;
 	padding: 4px 12px;
 	border-radius: 999px;
-	background: #6777ef;
+	background: #4f46e5;
 	color: #fff;
 	font-size: 13px;
 	font-weight: 600;

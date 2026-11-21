@@ -16,7 +16,7 @@
 
 				<div class="activity-actions">
 					@if($activit->pin == 1)
-						<div class="pined_note">@icon('thumbtack', 'solid', ['attrs' => ['style' => 'font-size: 12px;color: #6777ef;']])</div>
+						<div class="pined_note">@icon('thumbtack', 'solid', ['attrs' => ['style' => 'font-size: 12px;color: #4f46e5;']])</div>
 					@endif
 
 					<div class="dropdown d-inline dropdown_ellipsis_icon">

@@ -1242,7 +1242,7 @@ class PartnersController extends Controller
         $serviceHtml = e($workflow->name ?? '').'<br>'.e($partner->partner_name ?? '');
 
         $statusHtml = ((int) $invoicelist->status === 1)
-            ? '<span class="ag-label--circular" style="color: #6777ef">Paid</span>'
+            ? '<span class="ag-label--circular" style="color: #4f46e5">Paid</span>'
             : '<span class="ag-label--circular" style="color: #ed5a5a">UnPaid</span>';
 
         $actionsHtml = '<div class="dropdown d-inline">'

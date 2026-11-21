@@ -15,7 +15,7 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="card">
-						<div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+						<div class="card-header" style="background: #4f46e5; color: white;">
 							<h4 style="color: white; margin: 0;">Edit Email Label</h4>
 							<div class="card-header-action">
 								<a href="{{route('adminconsole.emaillabels.index')}}" class="btn btn-light">Back</a>
@@ -103,7 +103,7 @@
 
 								<div class="form-group row mb-4">
 									<div class="col-sm-12">
-										<button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">Update Email Label</button>
+										<button type="submit" class="btn btn-primary" style="background: #4f46e5; border: none;">Update Email Label</button>
 										<a href="{{route('adminconsole.emaillabels.index')}}" class="btn btn-secondary">Cancel</a>
 									</div>
 								</div>

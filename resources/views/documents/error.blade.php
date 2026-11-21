@@ -95,7 +95,7 @@
             border: none;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
         }
         .btn-primary:hover {
@@ -108,7 +108,7 @@
             color: #6c757d;
         }
         .support-text a {
-            color: #667eea;
+            color: #4f46e5;
             text-decoration: none;
         }
         .support-text a:hover {

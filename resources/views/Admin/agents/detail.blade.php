@@ -194,7 +194,7 @@ use App\Http\Controllers\Controller;
 													<td>{{$reflist->first_name}} {{$reflist->last_name}}</td>
 													<td>-</td>
 													<td>{{$reflist->city}}<br/>{{$reflist->country}}</td>
-													<td><span class="ag-label--circular" style="color: #6777ef" >In Progress</span></td>
+													<td><span class="ag-label--circular" style="color: #4f46e5" >In Progress</span></td>
 													<td>{{$reflist->assignee}}</td>
 													<td>{{date('Y-m-d', strtotime($reflist->created_at))}}</td>
 												</tr>
@@ -246,9 +246,9 @@ use App\Http\Controllers\Controller;
 												
 													<td>
 													@if($alist->status == 0)
-													<span class="ag-label--circular" style="color: #6777ef" >In Progress</span>
+													<span class="ag-label--circular" style="color: #4f46e5" >In Progress</span>
 													@elseif($alist->status == 1)
-														<span class="ag-label--circular" style="color: #6777ef" >Completed</span>
+														<span class="ag-label--circular" style="color: #4f46e5" >Completed</span>
 													@endif
 												</td> 
 												

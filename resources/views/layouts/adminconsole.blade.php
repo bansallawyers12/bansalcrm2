@@ -25,9 +25,9 @@
   
 	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
   
-	<!-- Google Font: Nunito (standardized across CRM) -->
+	<!-- Google Font: DM Sans -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
-	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
 
 	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
@@ -120,7 +120,7 @@
 }
 
 .adminconsole-sidebar .custom_nav_setting ul li.active a {
-	background: #6777ef;
+	background: #4f46e5;
 	color: #fff;
 	font-weight: 500;
 }
@@ -167,37 +167,38 @@
 .navbar .nav-link-lg,
 .navbar .nav-link i,
 .navbar .nav-link-lg i {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 .navbar .nav-link:hover,
 .navbar .nav-link-lg:hover,
 .navbar .nav-link:hover i,
 .navbar .nav-link-lg:hover i {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 /* Form Controls Text */
 .form-control,
 .form-control::placeholder {
-    color: #1a202c !important;
+    color: #0f172a !important;
 }
 
 .form-control::placeholder {
-    color: #718096 !important;
+    color: #64748b !important;
     opacity: 1 !important;
 }
 
 /* Button Text */
 .btn:not(.btn-primary):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info) {
-    color: #2d3748 !important;
+    color: #334155 !important;
 }
 
 /* General Text Improvements */
 .text-muted {
-    color: #4a5568 !important;
+    color: #64748b !important;
 }
 </style>
+<link rel="stylesheet" href="{{ asset('css/crm-theme.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/crm-theme.css')) }}">
 </head>
 <body>
 	<div class="loader"></div>
@@ -210,7 +211,7 @@
 			<div class="adminconsole-header">
 				<div class="logo-section">
 					<img alt="Bansal CRM" src="{{ asset('img/logo.png') }}" />
-					<h4 style="margin: 0; color: #2d3748;">Admin Console</h4>
+					<h4 style="margin: 0; color: #334155;">Admin Console</h4>
 				</div>
 				<div class="exit-section">
 					<a href="{{route('dashboard')}}" class="btn btn-primary adminconsole-exit-btn">

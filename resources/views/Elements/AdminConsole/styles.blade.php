@@ -79,7 +79,7 @@
 	transform: translateY(-50%);
 	width: 4px;
 	height: 28px;
-	background: linear-gradient(135deg, #6777ef 0%, #764ba2 100%);
+	background: #4f46e5;
 	border-radius: 2px;
 }
 
@@ -93,13 +93,13 @@
 	font-weight: 600;
 	font-size: 14px;
 	border-radius: 6px;
-	box-shadow: 0 2px 4px rgba(103, 119, 239, 0.2);
+	box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
 	transition: all 0.3s ease;
 }
 
 .main-content .section-body .card-header .btn-primary:hover {
 	transform: translateY(-1px);
-	box-shadow: 0 4px 8px rgba(103, 119, 239, 0.3);
+	box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
 }
 
 .main-content .section-body .card-body {

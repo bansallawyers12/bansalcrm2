@@ -488,9 +488,9 @@
 		line-height: 1;
 	}
 	.recent-clients-filter-toggle.is-open {
-		background: #6777ef;
+		background: #4f46e5;
 		color: #fff;
-		border-color: #6777ef;
+		border-color: #4f46e5;
 	}
 	
 	/* Enhanced date picker styling */
