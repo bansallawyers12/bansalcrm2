@@ -82,7 +82,6 @@ a:hover {
 	box-shadow: none;
 }
 
-.sidebar-menu .active .nav-link,
 .main-sidebar .sidebar-menu li.active > a,
 .main-sidebar .sidebar-menu li.active > a.nav-link,
 body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a {
@@ -91,12 +90,10 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a {
 	border-radius: 8px;
 }
 
-.sidebar-menu .active .nav-link i,
-.sidebar-menu .active .nav-link .crm-icon,
-.sidebar-menu .active .nav-link svg.crm-icon,
-.sidebar-menu .active .nav-link svg.lucide,
-.sidebar-menu .active .nav-link span,
-.main-sidebar .sidebar-menu li.active > a.nav-link span {
+.main-sidebar .sidebar-menu li.active > a i,
+.main-sidebar .sidebar-menu li.active > a .crm-icon,
+.main-sidebar .sidebar-menu li.active > a svg,
+.main-sidebar .sidebar-menu li.active > a span {
 	color: var(--crm-primary) !important;
 	background-color: transparent !important;
 }
