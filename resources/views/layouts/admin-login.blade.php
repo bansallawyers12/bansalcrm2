@@ -29,13 +29,54 @@
 	<script async src="https://www.google.com/recaptcha/api.js"></script> <!-- Add recaptcha script -->
 </head>
 <style>
-.bg{
-    background-color: #f8f9fa; /* Fallback background color */
+html, body.bg {
     height: 100%;
+}
+.bg {
     margin: 0;
-    background-position: center;
+    min-height: 100vh;
+    background-color: #e7eef3;
     background-repeat: no-repeat;
     background-size: cover;
+    /* Keep her face (right side of the photo) in frame as the viewport crops. */
+    background-position: 78% center;
+}
+.login-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    padding-top: clamp(1.25rem, 4vh, 2.5rem);
+    padding-bottom: clamp(1.25rem, 4vh, 2.5rem);
+    padding-right: clamp(1rem, 4vw, 2.5rem);
+    padding-left: clamp(1.5rem, 7vw, 6.5rem);
+}
+.login-panel {
+    width: min(420px, 100%);
+}
+.login-panel .card {
+    border: 0;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(16, 32, 48, 0.22);
+}
+.login-footnote {
+    margin-top: 0.85rem;
+    padding: 0.55rem 0.75rem;
+    text-align: center;
+    color: #243140;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+}
+@media (max-width: 767.98px) {
+    .bg {
+        /* On a tall screen, park her face above the form. */
+        background-position: 82% 18%;
+    }
+    .login-shell {
+        align-items: flex-end;
+        padding: 1rem 1rem 1.25rem;
+    }
 }
 </style>
 <body class="bg">
@@ -50,9 +91,9 @@
 		(function() {
 			var img = new Image();
 			img.onload = function() {
-				document.body.style.backgroundImage = "url('{{ asset('img/bansal_crm_background_image.jpg') }}')";
+				document.body.style.backgroundImage = "url('{{ asset('img/login-background.jpg') }}')";
 			};
-			img.src = '{{ asset('img/bansal_crm_background_image.jpg') }}';
+			img.src = '{{ asset('img/login-background.jpg') }}';
 		})();
 	</script>
 	
