@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Admin;
+
 return [
 
     /*
@@ -51,29 +53,29 @@ return [
     ],
 
     'stripe' => [
-        'model' => App\Models\Admin::class,
+        'model' => Admin::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
-    
+
     'facebook' => [
-        'client_id'     => env('FB_ID'),
+        'client_id' => env('FB_ID'),
         'client_secret' => env('FB_SECRET'),
-        'redirect'      => env('FB_URL'),
+        'redirect' => env('FB_URL'),
     ],
 
     'google' => [
-        'client_id'     => env('GOOGLE_ID'),
+        'client_id' => env('GOOGLE_ID'),
         'client_secret' => env('GOOGLE_SECRET'),
-        'redirect'      => env('GOOGLE_URL'),
+        'redirect' => env('GOOGLE_URL'),
     ],
-    
-    //Add these Configurations
+
+    // Add these Configurations
     'recaptcha' => [
         'key' => env('RECAPTCHA_SITE_KEY'),
         'secret' => env('RECAPTCHA_SITE_SECRET'),
     ],
-  
+
     'twilio' => [
         'account_sid' => env('TWILIO_SID'),
         'auth_token' => env('TWILIO_AUTH_TOKEN'),
@@ -87,9 +89,28 @@ return [
         'sender_id' => env('CELLCAST_SENDER_ID', 'BANSALIMMI'),
         'timeout' => env('CELLCAST_TIMEOUT', 30),
     ],
-  
-     'openai' => [
+
+    'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public /check-in chooser destinations
+    |--------------------------------------------------------------------------
+    |
+    | Immigration opens the migrationmanager office check-in wizard.
+    | Education defaults to this app's /office-check-in when unset.
+    |
+    */
+    'immigration_check_in' => [
+        'url' => rtrim((string) env('IMMIGRATION_CHECK_IN_URL', 'https://migrationmanager.bansalcrm.com/office-check-in'), '/'),
+    ],
+
+    'education_check_in' => [
+        'url' => env('EDUCATION_CHECK_IN_URL')
+            ? rtrim((string) env('EDUCATION_CHECK_IN_URL'), '/')
+            : null,
     ],
 
 ];

@@ -33,6 +33,8 @@ use App\Http\Controllers\Admin\StaffroleController;
 use App\Http\Controllers\Admin\TinyMCEImageUploadController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\ExceptionController;
+use App\Http\Controllers\PublicCheckInController;
+use App\Http\Controllers\PublicOfficeCheckInController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +53,20 @@ use Illuminate\Support\Facades\Route;
 // These routes MUST be defined first to ensure they're publicly accessible
 Route::get('/email-verify-token/{token}', [ClientMessagingController::class, 'emailVerifyToken'])->name('emailVerifyToken');
 Route::get('/thankyou', [ClientMessagingController::class, 'thankyou'])->name('emailVerify.thankyou');
+
+/* Public check-in chooser (no login). Immigration → migrationmanager; Education → /office-check-in. */
+Route::middleware('throttle:60,1')->get('/check-in', [PublicCheckInController::class, 'index'])
+    ->name('public.check-in.index');
+
+/* Education office check-in wizard (no login). Staff In Person queue stays at /office-visits/*. */
+Route::middleware('throttle:60,1')->get('/office-check-in', [PublicOfficeCheckInController::class, 'index'])
+    ->name('public.office-check-in.index');
+Route::post('/office-check-in/lookup', [PublicOfficeCheckInController::class, 'lookup'])
+    ->middleware('throttle:20,1')
+    ->name('public.office-check-in.lookup');
+Route::post('/office-check-in/submit', [PublicOfficeCheckInController::class, 'submit'])
+    ->middleware('throttle:10,1')
+    ->name('public.office-check-in.submit');
 
 /*********************General Function for Both (Front-end & Back-end) ***********************/
 /* Route::post('/get_states', 'HomeController@getStates');
