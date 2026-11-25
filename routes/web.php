@@ -552,6 +552,8 @@ Route::post('/update_visit_comment', [OfficeVisitController::class, 'update_visi
 Route::post('/attend_session', [OfficeVisitController::class, 'attend_session']);
 Route::post('/complete_session', [OfficeVisitController::class, 'complete_session']);
 Route::get('/office-visits/change_assignee', [OfficeVisitController::class, 'change_assignee']);
+Route::post('/office-visits/public-checkin-assignee', [OfficeVisitController::class, 'setPublicCheckInAssignee'])
+    ->name('officevisits.public-checkin-assignee');
 Route::get('/fetch-office-visit-notifications', [OfficeVisitController::class, 'fetchOfficeVisitNotifications'])->name('officevisits.fetch-notifications');
 Route::get('/check-checkin-status', [OfficeVisitController::class, 'checkCheckinStatus'])->name('officevisits.check-checkin-status');
 Route::post('/mark-notification-seen', [OfficeVisitController::class, 'markNotificationSeen'])->name('officevisits.mark-notification-seen');

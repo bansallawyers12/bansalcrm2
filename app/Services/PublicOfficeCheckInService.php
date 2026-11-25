@@ -10,6 +10,7 @@ use App\Models\CheckinLog;
 use App\Models\ClientTestScore;
 use App\Models\Notification;
 use App\Models\Staff;
+use App\Support\PublicOfficeCheckInAssignees;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -452,6 +453,7 @@ class PublicOfficeCheckInService
             'is_archived' => 0,
             'is_deleted' => 0,
             'converted' => 0,
+            'show_dashboard_per' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ];
@@ -625,7 +627,7 @@ class PublicOfficeCheckInService
         }
 
         CheckinHistory::create([
-            'subject' => 'Check-in created via public office check-in page',
+            'subject' => PublicOfficeCheckInAssignees::historySubject(),
             'created_by' => $staffId,
             'checkin_id' => $checkinId,
         ]);

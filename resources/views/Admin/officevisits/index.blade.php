@@ -76,6 +76,10 @@
 												</tr>
 											</thead>
 											<tbody class="tdata checindata">
+												@php
+													$publicCheckInLogIdSet = array_fill_keys(array_map('intval', $publicCheckInLogIds ?? []), true);
+													$publicAssigneeIdSet = array_fill_keys(array_map('intval', $publicAssigneeIds ?? []), true);
+												@endphp
 												@if(@$totalData !== 0)
 												@foreach (@$lists as $list)
 												<tr did="{{@$list->id}}" id="id_{{@$list->id}}" data-status="{{ $list->status }}">
@@ -95,9 +99,27 @@
 													<td style="white-space: initial;">
 													<?php
 													$admin = \App\Models\Staff::find($list->user_id);
-													if ($admin) { ?>
-													<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ $admin->first_name }} {{ $admin->last_name }}</a><br>{{ $admin->email }}
-													<?php } else { echo '-'; } ?>
+													$isPublicCheckInOpen = in_array($activeTab, ['waiting', 'attending'], true)
+														&& in_array((int) $list->status, [0, 2], true)
+														&& isset($publicCheckInLogIdSet[(int) $list->id]);
+													$hasAllowlistedPublicAssignee = $isPublicCheckInOpen
+														&& isset($publicAssigneeIdSet[(int) $list->user_id]);
+													?>
+													@if($isPublicCheckInOpen)
+														@if($hasAllowlistedPublicAssignee && $admin)
+															<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ $admin->first_name }} {{ $admin->last_name }}</a><br>{{ $admin->email }}
+														@else
+															<a href="javascript:;"
+																class="open-public-checkin-assignee"
+																data-id="{{ $list->id }}"
+																data-current-assignee=""
+																style="font-size:12px;font-weight:600;">Set Assignee</a>
+														@endif
+													@elseif($admin)
+														<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ $admin->first_name }} {{ $admin->last_name }}</a><br>{{ $admin->email }}
+													@else
+														-
+													@endif
 													</td>
 													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else if($list->status == 1){ echo '<span>'.($list->wait_time ?? '-').'</span>'; }else{ echo '<span>-</span>'; } ?></td>
 													<td style="white-space: initial;">
@@ -209,6 +231,41 @@
 		</div>
 	</div>
 </div>
+@if(in_array(($activeTab ?? ''), ['waiting', 'attending'], true))
+<div class="modal fade" id="publicCheckInAssigneeModal" tabindex="-1" role="dialog" aria-labelledby="publicCheckInAssigneeLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="publicCheckInAssigneeLabel">Set Assignee</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p style="font-size:13px;color:#5d6f86;margin-bottom:12px;">Assign this public check-in to a staff member.</p>
+				<div class="form-group mb-0">
+					<label for="publicCheckInAssigneeSelect">Staff</label>
+					<select id="publicCheckInAssigneeSelect" class="form-control">
+						<option value="">Select staff</option>
+						@foreach(($publicAssigneeStaff ?? collect()) as $staffOption)
+							<option value="{{ $staffOption->id }}">
+								{{ trim(($staffOption->first_name ?? '').' '.($staffOption->last_name ?? '')) }} — {{ $staffOption->email }}
+							</option>
+						@endforeach
+					</select>
+					@if(($publicAssigneeStaff ?? collect())->isEmpty())
+						<small class="text-muted d-block mt-2">No matching staff found for the configured assignee list.</small>
+					@endif
+				</div>
+				<input type="hidden" id="publicCheckInCheckinId" value="">
+				<div id="publicCheckInAssigneeMessage" class="mt-3" style="display:none;"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="publicCheckInAssigneeSaveBtn">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+@endif
 @endsection
 @section('scripts')
 <script>
@@ -278,6 +335,81 @@ jQuery(document).ready(function($){
 				}else{
 					alert(obj.message);
 				}
+			}
+		});
+	});
+
+	var publicAssigneeUrl = @json(route('officevisits.public-checkin-assignee'));
+	var $publicModal = $('#publicCheckInAssigneeModal');
+	var $publicSelect = $('#publicCheckInAssigneeSelect');
+	var $publicMsg = $('#publicCheckInAssigneeMessage');
+	var $publicSave = $('#publicCheckInAssigneeSaveBtn');
+
+	function showPublicAssigneeMessage(text, isError) {
+		if (!$publicMsg.length) return;
+		$publicMsg
+			.css({
+				display: 'block',
+				padding: '8px 10px',
+				borderRadius: '6px',
+				fontSize: '13px',
+				background: isError ? '#fff5f5' : '#f0fff4',
+				color: isError ? '#8a1f2f' : '#1e6b3a',
+				border: isError ? '1px solid #f0c2c8' : '1px solid #b7e4c7'
+			})
+			.text(text);
+	}
+
+	$(document).on('click', '.open-public-checkin-assignee', function () {
+		if (!$publicModal.length) return;
+		var checkinId = $(this).data('id');
+		$('#publicCheckInCheckinId').val(checkinId);
+		$publicMsg.hide().text('');
+		$publicSelect.val('');
+		if ($publicModal.modal) {
+			$publicModal.modal('show');
+		} else {
+			$publicModal.addClass('show').css('display', 'block');
+		}
+	});
+
+	$publicSave.on('click', function () {
+		var checkinId = $('#publicCheckInCheckinId').val();
+		var assigneeId = $publicSelect.val();
+		if (!checkinId) {
+			showPublicAssigneeMessage('Visit not found.', true);
+			return;
+		}
+		if (!assigneeId) {
+			showPublicAssigneeMessage('Please select a staff member.', true);
+			return;
+		}
+
+		$publicSave.prop('disabled', true);
+		$('.popuploader').show();
+		$.ajax({
+			url: publicAssigneeUrl,
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: {
+				id: checkinId,
+				assignee_id: assigneeId
+			},
+			success: function (response) {
+				if (response && response.status) {
+					showPublicAssigneeMessage(response.message || 'Assignee updated successfully.', false);
+					setTimeout(function () { location.reload(); }, 600);
+				} else {
+					$('.popuploader').hide();
+					$publicSave.prop('disabled', false);
+					showPublicAssigneeMessage((response && response.message) || 'Please try again.', true);
+				}
+			},
+			error: function (xhr) {
+				$('.popuploader').hide();
+				$publicSave.prop('disabled', false);
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Please try again.';
+				showPublicAssigneeMessage(msg, true);
 			}
 		});
 	});

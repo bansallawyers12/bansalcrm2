@@ -12,9 +12,13 @@ use App\Models\CheckinHistory;
 use App\Models\CheckinLog;
 use App\Models\Notification;
 use App\Models\Staff;
+use App\Support\PublicOfficeCheckInAssignees;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -599,6 +603,121 @@ class OfficeVisitController extends Controller
         echo json_encode($response);
     }
 
+    /**
+     * Waiting/Attending only: assign a public /office-check-in visit to allowlisted staff.
+     * Does not change the staff Create In Person change_assignee flow.
+     */
+    public function setPublicCheckInAssignee(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'id' => ['required', 'integer'],
+            'assignee_id' => ['required', 'integer'],
+        ]);
+
+        $visit = CheckinLog::query()->find((int) $validated['id']);
+        if (! $visit) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Visit not found.',
+            ], 404);
+        }
+
+        if (! in_array((int) $visit->status, [0, 2], true) || ! PublicOfficeCheckInAssignees::isPublicCheckInLog((int) $visit->id)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Set Assignee is only available for open public check-in visits.',
+            ], 422);
+        }
+
+        $assigneeId = (int) $validated['assignee_id'];
+        if (! PublicOfficeCheckInAssignees::isAllowedStaffId($assigneeId)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Selected staff is not allowed for this assignment.',
+            ], 422);
+        }
+
+        $actor = Auth::user();
+        if (! $actor instanceof Staff) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
+
+        try {
+            DB::transaction(function () use ($visit, $assigneeId): void {
+                $visit->user_id = $assigneeId;
+                $visit->save();
+
+                if ($visit->client_id && $visit->contact_type === 'Lead') {
+                    Admin::query()
+                        ->whereKey((int) $visit->client_id)
+                        ->where('type', 'lead')
+                        ->update([
+                            'user_id' => $assigneeId,
+                            'updated_at' => now(),
+                        ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Public check-in set assignee failed', [
+                'checkin_id' => $visit->id,
+                'assignee_id' => $assigneeId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Please try again.',
+            ], 500);
+        }
+
+        $visit->refresh();
+
+        try {
+            $tab = ((int) $visit->status === 2) ? 'attending' : 'waiting';
+            $client = Admin::find($visit->client_id);
+            $notification = new Notification;
+            $notification->sender_id = $actor->id;
+            $notification->receiver_id = $assigneeId;
+            $notification->module_id = $visit->id;
+            $notification->url = URL::to('/office-visits/'.$tab);
+            $notification->notification_type = 'officevisit';
+            $notification->message = 'Office Visit Assigned by '.$actor->first_name.' '.$actor->last_name;
+            $notification->seen = 0;
+            $notification->receiver_status = 0;
+            $notification->sender_status = 1;
+            $notification->save();
+
+            broadcast(new OfficeVisitNotificationCreated(
+                $notification->id,
+                $notification->receiver_id,
+                [
+                    'id' => $notification->id,
+                    'checkin_id' => $visit->id,
+                    'message' => $notification->message,
+                    'sender_name' => $actor->first_name.' '.$actor->last_name,
+                    'client_name' => $client ? $client->first_name.' '.$client->last_name : 'Unknown Client',
+                    'visit_purpose' => $visit->visit_purpose,
+                    'created_at' => $notification->created_at ? $notification->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
+                    'url' => $notification->url,
+                ]
+            ));
+        } catch (\Throwable $e) {
+            Log::warning('Public check-in assignee notification failed', [
+                'checkin_id' => $visit->id,
+                'assignee_id' => $assigneeId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Assignee updated successfully.',
+        ]);
+    }
+
     /*public function attend_session(Request $request){
         $obj = CheckinLog::find($request->id);
         $obj->sesion_start = date('Y-m-d H:i');
@@ -1024,7 +1143,7 @@ class OfficeVisitController extends Controller
         $lists = $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
         $activeTab = 'waiting';
 
-        return view('Admin.officevisits.index', compact('lists', 'totalData', 'activeTab'));
+        return view('Admin.officevisits.index', $this->officeVisitListViewData($lists, $totalData, $activeTab));
     }
 
     public function attending(Request $request)
@@ -1049,7 +1168,7 @@ class OfficeVisitController extends Controller
 
         $activeTab = 'attending';
 
-        return view('Admin.officevisits.index', compact('lists', 'totalData', 'activeTab'));
+        return view('Admin.officevisits.index', $this->officeVisitListViewData($lists, $totalData, $activeTab));
     }
 
     public function completed(Request $request)
@@ -1080,5 +1199,32 @@ class OfficeVisitController extends Controller
     public function create(Request $request)
     {
         return redirect()->route('officevisits.waiting');
+    }
+
+    /**
+     * @param  LengthAwarePaginator<CheckinLog>  $lists
+     * @return array{lists: mixed, totalData: int, activeTab: string, publicCheckInLogIds: list<int>, publicAssigneeStaff: Collection<int, Staff>, publicAssigneeIds: list<int>}
+     */
+    private function officeVisitListViewData(mixed $lists, int $totalData, string $activeTab): array
+    {
+        $publicCheckInLogIds = [];
+        $publicAssigneeStaff = collect();
+        $publicAssigneeIds = [];
+
+        if (in_array($activeTab, ['waiting', 'attending'], true)) {
+            $pageIds = collect($lists->items())->map(fn ($row): int => (int) $row->id)->all();
+            $publicCheckInLogIds = PublicOfficeCheckInAssignees::publicCheckInLogIds($pageIds);
+            $publicAssigneeStaff = PublicOfficeCheckInAssignees::resolveStaff();
+            $publicAssigneeIds = $publicAssigneeStaff->map(fn (Staff $staff): int => (int) $staff->id)->all();
+        }
+
+        return compact(
+            'lists',
+            'totalData',
+            'activeTab',
+            'publicCheckInLogIds',
+            'publicAssigneeStaff',
+            'publicAssigneeIds'
+        );
     }
 }
