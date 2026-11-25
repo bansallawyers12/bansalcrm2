@@ -12,6 +12,7 @@ class PublicOfficeCheckInTest extends TestCase
         $this->assertTrue(Route::has('public.office-check-in.index'));
         $this->assertTrue(Route::has('public.office-check-in.lookup'));
         $this->assertTrue(Route::has('public.office-check-in.submit'));
+        $this->assertTrue(Route::has('public.office-check-in.create-lead'));
         $this->assertSame(url('/office-check-in'), route('public.office-check-in.index'));
         $this->assertNotSame(route('public.check-in.index'), route('public.office-check-in.index'));
     }
@@ -22,6 +23,8 @@ class PublicOfficeCheckInTest extends TestCase
             ->assertOk()
             ->assertSee('Office Check-In')
             ->assertSee('Tell us you have arrived')
+            ->assertSee('Qualification')
+            ->assertSee('Work Experience')
             ->assertDontSee('Welcome to Bansal Immigration and Education');
     }
 
@@ -29,6 +32,14 @@ class PublicOfficeCheckInTest extends TestCase
     {
         $this->postJson(route('public.office-check-in.lookup'), [])
             ->assertStatus(422)
+            ->assertJsonValidationErrors(['phone']);
+    }
+
+    public function test_lookup_rejects_invalid_australian_phone_values(): void
+    {
+        $this->postJson(route('public.office-check-in.lookup'), [
+            'phone' => '12345',
+        ])->assertStatus(422)
             ->assertJsonValidationErrors(['phone']);
     }
 

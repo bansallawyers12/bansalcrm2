@@ -17,13 +17,16 @@ class PublicOfficeCheckInController extends Controller
     {
         return view('public.office_check_in', [
             'visitReasons' => PublicOfficeCheckInService::visitReasons(),
+            'heardAboutOptions' => PublicOfficeCheckInService::heardAboutOptions(),
+            'qualificationLevels' => PublicOfficeCheckInService::qualificationLevels(),
+            'currentVisaOptions' => PublicOfficeCheckInService::currentVisaOptions(),
         ]);
     }
 
     public function lookup(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'phone' => ['required', 'string', 'min:6', 'max:20'],
+            'phone' => $this->checkIns->australianPhoneValidationRules(),
             'email' => ['nullable', 'email', 'max:255'],
         ]);
 
@@ -35,7 +38,7 @@ class PublicOfficeCheckInController extends Controller
     public function submit(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'phone' => ['required', 'string', 'min:6', 'max:20'],
+            'phone' => $this->checkIns->australianPhoneValidationRules(),
             'email' => ['nullable', 'email', 'max:255'],
             'admin_id' => ['nullable', 'integer', 'min:1'],
             'admin_type' => ['nullable', 'string', Rule::in(['client', 'lead'])],
@@ -46,6 +49,27 @@ class PublicOfficeCheckInController extends Controller
 
         try {
             $result = $this->checkIns->submit($validated, $request->ip());
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable) {
+            return response()->json([
+                'success' => false,
+                'message' => 'We could not save your check-in. Please try again or see reception.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['message'],
+        ]);
+    }
+
+    public function createLead(Request $request): JsonResponse
+    {
+        $validated = $request->validate($this->checkIns->leadDetailRules());
+
+        try {
+            $result = $this->checkIns->createLead($validated, $request->ip());
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable) {

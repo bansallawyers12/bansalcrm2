@@ -67,6 +67,9 @@ Route::post('/office-check-in/lookup', [PublicOfficeCheckInController::class, 'l
 Route::post('/office-check-in/submit', [PublicOfficeCheckInController::class, 'submit'])
     ->middleware('throttle:10,1')
     ->name('public.office-check-in.submit');
+Route::post('/office-check-in/create-lead', [PublicOfficeCheckInController::class, 'createLead'])
+    ->middleware('throttle:10,1')
+    ->name('public.office-check-in.create-lead');
 
 /*********************General Function for Both (Front-end & Back-end) ***********************/
 /* Route::post('/get_states', 'HomeController@getStates');
