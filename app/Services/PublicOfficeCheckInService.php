@@ -163,9 +163,6 @@ class PublicOfficeCheckInService
             'qualification' => ['nullable', 'string', Rule::in(self::qualificationLevels())],
             'qualification_type' => ['nullable', 'string', Rule::in(['completed', 'pursuing'])],
             'qualification_date' => ['nullable', 'date'],
-            'occupation' => ['nullable', 'string', 'max:130'],
-            'has_job_experience' => ['nullable', 'string', Rule::in(['yes', 'no'])],
-            'job_experience_years' => ['nullable', 'required_if:has_job_experience,yes', 'numeric', 'min:0', 'max:60'],
             'ielts_passed' => ['nullable', 'string', Rule::in(['yes', 'no'])],
             'ielts_score' => ['nullable', 'required_if:ielts_passed,yes', 'numeric', 'min:0', 'max:9'],
             'pte_passed' => ['nullable', 'string', Rule::in(['yes', 'no'])],
@@ -399,9 +396,6 @@ class PublicOfficeCheckInService
         $qualification = $this->nullableString($validated['qualification'] ?? null);
         $qualificationType = $this->nullableString($validated['qualification_type'] ?? null);
         $qualificationDate = $this->nullableString($validated['qualification_date'] ?? null);
-        $occupation = $this->nullableString($validated['occupation'] ?? null);
-        $hasExperience = ($validated['has_job_experience'] ?? null) === 'yes';
-        $years = $validated['job_experience_years'] ?? null;
 
         $comments = [];
         if ($qualificationType !== null) {
@@ -409,11 +403,6 @@ class PublicOfficeCheckInService
         }
         if ($qualificationDate !== null) {
             $comments[] = 'Qualification date: '.$qualificationDate;
-        }
-        if ($hasExperience) {
-            $comments[] = 'Has job experience: yes'.($years !== null && $years !== '' ? ' ('.$years.' years)' : '');
-        } elseif (($validated['has_job_experience'] ?? null) === 'no') {
-            $comments[] = 'Has job experience: no';
         }
 
         $assignee = $this->receptionStaffId();
@@ -442,8 +431,6 @@ class PublicOfficeCheckInService
             'visa_type' => $this->nullableString($validated['current_visa'] ?? null),
             'visaexpiry' => $validated['visa_expiry'] ?? null,
             'high_quali_overseas' => $qualification,
-            'nomi_occupation' => $occupation,
-            'relevant_work_exp_aus' => ($hasExperience && $years !== null && $years !== '') ? (string) $years : null,
             'comments_note' => $comments !== [] ? implode('; ', $comments) : null,
             'assignee' => $assignee,
             'office_id' => $officeId,

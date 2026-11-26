@@ -265,30 +265,7 @@
                 </div>
 
                 <div class="section-block">
-                    <div class="section-title"><span class="number">04</span><h3>Work Experience</h3></div>
-                    <div class="row">
-                        <div class="wide">
-                            <label for="job">Occupation</label>
-                            <input id="job" maxlength="130" placeholder="e.g. Chef, Accountant">
-                        </div>
-                        <div class="col-left">
-                            <label for="has-job-exp">Have you any job experience?</label>
-                            <select id="has-job-exp">
-                                <option value="">Select (optional)</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div class="col-right" id="job-years-wrap" style="display:none;">
-                            <label for="job-years">No of Years</label>
-                            <input id="job-years" type="number" min="0" max="60" step="0.5" placeholder="e.g. 3">
-                            <div class="err" id="job-years-err"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-block">
-                    <div class="section-title"><span class="number">05</span><h3>Visit</h3></div>
+                    <div class="section-title"><span class="number">04</span><h3>Visit</h3></div>
                     <label for="lead-reason">Reason for visit <span class="req">*</span></label>
                     <select id="lead-reason">
                         <option value="">Select a reason</option>
@@ -505,16 +482,14 @@
 
     $('new-yes').addEventListener('click', function () {
         $('lead-phone').value = state.phone;
-        ['first','last','dob','city','job','job-years','lead-notes','address'].forEach(function (id) { $(id).value = ''; });
-        ['marital','gender','visa','qual','qual-type','has-job-exp','lead-reason','lead-source','ielts-passed','pte-passed'].forEach(function (id) { $(id).value = ''; });
+        ['first','last','dob','city','lead-notes','address'].forEach(function (id) { $(id).value = ''; });
+        ['marital','gender','visa','qual','qual-type','lead-reason','lead-source','ielts-passed','pte-passed'].forEach(function (id) { $(id).value = ''; });
         $('lead-email').value = state.email || '';
         $('visa-exp').value = ''; $('qual-date').value = '';
         $('ielts-score').value = ''; $('pte-score').value = '';
         hide('qual-date-wrap');
-        hide('job-years-wrap');
         hide('ielts-score-wrap'); hide('pte-score-wrap');
         $('qual-date-label').textContent = 'Completed Date';
-        if ($('job-years-err')) $('job-years-err').textContent = '';
         ['first-err','last-err','lead-phone-err','lead-email-err','dob-err','marital-err','gender-err','lead-reason-err','lead-source-err','lead-notes-err','ielts-score-err','pte-score-err'].forEach(function (id) { $(id).textContent = ''; });
         hide('lead-notes-req');
         go('lead');
@@ -534,15 +509,6 @@
             hide('qual-date-wrap');
             $('qual-date').value = '';
             $('qual-date-label').textContent = 'Completed Date';
-        }
-    });
-    $('has-job-exp').addEventListener('change', function () {
-        if (this.value === 'yes') {
-            show('job-years-wrap');
-        } else {
-            hide('job-years-wrap');
-            $('job-years').value = '';
-            $('job-years-err').textContent = '';
         }
     });
     $('ielts-passed').addEventListener('change', function () {
@@ -576,9 +542,6 @@
         if ($('pte-passed').value === 'yes' && !$('pte-score').value.trim()) {
             $('pte-score-err').textContent = 'Please enter your PTE score.'; ok = false;
         } else $('pte-score-err').textContent = '';
-        if ($('has-job-exp').value === 'yes' && !$('job-years').value.trim()) {
-            $('job-years-err').textContent = 'Please enter number of years.'; ok = false;
-        } else $('job-years-err').textContent = '';
         if (!ok) return;
         var email = $('lead-email').value.trim();
         state.email = email;
@@ -599,9 +562,6 @@
             qualification: $('qual').value || null,
             qualification_type: $('qual-type').value || null,
             qualification_date: ($('qual-type').value === 'completed' || $('qual-type').value === 'pursuing') ? ($('qual-date').value || null) : null,
-            occupation: $('job').value.trim() || null,
-            has_job_experience: $('has-job-exp').value || null,
-            job_experience_years: $('has-job-exp').value === 'yes' ? ($('job-years').value || null) : null,
             ielts_passed: $('ielts-passed').value || null,
             ielts_score: $('ielts-passed').value === 'yes' ? ($('ielts-score').value || null) : null,
             pte_passed: $('pte-passed').value || null,
@@ -669,15 +629,13 @@
         state = blank();
         [
             'phone','email','reason','notes',
-            'first','last','dob','city','job','job-years','lead-notes','address',
-            'marital','gender','visa','visa-exp','qual','qual-type','qual-date','has-job-exp','lead-reason','lead-source','ielts-passed','ielts-score','pte-passed','pte-score'
+            'first','last','dob','city','lead-notes','address',
+            'marital','gender','visa','visa-exp','qual','qual-type','qual-date','lead-reason','lead-source','ielts-passed','ielts-score','pte-passed','pte-score'
         ].forEach(function (id) { if ($(id)) $(id).value = ''; });
         hide('qual-date-wrap');
-        hide('job-years-wrap');
         hide('ielts-score-wrap');
         hide('pte-score-wrap');
         if ($('qual-date-label')) $('qual-date-label').textContent = 'Completed Date';
-        if ($('job-years-err')) $('job-years-err').textContent = '';
         [
             'phone-err','first-err','last-err','lead-reason-err','lead-notes-err','notes-err'
         ].forEach(function (id) { if ($(id)) $(id).textContent = ''; });

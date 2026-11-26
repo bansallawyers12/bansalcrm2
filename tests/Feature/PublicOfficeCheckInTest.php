@@ -24,7 +24,8 @@ class PublicOfficeCheckInTest extends TestCase
             ->assertSee('Office Check-In')
             ->assertSee('Tell us you have arrived')
             ->assertSee('Qualification')
-            ->assertSee('Work Experience')
+            ->assertSee('Visit')
+            ->assertDontSee('Work Experience')
             ->assertDontSee('Welcome to Bansal Immigration and Education');
     }
 
